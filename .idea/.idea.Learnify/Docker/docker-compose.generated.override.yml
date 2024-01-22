@@ -1,0 +1,67 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  identityservice:
+    build:
+      context: "D:\\Study\\Learnify\\Learnify"
+      dockerfile: "src/IdentityService/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "/riderDebugger/linux-x64/dotnet/dotnet"
+    - "/riderDebugger/JetBrains.Debugger.Worker.exe"
+    - "--mode=server"
+    - "--frontend-port=57100"
+    - "--backend-port=57300"
+    environment:
+      ASPNETCORE_STATICWEBASSETS: "/app/bin/Debug/net7.0/IdentityService.staticwebassets.runtime.CT.json"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+      NUGET_PACKAGES: "C:\\Users\\vladi\\.nuget\\packages"
+      NUGET_FALLBACK_PACKAGES: "C:\\Users\\vladi\\.nuget\\packages"
+      RIDER_DEBUGGER_LOG_DIR: "/riderLogs"
+      RESHARPER_LOG_CONF: "/riderLogsConf/backend-log.xml"
+    image: "identityservice:dev"
+    ports:
+    - "127.0.0.1:57006:57100"
+    - "127.0.0.1:57206:57300"
+    volumes:
+    - "C:\\Users\\vladi\\.nuget\\packages:/root/.nuget/fallbackpackages"
+    - "D:\\Study\\Learnify\\Learnify\\src\\IdentityService:/app:rw"
+    - "D:\\Study\\Learnify\\Learnify:/src:rw"
+    - "C:\\Users\\vladi\\AppData\\Local\\JetBrains\\RiderRemoteDebugger\\2023.2.2\\\
+      Linux64:/riderDebugger"
+    - "D:\\Soft\\JetBrains Rider 2023.2.2/bin:/riderLogsConf"
+    - "C:\\Users\\vladi\\AppData\\Local\\JetBrains\\Rider2023.2\\log\\DebuggerWorker\\\
+      JetBrains.Debugger.Worker.2024_1_22_23_38_08:/riderLogs:rw"
+    working_dir: "/app"
+  notification:
+    build:
+      context: "D:\\Study\\Learnify\\Learnify"
+      dockerfile: "src/Notification/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "/riderDebugger/linux-x64/dotnet/dotnet"
+    - "/riderDebugger/JetBrains.Debugger.Worker.exe"
+    - "--mode=server"
+    - "--frontend-port=57100"
+    - "--backend-port=57300"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+      NUGET_PACKAGES: "C:\\Users\\vladi\\.nuget\\packages"
+      NUGET_FALLBACK_PACKAGES: "C:\\Users\\vladi\\.nuget\\packages"
+      RIDER_DEBUGGER_LOG_DIR: "/riderLogs"
+      RESHARPER_LOG_CONF: "/riderLogsConf/backend-log.xml"
+    image: "notification:dev"
+    ports:
+    - "127.0.0.1:57007:57100"
+    - "127.0.0.1:57207:57300"
+    volumes:
+    - "C:\\Users\\vladi\\.nuget\\packages:/root/.nuget/fallbackpackages"
+    - "D:\\Study\\Learnify\\Learnify\\src\\Notification:/app:rw"
+    - "D:\\Study\\Learnify\\Learnify:/src:rw"
+    - "C:\\Users\\vladi\\AppData\\Local\\JetBrains\\RiderRemoteDebugger\\2023.2.2\\\
+      Linux64:/riderDebugger"
+    - "D:\\Soft\\JetBrains Rider 2023.2.2/bin:/riderLogsConf"
+    - "C:\\Users\\vladi\\AppData\\Local\\JetBrains\\Rider2023.2\\log\\DebuggerWorker\\\
+      JetBrains.Debugger.Worker.2024_1_22_23_38_08:/riderLogs:rw"
+    working_dir: "/app"
