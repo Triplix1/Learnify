@@ -1,0 +1,15 @@
+<div class="body d-flex flex-column">
+    <app-navbar></app-navbar>
+
+    <div class="slidable-zone d-flex flex-column align-items-between">
+        <div class="main w-100">
+            <router-outlet #outlet="outlet"></router-outlet>
+        </div>
+
+        <div class="mt-auto w-100">
+            <app-footer></app-footer>
+        </div>
+    </div>
+
+
+</div>

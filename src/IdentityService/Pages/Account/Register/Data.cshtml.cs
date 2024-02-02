@@ -1,5 +1,8 @@
-﻿using IdentityService.Models;
+﻿using AutoMapper;
+using Contracts;
+using IdentityService.Models;
 using IdentityService.Services.Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +17,15 @@ public class Data : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ITemporaryUserService _temporaryUserService;
+    private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IMapper _mapper;
 
-    public Data(UserManager<ApplicationUser> userManager, ITemporaryUserService temporaryUserService)
+    public Data(UserManager<ApplicationUser> userManager, ITemporaryUserService temporaryUserService, IPublishEndpoint publishEndpoint, IMapper mapper)
     {
         _userManager = userManager;
         _temporaryUserService = temporaryUserService;
+        _publishEndpoint = publishEndpoint;
+        _mapper = mapper;
     }
 
     [BindProperty]
@@ -55,7 +62,9 @@ public class Data : PageModel
 
         var appUser = new ApplicationUser()
         {
-            UserName = Input.Name.Trim() + " " + Input.Surname.Trim(),
+            UserName = user.Email,
+            Name = Input.Name,
+            Surname = Input.Surname,
             Type = Input.Type,
             Company = Input.Company,
             CardNumber = Input.CardNumber,
@@ -72,7 +81,15 @@ public class Data : PageModel
 
             return Page();
         }
+        
+        await _userManager.AddClaimAsync(appUser, new System.Security.Claims.Claim("name", appUser.Name));
+        await _userManager.AddClaimAsync(appUser, new System.Security.Claims.Claim("email", appUser.Email));
+        await _userManager.AddClaimAsync(appUser, new System.Security.Claims.Claim("role", appUser.Type.ToString()));
+
+        var userCreated = _mapper.Map<UserCreated>(appUser);
+
+        await _publishEndpoint.Publish(userCreated);
             
-        return RedirectToPage("Photo", new { clientId = Input.ClientId, returnUrl = Input.ReturnUrl });
+        return RedirectToPage("/Account/Login/Index", new { returnUrl = Input.ReturnUrl });
     }
 }

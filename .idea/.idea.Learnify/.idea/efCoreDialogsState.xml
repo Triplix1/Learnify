@@ -3,7 +3,9 @@
   <component name="EfCoreDialogsState">
     <option name="keyValueStorage">
       <map>
+        <entry key="Common:27b0e0a2-92e7-464c-adf9-56e5e32cd9a7:dbContext" value="Profile.Infrastructure.Data.ApplicationDbContext" />
         <entry key="Common:6e6afc11-7e33-4d52-a32b-e56f887c7cba:dbContext" value="IdentityService.Data.ApplicationDbContext" />
+        <entry key="Common:ac5358c2-ef89-4a58-a974-7a24bb0a9074:dbContext" value="Profile.Infrastructure.Data.ApplicationDbContext" />
         <entry key="Common:buildConfiguration" value="Debug" />
         <entry key="Common:noBuild" value="false" />
         <entry key="Common:outputFolder" value="Migrations" />

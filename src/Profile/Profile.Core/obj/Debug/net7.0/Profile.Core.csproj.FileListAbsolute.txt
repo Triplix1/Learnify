@@ -1,0 +1,17 @@
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\bin\Debug\net7.0\Profile.Core.deps.json
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\bin\Debug\net7.0\Profile.Core.runtimeconfig.json
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\bin\Debug\net7.0\Profile.Core.dll
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\bin\Debug\net7.0\Profile.Core.pdb
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\bin\Debug\net7.0\General.dll
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\bin\Debug\net7.0\General.pdb
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\Profile.Core.csproj.AssemblyReference.cache
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\Profile.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\Profile.Core.AssemblyInfoInputs.cache
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\Profile.Core.AssemblyInfo.cs
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\Profile.Core.csproj.CoreCompileInputs.cache
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\Profile.Core.csproj.CopyComplete
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\Profile.Core.dll
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\refint\Profile.Core.dll
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\Profile.Core.pdb
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\Profile.Core.genruntimeconfig.cache
+D:\Study\Learnify\Learnify\src\Profile\Profile.Core\obj\Debug\net7.0\ref\Profile.Core.dll

@@ -1,6 +1,14 @@
 {
   "Files": [
     {
+      "Id": "D:\\Study\\Learnify\\Learnify\\src\\IdentityService\\wwwroot\\css\\materialize.min.css",
+      "PackagePath": "staticwebassets\\css\\materialize.min.css"
+    },
+    {
+      "Id": "D:\\Study\\Learnify\\Learnify\\src\\IdentityService\\wwwroot\\css\\output.css",
+      "PackagePath": "staticwebassets\\css\\output.css"
+    },
+    {
       "Id": "D:\\Study\\Learnify\\Learnify\\src\\IdentityService\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
@@ -19,6 +27,18 @@
     {
       "Id": "D:\\Study\\Learnify\\Learnify\\src\\IdentityService\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "D:\\Study\\Learnify\\Learnify\\src\\IdentityService\\wwwroot\\js\\data.js",
+      "PackagePath": "staticwebassets\\js\\data.js"
+    },
+    {
+      "Id": "D:\\Study\\Learnify\\Learnify\\src\\IdentityService\\wwwroot\\js\\materialize.min.js",
+      "PackagePath": "staticwebassets\\js\\materialize.min.js"
+    },
+    {
+      "Id": "D:\\Study\\Learnify\\Learnify\\src\\IdentityService\\wwwroot\\js\\select.js",
+      "PackagePath": "staticwebassets\\js\\select.js"
     },
     {
       "Id": "D:\\Study\\Learnify\\Learnify\\src\\IdentityService\\wwwroot\\js\\signin-redirect.js",

@@ -1,8 +1,6 @@
 ﻿using IdentityService.DTOs.TemporaryUser;
-using IdentityService.Models;
 using IdentityService.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -57,6 +55,6 @@ public class Confirmation : PageModel
 
         var result = await _temporaryUserService.CreateAsync(user);
         
-        return RedirectToPage($"Data", new {userId = result.Id, returnUrl = Input.ReturnUrl});
+        return RedirectToPage("Data", new {userId = result.Id, returnUrl = Input.ReturnUrl});
     }
 }

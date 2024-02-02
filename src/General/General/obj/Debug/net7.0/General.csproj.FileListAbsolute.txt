@@ -1,0 +1,11 @@
+D:\Study\Learnify\Learnify\src\General\General\bin\Debug\net7.0\General.deps.json
+D:\Study\Learnify\Learnify\src\General\General\bin\Debug\net7.0\General.dll
+D:\Study\Learnify\Learnify\src\General\General\bin\Debug\net7.0\General.pdb
+D:\Study\Learnify\Learnify\src\General\General\obj\Debug\net7.0\General.GeneratedMSBuildEditorConfig.editorconfig
+D:\Study\Learnify\Learnify\src\General\General\obj\Debug\net7.0\General.AssemblyInfoInputs.cache
+D:\Study\Learnify\Learnify\src\General\General\obj\Debug\net7.0\General.AssemblyInfo.cs
+D:\Study\Learnify\Learnify\src\General\General\obj\Debug\net7.0\General.csproj.CoreCompileInputs.cache
+D:\Study\Learnify\Learnify\src\General\General\obj\Debug\net7.0\General.dll
+D:\Study\Learnify\Learnify\src\General\General\obj\Debug\net7.0\refint\General.dll
+D:\Study\Learnify\Learnify\src\General\General\obj\Debug\net7.0\General.pdb
+D:\Study\Learnify\Learnify\src\General\General\obj\Debug\net7.0\ref\General.dll

@@ -10,97 +10,62 @@
 </head>
 <body>
 <div class="d-flex justify-content-center align-content-center">
-    <partial name="_ValidationSummary"/>
     <div class="register-form">
-        <form asp-page="/Account/Register/Confirmation">
+        <form class="form" asp-page="/Account/Register/Data">
             <input type="hidden" asp-for="Input.ReturnUrl"/>
             <input type="hidden" asp-for="Input.ClientId"/>
 
-            <div class="form-group">
-                <label asp-for="Input.Name"></label>
-                <input class="form-control" placeholder="Username" asp-for="Input.Name" autofocus>
-            </div>
+            <label asp-for="Input.Name" class="inp">
+                <input asp-for="Input.Name" type="text" placeholder="&nbsp;">
+                <span class="label">Name</span>
+                <span class="focus-bg"></span>
+            </label>
 
-            <div class="form-group">
-                <label asp-for="Input.Surname"></label>
-                <input class="form-control" placeholder="Surname" asp-for="Input.Surname" autofocus>
-            </div>
+            <label asp-for="Input.Surname" class="inp">
+                <input asp-for="Input.Surname" type="text" placeholder="&nbsp;">
+                <span class="label">Surname</span>
+                <span class="focus-bg"></span>
+            </label>
 
-            <div class="form-group">
-                <label asp-for="Input.Type"></label>
-                <select id="type" onchange="changedRole()" asp-for="Input.Type" asp-items="Html.GetEnumSelectList<UserType>()">
-                </select>
-            </div>
+            <select class="custom-select" id="type" asp-for="Input.Type" asp-items="Html.GetEnumSelectList<UserType>()">
+            </select>
 
             <div id="teacherFields" class="hidden">
-                <div class="form-group ">
-                    <label asp-for="Input.Company"></label>
-                    <input class="form-control" placeholder="Company" asp-for="Input.Company" autofocus>
-                </div>
-
-                <div class="form-group ">
-                    <label asp-for="Input.CardNumber"></label>
-                    <input id="card" class="form-control" placeholder="Card number" asp-for="Input.CardNumber" autofocus>
-                </div>
+                <label asp-for="Input.Company" class="inp">
+                    <input asp-for="Input.Company" type="text" placeholder="&nbsp;">
+                    <span class="label">Company</span>
+                    <span class="focus-bg"></span>
+                </label>
+                <label asp-for="Input.CardNumber" class="inp">
+                    <input id="card" asp-for="Input.CardNumber" type="text" placeholder="&nbsp;">
+                    <span class="label">CardNumber</span>
+                    <span class="focus-bg"></span>
+                </label>
             </div>
 
-            <div class="form-group ">
-                <label asp-for="Input.Password"></label>
-                <input class="form-control" placeholder="Password" asp-for="Input.Password" autofocus>
-            </div>
+            <label asp-for="Input.Password" class="inp">
+                <input asp-for="Input.Password" type="password" placeholder="&nbsp;">
+                <span class="label">Password</span>
+                <span class="focus-bg"></span>
+            </label>
 
-            <div class="form-group ">
-                <label asp-for="Input.ConfirmPassword"></label>
-                <input class="form-control" placeholder="Confirm Password" asp-for="Input.ConfirmPassword" autofocus>
-            </div>
-
+            <label asp-for="Input.ConfirmPassword" class="inp">
+                <input asp-for="Input.ConfirmPassword" type="password" placeholder="&nbsp;">
+                <span class="label">Confirm Password</span>
+                <span class="focus-bg"></span>
+            </label>
+            
+            <partial name="_ValidationSummary"/>
+            
             <button class="btn btn-accept" type="submit">Далі</button>
         </form>
     </div>
 </div>
 
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const cardInput = document.getElementById('card');
-        const type = document.getElementById('type');
-        const teacherFields = document.getElementById('teacherFields');
-    
-        cardInput.onkeypress = verify;
-    
-        function changedRole() {
-            if (type.value === "Teacher") {
-                teacherFields.classList.add("hidden");
-            } else {
-                teacherFields.classList.remove("hidden");
-            }
-        }
-    
-        function isKeyValid(key) {
-            if (key > 47 && key < 58) return true;
-            else if (key === 45) return true;
-            else return false;
-        }
-    
-        function isValidCard(arr, isDash) {
-            const last = arr[arr.length - 1];
-            if (last.length === 4 && !isDash) return false;
-            else if (isDash && last.length !== 4) return false;
-            else if (isDash && arr.length === 4) return false;
-            else return true;
-        }
-    
-        function verify(e) {
-            const key = e.keyCode || e.which;
-            const isDash = key === 45;
-            const val = e.target.value;
-            const input = val.split('-');
-            if (!isKeyValid(key) || !isValidCard(input, isDash)) {
-                return e.preventDefault();
-            }
-            // ...do something
-        }
-    });
+@section scripts {
+    <script type="text/javascript" src="~/js/data.js"></script>
+    @* <script type="text/javascript" src="~/js/select.js"></script> *@
+}
 
-    </script>
 </body>
 </html>

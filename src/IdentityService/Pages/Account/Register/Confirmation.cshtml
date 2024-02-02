@@ -7,16 +7,19 @@
 </head>
 <body>
 <div class="d-flex justify-content-center align-content-center">
-    <partial name="_ValidationSummary" />
     <div class="register-form">
+        
         <form asp-page="/Account/Register/Confirmation">
             <input type="hidden" asp-for="Input.ReturnUrl"/>
             <input type="hidden" asp-for="Input.Email"/>
 
-            <div class="form-group">
-                <label asp-for="Input.Code"></label>
-                <input class="form-control" placeholder="Username" asp-for="Input.Code" autofocus>
-            </div>
+            <label asp-for="Input.Code" class="inp">
+                <input asp-for="Input.Code" type="text" placeholder="&nbsp;">
+                <span class="label">Code</span>
+                <span class="focus-bg"></span>
+            </label>
+            
+            <partial name="_ValidationSummary" />
 
             <button class="btn btn-accept" type="submit">Далі</button>
         </form>

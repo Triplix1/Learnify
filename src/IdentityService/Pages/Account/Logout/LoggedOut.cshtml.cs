@@ -1,5 +1,6 @@
 using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace IdentityService.Pages.Logout;
@@ -17,11 +18,14 @@ public class LoggedOut : PageModel
         _interactionService = interactionService;
     }
 
-    public async Task OnGet(string logoutId)
+    public async Task<IActionResult> OnGet(string logoutId)
     {
         // get context information (client name, post logout redirect URI and iframe for federated signout)
         var logout = await _interactionService.GetLogoutContextAsync(logoutId);
 
+        if (logout.PostLogoutRedirectUri is not null)
+            return Redirect(logout.PostLogoutRedirectUri);
+        
         View = new LoggedOutViewModel
         {
             AutomaticRedirectAfterSignOut = LogoutOptions.AutomaticRedirectAfterSignOut,
@@ -29,5 +33,7 @@ public class LoggedOut : PageModel
             ClientName = String.IsNullOrEmpty(logout?.ClientName) ? logout?.ClientId : logout?.ClientName,
             SignOutIframeUrl = logout?.SignOutIFrameUrl
         };
+
+        return Page();
     }
 }

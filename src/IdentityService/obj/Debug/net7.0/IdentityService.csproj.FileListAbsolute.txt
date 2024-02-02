@@ -83,3 +83,4 @@ D:\Study\Learnify\Learnify\src\IdentityService\bin\Debug\net7.0\Microsoft.Bcl.As
 D:\Study\Learnify\Learnify\src\IdentityService\bin\Debug\net7.0\Microsoft.Bcl.TimeProvider.dll
 D:\Study\Learnify\Learnify\src\IdentityService\bin\Debug\net7.0\Polly.dll
 D:\Study\Learnify\Learnify\src\IdentityService\bin\Debug\net7.0\Polly.Core.dll
+D:\Study\Learnify\Learnify\src\IdentityService\bin\Debug\net7.0\keys\is-signing-key-D707CCEC6AF1E8852FCE6E138A5872A3.json

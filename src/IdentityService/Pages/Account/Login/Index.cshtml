@@ -1,58 +1,55 @@
 @page
 @model IdentityService.Pages.Login.Index
 
-<div class="login-page">
-    <div class="lead">
-        <h1>Login</h1>
-        <p>Choose how to login</p>
-    </div>
+<div class="d-flex justify-content-center align-content-center">
+    @* <div class="lead"> *@
+    @*     <h1>Login</h1> *@
+    @*     <p>Choose how to login</p> *@
+    @* </div> *@
 
-    <partial name="_ValidationSummary" />
+    <div class="mr-3">
+        <partial name="_ValidationSummary"/>
+    </div>
 
     <div class="row">
 
         @if (Model.View.EnableLocalLogin)
         {
-            <div class="col-sm-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h2>Local Account</h2>
-                    </div>
+            <div class="register-form">
+                <form asp-page="/Account/Login/Index">
+                    <input type="hidden" asp-for="Input.ReturnUrl"/>
 
-                    <div class="card-body">
-                        <form asp-page="/Account/Login/Index">
-                            <input type="hidden" asp-for="Input.ReturnUrl" />
+                    <label asp-for="Input.Username" class="inp">
+                        <input asp-for="Input.Username" type="text" placeholder="&nbsp;">
+                        <span class="label">Username</span>
+                        <span class="focus-bg"></span>
+                    </label>
 
-                            <div class="form-group">
-                                <label asp-for="Input.Username"></label>
-                                <input class="form-control" placeholder="Username" asp-for="Input.Username" autofocus>
+                    <label asp-for="Input.Password" class="inp">
+                        <input asp-for="Input.Password" type="password" placeholder="&nbsp;">
+                        <span class="label">Password</span>
+                        <span class="focus-bg"></span>
+                    </label>
+
+                    @if (Model.View.AllowRememberLogin)
+                    {
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="Input.RememberLogin">
+                                <label class="form-check-label" asp-for="Input.RememberLogin">
+                                    Remember My Login
+                                </label>
                             </div>
-                            <div class="form-group">
-                                <label asp-for="Input.Password"></label>
-                                <input type="password" class="form-control" placeholder="Password" asp-for="Input.Password" autocomplete="off">
-                            </div>
-                            
-                            @if (Model.View.AllowRememberLogin)
-                            {
-                                <div class="form-group">
-                                    <div class="form-check">
-                                        <input class="form-check-input" asp-for="Input.RememberLogin">
-                                        <label class="form-check-label" asp-for="Input.RememberLogin">
-                                            Remember My Login
-                                        </label>
-                                    </div>
-                                </div>
-                            }
-                            
-                            <a asp-page="../Register/Index" asp-route-returnUrl="@Model.Input.ReturnUrl">
-                                New User? Register here 
-                            </a>
-                            
-                            <button class="btn btn-primary" name="Input.Button" value="login">Login</button>
-                            <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
-                        </form>
-                    </div>
-                </div>
+                        </div>
+                    }
+
+                    <a asp-page="../Register/Index" asp-route-returnUrl="@Model.Input.ReturnUrl">
+                        New User? Register here
+                    </a>
+
+                    <button class="btn btn-primary" name="Input.Button" value="login">Login</button>
+                    <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
+                </form>
             </div>
         }
 

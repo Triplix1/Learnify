@@ -8,15 +8,17 @@
 </head>
 <body>
 <div class="d-flex justify-content-center align-content-center">
-    <partial name="_ValidationSummary" />
     <div class="register-form">
+
         <form asp-page="/Account/Register/Index">
             <input type="hidden" asp-for="Input.ReturnUrl"/>
 
-            <div class="form-group">
-                <label asp-for="Input.Email"></label>
-                <input class="form-control" placeholder="Username" asp-for="Input.Email" autofocus>
-            </div>
+            <label asp-for="Input.Email" class="inp">
+                <input asp-for="Input.Email" type="text" placeholder="&nbsp;">
+                <span class="label">Email</span>
+                <span class="focus-bg"></span>
+            </label>
+                    <partial name="_ValidationSummary"/>
 
 
             <a asp-page="../Login/Index" asp-route-returnUrl="@Model.Input.ReturnUrl">
