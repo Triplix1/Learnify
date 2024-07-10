@@ -1,0 +1,67 @@
+<nav class="navbar fixed-top bg-navigation p-0">
+    <div class="navbar-container block">
+        <div class="flex justify-between">
+            <div class="flex items-center">
+                <a class="logo-name flex items-center"
+                   routerLink="home">
+                    <p class="text-logo text-[28px] font-[600] m-0">Learnify</p>
+                </a>
+
+            </div>
+            <!-- <div class="my-auto mr-auto p-0 flex">
+                <input type="text"
+                       class="search"
+                       (keyup.enter)="search()"
+                       placeholder="Назва"
+                       [(ngModel)]="searchValue" />
+
+                <button class="input-group-text border-0 bg-opacity-0"
+                        (click)="search()">
+                    <i class="fa fa-search text-white"
+                       style="color: #ffffff;"></i>
+                </button>
+            </div> -->
+
+            <div class="my-auto flex justify-end items-center">
+                <div class="mr-4 flex justify-center items-center">
+                    <button class="h-full flex items-center"
+                            (click)="switchTheme()">
+                        <mat-icon *ngIf="!isDarkMode"
+                                  inline="true"
+                                  class="text-primar"
+                                  aria-hidden="false"
+                                  aria-label="Mode"
+                                  fontIcon="light_mode"></mat-icon>
+
+                        <mat-icon *ngIf="isDarkMode"
+                                  inline="true"
+                                  class="text-primar"
+                                  aria-hidden="false"
+                                  aria-label="Mode"
+                                  fontIcon="dark_mode"></mat-icon>
+                    </button>
+                </div>
+
+                <div>
+                    <button *ngIf="!(this.isAuthorized | async)"
+                            (click)="login()"
+                            class="btn border-none bg-logo p-0 flex justify-end">
+                        <span class="block justify-self-end text-primar">Увійти</span>
+                    </button>
+
+                    <button *ngIf="(this.isAuthorized | async)"
+                            (click)="logout()"
+                            class="btn border-none col-2 my-auto flex justify-end items-center ">
+                        <div>
+                            <span class="text color-dropdown">Вийти</span>
+                        </div>
+                        <div class="pause-icon flex items-center">
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

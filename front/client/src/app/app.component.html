@@ -1,0 +1,14 @@
+<div [ngClass]="darkMode ? 'dark' : ''"
+     class="body d-flex flex-column min-h-screen">
+    <app-navbar (switchedTheme)="switchedMode($event)"></app-navbar>
+
+    <div class="flex-grow flex flex-col justify-center items-center">
+        <div class="main w-100 bg-main">
+            <router-outlet #outlet="outlet"></router-outlet>
+        </div>
+    </div>
+
+    <div class="w-full mt-auto">
+        <app-footer></app-footer>
+    </div>
+</div>

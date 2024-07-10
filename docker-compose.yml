@@ -1,0 +1,108 @@
+﻿services:      
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+      
+  notification:
+    build:
+      context: .
+      dockerfile: src/Notification/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RabbitMq__Host=${RabbitMq}
+    depends_on: 
+      - rabbitmq
+    ports:
+      - 5003:80
+
+  profileservice:
+    build:
+      context: .
+      dockerfile: src/Profile/Profile.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RabbitMq__Host=${RabbitMq}
+      - IdentityServiceUrl=${IdentityServiceUrl}
+      - ConnectionStrings__DefaultConnection=Server=profiledb:5433;User Id=postgres_profile;Password=postgrespw;Database=Profile
+    depends_on:
+      - rabbitmq
+    ports:
+      - 5002:80
+    
+  identityservice:
+    build:
+      context: .
+      dockerfile: src/Identity/AuthIdentity.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RabbitMq__Host=${RabbitMq}
+      - GoogleAuthSettings__ClientId=${GoogleAuthSettingsClientId}
+      - GoogleAuthSettings__ClientSecret=${GoogleAuthSettingsClientSecret}
+      - JwtSettings__Key=${JwtSettingsKey}
+      - JwtSettings__Expire=${JwtSettingsExpire}
+      - JwtSettings__Audience=${JwtSettingsAudience}
+        JwtSettings__Issuer=${JwtSettingsIssuer}
+      - ConnectionStrings__DefaultConnection=Server=identitydb:5432;User Id=postgres_identity;Password=postgrespw;Database=Identity
+    depends_on:
+      - rabbitmq
+    ports:
+      - 5001:80
+  
+  ocelotapigateway:
+    build:
+      context: .
+      dockerfile: src/Gateway/OcelotApiGateway/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - IdentityUrl=${IdentityUrl}
+      - AllowedHosts=&{AllowedHosts}
+    ports:
+      - 5000:80
+  
+  blobstorage.api:
+    build:
+      context: .
+      dockerfile: src/Storage/BlobStorage.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RabbitMq__Host=${RabbitMq}
+      - BlobStorageSettings__ConnectionString=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJzlJWu3Jly5rPrSrZbyMJifhvRbacn1w7j1+otfPH/VSnhaz3h9Z/JkbsYhvud1+jRQ==;BlobEndpoint=http://storageemulator:10000/devstoreaccount1;
+    depends_on:
+      - storageemulator
+
+  storageemulator:
+    image: mcr.microsoft.com/azure-storage/azurite
+    hostname: azurite
+    restart: always
+    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10000"
+    ports:
+      - "10000:10000"
+
+  profiledb:
+    container_name: profiledb
+    restart: always
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER_PROFILE}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_PROFILE}
+      POSTGRES_DB: ${POSTGRES_DB_PROFILE}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./Volumes/profiledb:/var/lib/postgresql/data
+        
+  identitydb:
+    container_name: identitydb
+    restart: always
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER_IDENTITY}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_IDENTITY}
+      POSTGRES_DB: ${POSTGRES_DB_IDENTITY}
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./Volumes/identitydb:/var/lib/postgresql/data

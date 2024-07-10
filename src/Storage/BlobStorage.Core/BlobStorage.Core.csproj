@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="13.0.1" />
+      <PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
+      <PackageReference Include="MassTransit.RabbitMQ" Version="8.2.2" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Contracts\Contracts\Contracts.csproj" />
+      <ProjectReference Include="..\..\General\General\General.csproj" />
+    </ItemGroup>
+
+</Project>
