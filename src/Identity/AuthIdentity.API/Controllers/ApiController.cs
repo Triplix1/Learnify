@@ -1,4 +1,5 @@
-﻿using AuthIdentity.Core.Dto;
+﻿using System.ComponentModel.DataAnnotations;
+using AuthIdentity.Core.Dto;
 using AuthIdentity.Core.ServiceContracts;
 using General.Dto;
 using General.Etensions;
@@ -26,7 +27,7 @@ namespace AuthIdentityService.Controllers
         /// <returns>API response with authentication response.</returns>
         [HttpPost("register")]
         [SwaggerOperation(Summary = "Register a new user")]
-        public async Task<ActionResult<ApiResponse<AuthResponse>>> RegisterAsync([FromForm] RegisterRequest registerRequest)
+        public async Task<ActionResult<ApiResponse<AuthResponse>>> RegisterAsync([Required][FromBody] RegisterRequest registerRequest)
         {
             var response = await _identityService.RegisterAsync(registerRequest);
             return Ok(response.ToApiResponse());

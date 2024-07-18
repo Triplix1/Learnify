@@ -10,8 +10,8 @@ public class ProfileMapperProfile : AutoMapper.Profile
     {
         CreateMap<ProfileUpdateRequest, User>();
         CreateMap<User, ProfileResponse>();
-        // CreateMap<UserCreated, User>()
-        //     .ForMember(u => u.Type, u => u.MapFrom(uc => ConvertToEnum(uc.Type)));
+        CreateMap<UserCreated, User>()
+            .ForMember(u => u.Type, u => u.MapFrom(uc => ConvertToEnum(uc.Role)));
         CreateMap<ProfileResponse, UserUpdated>();
     }
 

@@ -1,7 +1,6 @@
 using AuthIdentity.Infrastructure;
 using General.Installer;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 // builder.Host.UseSerilog();
@@ -12,9 +11,14 @@ if (app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => // UseSwaggerUI Protected by if (env.IsDevelopment())
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity API V1");
+    });
 }
+
 // app.UseSerilogRequestLogging();
+app.UseCors("CorsPolicy");
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();

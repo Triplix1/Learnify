@@ -13,7 +13,19 @@
                                 placeholder="example@gmail.com"></app-text-input>
             </div>
             <div class="mb-3">
-                <app-text-input [formControl]="$any(registerForm.controls['nickname'])"
+                <app-text-input [formControl]="$any(registerForm.controls['name'])"
+                                label="Ім'я"
+                                [type]="'text'"
+                                placeholder="Name"></app-text-input>
+            </div>
+            <div class="mb-3">
+                <app-text-input [formControl]="$any(registerForm.controls['surname'])"
+                                label="Прізвище"
+                                [type]="'text'"
+                                placeholder="Surname"></app-text-input>
+            </div>
+            <div class="mb-3">
+                <app-text-input [formControl]="$any(registerForm.controls['username'])"
                                 label="Нікнейм"
                                 [type]="'text'"
                                 placeholder="Froggg"></app-text-input>
@@ -35,7 +47,7 @@
             </div>
             <div class="mb-3">
                 <button (click)="register()"
-                        class="w-full bg-red-600 text-white py-1 rounded">Увійти</button>
+                        class="w-full bg-red-600 text-white py-1 rounded">Зареєструватись</button>
             </div>
             <div class="mb-3">
                 <button class="w-full bg-black text-white py-1 rounded"

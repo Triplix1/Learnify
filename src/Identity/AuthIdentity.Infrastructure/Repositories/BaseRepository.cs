@@ -16,7 +16,6 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T: BaseEntity
     public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
         return await Context.Set<T>().ToListAsync();
-
     }
 
     public virtual async Task<T?> GetByIdAsync(Guid key)
@@ -52,5 +51,10 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T: BaseEntity
         Context.Set<T>().Remove(entity);
 
         return await Context.SaveChangesAsync() > 0;
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await Context.SaveChangesAsync();
     }
 }

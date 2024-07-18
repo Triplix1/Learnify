@@ -154,6 +154,8 @@ public class IdentityService : IIdentityService
         var user = new User()
         {
             Email = registerRequest.Email,
+            Name = registerRequest.Name,
+            Surname = registerRequest.Surname,
             Username = registerRequest.Username,
             PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerRequest.Password)),
             PasswordSalt = hmac.Key,
@@ -179,9 +181,9 @@ public class IdentityService : IIdentityService
         }
 
         var createdUser = await _userRepository.CreateAsync(user);
+        await _userRepository.SaveChangesAsync();
 
         var userCreatedMessage = _mapper.Map<UserCreated>(createdUser);
-
         await _publishEndpoint.Publish(userCreatedMessage);
 
         return await ReturnNewAuthResponseAsync(user);
@@ -231,11 +233,12 @@ public class IdentityService : IIdentityService
         };
 
         await _refreshTokenRepository.CreateAsync(refreshToken);
+        await _userRepository.SaveChangesAsync();
 
         return new AuthResponse()
         {
             Token = accessToken,
-            Refresh = refreshTokenString
+            RefreshToken = refreshTokenString
         };
     }
 }

@@ -1,4 +1,4 @@
-{
+﻿{
   "Routes": [
     {
       "SwaggerKey": "identity",
@@ -6,12 +6,12 @@
       "DownstreamScheme" : "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5001
+          "Host": "identityservice",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate" : "/api/identity/{everything}",
-      "UpstreamHttpMethod" : [ "Post" ]
+      "UpstreamHttpMethod" : [ "Get", "Post" ]
     },
     {
       "SwaggerKey": "profile",
@@ -19,8 +19,8 @@
       "DownstreamScheme" : "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5002
+          "Host": "profileservice",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate" : "/api/profile/{everything}",
@@ -28,7 +28,7 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost"
+    "BaseUrl": "http://localhost:80"
   },
   "SwaggerEndPoints": [
     {
@@ -37,7 +37,7 @@
         {
           "Name": "Auth API",
           "Version": "v1",
-          "Url": "http://localhost:5001/swagger/v1/swagger.json"
+          "Url": "http://identityservice/swagger/v1/swagger.json"
         }
       ]
     },
@@ -47,7 +47,7 @@
         {
           "Name": "Profile API",
           "Version": "v1",
-          "Url": "http://localhost:5002/swagger/v1/swagger.json"
+          "Url": "http://profileservice/swagger/v1/swagger.json"
         }
       ]
     }

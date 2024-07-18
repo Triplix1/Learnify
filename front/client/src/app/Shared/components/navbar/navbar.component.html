@@ -43,23 +43,17 @@
                 </div>
 
                 <div>
-                    <button *ngIf="!(this.isAuthorized | async)"
+                    <button *ngIf="!(this.tokenData| async)"
                             (click)="login()"
                             class="btn border-none bg-logo p-0 flex justify-end">
                         <span class="block justify-self-end text-primar">Увійти</span>
                     </button>
 
-                    <button *ngIf="(this.isAuthorized | async)"
-                            (click)="logout()"
-                            class="btn border-none col-2 my-auto flex justify-end items-center ">
-                        <div>
-                            <span class="text color-dropdown">Вийти</span>
-                        </div>
-                        <div class="pause-icon flex items-center">
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                        </div>
-                    </button>
+                    <app-dropdown *ngIf="(this.tokenData| async)"
+                                  [items]="dropdownItems"><mat-icon style="font-size: 35px;"
+                                  class="text-dropdown text-8xl"
+                                  inline="true">account_circle</mat-icon></app-dropdown>
+
                 </div>
             </div>
         </div>

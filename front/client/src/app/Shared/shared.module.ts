@@ -11,6 +11,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { MatIconModule } from '@angular/material/icon';
 import { TextInputComponent } from './components/text-input/text-input.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { DropdownComponent } from './components/dropdown/dropdown.component';
 
 
 @NgModule({
@@ -19,6 +20,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     HeaderComponent,
     FooterComponent,
     TextInputComponent,
+    DropdownComponent,
   ],
   imports: [
     CommonModule,
@@ -47,6 +49,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     TextInputComponent,
     FormsModule,
     ReactiveFormsModule,
+    DropdownComponent,
   ]
 })
 export class SharedModule { }

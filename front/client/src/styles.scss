@@ -92,6 +92,7 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --error: 125 0 0;
         --link: 0 0 166;
         --input: 255 255 255;
+        --navlink: 200 200 200
     }
 
     .dark {
@@ -103,6 +104,7 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --error: 245 60 60;
         --link: 32 102 206;
         --input: 170 170 170;
+        --navlink: 170 170 170
     }
 
     .login-form {

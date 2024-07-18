@@ -2,10 +2,9 @@
 USER $APP_UID
 WORKDIR /app
 EXPOSE 80
-EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
+ARG BUILD_CONFIGURATION=Develop
 WORKDIR /src
 COPY ["src/Identity/AuthIdentity.API/AuthIdentity.API.csproj", "src/Identity/AuthIdentity.API/"]
 COPY ["src/General/General/General.csproj", "src/General/General/"]
@@ -17,7 +16,7 @@ WORKDIR "/src/src/Identity/AuthIdentity.API"
 RUN dotnet build "AuthIdentity.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
+ARG BUILD_CONFIGURATION=Develop
 RUN dotnet publish "AuthIdentity.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final

@@ -3,6 +3,7 @@ module.exports = {
   darkMode: ['selector', '[data-theme="dark"]'],
   content: [
     "./src/**/*.{html,ts}",
+    "./node_modules/flowbite/**/*.js"
   ],
   theme: {
     extend: {
@@ -15,6 +16,7 @@ module.exports = {
         error: 'rgb(var(--error) / <alpha-value>)',
         link: 'rgb(var(--link) / <alpha-value>)',
         input: 'rgb(var(--input) / <alpha-value>)',
+        navlink: 'rgb(var(--navlink) / <alpha-value>)',
       },
     },
   },
@@ -25,5 +27,7 @@ module.exports = {
   //     borderColor: ['dark'],
   //   },
   // },
-  plugins: [],
+  plugins: [
+    require('flowbite/plugin')
+  ],
 }

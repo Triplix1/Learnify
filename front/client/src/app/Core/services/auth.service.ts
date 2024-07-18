@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 
@@ -41,7 +41,7 @@ export class AuthService {
   }
 
   public loginGoogleExchangeCode(googleAuthRequest: GoogleAuthRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/external/google", googleAuthRequest).pipe(
+    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/identity/external/google", googleAuthRequest).pipe(
       tap((response: ApiResponse<AuthResponse>) => {
         this.handleTokenUpdate(response.data);
       })
@@ -49,7 +49,7 @@ export class AuthService {
   }
 
   public register(registerRequest: ReqisterRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/register", registerRequest).pipe(
+    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/identity/register", registerRequest).pipe(
       tap((response: ApiResponse<AuthResponse>) => {
         this.handleTokenUpdate(response.data);
       })
@@ -57,7 +57,7 @@ export class AuthService {
   }
 
   public login(loginRequest: LoginRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/login", loginRequest).pipe(
+    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/identity/login", loginRequest).pipe(
       tap((response: ApiResponse<AuthResponse>) => {
         this.handleTokenUpdate(response.data);
       })
@@ -118,5 +118,15 @@ export class AuthService {
 
   private getDecodedToken(token: string) {
     return JSON.parse(atob(token.split('.')[1]));
+  }
+
+  updateTokenData() {
+    const access = localStorage.getItem('accessToken');
+    const refresh = localStorage.getItem('refreshToken');
+    console.log("Hello from auth");
+
+    if (access != null || refresh != null) {
+      this.tokenData.next({ refreshToken: refresh, token: access });
+    }
   }
 }

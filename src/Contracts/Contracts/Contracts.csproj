@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <RootNamespace>ClassLibrary1</RootNamespace>
         <LangVersion>latestmajor</LangVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
 </Project>

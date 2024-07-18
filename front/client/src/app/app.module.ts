@@ -8,6 +8,8 @@ import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RefreshInterceptor } from './Core/interceptors/refresh.interceptor';
 import { ErrorHandlerInterceptor } from './Core/interceptors/error-handler.interceptor';
+import { MainProfileComponent } from './Modules/profile/main-profile/main-profile.component';
+import { ProfileModule } from './Modules/profile/profile.module';
 
 @NgModule({
   declarations: [
@@ -17,6 +19,7 @@ import { ErrorHandlerInterceptor } from './Core/interceptors/error-handler.inter
     SharedModule,
     AppRoutingModule,
     AuthenticationModule,
+    ProfileModule,
     HomeModule,
     NoopAnimationsModule,
     BrowserAnimationsModule,

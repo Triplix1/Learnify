@@ -1,8 +1,9 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, UrlSerializer, UrlTree } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { MatIconRegistry } from '@angular/material/icon';
 import { AuthService } from 'src/app/Core/services/auth.service';
+import { DropdownItem } from 'src/app/Models/DropdownItem';
 
 @Component({
   selector: 'app-navbar',
@@ -10,15 +11,19 @@ import { AuthService } from 'src/app/Core/services/auth.service';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit {
-  Theme: string = "theme";
+  dropdownItems: DropdownItem[] = [
+    { itemText: "Профіль", link: "/profile" },
+    { itemText: "Вийти", action: () => this.logout() },
+  ]
 
+  Theme: string = "theme";
   isDarkMode: boolean = localStorage.getItem(this.Theme) === 'true';
   @Output() switchedTheme: EventEmitter<boolean> = new EventEmitter();
-  isAuthorized = this.accountService.tokenData$;
+  tokenData = this.accountService.tokenData$;
   isAdmin: boolean = false;
   searchValue: string | null = null;
   private currentRoute: string | undefined;
-  private subscriptions: Subscription[] = []
+  private subscriptions: Subscription[] = [];
 
   get searchIcon() {
     return `<span class="input-group-text border-0 bg-opacity-0"

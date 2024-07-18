@@ -8,7 +8,6 @@ using FluentValidation;
 using General.Installer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 
@@ -19,10 +18,36 @@ public class CoreInstaller: IInstaller
     public static readonly Assembly Assembly = Assembly.GetExecutingAssembly();
     public void InstallServices(IServiceCollection services, IConfiguration config)
     {
+        services
+            .AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy
+                        .WithOrigins(config.GetSection("AllowedHosts").Get<string>()?.Split(';') ?? new string[] { })
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .AllowAnyHeader();
+                });
+            });
+
+        
         services.AddEndpointsApiExplorer();
         services.AddControllers();
 
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Version = "v1",
+                Title = "Identity API",
+                Description = "Identity API"
+            });
+            
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            c.IncludeXmlComments(xmlPath);
+        });
         
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IGoogleAuthManager, GoogleAuthManager>();

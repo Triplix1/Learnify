@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AuthIdentity.Core.Installers;
 
-public class AuthInstaller: IInstaller
+public class SecurityInstaller: IInstaller
 {
     public void InstallServices(IServiceCollection services, IConfiguration config)
     {

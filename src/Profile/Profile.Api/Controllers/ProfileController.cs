@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
+using General.Dto;
+using General.Etensions;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,19 +26,21 @@ public class ProfileController : BaseApiController
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ProfileResponse>> GetById([FromRoute]string id)
+    public async Task<ActionResult<ApiResponse<ProfileResponse>>> GetById([FromRoute]string id)
     {
-        return Ok(await _profileService.GetByIdAsync(id));
+        var profile = await _profileService.GetByIdAsync(id);
+        return Ok(profile.ToApiResponse());
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProfileResponse>>> GetAll()
+    public async Task<ActionResult<ApiResponse<IEnumerable<ProfileResponse>>>> GetAll()
     {
-        return Ok(await _profileService.GetAllProfilesAsync());
+        var profiles = await _profileService.GetAllProfilesAsync();
+        return Ok(profiles.ToApiResponse());
     }
 
-    [HttpGet("update")]
-    public async Task<ActionResult<ProfileResponse>> Update([FromForm]ProfileUpdateRequest profileUpdateRequest)
+    [HttpPut("update")]
+    public async Task<ActionResult<ApiResponse<ProfileResponse>>> Update([FromForm]ProfileUpdateRequest profileUpdateRequest)
     {
         var result = await _profileService.UpdateAsync(profileUpdateRequest);
 
@@ -44,10 +48,10 @@ public class ProfileController : BaseApiController
 
         await _publishEndpoint.Publish(userUpdated);
         
-        return Ok(result);
+        return Ok(result.ToApiResponse());
     }
 
-    [HttpGet("delete/{id}")]
+    [HttpDelete("delete/{id}")]
     public async Task<ActionResult> Delete([FromRoute]string id)
     {
         await _profileService.DeleteAsync(id);
