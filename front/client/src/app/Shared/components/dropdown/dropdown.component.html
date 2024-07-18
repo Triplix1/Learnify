@@ -1,0 +1,33 @@
+<div class="relative inline-block text-left">
+    <div>
+        <button type="button"
+                class="inline-flex justify-center w-full rounded-md"
+                id="options-menu"
+                aria-haspopup="true"
+                aria-expanded="true"
+                (click)="toggleDropdown()">
+            <ng-content></ng-content>
+        </button>
+    </div>
+    <div *ngIf="isOpen"
+         class="origin-top-right absolute right-0 mt-2 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
+         (click)="closeDropdown()">
+        <div class="py-1"
+             role="menu"
+             aria-orientation="vertical"
+             aria-labelledby="options-menu">
+            <div *ngFor="let item of items">
+                <a *ngIf="!item.action"
+                   [routerLink]="item.link"
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 no-underline"
+                   role="menuitem">{{item.itemText}}</a>
+                <button *ngIf="item.action"
+                        [routerLink]="item.link"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 no-underline"
+                        role="menuitem"
+                        (click)="item.action()">{{item.itemText}}</button>
+            </div>
+
+        </div>
+    </div>
+</div>
