@@ -1,0 +1,19 @@
+<div class="cropper-container">
+    <div class="h-[90%]">
+        <img id="image"
+             [src]="sanitizedUrl">
+    </div>
+    <div class="h-[10%]">
+        <div class="crop-actions">
+            <button class="px-2 py-3 bg-buttonCancel rounded mr-3 hover:border-none"
+                    (click)="reset()">
+                Reset
+            </button>
+            <button class="px-2 py-3 bg-buttonAccept rounded min-w-6 mr-4"
+                    (click)="crop()">
+                Ok
+            </button>
+        </div>
+    </div>
+
+</div>
