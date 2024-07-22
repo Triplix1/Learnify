@@ -1,5 +1,9 @@
 ﻿using AutoMapper;
+using BlobStorage.Grpc.Protos;
+using Contracts.Blob;
 using General.CommonServiceContracts;
+using Google.Protobuf;
+using MassTransit;
 using Profile.Core.Domain.Entities;
 using Profile.Core.Domain.RepositoryContracts;
 using Profile.Core.DTO;
@@ -7,19 +11,30 @@ using Profile.Core.ServiceContracts;
 
 namespace Profile.Core.Services;
 
+/// <inheritdoc />
 public class ProfileService : IProfileService
 {
     private readonly IProfileRepository _profileRepository;
-    private readonly IPhotoService _photoService;
     private readonly IMapper _mapper;
+    private readonly IBlobStorageGrpcService _blobStorageGrpcService;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public ProfileService(IProfileRepository profileRepository, IMapper mapper, IPhotoService photoService)
+    /// <summary>
+    /// Initializes new instance of <see cref="ProfileService"/>
+    /// </summary>
+    /// <param name="profileRepository"><see cref="IProfileRepository"/></param>
+    /// <param name="mapper"><see cref="IMapper"/></param>
+    /// <param name="blobStorageGrpcService"><see cref="IBlobStorageGrpcService"/></param>
+    /// <param name="publishEndpoint"><see cref="IPublishEndpoint"/></param>
+    public ProfileService(IProfileRepository profileRepository, IMapper mapper, IBlobStorageGrpcService blobStorageGrpcService, IPublishEndpoint publishEndpoint)
     {
         _profileRepository = profileRepository;
         _mapper = mapper;
-        _photoService = photoService;
+        _blobStorageGrpcService = blobStorageGrpcService;
+        _publishEndpoint = publishEndpoint;
     }
 
+    /// <inheritdoc />
     public async Task<ProfileResponse> GetByIdAsync(string id)
     {
         var profile = await _profileRepository.GetByIdAsync(id);
@@ -27,6 +42,7 @@ public class ProfileService : IProfileService
         return _mapper.Map<ProfileResponse>(profile);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<ProfileResponse>> GetAllProfilesAsync()
     {
         var profiles = await _profileRepository.GetAllAsync();
@@ -34,6 +50,7 @@ public class ProfileService : IProfileService
         return _mapper.Map<IEnumerable<ProfileResponse>>(profiles);
     }
 
+    /// <inheritdoc />
     public async Task DeleteAsync(string id)
     {
         var profile = await _profileRepository.GetByIdAsync(id);
@@ -46,10 +63,20 @@ public class ProfileService : IProfileService
             throw new KeyNotFoundException("Cannot find user with such id");
         }
 
-        if(profile.PhotoPublicId is not null)
-            await _photoService.DeletePhotoAsync(profile.PhotoPublicId);
+        if (profile.ImageContainerName is not null && profile.ImageBlobName is not null)
+        {
+            var deletedBlob = new BlobDeleteRequest()
+            {
+                Name = profile.ImageBlobName,
+                ContainerName = profile.ImageContainerName
+            };
+
+            await _publishEndpoint.Publish(deletedBlob);
+        }
+            
     }
 
+    /// <inheritdoc />
     public async Task<ProfileResponse> UpdateAsync(ProfileUpdateRequest profileUpdateRequest)
     {
         var origin = await _profileRepository.GetByIdAsync(profileUpdateRequest.Id);
@@ -57,25 +84,33 @@ public class ProfileService : IProfileService
         if (origin is null)
             throw new KeyNotFoundException("Cannot find user with such id");
         
-        var profile = _mapper.Map<User>(profileUpdateRequest);
+        _mapper.Map(profileUpdateRequest, origin);
 
         if (profileUpdateRequest.File is not null)
         {
-            if (origin.PhotoPublicId is not null)
-                await _photoService.DeletePhotoAsync(origin.PhotoPublicId);
+            if (origin.ImageContainerName is not null && origin.ImageBlobName is not null)
+            {
+                await _blobStorageGrpcService.DeleteAsync(origin.ImageContainerName, origin.ImageBlobName);
+            }
 
-            var photoResult = await _photoService.AddPhotoAsync(profileUpdateRequest.File, 500, 500);
+            using var memoryStream = new MemoryStream();
+            await profileUpdateRequest.File.CopyToAsync(memoryStream);
+            var fileBytes = memoryStream.ToArray();
+            
+            var blobDto = new BlobDto()
+            {
+                Name = origin.ImageBlobName,
+                ContainerName = origin.ImageContainerName,
+                Content = ByteString.CopyFrom(fileBytes)
+            };
+            
+            var photoResult = await _blobStorageGrpcService.UpdateAsync(blobDto);
 
-            profile.PhotoUrl = photoResult.Url.AbsoluteUri;
-
-            profile.PhotoPublicId = photoResult.PublicId;
+            origin.ImageUrl = photoResult.Url;
+            origin.ImageContainerName = photoResult.ContainerName;
+            origin.ImageBlobName = photoResult.Name;
         }
-        else
-        {
-            profile.PhotoUrl = origin.PhotoUrl;
-            profile.PhotoPublicId = origin.PhotoPublicId;
-        }
 
-        return _mapper.Map<ProfileResponse>(await _profileRepository.UpdateAsync(profile));
+        return _mapper.Map<ProfileResponse>(await _profileRepository.UpdateAsync(origin));
     }
 }

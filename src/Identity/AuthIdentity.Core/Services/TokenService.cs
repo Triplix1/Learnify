@@ -38,10 +38,10 @@ public class TokenService: ITokenService
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+            new Claim("id", user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim("Name", user.Name),
-            new Claim("Surname", user.Surname),
+            new Claim("name", user.Name),
+            new Claim("surname", user.Surname),
             new Claim(ClaimTypes.Role, user.Role.ToString()),
         };
         

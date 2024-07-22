@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs.Models;
 using BlobStorage.Core.Models;
 using BlobStorage.Core.Services.Contracts;
+using Grpc.Core;
 
 namespace BlobStorage.Core.Services;
 
@@ -14,7 +15,7 @@ public class BlobStorage : IBlobStorage
         _blobServiceClient = blobServiceClient;
     }
 
-    public async Task<BlobResponse> UploadAsync(BlobDto blobDto)
+    public async Task<BlobResponse> UploadAsync(BlobDto blobDto, ServerCallContext context)
     {
         var blobClient = await GetBlobClientInternalAsync(blobDto.ContainerName, blobDto.Name);
 
@@ -28,12 +29,13 @@ public class BlobStorage : IBlobStorage
         return new BlobResponse()
         {
             Name = blobClient.Name,
+            ContainerName = blobClient.BlobContainerName,
             Url = blobClient.Uri.ToString(),
             ContentType = (await blobClient.GetPropertiesAsync()).Value.ContentType
         };
     }
 
-    public async Task<BlobResponse> UpdateAsync(BlobDto blobDto)
+    public async Task<BlobResponse> UpdateAsync(BlobDto blobDto, ServerCallContext context)
     {
         var blobClient = await GetBlobClientInternalAsync(blobDto.ContainerName, blobDto.Name);
 
@@ -49,12 +51,20 @@ public class BlobStorage : IBlobStorage
         return new BlobResponse()
         {
             Name = blobClient.Name,
+            ContainerName = blobClient.BlobContainerName,
             Url = blobClient.Uri.ToString(),
             ContentType = (await blobClient.GetPropertiesAsync()).Value.ContentType
         };
     }
 
-    public async Task<string> GetFileUrlAsync(string containerName, string blobId)
+    public async Task<bool> DeleteAsync(string containerName, string blobId, ServerCallContext context)
+    {
+        var blobClient = await GetBlobClientInternalAsync(containerName, blobId);
+
+        return await blobClient.DeleteIfExistsAsync();
+    }
+    
+    public async Task<string> GetFileUrlAsync(string containerName, string blobId, ServerCallContext context)
     {
         var blobClient = await GetBlobClientInternalAsync(containerName, blobId);
         
@@ -65,15 +75,8 @@ public class BlobStorage : IBlobStorage
 
         return blobClient.Uri.ToString();
     }
-
-    public async Task<bool> DeleteAsync(string containerName, string blobId)
-    {
-        var blobClient = await GetBlobClientInternalAsync(containerName, blobId);
-
-        return await blobClient.DeleteIfExistsAsync();;
-    }
     
-    public async Task<Stream> GetBlobStreamAsync(string containerName, string blobName)
+    public async Task<Stream> GetBlobStreamAsync(string containerName, string blobName, ServerCallContext context)
     {
         var blobClient = await GetBlobClientInternalAsync(containerName, blobName);
 

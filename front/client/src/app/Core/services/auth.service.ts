@@ -77,7 +77,7 @@ export class AuthService {
       this.refreshTokenInProgress = true;
       localStorage.removeItem('refreshToken');
 
-      return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + '/refresh', {
+      return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + '/identity/refresh', {
         jwt: this.getAccessToken(),
         refreshToken: this.getRefreshToken()
       }).pipe(
@@ -109,8 +109,11 @@ export class AuthService {
     const decodedToken = this.getDecodedToken(accessToken);
 
     return {
+      id: decodedToken.id,
       email: decodedToken.email,
       username: decodedToken.username,
+      name: decodedToken.name,
+      surname: decodedToken.surname,
       imageUrl: decodedToken.imageUrl,
       role: decodedToken["role"] as Role
     };
@@ -127,6 +130,7 @@ export class AuthService {
 
     if (access != null || refresh != null) {
       this.tokenData.next({ refreshToken: refresh, token: access });
+      this.userData.next(this.getUserTokenDataFromToken(access));
     }
   }
 }

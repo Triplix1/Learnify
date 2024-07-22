@@ -2,6 +2,7 @@
 using AuthIdentity.Core.Enums;
 using AutoMapper;
 using Contracts;
+using Contracts.User;
 
 namespace AuthIdentity.Core.MappingProfile;
 

@@ -2,8 +2,11 @@
 
 namespace ProfileService.Controllers.Base;
 
+/// <summary>
+/// Base controller for all profile controllers
+/// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api")]
 public class BaseApiController : ControllerBase
 {
     

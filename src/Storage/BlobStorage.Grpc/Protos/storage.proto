@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option csharp_namespace = "BlobStorage.Grpc.Protos";
+
+service BlobStorage {
+  rpc Upload(BlobDto) returns (BlobResponse);
+  rpc Update(BlobDto) returns (BlobResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc GetFileUrl(GetFileUrlRequest) returns (GetFileUrlResponse);
+  rpc GetBlobStream(GetBlobStreamRequest) returns (GetBlobStreamResponse);
+}
+
+// The request message containing the blob details for upload and update
+message BlobDto {
+  string containerName = 1;
+  string name = 2;
+  bytes content = 3;
+  string contentType = 4;
+}
+
+// The response message containing the blob details
+message BlobResponse {
+  string name = 1;
+  string containerName = 2;
+  string url = 3;
+  string contentType = 4;
+}
+
+// The request message containing the blob details for deletion
+message DeleteRequest {
+  string containerName = 1;
+  string blobId = 2;
+}
+
+// The response message for deletion operation
+message DeleteResponse {
+  bool success = 1;
+}
+
+// The request message containing the blob details for getting the file URL
+message GetFileUrlRequest {
+  string containerName = 1;
+  string blobId = 2;
+}
+
+// The response message containing the file URL
+message GetFileUrlResponse {
+  string url = 1;
+}
+
+// The request message containing the blob details for getting the blob stream
+message GetBlobStreamRequest {
+  string containerName = 1;
+  string blobName = 2;
+}
+
+// The response message containing the blob stream data
+message GetBlobStreamResponse {
+  bytes content = 1;
+}

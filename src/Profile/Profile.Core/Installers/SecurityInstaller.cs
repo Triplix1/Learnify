@@ -1,7 +1,9 @@
-﻿using General.Installer;
+﻿using System.Text;
+using General.Installer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Profile.Core.Installers;
 
@@ -14,9 +16,14 @@ public class SecurityInstaller: IInstaller
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.Authority = config["IdentityServiceUrl"];
-                options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters.ValidateAudience = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:Key"])),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                };
             });
         
         services

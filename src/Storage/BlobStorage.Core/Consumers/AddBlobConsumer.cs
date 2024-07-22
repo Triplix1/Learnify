@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BlobStorage.Core.Models;
 using BlobStorage.Core.Services.Contracts;
-using ClassLibrary1.Blob;
+using Contracts.Blob;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 

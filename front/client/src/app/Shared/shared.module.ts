@@ -12,6 +12,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { TextInputComponent } from './components/text-input/text-input.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DropdownComponent } from './components/dropdown/dropdown.component';
+import { ImageUploaderComponent } from './components/image-uploader/image-uploader.component';
+import { ImageCropperComponent } from './components/image-cropper/image-cropper.component';
 
 
 @NgModule({
@@ -21,6 +23,8 @@ import { DropdownComponent } from './components/dropdown/dropdown.component';
     FooterComponent,
     TextInputComponent,
     DropdownComponent,
+    ImageUploaderComponent,
+    ImageCropperComponent,
   ],
   imports: [
     CommonModule,
@@ -50,6 +54,7 @@ import { DropdownComponent } from './components/dropdown/dropdown.component';
     FormsModule,
     ReactiveFormsModule,
     DropdownComponent,
+    ImageUploaderComponent,
   ]
 })
 export class SharedModule { }

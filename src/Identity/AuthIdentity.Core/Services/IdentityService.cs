@@ -9,8 +9,8 @@ using AuthIdentity.Core.Exceptions;
 using AuthIdentity.Core.ManagerContracts;
 using AuthIdentity.Core.ServiceContracts;
 using AutoMapper;
-using ClassLibrary1.Blob;
-using Contracts;
+using Contracts.Blob;
+using Contracts.User;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
@@ -162,6 +162,8 @@ public class IdentityService : IIdentityService
             Role = _mapper.Map<Role>(registerRequest.Role)
         };
 
+        var imageBlob = null as BlobCreatedResponse;
+        
         if (registerRequest.Image is not null)
         {
             using var memoryStream = new MemoryStream();
@@ -175,15 +177,22 @@ public class IdentityService : IIdentityService
                 ContainerName = "indentity-user-images"
             };
 
-            var imageBlob = await _addBlobRequestClient.GetResponse<BlobCreatedResponse>(imageBlobAddRequest);
+            imageBlob = (await _addBlobRequestClient.GetResponse<BlobCreatedResponse>(imageBlobAddRequest)).Message;
 
-            user.ImageUrl = imageBlob.Message.Url;
+            user.ImageUrl = imageBlob.Url;
         }
 
         var createdUser = await _userRepository.CreateAsync(user);
         await _userRepository.SaveChangesAsync();
 
         var userCreatedMessage = _mapper.Map<UserCreated>(createdUser);
+        
+        if (imageBlob is not null)
+        {
+            userCreatedMessage.ImageBlobName = imageBlob.Name;
+            userCreatedMessage.ImageContainerName = imageBlob.ContainerName;
+        }
+            
         await _publishEndpoint.Publish(userCreatedMessage);
 
         return await ReturnNewAuthResponseAsync(user);

@@ -12,6 +12,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [],
@@ -29,7 +30,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MatDividerModule,
     MatStepperModule,
     MatCheckboxModule,
-    MatInputModule
+    MatInputModule,
+    MatDialogModule,
   ],
   exports: [
     ReactiveFormsModule,
@@ -44,7 +46,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MatDividerModule,
     MatStepperModule,
     MatCheckboxModule,
-    MatInputModule
+    MatInputModule,
+    MatDialogModule,
   ]
 })
 export class MaterialModule { }

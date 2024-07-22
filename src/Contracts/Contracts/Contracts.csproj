@@ -3,8 +3,8 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <RootNamespace>ClassLibrary1</RootNamespace>
+        <Nullable>disable</Nullable>
+        <RootNamespace>Contracts</RootNamespace>
         <LangVersion>latestmajor</LangVersion>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>

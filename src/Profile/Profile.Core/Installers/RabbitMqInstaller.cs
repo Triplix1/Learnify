@@ -6,8 +6,10 @@ using Profile.Core.Consumers;
 
 namespace Profile.Core.Extensions;
 
+/// <inheritdoc />
 public class RabbitMqInstaller: IInstaller
 {
+    /// <inheritdoc />
     public void InstallServices(IServiceCollection services, IConfiguration config)
     {
         services.AddMassTransit(x =>

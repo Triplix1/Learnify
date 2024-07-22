@@ -7,9 +7,11 @@
         <InvariantGlobalization>true</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <RootNamespace>BlobStorage.Grpc</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Grpc.AspNetCore" Version="2.64.0" />
         <PackageReference Include="MassTransit.RabbitMQ" Version="8.2.3" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.7" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
@@ -19,6 +21,10 @@
       <ProjectReference Include="..\..\Contracts\Contracts\Contracts.csproj" />
       <ProjectReference Include="..\..\General\General\General.csproj" />
       <ProjectReference Include="..\BlobStorage.Core\BlobStorage.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="Protos\storage.proto" GrpcServices="Server" />
     </ItemGroup>
 
     <ItemGroup>

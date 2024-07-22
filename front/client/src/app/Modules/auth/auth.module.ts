@@ -3,7 +3,6 @@ import { SharedModule } from 'src/app/Shared/shared.module';
 import { AuthModule } from '@auth0/auth0-angular';
 import { LoginButtonComponent } from './login/login.component';
 import { LogoutButtonComponent } from './logout-button/logout-button.component';
-import { UserProfileComponent } from './user-profile/user-profile.component';
 import { AuthRoutingModule } from './auth-routing.module';
 import { RegisterComponent } from './register/register.component';
 
@@ -12,7 +11,6 @@ import { RegisterComponent } from './register/register.component';
   declarations: [
     LoginButtonComponent,
     LogoutButtonComponent,
-    UserProfileComponent,
     RegisterComponent
   ],
   imports: [

@@ -1,4 +1,5 @@
 ﻿using Contracts;
+using Contracts.Notification;
 using MassTransit;
 using Notification.Dto;
 using Notification.ServiceContracts;

@@ -17,5 +17,7 @@ public class CoreInstaller: IInstaller
         services.AddSingleton(x => new BlobServiceClient(config.GetConnectionString("BlobStorageSettings")));
         
         services.AddScoped<IBlobStorage, Services.BlobStorage>();
+        
+        services.AddGrpc();
     }
 }

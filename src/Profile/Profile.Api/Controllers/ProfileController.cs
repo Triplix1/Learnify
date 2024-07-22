@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using Contracts.User;
 using General.Dto;
 using General.Etensions;
 using MassTransit;
@@ -11,6 +12,9 @@ using ProfileService.Controllers.Base;
 
 namespace ProfileService.Controllers;
 
+/// <summary>
+/// Profile controller
+/// </summary>
 [Authorize]
 public class ProfileController : BaseApiController
 {
@@ -18,6 +22,12 @@ public class ProfileController : BaseApiController
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Initializes a nwe instance of <see cref="ProfileController"/>
+    /// </summary>
+    /// <param name="profileService"></param>
+    /// <param name="publishEndpoint"></param>
+    /// <param name="mapper"></param>
     public ProfileController(IProfileService profileService, IPublishEndpoint publishEndpoint, IMapper mapper)
     {
         _profileService = profileService;
@@ -25,6 +35,11 @@ public class ProfileController : BaseApiController
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Returns [rofile with specified Id
+    /// </summary>
+    /// <param name="id">Profile id</param>
+    /// <returns></returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<ApiResponse<ProfileResponse>>> GetById([FromRoute]string id)
     {
@@ -32,6 +47,10 @@ public class ProfileController : BaseApiController
         return Ok(profile.ToApiResponse());
     }
 
+    /// <summary>
+    /// Returns all profiles
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IEnumerable<ProfileResponse>>>> GetAll()
     {
@@ -39,6 +58,11 @@ public class ProfileController : BaseApiController
         return Ok(profiles.ToApiResponse());
     }
 
+    /// <summary>
+    /// Updates profile
+    /// </summary>
+    /// <param name="profileUpdateRequest"><see cref="ProfileUpdateRequest"/></param>
+    /// <returns></returns>
     [HttpPut("update")]
     public async Task<ActionResult<ApiResponse<ProfileResponse>>> Update([FromForm]ProfileUpdateRequest profileUpdateRequest)
     {
@@ -51,6 +75,11 @@ public class ProfileController : BaseApiController
         return Ok(result.ToApiResponse());
     }
 
+    /// <summary>
+    /// Deletes profile with specified id
+    /// </summary>
+    /// <param name="id">profile's id</param>
+    /// <returns></returns>
     [HttpDelete("delete/{id}")]
     public async Task<ActionResult> Delete([FromRoute]string id)
     {

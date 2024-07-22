@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
         <LangVersion>latestmajor</LangVersion>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
@@ -12,6 +12,12 @@
       <PackageReference Include="AutoMapper" Version="13.0.1" />
       <PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
       <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
+      <PackageReference Include="Grpc.AspNetCore" Version="2.64.0" />
+      <PackageReference Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.64.0" />
+      <PackageReference Include="Grpc.Tools" Version="2.65.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="MassTransit.RabbitMQ" Version="8.2.3" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
       <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="6.0.0-preview.4.21253.5" />
@@ -33,6 +39,10 @@
 
     <ItemGroup>
       <Folder Include="Extensions\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="..\..\Storage\BlobStorage.Grpc\Protos\storage.proto" GrpcServices="Client" />
     </ItemGroup>
 
 </Project>

@@ -8,8 +8,10 @@ using Profile.Infrastructure.Repositories;
 
 namespace Profile.Infrastructure.Installers;
 
+/// <inheritdoc />
 public class InfrastructureInstaller : IInstaller
 {
+    /// <inheritdoc />
     public void InstallServices(IServiceCollection services, IConfiguration config)
     {
         services.AddDbContext<ApplicationDbContext>(options =>

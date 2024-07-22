@@ -7,10 +7,15 @@ using Microsoft.Extensions.Options;
 
 namespace General.CommonServices;
 
+/// <inheritdoc />
 public class PhotoService : IPhotoService
 {
     private readonly Cloudinary _cloudinary;
 
+    /// <summary>
+    /// Initializes a new instance of PhotoService
+    /// </summary>
+    /// <param name="config"><see cref="IOptions{TOptions}"/></param>
     public PhotoService(IOptions<CloudinarySettings> config)
     {
         var acc = new Account
@@ -22,7 +27,8 @@ public class PhotoService : IPhotoService
 
         _cloudinary = new Cloudinary(acc);
     }
-    
+
+    /// <inheritdoc />
     public async Task<ImageUploadResult> AddPhotoAsync(IFormFile file, int height, int width)
     {
         var uploadResult = new ImageUploadResult();
@@ -42,6 +48,7 @@ public class PhotoService : IPhotoService
         return uploadResult;
     }
 
+    /// <inheritdoc />
     public async Task<DeletionResult> DeletePhotoAsync(string publicId)
     {
         var deletionParams = new DeletionParams(publicId);

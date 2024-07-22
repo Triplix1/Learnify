@@ -2,6 +2,7 @@
 using AuthIdentity.Core.Domain.RepositoryContracts;
 using AutoMapper;
 using Contracts;
+using Contracts.User;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 

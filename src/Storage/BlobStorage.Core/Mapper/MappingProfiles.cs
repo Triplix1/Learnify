@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using BlobStorage.Core.Models;
-using ClassLibrary1.Blob;
+using Contracts.Blob;
 
 namespace BlobStorage.Core.Mapper;
 

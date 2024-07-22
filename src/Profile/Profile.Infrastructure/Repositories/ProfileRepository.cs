@@ -5,20 +5,27 @@ using Profile.Infrastructure.Data;
 
 namespace Profile.Infrastructure.Repositories;
 
+/// <inheritdoc />
 public class ProfileRepository : IProfileRepository
 {
     private readonly ApplicationDbContext _context;
 
+    /// <summary>
+    /// Initializes a new instance of ProfileRepository
+    /// </summary>
+    /// <param name="context"><see cref="ApplicationDbContext"/></param>
     public ProfileRepository(ApplicationDbContext context)
     {
         _context = context;
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<User>> GetAllAsync()
     {
         return await _context.Users.ToListAsync();
     }
 
+    /// <inheritdoc />
     public async Task CreateAsync(User entity)
     {
         await _context.Users.AddAsync(entity);
@@ -26,6 +33,7 @@ public class ProfileRepository : IProfileRepository
         await _context.SaveChangesAsync();
     }
 
+    /// <inheritdoc />
     public async Task<bool> DeleteAsync(User entity)
     {
         if (entity is null)
@@ -36,14 +44,16 @@ public class ProfileRepository : IProfileRepository
         return (await _context.SaveChangesAsync()) > 0;
     }
 
+    /// <inheritdoc />
     public async Task<User?> GetByIdAsync(string id)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        return await _context.Users.FindAsync(id);
     }
 
+    /// <inheritdoc />
     public async Task<User?> UpdateAsync(User entity)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == entity.Id);
+        var user = await _context.Users.FindAsync(entity.Id);
 
         if (user is null)
             return null;
@@ -52,8 +62,9 @@ public class ProfileRepository : IProfileRepository
         user.Company = entity.Company;
         user.Surname = entity.Surname;
         user.CardNumber = entity.CardNumber;
-        user.PhotoUrl = entity.PhotoUrl;
-        user.PhotoPublicId = entity.PhotoPublicId;
+        user.ImageContainerName = entity.ImageContainerName;
+        user.ImageUrl = entity.ImageUrl;
+        user.ImageBlobName = entity.ImageBlobName;
 
         await _context.SaveChangesAsync();
 

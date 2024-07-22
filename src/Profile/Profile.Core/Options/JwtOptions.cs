@@ -1,4 +1,4 @@
-﻿namespace AuthIdentity.Core.Options;
+﻿namespace Profile.Core.Options;
 
 /// <summary>
 /// Jwt options

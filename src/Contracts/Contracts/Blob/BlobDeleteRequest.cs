@@ -1,9 +1,9 @@
 ﻿namespace Contracts.Blob;
 
 /// <summary>
-/// Request entity for creating blob
+/// Request entity for deleting blob
 /// </summary>
-public class BlobAddRequest
+public class BlobDeleteRequest
 {
     /// <summary>
     /// Gets or sets value for Name
@@ -14,9 +14,4 @@ public class BlobAddRequest
     /// Gets or sets value for ContainerName
     /// </summary>
     public string ContainerName { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for Content
-    /// </summary>
-    public byte[]? Content { get; set; }
 }

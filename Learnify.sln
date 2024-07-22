@@ -38,7 +38,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storage", "Storage", "{F0D1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorage.Core", "src\Storage\BlobStorage.Core\BlobStorage.Core.csproj", "{E70DDAED-54FA-40B7-8235-E242DA39EFE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorage.Api", "src\Storage\BlobStorage.Api\BlobStorage.Api.csproj", "{92498C6C-77C6-457A-AE19-9191E3962E33}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorage.Grpc", "src\Storage\BlobStorage.Grpc\BlobStorage.Grpc.csproj", "{92498C6C-77C6-457A-AE19-9191E3962E33}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway", "Gateway", "{30E7B3B6-5095-4D49-9574-59D809DE7047}"
 EndProject

@@ -4,8 +4,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace General.Installer;
 
+/// <summary>
+/// Extensions for including installers to <see cref="IServiceCollection"/>
+/// </summary>
 public static class InstallerExtension
 {
+    /// <summary>
+    /// Adds installers to <see cref="IServiceCollection"/> list
+    /// </summary>
+    /// <param name="app"></param>
+    /// <param name="configuration"></param>
     public static void AddInstallers(this IServiceCollection app, IConfiguration configuration)
     {
         var assemblies = LoadReferencedAssemblies(AppDomain.CurrentDomain.BaseDirectory);
