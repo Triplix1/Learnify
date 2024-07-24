@@ -1,4 +1,5 @@
 ﻿using AuthIdentity.Core.Enums;
+using General.Entities;
 
 namespace AuthIdentity.Core.Domain.Entities;
 

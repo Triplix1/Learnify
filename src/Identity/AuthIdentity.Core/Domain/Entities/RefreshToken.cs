@@ -1,4 +1,6 @@
-﻿namespace AuthIdentity.Core.Domain.Entities;
+﻿using General.Entities;
+
+namespace AuthIdentity.Core.Domain.Entities;
 
 public class RefreshToken: BaseEntity
 {

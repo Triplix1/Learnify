@@ -1,4 +1,5 @@
-﻿using Profile.Core.DTO;
+﻿using General.Dto;
+using Profile.Core.DTO;
 
 namespace Profile.Core.ServiceContracts;
 
@@ -12,25 +13,25 @@ public interface IProfileService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<ProfileResponse> GetByIdAsync(string id);
+    Task<ApiResponse<ProfileResponse>> GetByIdAsync(string id);
     
     /// <summary>
     /// Gets all profiles
     /// </summary>
     /// <returns></returns>
-    Task<IEnumerable<ProfileResponse>> GetAllProfilesAsync();
+    Task<ApiResponse<IEnumerable<ProfileResponse>>> GetAllProfilesAsync();
     
     /// <summary>
     /// Deletes profile
     /// </summary>
     /// <param name="id">Profile id</param>
     /// <returns></returns>
-    Task DeleteAsync(string id);
+    Task<ApiResponse> DeleteAsync(string id);
     
     /// <summary>
     /// Updates profile
     /// </summary>
     /// <param name="profileUpdateRequest"></param>
     /// <returns></returns>
-    Task<ProfileResponse> UpdateAsync(ProfileUpdateRequest profileUpdateRequest);
+    Task<ApiResponse<ProfileResponse>> UpdateAsync(ProfileUpdateRequest profileUpdateRequest);
 }

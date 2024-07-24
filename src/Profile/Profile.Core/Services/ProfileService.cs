@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using BlobStorage.Grpc.Protos;
 using Contracts.Blob;
-using General.CommonServiceContracts;
+using General.Dto;
 using Google.Protobuf;
 using MassTransit;
-using Profile.Core.Domain.Entities;
 using Profile.Core.Domain.RepositoryContracts;
 using Profile.Core.DTO;
 using Profile.Core.ServiceContracts;
@@ -14,7 +13,7 @@ namespace Profile.Core.Services;
 /// <inheritdoc />
 public class ProfileService : IProfileService
 {
-    private readonly IProfileRepository _profileRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IBlobStorageGrpcService _blobStorageGrpcService;
     private readonly IPublishEndpoint _publishEndpoint;
@@ -22,46 +21,46 @@ public class ProfileService : IProfileService
     /// <summary>
     /// Initializes new instance of <see cref="ProfileService"/>
     /// </summary>
-    /// <param name="profileRepository"><see cref="IProfileRepository"/></param>
     /// <param name="mapper"><see cref="IMapper"/></param>
     /// <param name="blobStorageGrpcService"><see cref="IBlobStorageGrpcService"/></param>
     /// <param name="publishEndpoint"><see cref="IPublishEndpoint"/></param>
-    public ProfileService(IProfileRepository profileRepository, IMapper mapper, IBlobStorageGrpcService blobStorageGrpcService, IPublishEndpoint publishEndpoint)
+    /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
+    public ProfileService(IMapper mapper, IBlobStorageGrpcService blobStorageGrpcService, IPublishEndpoint publishEndpoint, IUnitOfWork unitOfWork)
     {
-        _profileRepository = profileRepository;
         _mapper = mapper;
         _blobStorageGrpcService = blobStorageGrpcService;
         _publishEndpoint = publishEndpoint;
+        _unitOfWork = unitOfWork;
     }
 
     /// <inheritdoc />
-    public async Task<ProfileResponse> GetByIdAsync(string id)
+    public async Task<ApiResponse<ProfileResponse>> GetByIdAsync(string id)
     {
-        var profile = await _profileRepository.GetByIdAsync(id);
+        var profile = await _unitOfWork.ProfileRepository.GetByIdAsync(id);
 
-        return _mapper.Map<ProfileResponse>(profile);
+        return ApiResponse<ProfileResponse>.Success(_mapper.Map<ProfileResponse>(profile));
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<ProfileResponse>> GetAllProfilesAsync()
+    public async Task<ApiResponse<IEnumerable<ProfileResponse>>> GetAllProfilesAsync()
     {
-        var profiles = await _profileRepository.GetAllAsync();
+        var profiles = await _unitOfWork.ProfileRepository.GetAllAsync();
 
-        return _mapper.Map<IEnumerable<ProfileResponse>>(profiles);
+        return ApiResponse<IEnumerable<ProfileResponse>>.Success(_mapper.Map<IEnumerable<ProfileResponse>>(profiles));
     }
 
     /// <inheritdoc />
-    public async Task DeleteAsync(string id)
+    public async Task<ApiResponse> DeleteAsync(string id)
     {
-        var profile = await _profileRepository.GetByIdAsync(id);
+        var profile = await _unitOfWork.ProfileRepository.GetByIdAsync(id);
         
         if(profile is null)
-            throw new KeyNotFoundException("Cannot find user with such id");
+            return ApiResponse.Failure(new KeyNotFoundException("Cannot find user with such id"));
         
-        if (!await _profileRepository.DeleteAsync(profile))
-        {
-            throw new KeyNotFoundException("Cannot find user with such id");
-        }
+        if (!await _unitOfWork.ProfileRepository.DeleteAsync(profile))
+            return ApiResponse.Failure(new KeyNotFoundException("Cannot find user with such id"));
+
+        await _unitOfWork.SaveChangesAsync();
 
         if (profile.ImageContainerName is not null && profile.ImageBlobName is not null)
         {
@@ -73,16 +72,17 @@ public class ProfileService : IProfileService
 
             await _publishEndpoint.Publish(deletedBlob);
         }
-            
+
+        return ApiResponse.Success();
     }
 
     /// <inheritdoc />
-    public async Task<ProfileResponse> UpdateAsync(ProfileUpdateRequest profileUpdateRequest)
+    public async Task<ApiResponse<ProfileResponse>> UpdateAsync(ProfileUpdateRequest profileUpdateRequest)
     {
-        var origin = await _profileRepository.GetByIdAsync(profileUpdateRequest.Id);
+        var origin = await _unitOfWork.ProfileRepository.GetByIdAsync(profileUpdateRequest.Id);
 
         if (origin is null)
-            throw new KeyNotFoundException("Cannot find user with such id");
+            ApiResponse<ProfileResponse>.Failure(new KeyNotFoundException("Cannot find user with such id"));
         
         _mapper.Map(profileUpdateRequest, origin);
 
@@ -111,6 +111,9 @@ public class ProfileService : IProfileService
             origin.ImageBlobName = photoResult.Name;
         }
 
-        return _mapper.Map<ProfileResponse>(await _profileRepository.UpdateAsync(origin));
+        await _unitOfWork.ProfileRepository.UpdateAsync(origin);
+        await _unitOfWork.SaveChangesAsync();
+        
+        return ApiResponse<ProfileResponse>.Success(_mapper.Map<ProfileResponse>(origin));
     }
 }

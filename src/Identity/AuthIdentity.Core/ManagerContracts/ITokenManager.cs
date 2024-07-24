@@ -5,9 +5,9 @@ using AuthIdentity.Core.Dto;
 
 namespace AuthIdentity.Core.ServiceContracts;
 
-public interface ITokenService
+public interface ITokenManager
 {
-    string GenerateJwtToken(User user);
+    TokenResponse GenerateJwtToken(User user);
     string GenerateRefreshToken();
     JwtSecurityToken GetDataFromToken(string jwt);
 }

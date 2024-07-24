@@ -20,5 +20,6 @@ public class InfrastructureInstaller : IInstaller
         });
         
         services.AddScoped<IProfileRepository, ProfileRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
     }
 }

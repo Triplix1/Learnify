@@ -26,11 +26,10 @@ public class ProfileRepository : IProfileRepository
     }
 
     /// <inheritdoc />
-    public async Task CreateAsync(User entity)
+    public async Task<User> CreateAsync(User entity)
     {
         await _context.Users.AddAsync(entity);
-
-        await _context.SaveChangesAsync();
+        return entity;
     }
 
     /// <inheritdoc />
@@ -40,8 +39,7 @@ public class ProfileRepository : IProfileRepository
             return false;
 
         _context.Users.Remove(entity);
-
-        return (await _context.SaveChangesAsync()) > 0;
+        return true;
     }
 
     /// <inheritdoc />
@@ -65,9 +63,7 @@ public class ProfileRepository : IProfileRepository
         user.ImageContainerName = entity.ImageContainerName;
         user.ImageUrl = entity.ImageUrl;
         user.ImageBlobName = entity.ImageBlobName;
-
-        await _context.SaveChangesAsync();
-
+        
         return user;
     }
 }

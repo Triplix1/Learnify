@@ -1,4 +1,5 @@
 ﻿using AuthIdentity.Core.Domain.Entities;
+using General.Entities;
 
 namespace AuthIdentity.Core.Domain.RepositoryContracts;
 

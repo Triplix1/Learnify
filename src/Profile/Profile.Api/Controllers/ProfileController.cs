@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using Contracts;
 using Contracts.User;
 using General.Dto;
-using General.Etensions;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +42,7 @@ public class ProfileController : BaseApiController
     public async Task<ActionResult<ApiResponse<ProfileResponse>>> GetById([FromRoute]string id)
     {
         var profile = await _profileService.GetByIdAsync(id);
-        return Ok(profile.ToApiResponse());
+        return Ok(profile);
     }
 
     /// <summary>
@@ -55,7 +53,7 @@ public class ProfileController : BaseApiController
     public async Task<ActionResult<ApiResponse<IEnumerable<ProfileResponse>>>> GetAll()
     {
         var profiles = await _profileService.GetAllProfilesAsync();
-        return Ok(profiles.ToApiResponse());
+        return Ok(profiles);
     }
 
     /// <summary>
@@ -68,11 +66,14 @@ public class ProfileController : BaseApiController
     {
         var result = await _profileService.UpdateAsync(profileUpdateRequest);
 
-        var userUpdated = _mapper.Map<UserUpdated>(result);
+        if (result.IsSuccess)
+        {
+            var userUpdated = _mapper.Map<UserUpdated>(result.Data);
 
-        await _publishEndpoint.Publish(userUpdated);
+            await _publishEndpoint.Publish(userUpdated);
+        }
         
-        return Ok(result.ToApiResponse());
+        return Ok(result);
     }
 
     /// <summary>
@@ -83,14 +84,17 @@ public class ProfileController : BaseApiController
     [HttpDelete("delete/{id}")]
     public async Task<ActionResult> Delete([FromRoute]string id)
     {
-        await _profileService.DeleteAsync(id);
+        var result = await _profileService.DeleteAsync(id);
 
-        var userDeleted = new UserDeleted()
+        if (result.IsSuccess)
         {
-            Id = id
-        };
+            var userDeleted = new UserDeleted()
+            {
+                Id = id
+            };
 
-        await _publishEndpoint.Publish(userDeleted);
+            await _publishEndpoint.Publish(userDeleted);
+        }
         
         return Ok();
     }

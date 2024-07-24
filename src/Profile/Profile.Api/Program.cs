@@ -1,6 +1,7 @@
 using System.Reflection;
 using General.Helpers;
 using General.Installer;
+using General.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Profile.Infrastructure.Data;
@@ -42,6 +43,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
 app.UseAuthentication();

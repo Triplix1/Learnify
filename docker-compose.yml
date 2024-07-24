@@ -76,7 +76,7 @@ services:
     ports:
       - 5000:80
   
-  blobstorage.api:
+  blobstorageservice:
     build:
       context: .
       dockerfile: src/Storage/BlobStorage.Grpc/Dockerfile

@@ -25,13 +25,14 @@ public class UserUpdatedConsumer: IConsumer<UserUpdated>
     {
         _logger.LogError($"Updating user with id: {context.Message.Id}");
 
-        var user = _mapper.Map<User>(context.Message);
-
-        var userInDb = await _userRepository.GetByIdAsync(user.Id);
+        var userInDb = await _userRepository.GetByIdAsync(context.Message.Id);
 
         if (userInDb is null)
             throw new KeyNotFoundException("Cannot find user with such id");
 
-        await _userRepository.UpdateAsync(user);
+        _mapper.Map(context.Message, userInDb);
+
+        await _userRepository.UpdateAsync(userInDb);
+        await _userRepository.SaveChangesAsync();
     }
 }

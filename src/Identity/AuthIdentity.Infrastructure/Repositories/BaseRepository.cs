@@ -1,5 +1,6 @@
 ﻿using AuthIdentity.Core.Domain.Entities;
 using AuthIdentity.Core.Domain.RepositoryContracts;
+using General.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthIdentity.Infrastructure.Repositories;

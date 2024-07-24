@@ -1,5 +1,6 @@
 using AuthIdentity.Infrastructure;
 using General.Installer;
+using General.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInstallers(builder.Configuration);
 
 var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -18,6 +20,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseSerilogRequestLogging();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseCors("CorsPolicy");
 app.UseStaticFiles();
 app.UseAuthentication();

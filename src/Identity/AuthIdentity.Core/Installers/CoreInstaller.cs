@@ -49,7 +49,7 @@ public class CoreInstaller: IInstaller
             c.IncludeXmlComments(xmlPath);
         });
         
-        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ITokenManager, TokenManager>();
         services.AddScoped<IGoogleAuthManager, GoogleAuthManager>();
         services.AddScoped<IIdentityService, IdentityService>();
 

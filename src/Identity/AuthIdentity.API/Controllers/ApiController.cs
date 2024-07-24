@@ -2,7 +2,6 @@
 using AuthIdentity.Core.Dto;
 using AuthIdentity.Core.ServiceContracts;
 using General.Dto;
-using General.Etensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -30,7 +29,7 @@ namespace AuthIdentityService.Controllers
         public async Task<ActionResult<ApiResponse<AuthResponse>>> RegisterAsync([Required][FromBody] RegisterRequest registerRequest)
         {
             var response = await _identityService.RegisterAsync(registerRequest);
-            return Ok(response.ToApiResponse());
+            return Ok(response);
         }
 
         /// <summary>
@@ -43,7 +42,7 @@ namespace AuthIdentityService.Controllers
         public async Task<ActionResult<ApiResponse<AuthResponse>>> LoginWithGoogleAsync([FromBody] GoogleAuthRequest googleAuthRequest)
         {
             var result = await _identityService.LoginWithGoogleAsync(googleAuthRequest);
-            return Ok(result.ToApiResponse());
+            return Ok(result);
         }
 
         /// <summary>
@@ -56,7 +55,7 @@ namespace AuthIdentityService.Controllers
         public async Task<ActionResult<ApiResponse<AuthResponse>>> LoginAsync([FromBody] LoginRequest loginRequest)
         {
             var result = await _identityService.LoginAsync(loginRequest);
-            return Ok(result.ToApiResponse());
+            return Ok(result);
         }
 
         /// <summary>
@@ -65,66 +64,11 @@ namespace AuthIdentityService.Controllers
         /// <param name="refreshTokenRequest">The refresh token request.</param>
         /// <returns>API response with authentication response.</returns>
         [HttpPost("refresh")]
-        [Authorize]
         [SwaggerOperation(Summary = "Refresh authentication token")]
         public async Task<ActionResult<ApiResponse<AuthResponse>>> RefreshTokenAsync([FromBody] RefreshTokenRequest refreshTokenRequest)
         {
             var refreshedTokenResponse = await _identityService.RefreshTokenAsync(refreshTokenRequest);
-            return Ok(refreshedTokenResponse.ToApiResponse());
+            return Ok(refreshedTokenResponse);
         }
     }
 }
-
-// using AuthIdentity.Core.Dto;
-// using AuthIdentity.Core.ServiceContracts;
-// using General.Dto;
-// using General.Etensions;
-// using Microsoft.AspNetCore.Authorization;
-// using Microsoft.AspNetCore.Mvc;
-// using RefreshTokenRequest = AuthIdentity.Core.Dto.RefreshTokenRequest;
-//
-// namespace AuthIdentityService.Controllers;
-//
-// [Route("api")]
-// public class ApiController : ControllerBase
-// {
-//     private readonly IIdentityService _identityService;
-//
-//     public ApiController(IIdentityService identityService)
-//     {
-//         _identityService = identityService;
-//     }
-//
-//     [HttpPost("register")]
-//     public async Task<ActionResult<ApiResponse<AuthResponse>>> RegisterAsync([FromForm] RegisterRequest registerRequest)
-//     {
-//         var response = await _identityService.RegisterAsync(registerRequest);
-//
-//         return Ok(response.ToApiResponse());
-//     }
-//     
-//     [HttpPost("external/google")]
-//     public async Task<ActionResult<ApiResponse<AuthResponse>>> LoginWithGoogleAsync([FromBody] GoogleAuthRequest googleAuthRequest)
-//     {
-//         var result = await _identityService.LoginWithGoogleAsync(googleAuthRequest);
-//
-//         return Ok(result.ToApiResponse());
-//     }
-//
-//     [HttpPost("login")]
-//     public async Task<ActionResult<ApiResponse<AuthResponse>>> LoginAsync([FromBody] LoginRequest loginRequest)
-//     {
-//         var result = await _identityService.LoginAsync(loginRequest);
-//
-//         return Ok(result.ToApiResponse());
-//     }
-//
-//     [HttpPost("refresh")]
-//     [Authorize]
-//     public async Task<ActionResult<ApiResponse<AuthResponse>>> RefreshTokenAsync(
-//         [FromBody]RefreshTokenRequest refreshTokenRequest)
-//     {
-//         var refreshedTokenResponse = await _identityService.RefreshTokenAsync(refreshTokenRequest);
-//         return Ok(refreshedTokenResponse.ToApiResponse());
-//     }
-// }

@@ -18,6 +18,7 @@ export class MainProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.userData$.pipe(
+      take(1),
       switchMap(
         response => {
           return this.profileService.getById(response.id);

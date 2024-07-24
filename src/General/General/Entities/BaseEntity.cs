@@ -1,4 +1,4 @@
-﻿namespace AuthIdentity.Core.Domain.Entities;
+﻿namespace General.Entities;
 
 public class BaseEntity
 {

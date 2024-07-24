@@ -1,4 +1,5 @@
 ﻿using AuthIdentity.Core.Domain.Entities;
+using General.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 

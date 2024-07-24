@@ -11,6 +11,8 @@ using AuthIdentity.Core.ServiceContracts;
 using AutoMapper;
 using Contracts.Blob;
 using Contracts.User;
+using General.Dto;
+using Google.Apis.Auth;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
@@ -20,7 +22,7 @@ public class IdentityService : IIdentityService
 {
     private readonly IGoogleAuthManager _googleAuthManager;
     private readonly ILogger<IdentityService> _logger;
-    private readonly ITokenService _tokenService;
+    private readonly ITokenManager _tokenManager;
     private readonly IUserRepository _userRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IMapper _mapper;
@@ -29,7 +31,7 @@ public class IdentityService : IIdentityService
 
     public IdentityService(IGoogleAuthManager googleAuthManager,
         ILogger<IdentityService> logger,
-        ITokenService tokenService,
+        ITokenManager tokenManager,
         IUserRepository userRepository,
         IRefreshTokenRepository refreshTokenRepository,
         IMapper mapper,
@@ -38,7 +40,7 @@ public class IdentityService : IIdentityService
     {
         _googleAuthManager = googleAuthManager;
         _logger = logger;
-        _tokenService = tokenService;
+        _tokenManager = tokenManager;
         _userRepository = userRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _mapper = mapper;
@@ -46,11 +48,21 @@ public class IdentityService : IIdentityService
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task<AuthResponse> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest)
+    public async Task<ApiResponse<AuthResponse>> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest)
     {
-        var googleToken = await _googleAuthManager.GetGoogleTokenAsync(googleAuthRequest);
+        GoogleJsonWebSignature.Payload tokenPayload;
+        try
+        {
+            var googleToken = await _googleAuthManager.GetGoogleTokenAsync(googleAuthRequest);
 
-        var tokenPayload = await _googleAuthManager.VerifyGoogleToken(googleToken.IdToken);
+            tokenPayload = await _googleAuthManager.VerifyGoogleToken(googleToken.IdToken);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return ApiResponse<AuthResponse>.Failure(e);
+        }
+        
 
         var user = await _userRepository.GetByEmailAsync(tokenPayload.Email);
 
@@ -71,14 +83,14 @@ public class IdentityService : IIdentityService
         return await ReturnNewAuthResponseAsync(user);
     }
 
-    public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
+    public async Task<ApiResponse<AuthResponse>> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
     {
-        var tokenData = _tokenService.GetDataFromToken(refreshTokenRequest.Jwt);
+        var tokenData = _tokenManager.GetDataFromToken(refreshTokenRequest.Jwt);
 
         if (tokenData.ValidTo > DateTime.UtcNow)
         {
             _logger.LogError("Token hasn't expired yet");
-            throw new RefreshTokenException("Token hasn't expired yet");
+            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Token hasn't expired yet"));
         }
 
         var email = tokenData.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
@@ -86,7 +98,7 @@ public class IdentityService : IIdentityService
         if (email is null)
         {
             _logger.LogError("Cannot find email in token principals");
-            throw new RefreshTokenException("Cannot find email in token");
+            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Cannot find email in token"));
         }
 
         var user = await _userRepository.GetByEmailAsync(email);
@@ -94,7 +106,7 @@ public class IdentityService : IIdentityService
         if (user is null)
         {
             _logger.LogError("Cannot find user with email: {email}", email);
-            throw new RefreshTokenException($"Cannot find user with email: {email}");
+            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException($"Cannot find user with email: {email}"));
         }
 
         var refreshToken = await _refreshTokenRepository.GetByJwtAsync(refreshTokenRequest.Jwt);
@@ -102,34 +114,35 @@ public class IdentityService : IIdentityService
         if (refreshToken is null)
         {
             _logger.LogError("Cannot find refresh token for specified jwt");
-            throw new RefreshTokenException("Cannot find refresh token for specified jwt");
+            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Cannot find refresh token for specified jwt"));
         }
 
         if (refreshToken.Refresh != refreshTokenRequest.RefreshToken)
         {
             _logger.LogError("Invalid refresh token for specified jwt");
-            throw new RefreshTokenException("Invalid refresh token for specified jwt");
+            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Invalid refresh token for specified jwt"));
         }
 
         if (refreshToken.Expire < DateTime.UtcNow)
         {
             _logger.LogError("Refresh token has been expired");
-            throw new RefreshTokenException("Refresh token has been expired");
+            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Refresh token has been expired"));
         }
 
-        if (!refreshToken.HasBeenUsed)
+        if (refreshToken.HasBeenUsed)
         {
             _logger.LogError("Refresh token has been used");
-            throw new RefreshTokenException("Refresh token has been used");
+            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Refresh token has been used"));
         }
 
         refreshToken.HasBeenUsed = true;
         await _refreshTokenRepository.UpdateAsync(refreshToken);
+        await _refreshTokenRepository.SaveChangesAsync();
 
         return await ReturnNewAuthResponseAsync(user);
     }
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest registerRequest)
+    public async Task<ApiResponse<AuthResponse>> RegisterAsync(RegisterRequest registerRequest)
     {
         var userWithTheSameEmail = await _userRepository.GetByEmailAsync(registerRequest.Email);
 
@@ -137,7 +150,7 @@ public class IdentityService : IIdentityService
         {
             _logger.LogError("Cannot register user with email: {email}, because it already exists",
                 registerRequest.Email);
-            throw new ArgumentException("User with the same email already exists");
+            return ApiResponse<AuthResponse>.Failure(new ArgumentException("User with the same email already exists"));
         }
 
         var userWithTheSameUsername = await _userRepository.GetByUsernameAsync(registerRequest.Username);
@@ -146,7 +159,7 @@ public class IdentityService : IIdentityService
         {
             _logger.LogError("Cannot register user with username: {username}, because it already exists",
                 registerRequest.Username);
-            throw new ArgumentException("User with the same username already exists");
+            return ApiResponse<AuthResponse>.Failure(new ArgumentException("User with the same username already exists"));
         }
 
         using var hmac = new HMACSHA512();
@@ -198,21 +211,22 @@ public class IdentityService : IIdentityService
         return await ReturnNewAuthResponseAsync(user);
     }
 
-    public async Task<AuthResponse> LoginAsync(LoginRequest loginRequest)
+    public async Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest loginRequest)
     {
         var user = await _userRepository.GetByEmailAsync(loginRequest.Email);
 
         if (user is null)
         {
             _logger.LogError("Cannot find user with email: {email}", loginRequest.Email);
-            throw new AuthenticationException("Cannot find user with such email");
+            return ApiResponse<AuthResponse>.Failure(new AuthenticationException("Cannot find user with such email"));
         }
 
         if (user.PasswordSalt is null || user.PasswordHash is null)
         {
             _logger.LogError("Trying to login user with email: {email}, but it doesn't registered with password",
                 loginRequest.Email);
-            throw new AuthenticationException("Your user doesn't registered with password type");
+            return ApiResponse<AuthResponse>.Failure(
+                new AuthenticationException("Your user doesn't registered with password type"));
         }
 
         using var hmac = new HMACSHA512(user.PasswordSalt);
@@ -222,21 +236,31 @@ public class IdentityService : IIdentityService
         if (computedHash.Where((t, i) => t != user.PasswordHash[i]).Any())
         {
             _logger.LogError("Login faild, invalid password for user: {email}", loginRequest.Email);
-            throw new AuthenticationException("Invalid Password");
+            return ApiResponse<AuthResponse>.Failure(new AuthenticationException("Invalid Password"));
         }
 
         return await ReturnNewAuthResponseAsync(user);
     }
 
-    private async Task<AuthResponse> ReturnNewAuthResponseAsync(User user)
+    private async Task<ApiResponse<AuthResponse>> ReturnNewAuthResponseAsync(User user)
     {
-        var accessToken = _tokenService.GenerateJwtToken(user);
-        var refreshTokenString = _tokenService.GenerateRefreshToken();
+        TokenResponse accessToken;
+        
+        try
+        {
+            accessToken = _tokenManager.GenerateJwtToken(user);
+        }
+        catch (Exception e)
+        {
+            return ApiResponse<AuthResponse>.Failure(e);
+        }
+        
+        var refreshTokenString = _tokenManager.GenerateRefreshToken();
 
         var refreshToken = new RefreshToken()
         {
             Expire = DateTime.UtcNow.AddHours(3),
-            Jwt = accessToken,
+            Jwt = accessToken.Token,
             Refresh = refreshTokenString,
             HasBeenUsed = false
         };
@@ -244,10 +268,13 @@ public class IdentityService : IIdentityService
         await _refreshTokenRepository.CreateAsync(refreshToken);
         await _userRepository.SaveChangesAsync();
 
-        return new AuthResponse()
+        var response = new AuthResponse()
         {
-            Token = accessToken,
-            RefreshToken = refreshTokenString
+            Token = accessToken.Token,
+            RefreshToken = refreshTokenString,
+            Expires = accessToken.Expires
         };
+
+        return ApiResponse<AuthResponse>.Success(response);
     }
 }

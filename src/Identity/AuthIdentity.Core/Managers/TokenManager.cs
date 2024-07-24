@@ -13,13 +13,13 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AuthIdentity.Core.Services;
 
-public class TokenService: ITokenService
+public class TokenManager: ITokenManager
 {
-    private readonly ILogger<TokenService> _logger;
+    private readonly ILogger<TokenManager> _logger;
     private readonly JwtOptions _jwtOptions;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-    public TokenService(IOptions<JwtOptions> jwtOptions, ILogger<TokenService> logger, IRefreshTokenRepository refreshTokenRepository)
+    public TokenManager(IOptions<JwtOptions> jwtOptions, ILogger<TokenManager> logger, IRefreshTokenRepository refreshTokenRepository)
     {
         _logger = logger;
         _refreshTokenRepository = refreshTokenRepository;
@@ -34,7 +34,7 @@ public class TokenService: ITokenService
         return token;
     }
 
-    public string GenerateJwtToken(User user)
+    public TokenResponse GenerateJwtToken(User user)
     {
         var claims = new List<Claim>
         {
@@ -47,12 +47,14 @@ public class TokenService: ITokenService
         
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var expires = DateTime.UtcNow.AddMilliseconds(_jwtOptions.Expire.TotalMilliseconds);
         
         JwtSecurityToken tokenGenerator = new(
             _jwtOptions.Issuer,
             _jwtOptions.Audience,
             claims,
-            expires: DateTime.UtcNow.AddMilliseconds(_jwtOptions.Expire.TotalMilliseconds),
+            expires: expires,
             signingCredentials: creds);
 
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -68,7 +70,7 @@ public class TokenService: ITokenService
             throw;
         }
 
-        return token;
+        return new TokenResponse(token, expires);
     }
     
     public string GenerateRefreshToken()

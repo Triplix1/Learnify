@@ -72,10 +72,16 @@ export class AuthService {
     return this.tokenData.value?.refreshToken;
   }
 
+  getExpiration(): Date | null {
+    return this.tokenData.value?.expires;
+  }
+
   refreshToken(): Observable<ApiResponse<AuthResponse>> {
     if (!this.refreshTokenInProgress) {
       this.refreshTokenInProgress = true;
+      localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('expires');
 
       return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + '/identity/refresh', {
         jwt: this.getAccessToken(),
@@ -87,13 +93,14 @@ export class AuthService {
         })
       );
     } else {
-      return of({ data: { token: this.getAccessToken(), refreshToken: this.getRefreshToken() }, error: {} } as ApiResponse<AuthResponse>);
+      return of({ data: { token: this.getAccessToken(), refreshToken: this.getRefreshToken(), expires: this.getExpiration() }, error: {} } as ApiResponse<AuthResponse>);
     }
   }
 
   logout(): void {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('expires');
     this.tokenData.next(null);
     this.userData.next(null);
   }
@@ -101,6 +108,7 @@ export class AuthService {
   private handleTokenUpdate(authResponse: AuthResponse): void {
     localStorage.setItem('accessToken', authResponse.token);
     localStorage.setItem('refreshToken', authResponse.refreshToken);
+    localStorage.setItem('expires', authResponse.expires + '');
     this.tokenData.next(authResponse);
     this.userData.next(this.getUserTokenDataFromToken(authResponse.token));
   }
@@ -126,10 +134,11 @@ export class AuthService {
   updateTokenData() {
     const access = localStorage.getItem('accessToken');
     const refresh = localStorage.getItem('refreshToken');
+    const expires = new Date(localStorage.getItem('expires'));
     console.log("Hello from auth");
 
     if (access != null || refresh != null) {
-      this.tokenData.next({ refreshToken: refresh, token: access });
+      this.tokenData.next({ refreshToken: refresh, token: access, expires: expires });
       this.userData.next(this.getUserTokenDataFromToken(access));
     }
   }

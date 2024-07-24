@@ -24,4 +24,8 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\General\General\General.csproj" />
+    </ItemGroup>
+
 </Project>
