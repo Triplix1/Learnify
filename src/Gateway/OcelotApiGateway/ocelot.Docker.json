@@ -24,7 +24,12 @@
         }
       ],
       "UpstreamPathTemplate" : "/api/profile/{everything}",
-      "UpstreamHttpMethod" : [ "Get", "Post", "Put", "Delete" ]
+      "UpstreamHttpMethod" : [ "Get", "Post", "Put", "Delete" ],
+      "HttpHandlerOptions": {
+        "AllowAutoRedirect": false,
+        "UseCookieContainer": true,
+        "MaxRequestContentBufferSize": 104857600
+      }
     }
   ],
   "GlobalConfiguration": {

@@ -4,6 +4,7 @@ using Contracts.Blob;
 using General.Dto;
 using Google.Protobuf;
 using MassTransit;
+using Microsoft.AspNetCore.Mvc;
 using Profile.Core.Domain.RepositoryContracts;
 using Profile.Core.DTO;
 using Profile.Core.ServiceContracts;
@@ -82,7 +83,7 @@ public class ProfileService : IProfileService
         var origin = await _unitOfWork.ProfileRepository.GetByIdAsync(profileUpdateRequest.Id);
 
         if (origin is null)
-            ApiResponse<ProfileResponse>.Failure(new KeyNotFoundException("Cannot find user with such id"));
+            return ApiResponse<ProfileResponse>.Failure(new KeyNotFoundException("Cannot find user with such id"));
         
         _mapper.Map(profileUpdateRequest, origin);
 
@@ -91,6 +92,11 @@ public class ProfileService : IProfileService
             if (origin.ImageContainerName is not null && origin.ImageBlobName is not null)
             {
                 await _blobStorageGrpcService.DeleteAsync(origin.ImageContainerName, origin.ImageBlobName);
+            }
+            else
+            {
+                origin.ImageContainerName = "profile";
+                origin.ImageBlobName = profileUpdateRequest.File.FileName;
             }
 
             using var memoryStream = new MemoryStream();

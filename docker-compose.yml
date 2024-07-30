@@ -73,6 +73,7 @@ services:
       - AllowedHosts=${AllowedHosts}
       - ASPNETCORE_URLS=http://*:80
       - AllowedOrigins=${AllowedOrigins}
+      - Logging__LogLevel__Ocelot=Debug
     ports:
       - 5000:80
   

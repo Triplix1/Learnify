@@ -1,3 +1,4 @@
+using System.Net;
 using System.Reflection;
 using General.CommonServiceContracts;
 using General.CommonServices;
@@ -25,11 +26,20 @@ public class CoreInstaller : IInstaller
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IBlobStorageGrpcService, BlobStorageGrpcService>();
 
+        var Url = config.GetSection("GrpcSettings:BlobStorageUrl").Get<string>();
         services
             .AddGrpcClient<BlobStorage.Grpc.Protos.BlobStorage.BlobStorageClient>((services, options) =>
             {
                 options.Address = new Uri(config.GetSection("GrpcSettings:BlobStorageUrl").Get<string>() ??
                                           throw new Exception("Cannot find url of blob storage service"));
-            });
+            }).ConfigurePrimaryHttpMessageHandler(() => 
+                new HttpClientHandler 
+                { 
+                    UseDefaultCredentials = true,
+                    MaxConnectionsPerServer = int.MaxValue,
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+                    AllowAutoRedirect = true,
+                    MaxResponseHeadersLength = 64
+                });
     }
 }

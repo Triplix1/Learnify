@@ -73,7 +73,7 @@ public class BlobStorageGrpcService: IBlobStorageGrpcService
         }
         catch (Exception e)
         {
-            _logger.LogWarning(e, "ERROR - Parameters: {@parameters}", blobDto);
+            _logger.LogWarning(e, "ERROR - Parameters: {@parameters}", blobDto.ContainerName + " " + blobDto.Name);
         }
         
         return response;

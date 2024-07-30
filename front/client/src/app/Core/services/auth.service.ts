@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 
 import { GoogleAuthRequest } from 'src/app/Models/GoogleAuthRequest';
 import { ApiResponse } from 'src/app/Models/ApiResponse';
@@ -79,17 +79,20 @@ export class AuthService {
   refreshToken(): Observable<ApiResponse<AuthResponse>> {
     if (!this.refreshTokenInProgress) {
       this.refreshTokenInProgress = true;
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('expires');
 
       return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + '/identity/refresh', {
         jwt: this.getAccessToken(),
         refreshToken: this.getRefreshToken()
       }).pipe(
+        catchError(err => {
+          this.refreshTokenInProgress = false;
+          return of(null);
+        }),
         tap((response: ApiResponse<AuthResponse>) => {
           this.refreshTokenInProgress = false;
-          this.handleTokenUpdate(response.data);
+          if (response !== null) {
+            this.handleTokenUpdate(response.data);
+          }
         })
       );
     } else {
