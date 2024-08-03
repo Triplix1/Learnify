@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>default</LangVersion>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,6 +26,12 @@
     <ItemGroup>
       <ProjectReference Include="..\Learnify.Core\Learnify.Core.csproj" />
       <ProjectReference Include="..\Learnify.Infrastructure\Learnify.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>

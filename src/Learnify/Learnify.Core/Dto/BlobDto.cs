@@ -16,11 +16,6 @@ public class BlobDto
     public string ContainerName { get; set; }
     
     /// <summary>
-    /// Gets or sets value for ContentType
-    /// </summary>
-    public string ContentType { get; set; } = "octet-stream";
-    
-    /// <summary>
     /// Gets or sets value for Content
     /// </summary>
     public byte[]? Content { get; set; }

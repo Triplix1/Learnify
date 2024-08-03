@@ -27,3 +27,50 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: password
       ME_CONFIG_MONGODB_URL: mongodb://root:password@mongo:27017/
       ME_CONFIG_BASICAUTH: false
+      
+  learnifydb:
+    container_name: learnifydb
+    restart: always
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER_LEARNIFY}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_LEARNIFY}
+      POSTGRES_DB: ${POSTGRES_DB_LEARNIFY}
+    ports:
+      - "5431:5432"
+    volumes:
+      - ./Volumes/learnifydb:/var/lib/postgresql/data
+  
+  learnify.api:
+    image: learnify.api
+    build:
+      context: .
+      dockerfile: src/Learnify/Learnify.Api/Dockerfile
+    depends_on: 
+      - learnifydb
+      - storageemulator
+      - rabbitmq
+      - mongo
+    environment:
+      - ASPNETCORE_URLS=http://*:80
+      - RabbitMq__Host=${RabbitMq}
+      - IdentityUrl=${IdentityUrl}
+      - ConnectionStrings__DefaultConnection=${LEARNIFY_DB_CONN_STR}
+      - GoogleAuthSettings__ClientId=${GoogleAuthSettingsClientId}
+      - GoogleAuthSettings__ClientSecret=${GoogleAuthSettingsClientSecret}
+      - JwtSettings__Key=${JwtSettingsKey}
+      - JwtSettings__Expire=${JwtSettingsExpire}
+      - JwtSettings__Audience=${JwtSettingsAudience}
+      - JwtSettings__Issuer=${JwtSettingsIssuer}
+      - AllowedOrigins=${AllowedOrigins}
+      - BlobStorageSettings__ConnectionString=${BLOB_CONN_STR}
+    ports:
+      - "5000:80"
+
+  storageemulator:
+    image: mcr.microsoft.com/azure-storage/azurite
+    hostname: azurite
+    restart: always
+    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10000"
+    ports:
+      - "10000:10000"

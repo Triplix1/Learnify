@@ -46,29 +46,7 @@ public class BlobStorage : IBlobStorage
             ContentType = (await blobClient.GetPropertiesAsync()).Value.ContentType
         };
     }
-
-    public async Task<BlobResponse> UpdateAsync(BlobDto blobDto)
-    {
-        var blobClient = await GetBlobClientInternalAsync(blobDto.ContainerName, blobDto.Name);
-
-        if (!await blobClient.ExistsAsync())
-        {
-            throw new InvalidOperationException($"Blob with id:{blobDto.Name} does not exist.");
-        }
-
-        var blobHttpHeader = new BlobHttpHeaders { ContentType = blobDto.ContentType };
-        await blobClient.UploadAsync(new BinaryData(blobDto.Content ?? new byte[] { }),
-            new BlobUploadOptions { HttpHeaders = blobHttpHeader });
-        
-        return new BlobResponse()
-        {
-            Name = blobClient.Name,
-            ContainerName = blobClient.BlobContainerName,
-            Url = blobClient.Uri.AbsoluteUri,
-            ContentType = (await blobClient.GetPropertiesAsync()).Value.ContentType
-        };
-    }
-
+    
     public async Task<bool> DeleteAsync(string containerName, string blobId)
     {
         var blobClient = await GetBlobClientInternalAsync(containerName, blobId);
