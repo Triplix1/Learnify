@@ -20,16 +20,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AuthIdentity.Core\AuthIdentity.Core.csproj" />
-      <ProjectReference Include="..\AuthIdentity.Infrastructure\AuthIdentity.Infrastructure.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Content Update="appsettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
         <Content Update="appsettings.*.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
         <Content Include="..\..\..\.dockerignore">
           <Link>.dockerignore</Link>
         </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Controllers\" />
     </ItemGroup>
     
 </Project>

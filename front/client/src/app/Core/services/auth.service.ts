@@ -41,7 +41,7 @@ export class AuthService {
   }
 
   public loginGoogleExchangeCode(googleAuthRequest: GoogleAuthRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/identity/external/google", googleAuthRequest).pipe(
+    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/auth/external/google", googleAuthRequest).pipe(
       tap((response: ApiResponse<AuthResponse>) => {
         this.handleTokenUpdate(response.data);
       })
@@ -49,7 +49,7 @@ export class AuthService {
   }
 
   public register(registerRequest: ReqisterRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/identity/register", registerRequest).pipe(
+    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/auth/register", registerRequest).pipe(
       tap((response: ApiResponse<AuthResponse>) => {
         this.handleTokenUpdate(response.data);
       })
@@ -57,7 +57,7 @@ export class AuthService {
   }
 
   public login(loginRequest: LoginRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/identity/login", loginRequest).pipe(
+    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/auth/login", loginRequest).pipe(
       tap((response: ApiResponse<AuthResponse>) => {
         this.handleTokenUpdate(response.data);
       })
@@ -80,7 +80,7 @@ export class AuthService {
     if (!this.refreshTokenInProgress) {
       this.refreshTokenInProgress = true;
 
-      return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + '/identity/refresh', {
+      return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + '/auth/refresh', {
         jwt: this.getAccessToken(),
         refreshToken: this.getRefreshToken()
       }).pipe(

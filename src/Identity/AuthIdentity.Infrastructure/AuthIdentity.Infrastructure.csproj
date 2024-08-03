@@ -10,7 +10,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\General\General\General.csproj" />
-      <ProjectReference Include="..\AuthIdentity.Core\AuthIdentity.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
