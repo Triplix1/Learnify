@@ -2,7 +2,8 @@
     <mat-tab-group>
         <mat-tab label="Налаштуйте ваш профіль">
             <div class="mt-4">
-                <app-image-uploader (imageChanged)="imagechanged($event)"></app-image-uploader>
+                <app-image-uploader [file]="profileData?.imageUrl"
+                                    (imageChanged)="imagechanged($event)"></app-image-uploader>
             </div>
         </mat-tab>
         <mat-tab [disabled]="false"

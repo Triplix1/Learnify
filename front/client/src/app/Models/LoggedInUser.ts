@@ -1,5 +1,5 @@
 export interface LoggedInUser {
-    id: string;
+    id: number;
     email: string;
     username: string;
     imageUrl: string;

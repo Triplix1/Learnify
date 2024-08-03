@@ -3,6 +3,7 @@ using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Learnify.Core.Services;
 
@@ -84,16 +85,30 @@ public class ProfileService : IProfileService
                 origin.ImageContainerName = "profile";
                 origin.ImageBlobName = profileUpdateRequest.File.FileName;
             }
+            
+            // var buffer = new byte[10000];
+            // var bytesRead = 0;
+            var fileBytes = Array.Empty<byte>();
+            // var totalBytesRead = 0;
 
-            using var memoryStream = new MemoryStream();
-            await profileUpdateRequest.File.CopyToAsync(memoryStream);
-            var fileBytes = memoryStream.ToArray();
+            // using var memoryStream = new MemoryStream();
+            // await profileUpdateRequest.File.CopyToAsync(memoryStream);
+            // fileBytes = memoryStream.ToArray();
+
+            await using var stream = profileUpdateRequest.File.OpenReadStream();
+
+            byte[] b;
+
+            using (BinaryReader br = new BinaryReader(stream))
+            {
+                b = br.ReadBytes((int)stream.Length);
+            }
             
             var blobDto = new BlobDto()
             {
                 Name = origin.ImageBlobName,
                 ContainerName = origin.ImageContainerName,
-                Content = fileBytes
+                Content = b
             };
             
             var photoResult = await _blobStorage.UploadAsync(blobDto);

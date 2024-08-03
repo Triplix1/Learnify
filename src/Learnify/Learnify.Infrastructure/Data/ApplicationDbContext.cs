@@ -1,7 +1,7 @@
 ﻿using Learnify.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Learnify.Infrastructure;
+namespace Learnify.Infrastructure.Data;
 
 /// <inheritdoc />
 public class ApplicationDbContext: DbContext

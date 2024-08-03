@@ -1,5 +1,6 @@
 ﻿using Learnify.Core.Domain.Entities;
 using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;

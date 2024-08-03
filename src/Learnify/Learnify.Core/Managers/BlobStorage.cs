@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using Learnify.Core.Dto;
 using Learnify.Core.ManagerContracts;
 
@@ -24,12 +25,24 @@ public class BlobStorage : IBlobStorage
         }
 
         await blobClient.UploadAsync(new BinaryData(blobDto.Content ?? new byte[] { }));
+        
+        BlobSasBuilder sasBuilder = new BlobSasBuilder
+        {
+            BlobContainerName = blobDto.ContainerName,
+            BlobName = blobDto.Name,
+            Resource = "b",
+            ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(10)
+        };
+
+        sasBuilder.SetPermissions(BlobSasPermissions.Read);
+
+        Uri sasUri = blobClient.GenerateSasUri(sasBuilder);
 
         return new BlobResponse()
         {
             Name = blobClient.Name,
             ContainerName = blobClient.BlobContainerName,
-            Url = blobClient.Uri.ToString(),
+            Url = sasUri.ToString(),
             ContentType = (await blobClient.GetPropertiesAsync()).Value.ContentType
         };
     }
@@ -51,7 +64,7 @@ public class BlobStorage : IBlobStorage
         {
             Name = blobClient.Name,
             ContainerName = blobClient.BlobContainerName,
-            Url = blobClient.Uri.ToString(),
+            Url = blobClient.Uri.AbsoluteUri,
             ContentType = (await blobClient.GetPropertiesAsync()).Value.ContentType
         };
     }
@@ -72,7 +85,7 @@ public class BlobStorage : IBlobStorage
             throw new InvalidOperationException($"Blob with id:{blobId} does not exist.");
         }
 
-        return blobClient.Uri.ToString();
+        return blobClient.Uri.AbsoluteUri;
     }
     
     public async Task<Stream> GetBlobStreamAsync(string containerName, string blobName)

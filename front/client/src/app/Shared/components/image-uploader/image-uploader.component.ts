@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Observable, take } from 'rxjs';
 import { ImageCropperComponent } from '../image-cropper/image-cropper.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
   styleUrls: ['./image-uploader.component.scss']
 })
 export class ImageUploaderComponent {
-  file: string = '';
+  @Input() file: string = '';
   @Output() imageChanged: EventEmitter<File> = new EventEmitter<File>();
 
   constructor(private readonly dialog: MatDialog, private readonly imageService: ImageService) { }
@@ -28,7 +28,7 @@ export class ImageUploaderComponent {
             if (result) {
               this.file = result;
               this.imageService.getImage(result).pipe(take(1)).subscribe(blob => {
-                const file = new File([blob], uuidv4() + this.imageService.getExtensionFromMimeType(blob.type), { type: blob.type });
+                const file = new File([blob], uuidv4() + "." + this.imageService.getExtensionFromMimeType(blob.type), { type: blob.type });
                 this.imageChanged.emit(file);
               })
             }

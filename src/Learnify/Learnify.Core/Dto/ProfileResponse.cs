@@ -48,12 +48,17 @@ public class ProfileResponse
     public string? CardNumber { get; set; }
     
     /// <summary>
-    /// Gets or sets value for PhotoUrl
+    /// Gets or sets value for ImageUrl
     /// </summary>
-    public string? PhotoUrl { get; set; }
+    public string? ImageUrl { get; set; }
     
     /// <summary>
-    /// Gets or sets value for PhotoPublicId
+    /// Gets or sets value for ImageBlobName
     /// </summary>
-    public string? PhotoPublicId { get; set; }
+    public string? ImageBlobName { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value for ImageContainerName
+    /// </summary>
+    public string? ImageContainerName { get; set; }
 }

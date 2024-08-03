@@ -8,119 +8,22 @@ services:
       - 5672:5672
       - 15672:15672
       
-  notification:
-    build:
-      context: .
-      dockerfile: src/Notification/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - RabbitMq__Host=${RabbitMq}
-      - ASPNETCORE_URLS=http://*:80
-    depends_on: 
-      - rabbitmq
-    ports:
-      - 5003:80
-
-  profileservice:
-    build:
-      context: .
-      dockerfile: src/Profile/Profile.Api/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - RabbitMq__Host=${RabbitMq}
-      - IdentityUrl=${IdentityUrl}
-      - ConnectionStrings__DefaultConnection=Server=profiledb:5432;User Id=postgres_profile;Password=postgrespw;Database=Profile
-      - ASPNETCORE_URLS=http://*:80
-      - AllowedHosts=${AllowedHosts}
-      - GrpcSettings__BlobStorageUrl=${BlobStorageUrl}
-      - JwtSettings__Key=${JwtSettingsKey}
-      - JwtSettings__Expire=${JwtSettingsExpire}
-      - JwtSettings__Audience=${JwtSettingsAudience}
-      - JwtSettings__Issuer=${JwtSettingsIssuer}
-    depends_on:
-      - rabbitmq
-    ports:
-      - 5002:80
-    
-  identityservice:
-    build:
-      context: .
-      dockerfile: src/Identity/AuthIdentity.Api/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - RabbitMq__Host=${RabbitMq}
-      - GoogleAuthSettings__ClientId=${GoogleAuthSettingsClientId}
-      - GoogleAuthSettings__ClientSecret=${GoogleAuthSettingsClientSecret}
-      - JwtSettings__Key=${JwtSettingsKey}
-      - JwtSettings__Expire=${JwtSettingsExpire}
-      - JwtSettings__Audience=${JwtSettingsAudience}
-      - JwtSettings__Issuer=${JwtSettingsIssuer}
-      - ConnectionStrings__DefaultConnection=Server=identitydb:5432;User Id=postgres_identity;Password=postgrespw;Database=Identity
-      - AllowedHosts=${AllowedHosts}
-      - ASPNETCORE_URLS=http://*:80
-    depends_on:
-      - rabbitmq
-    ports:
-      - 5001:80
-  
-  ocelotapigateway:
-    build:
-      context: .
-      dockerfile: src/Gateway/OcelotApiGateway/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
-      - IdentityUrl=${IdentityUrl}
-      - AllowedHosts=${AllowedHosts}
-      - ASPNETCORE_URLS=http://*:80
-      - AllowedOrigins=${AllowedOrigins}
-      - Logging__LogLevel__Ocelot=Debug
-    ports:
-      - 5000:80
-  
-  blobstorageservice:
-    build:
-      context: .
-      dockerfile: src/Storage/BlobStorage.Grpc/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - RabbitMq__Host=${RabbitMq}
-      - BlobStorageSettings__ConnectionString=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJzlJWu3Jly5rPrSrZbyMJifhvRbacn1w7j1+otfPH/VSnhaz3h9Z/JkbsYhvud1+jRQ==;BlobEndpoint=http://storageemulator:10000/devstoreaccount1;
-      - ASPNETCORE_URLS=http://*:80
-    depends_on:
-      - storageemulator
-    ports:
-      - 5004:80
-
-  storageemulator:
-    image: mcr.microsoft.com/azure-storage/azurite
-    hostname: azurite
+  mongo:
+    image: mongo
     restart: always
-    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10000"
     ports:
-      - "10000:10000"
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
 
-  profiledb:
-    container_name: profiledb
+  mongo-express:
+    image: mongo-express
     restart: always
-    image: postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER_PROFILE}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_PROFILE}
-      POSTGRES_DB: ${POSTGRES_DB_PROFILE}
     ports:
-      - "5431:5432"
-    volumes:
-      - ./Volumes/profiledb:/var/lib/postgresql/data
-        
-  identitydb:
-    container_name: identitydb
-    restart: always
-    image: postgres
+      - 8081:8081
     environment:
-      POSTGRES_USER: ${POSTGRES_USER_IDENTITY}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_IDENTITY}
-      POSTGRES_DB: ${POSTGRES_DB_IDENTITY}
-    ports:
-      - "5434:5432"
-    volumes:
-      - ./Volumes/identitydb:/var/lib/postgresql/data
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_URL: mongodb://root:password@mongo:27017/
+      ME_CONFIG_BASICAUTH: false

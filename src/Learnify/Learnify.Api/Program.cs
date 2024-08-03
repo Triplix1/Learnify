@@ -1,6 +1,7 @@
 using Learnify.Core.Installer;
 using Learnify.Core.Middlewares;
 using Learnify.Infrastructure;
+using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

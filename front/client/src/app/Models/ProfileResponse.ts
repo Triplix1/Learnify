@@ -1,7 +1,7 @@
 import { UserType } from "./UserType";
 
 export interface ProfileResponse {
-    id: string;
+    id: number;
     username: string;
     email: string;
     type: UserType;
@@ -9,6 +9,7 @@ export interface ProfileResponse {
     surname: string;
     company?: string;
     cardNumber?: string;
-    photoUrl?: string;
-    photoPublicId?: string;
+    imageUrl?: string;
+    imageBlobName?: string;
+    imageContainerName?: string;
 }

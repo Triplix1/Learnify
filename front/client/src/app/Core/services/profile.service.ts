@@ -15,7 +15,7 @@ export class ProfileService {
 
   constructor(private readonly httpClient: HttpClient) { }
 
-  getById(id: string): Observable<ApiResponse<ProfileResponse>> {
+  getById(id: number): Observable<ApiResponse<ProfileResponse>> {
     return this.httpClient.get<ApiResponse<ProfileResponse>>(this.baseProfileUrl + "/" + id);
   }
 

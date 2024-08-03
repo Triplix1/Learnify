@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Infrastructure.Data;
 
 namespace Learnify.Infrastructure.Repositories;
 
