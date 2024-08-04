@@ -15,12 +15,17 @@ public class ApplicationDbContext: DbContext
     /// <summary>
     /// RefreshTokens Db Set
     /// </summary>
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; }
     
     /// <summary>
     /// Users Db Set
     /// </summary>
-    public DbSet<User> Users { get; set; }
+    public DbSet<User> Users { get; }
+    
+    /// <summary>
+    /// CourseRatings Db Set
+    /// </summary>
+    public DbSet<CourseRating> CourseRatings { get; }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder)
@@ -29,6 +34,7 @@ public class ApplicationDbContext: DbContext
 
         builder.Entity<RefreshToken>().HasIndex(rt => rt.Jwt);
         builder.Entity<User>().HasIndex(u => u.Email);
+        builder.Entity<CourseRating>().HasIndex(r => r.CourseId);
     }
 
     /// <inheritdoc />

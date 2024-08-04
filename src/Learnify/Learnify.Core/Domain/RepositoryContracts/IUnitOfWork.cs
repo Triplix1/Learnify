@@ -14,4 +14,19 @@ public interface IUnitOfWork: IBaseUnitOfWork
     /// Get value of ProfileRepository
     /// </summary>
     IRefreshTokenRepository RefreshTokenRepository { get; }
+    
+    /// <summary>
+    /// Get value of CourseRepository
+    /// </summary>
+    ICourseRepository CourseRepository { get; }
+    
+    /// <summary>
+    /// Get value of CourseRatingsRepository
+    /// </summary>
+    ICourseRatingsRepository CourseRatingsRepository { get; }
+    
+    /// <summary>
+    /// Get value of CourseLessonContentRepository
+    /// </summary>
+    ICourseLessonContentRepository CourseLessonContentRepository { get; }
 }

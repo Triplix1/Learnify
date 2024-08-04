@@ -66,10 +66,4 @@ public abstract class BaseRepository<T, TKey> : IBaseRepository<T, TKey> where T
 
         return await Context.SaveChangesAsync() > 0;
     }
-
-    /// <inheritdoc />
-    public virtual async Task SaveChangesAsync()
-    {
-        await Context.SaveChangesAsync();
-    }
 }

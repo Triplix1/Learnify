@@ -15,7 +15,20 @@ public interface IMongoAppDbContext
     IMongoCollection<View> Views { get; }
     
     /// <summary>
-    /// Collection of <see cref="Lessons"/>
+    /// Collection of <see cref="Lesson"/>
     /// </summary>
     IMongoCollection<CourseLessonContent> Lessons { get; }
+    
+    /// <summary>
+    /// Collection of <see cref="Course"/>
+    /// </summary>
+    IMongoCollection<Course> Courses { get; }
+
+    /// <summary>
+    /// Gets collection for specified type by specified name
+    /// </summary>
+    /// <param name="name">Collection name</param>
+    /// <typeparam name="T">type</typeparam>
+    /// <returns>Collection for specified type by specified name</returns>
+    IMongoCollection<T> GetCollection<T>(string name);
 }

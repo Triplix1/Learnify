@@ -21,7 +21,6 @@ public class IdentityService : IIdentityService
     private readonly IGoogleAuthManager _googleAuthManager;
     private readonly ILogger<IdentityService> _logger;
     private readonly ITokenManager _tokenManager;
-    private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
     private readonly IBlobStorage _blobStorage;
     private readonly IUnitOfWork _unitOfWork;
@@ -29,13 +28,13 @@ public class IdentityService : IIdentityService
     public IdentityService(IGoogleAuthManager googleAuthManager,
         ILogger<IdentityService> logger,
         ITokenManager tokenManager,
-        IUserRepository userRepository,
-        IMapper mapper, IBlobStorage blobStorage, IUnitOfWork unitOfWork)
+        IMapper mapper, 
+        IBlobStorage blobStorage, 
+        IUnitOfWork unitOfWork)
     {
         _googleAuthManager = googleAuthManager;
         _logger = logger;
         _tokenManager = tokenManager;
-        _userRepository = userRepository;
         _mapper = mapper;
         _blobStorage = blobStorage;
         _unitOfWork = unitOfWork;
@@ -57,7 +56,7 @@ public class IdentityService : IIdentityService
         }
         
 
-        var user = await _userRepository.GetByEmailAsync(tokenPayload.Email);
+        var user = await _unitOfWork.UserRepository.GetByEmailAsync(tokenPayload.Email);
 
         if (user is null)
         {
@@ -70,7 +69,7 @@ public class IdentityService : IIdentityService
                 IsGoogleAuth = true
             };
 
-            await _userRepository.CreateAsync(user);
+            await _unitOfWork.UserRepository.CreateAsync(user);
         }
 
         return await ReturnNewAuthResponseAsync(user);
@@ -94,7 +93,7 @@ public class IdentityService : IIdentityService
             return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Cannot find email in token"));
         }
 
-        var user = await _userRepository.GetByEmailAsync(email);
+        var user = await _unitOfWork.UserRepository.GetByEmailAsync(email);
 
         if (user is null)
         {
@@ -130,14 +129,14 @@ public class IdentityService : IIdentityService
 
         refreshToken.HasBeenUsed = true;
         await _unitOfWork.RefreshTokenRepository.UpdateAsync(refreshToken);
-        await _unitOfWork.RefreshTokenRepository.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
 
         return await ReturnNewAuthResponseAsync(user);
     }
 
     public async Task<ApiResponse<AuthResponse>> RegisterAsync(RegisterRequest registerRequest)
     {
-        var userWithTheSameEmail = await _userRepository.GetByEmailAsync(registerRequest.Email);
+        var userWithTheSameEmail = await _unitOfWork.UserRepository.GetByEmailAsync(registerRequest.Email);
 
         if (userWithTheSameEmail is not null)
         {
@@ -146,7 +145,7 @@ public class IdentityService : IIdentityService
             return ApiResponse<AuthResponse>.Failure(new ArgumentException("User with the same email already exists"));
         }
 
-        var userWithTheSameUsername = await _userRepository.GetByUsernameAsync(registerRequest.Username);
+        var userWithTheSameUsername = await _unitOfWork.UserRepository.GetByUsernameAsync(registerRequest.Username);
 
         if (userWithTheSameUsername is not null)
         {
@@ -188,15 +187,15 @@ public class IdentityService : IIdentityService
             user.ImageContainerName = imageBlob.ContainerName;
         }
 
-        var createdUser = await _userRepository.CreateAsync(user);
-        await _userRepository.SaveChangesAsync();
+        var createdUser = await _unitOfWork.UserRepository.CreateAsync(user);
+        await _unitOfWork.SaveChangesAsync();
         
         return await ReturnNewAuthResponseAsync(user);
     }
 
     public async Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest loginRequest)
     {
-        var user = await _userRepository.GetByEmailAsync(loginRequest.Email);
+        var user = await _unitOfWork.UserRepository.GetByEmailAsync(loginRequest.Email);
 
         if (user is null)
         {
@@ -249,7 +248,7 @@ public class IdentityService : IIdentityService
         };
 
         await _unitOfWork.RefreshTokenRepository.CreateAsync(refreshToken);
-        await _userRepository.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
 
         var response = new AuthResponse()
         {

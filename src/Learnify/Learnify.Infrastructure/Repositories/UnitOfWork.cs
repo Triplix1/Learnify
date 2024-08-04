@@ -12,11 +12,14 @@ public class UnitOfWork: IUnitOfWork
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
     /// <param name="userRepository"><see cref="IUserRepository"/></param>
     /// <param name="refreshTokenRepository"><see cref="IRefreshTokenRepository"/></param>
-    public UnitOfWork(ApplicationDbContext context, IUserRepository userRepository, IRefreshTokenRepository refreshTokenRepository)
+    public UnitOfWork(ApplicationDbContext context, IUserRepository userRepository, IRefreshTokenRepository refreshTokenRepository, ICourseRepository courseRepository, ICourseRatingsRepository courseRatingsRepository, ICourseLessonContentRepository courseLessonContentRepository)
     {
         _context = context;
         UserRepository = userRepository;
         RefreshTokenRepository = refreshTokenRepository;
+        CourseRepository = courseRepository;
+        CourseRatingsRepository = courseRatingsRepository;
+        CourseLessonContentRepository = courseLessonContentRepository;
     }
 
     private readonly ApplicationDbContext _context;
@@ -32,4 +35,13 @@ public class UnitOfWork: IUnitOfWork
 
     /// <inheritdoc />
     public IRefreshTokenRepository RefreshTokenRepository { get; }
+
+    /// <inheritdoc />
+    public ICourseRepository CourseRepository { get; }
+
+    /// <inheritdoc />
+    public ICourseRatingsRepository CourseRatingsRepository { get; }
+
+    /// <inheritdoc />
+    public ICourseLessonContentRepository CourseLessonContentRepository { get; }
 }

@@ -42,10 +42,4 @@ public interface IBaseRepository<T, TKey> where T: BaseEntity<TKey>
     /// <param name="id"></param>
     /// <returns>Success of operation</returns>
     Task<bool> DeleteAsync(TKey id);
-    
-    /// <summary>
-    /// Save changes made on db context
-    /// </summary>
-    /// <returns></returns>
-    Task SaveChangesAsync();
 }

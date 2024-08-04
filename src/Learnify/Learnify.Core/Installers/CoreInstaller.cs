@@ -46,6 +46,7 @@ public class CoreInstaller: IInstaller
         services.AddScoped<IBlobStorage, BlobStorage>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<ICourseService, CourseService>();
 
         services.Configure<GoogleAuthOptions>(config.GetSection("GoogleAuthSettings"));
         services.Configure<JwtOptions>(config.GetSection("JwtSettings"));

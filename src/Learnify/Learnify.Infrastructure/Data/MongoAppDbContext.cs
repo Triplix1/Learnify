@@ -10,6 +10,8 @@ namespace Learnify.Infrastructure.Data;
 /// <inheritdoc />
 public class MongoAppDbContext: IMongoAppDbContext
 {
+    private readonly IMongoDatabase _database;
+    
     /// <summary>
     /// Initializes a new instance of <see cref="MongoAppDbContext"/>
     /// </summary>
@@ -17,26 +19,38 @@ public class MongoAppDbContext: IMongoAppDbContext
     public MongoAppDbContext(IConfiguration configuration)
     {
         var client = new MongoClient(configuration.GetSection("MongoDatabase:ConnectionString").Value);
-        var database = client.GetDatabase(configuration.GetSection("MongoDatabase:DatabaseName").Value);
+        _database = client.GetDatabase(configuration.GetSection("MongoDatabase:DatabaseName").Value);
 
         var viewsCollectionName = configuration.GetSection("MongoDatabase:ViewsCollectionName").Value;
         
         var filter = new BsonDocument("name", viewsCollectionName);
-        var collections = database.ListCollections(new ListCollectionsOptions { Filter = filter });
+        var collections = _database.ListCollections(new ListCollectionsOptions { Filter = filter });
         if (!collections.Any())
         {
             var options = new CreateCollectionOptions { TimeSeriesOptions = new TimeSeriesOptions("time") };
-            database.CreateCollection(viewsCollectionName, options);
+            _database.CreateCollection(viewsCollectionName, options);
         }
         else
         {
-            Views = database.GetCollection<View>(viewsCollectionName);   
+            Views = _database.GetCollection<View>(viewsCollectionName);   
         }
 
-        Lessons = database.GetCollection<CourseLessonContent>("CourseLessons");
+        Lessons = _database.GetCollection<CourseLessonContent>("MongoDatabase:CourseLessonsCollectionName");
+        Courses = _database.GetCollection<Course>("MongoDatabase:CoursesCollectionName");
     }
     
     /// <inheritdoc />
     public IMongoCollection<View> Views { get; }
+
+    /// <inheritdoc />
     public IMongoCollection<CourseLessonContent> Lessons { get; }
+    
+    /// <inheritdoc />
+    public IMongoCollection<Course> Courses { get; }
+
+    /// <inheritdoc />
+    public IMongoCollection<T> GetCollection<T>(string name)
+    {
+        return _database.GetCollection<T>(name);
+    }
 }

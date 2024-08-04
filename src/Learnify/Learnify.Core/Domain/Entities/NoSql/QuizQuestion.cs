@@ -1,4 +1,4 @@
-﻿namespace Learnify.Core.Domain.Entities;
+﻿namespace Learnify.Core.Domain.Entities.NoSql;
 
 public class QuizQuestion
 {

@@ -16,7 +16,10 @@ public class InfrastructureInstaller: IInstaller
     {
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICourseRepository, CourseRepository>();
+        services.AddScoped<ICourseRatingsRepository, CourseRatingRepository>();
+        services.AddScoped<ICourseLessonContentRepository, CourseLessonContentRepository>();
+            
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-
     }
 }

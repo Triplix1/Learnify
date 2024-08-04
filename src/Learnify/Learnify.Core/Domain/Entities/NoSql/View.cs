@@ -1,4 +1,4 @@
-﻿namespace Learnify.Core.Domain.Entities;
+﻿namespace Learnify.Core.Domain.Entities.NoSql;
 
 /// <summary>
 /// View entity
@@ -8,7 +8,7 @@ public class View
     /// <summary>
     /// Gets or sets value for CourseId
     /// </summary>
-    public int CourseId { get; set; }
+    public string CourseId { get; set; }
     
     /// <summary>
     /// Gets or sets value for UserId

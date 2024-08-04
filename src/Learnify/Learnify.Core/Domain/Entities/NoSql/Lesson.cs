@@ -1,7 +1,7 @@
 ﻿namespace Learnify.Core.Domain.Entities.NoSql;
 
 /// <summary>
-/// Course lesson
+/// Paragraph's lesson
 /// </summary>
 public class Lesson
 {

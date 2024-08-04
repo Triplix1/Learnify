@@ -30,5 +30,5 @@ public class Course: BaseEntity<string>
     /// <summary>
     /// Gets or sets value for Lessons
     /// </summary>
-    public IList<Lesson> Paragraphs { get; set; }
+    public IList<Paragraph> Paragraphs { get; set; }
 }
