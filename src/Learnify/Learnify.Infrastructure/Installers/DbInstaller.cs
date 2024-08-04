@@ -1,5 +1,6 @@
 ﻿using Learnify.Core.Installer;
 using Learnify.Infrastructure.Data;
+using Learnify.Infrastructure.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,5 +20,7 @@ public class DbInstaller: IInstaller
             options.UseNpgsql(config["ConnectionStrings:DefaultConnection"]);
             var s = config["ConnectionStrings:DefaultConnection"];
         });
+
+        services.AddScoped<IMongoAppDbContext, MongoAppDbContext>();
     }
 }

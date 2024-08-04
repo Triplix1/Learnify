@@ -1,12 +1,17 @@
 ﻿using Learnify.Core.Enums;
 
-namespace Learnify.Core.Domain.Entities;
+namespace Learnify.Core.Domain.Entities.NoSql;
 
 /// <summary>
 /// Course entity
 /// </summary>
-public class Course
+public class Course: BaseEntity<string>
 {
+    /// <summary>
+    /// Gets or sets value for AuthorId
+    /// </summary>
+    public int AuthorId { get; set; }
+    
     /// <summary>
     /// Gets or sets value for Name
     /// </summary>
@@ -21,23 +26,9 @@ public class Course
     /// Gets or sets value for PrimaryLanguage
     /// </summary>
     public Language PrimaryLanguage { get; set; }
-
+    
     /// <summary>
-    /// Gets or sets value for Ratings
+    /// Gets or sets value for Lessons
     /// </summary>
-    public ICollection<CourseRating> Ratings { get; set; }
-
-    /// <summary>
-    /// Get course rating 
-    /// </summary>
-    /// <returns></returns>
-    public double GetRating()
-    {
-        var count = (double)Ratings.Count;
-
-        if (count == 0d)
-            return 0d;
-        
-        return Math.Round(Ratings.Sum(r => r.Rate) / count, 2);
-    }
+    public IList<Lesson> Paragraphs { get; set; }
 }

@@ -6,7 +6,8 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 /// base repository for each entity
 /// </summary>
 /// <typeparam name="T"><see cref="BaseEntity"/></typeparam>
-public interface IBaseRepository<T> where T: BaseEntity
+/// <typeparam name="TKey">Key</typeparam>
+public interface IBaseRepository<T, TKey> where T: BaseEntity<TKey>
 {
     /// <summary>
     /// Returns all entities
@@ -19,7 +20,7 @@ public interface IBaseRepository<T> where T: BaseEntity
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    Task<T?> GetByIdAsync(int key);
+    Task<T?> GetByIdAsync(TKey key);
     
     /// <summary>
     /// Creates entity
@@ -40,7 +41,7 @@ public interface IBaseRepository<T> where T: BaseEntity
     /// </summary>
     /// <param name="id"></param>
     /// <returns>Success of operation</returns>
-    Task<bool> DeleteAsync(int id);
+    Task<bool> DeleteAsync(TKey id);
     
     /// <summary>
     /// Save changes made on db context

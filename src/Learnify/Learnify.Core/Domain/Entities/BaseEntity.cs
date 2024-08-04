@@ -1,15 +1,21 @@
 ﻿namespace Learnify.Core.Domain.Entities;
 
 /// <summary>
-/// Base class for entities
+/// Base generic class for entities
 /// </summary>
-public class BaseEntity
+public class BaseEntity<TKey>: BaseEntity
 {
     /// <summary>
     /// Gets or sets value for Id
     /// </summary>
-    public int Id { get; set; }
-    
+    public TKey Id { get; set; }
+}
+
+/// <summary>
+/// Base class for entities
+/// </summary>
+public class BaseEntity
+{
     /// <summary>
     /// Gets or sets value for CreatedAt
     /// </summary>

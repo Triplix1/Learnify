@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
+using Learnify.Api.Controllers.Base;
 using Learnify.Core.Dto;
 using Learnify.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ProfileService.Controllers.Base;
 
 namespace Learnify.Api.Controllers;
 

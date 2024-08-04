@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Domain.Entities;
+using Learnify.Core.Domain.Entities.Sql;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Data;

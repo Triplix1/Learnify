@@ -4,6 +4,7 @@ using System.Text;
 using AutoMapper;
 using Google.Apis.Auth;
 using Learnify.Core.Domain.Entities;
+using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Auth;

@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Learnify.Api.Controllers.Base;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Auth;
 using Learnify.Core.ServiceContracts;
 using Microsoft.AspNetCore.Mvc;
-using ProfileService.Controllers.Base;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Learnify.Api.Controllers

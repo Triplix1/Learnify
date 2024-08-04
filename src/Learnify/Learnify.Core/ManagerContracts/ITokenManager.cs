@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using Learnify.Core.Domain.Entities;
+using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Dto.Auth;
 
 namespace Learnify.Core.ManagerContracts;

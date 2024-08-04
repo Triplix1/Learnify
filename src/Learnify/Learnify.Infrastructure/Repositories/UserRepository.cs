@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Domain.Entities;
+using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ namespace Learnify.Infrastructure.Repositories;
 /// <summary>
 /// UserRepository
 /// </summary>
-public class UserRepository: BaseRepository<User>, IUserRepository
+public class UserRepository: BaseRepository<User, int>, IUserRepository
 {
 
     /// <summary>

@@ -1,6 +1,7 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure;
+using Azure.Identity;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Azure.Storage.Sas;
 using Learnify.Core.Dto;
 using Learnify.Core.ManagerContracts;
 
@@ -15,7 +16,7 @@ public class BlobStorage : IBlobStorage
         _blobServiceClient = blobServiceClient;
     }
 
-    public async Task<BlobResponse> UploadAsync(BlobDto blobDto)
+    public async Task<BlobResponse> UploadAsync(BlobDto blobDto, bool isPrivate = false)
     {
         var blobClient = await GetBlobClientInternalAsync(blobDto.ContainerName, blobDto.Name);
 
@@ -26,23 +27,19 @@ public class BlobStorage : IBlobStorage
 
         await blobClient.UploadAsync(new BinaryData(blobDto.Content ?? new byte[] { }));
         
-        BlobSasBuilder sasBuilder = new BlobSasBuilder
+        if (isPrivate)
         {
-            BlobContainerName = blobDto.ContainerName,
-            BlobName = blobDto.Name,
-            Resource = "b",
-            ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(10)
-        };
-
-        sasBuilder.SetPermissions(BlobSasPermissions.Read);
-
-        Uri sasUri = blobClient.GenerateSasUri(sasBuilder);
-
+            var blobContainerClient = new BlobContainerClient(blobClient.Uri, new DefaultAzureCredential());
+            await blobContainerClient.SetAccessPolicyAsync();
+        }
+        
+        var uri = blobClient.Uri.ToString();
+        
         return new BlobResponse()
         {
             Name = blobClient.Name,
             ContainerName = blobClient.BlobContainerName,
-            Url = sasUri.ToString(),
+            Url = uri,
             ContentType = (await blobClient.GetPropertiesAsync()).Value.ContentType
         };
     }
@@ -82,6 +79,9 @@ public class BlobStorage : IBlobStorage
     private async Task<BlobClient> GetBlobClientInternalAsync(string containerName, string blobName)
     {
         var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+        
+        await containerClient.SetAccessPolicyAsync(PublicAccessType.Blob);
+
         await containerClient.CreateIfNotExistsAsync();
         
         return containerClient.GetBlobClient(blobName);

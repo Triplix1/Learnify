@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Learnify.Infrastructure.Repositories;
 
 /// <inheritdoc />
-public abstract class BaseRepository<T> : IBaseRepository<T> where T: BaseEntity
+public abstract class BaseRepository<T, TKey> : IBaseRepository<T, TKey> where T: BaseEntity<TKey>
 {
     /// <summary>
     /// Gets or sets a new instance of Context
@@ -14,7 +14,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T: BaseEntity
     protected readonly ApplicationDbContext Context;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="BaseRepository"/>
+    /// Initializes a new instance of <see cref="BaseRepository{T, Tkey}"/>
     /// </summary>
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
     protected BaseRepository(ApplicationDbContext context)
@@ -29,7 +29,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T: BaseEntity
     }
 
     /// <inheritdoc />
-    public virtual async Task<T?> GetByIdAsync(int key)
+    public virtual async Task<T?> GetByIdAsync(TKey key)
     {
         return await Context.Set<T>().FindAsync(key);
     }
@@ -53,7 +53,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T: BaseEntity
     }
 
     /// <inheritdoc />
-    public virtual async Task<bool> DeleteAsync(int id)
+    public virtual async Task<bool> DeleteAsync(TKey id)
     {
         var entity = await Context.Set<T>().FindAsync(id);
 
@@ -68,7 +68,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T: BaseEntity
     }
 
     /// <inheritdoc />
-    public async Task SaveChangesAsync()
+    public virtual async Task SaveChangesAsync()
     {
         await Context.SaveChangesAsync();
     }

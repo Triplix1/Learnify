@@ -1,11 +1,12 @@
 ﻿using Learnify.Core.Domain.Entities;
+using Learnify.Core.Domain.Entities.Sql;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
 
 /// <summary>
 /// UserRepository
 /// </summary>
-public interface IUserRepository : IBaseRepository<User>
+public interface IUserRepository : IBaseRepository<User, int>
 {
     /// <summary>
     /// Returns user by email

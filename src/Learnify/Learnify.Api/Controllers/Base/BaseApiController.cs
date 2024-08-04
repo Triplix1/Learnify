@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace ProfileService.Controllers.Base;
+namespace Learnify.Api.Controllers.Base;
 
 /// <summary>
 /// Base controller for all profile controllers

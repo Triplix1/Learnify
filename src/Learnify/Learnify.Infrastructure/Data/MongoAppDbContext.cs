@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Domain.Entities;
+using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Infrastructure.Data.Interfaces;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
@@ -31,8 +32,11 @@ public class MongoAppDbContext: IMongoAppDbContext
         {
             Views = database.GetCollection<View>(viewsCollectionName);   
         }
+
+        Lessons = database.GetCollection<CourseLessonContent>("CourseLessons");
     }
     
     /// <inheritdoc />
     public IMongoCollection<View> Views { get; }
+    public IMongoCollection<CourseLessonContent> Lessons { get; }
 }
