@@ -6,7 +6,7 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 /// <summary>
 /// UserRepository
 /// </summary>
-public interface IUserRepository : IBaseRepository<User, int>
+public interface IUserRepository : IBasePsqRepository<User, int>
 {
     /// <summary>
     /// Returns user by email

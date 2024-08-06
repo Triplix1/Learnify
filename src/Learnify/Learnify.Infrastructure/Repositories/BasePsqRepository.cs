@@ -1,12 +1,13 @@
 ﻿using Learnify.Core.Domain.Entities;
 using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Core.Specification;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
 
 /// <inheritdoc />
-public abstract class BaseRepository<T, TKey> : IBaseRepository<T, TKey> where T: BaseEntity<TKey>
+public abstract class BasePsqRepository<T, TKey> : IBasePsqRepository<T, TKey> where T: BaseEntity<TKey>
 {
     /// <summary>
     /// Gets or sets a new instance of Context
@@ -14,18 +15,33 @@ public abstract class BaseRepository<T, TKey> : IBaseRepository<T, TKey> where T
     protected readonly ApplicationDbContext Context;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="BaseRepository{T, Tkey}"/>
+    /// Initializes a new instance of <see cref="BasePsqRepository{T,TKey}"/>
     /// </summary>
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
-    protected BaseRepository(ApplicationDbContext context)
+    protected BasePsqRepository(ApplicationDbContext context)
     {
         Context = context;
     }
 
     /// <inheritdoc />
-    public virtual async Task<IEnumerable<T>> GetAllAsync()
+    public virtual async Task<IEnumerable<T>> GetFilteredAsync(EfFilter<T> efFilter)
     {
-        return await Context.Set<T>().ToListAsync();
+        var result = Context.Set<T>().AsQueryable();
+        
+        if(efFilter.Includes is not null && efFilter.Includes.Count != 0)
+            result = efFilter.Includes.Aggregate(
+                result,
+                (current, include) => current.Include(include)
+            );
+
+        if (efFilter.Specification is not null)
+            result = result.Where(efFilter.Specification.GetExpression());
+
+        if (efFilter.Pagination is not null)
+            result = result.Skip(efFilter.Pagination.Skip)
+                .Take(efFilter.Pagination.Take);
+        
+        return await result.ToArrayAsync();
     }
 
     /// <inheritdoc />

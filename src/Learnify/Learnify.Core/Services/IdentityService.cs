@@ -23,21 +23,21 @@ public class IdentityService : IIdentityService
     private readonly ITokenManager _tokenManager;
     private readonly IMapper _mapper;
     private readonly IBlobStorage _blobStorage;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IPsqUnitOfWork _psqUnitOfWork;
 
     public IdentityService(IGoogleAuthManager googleAuthManager,
         ILogger<IdentityService> logger,
         ITokenManager tokenManager,
         IMapper mapper, 
         IBlobStorage blobStorage, 
-        IUnitOfWork unitOfWork)
+        IPsqUnitOfWork psqUnitOfWork)
     {
         _googleAuthManager = googleAuthManager;
         _logger = logger;
         _tokenManager = tokenManager;
         _mapper = mapper;
         _blobStorage = blobStorage;
-        _unitOfWork = unitOfWork;
+        _psqUnitOfWork = psqUnitOfWork;
     }
 
     public async Task<ApiResponse<AuthResponse>> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest)
@@ -56,7 +56,7 @@ public class IdentityService : IIdentityService
         }
         
 
-        var user = await _unitOfWork.UserRepository.GetByEmailAsync(tokenPayload.Email);
+        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(tokenPayload.Email);
 
         if (user is null)
         {
@@ -69,7 +69,7 @@ public class IdentityService : IIdentityService
                 IsGoogleAuth = true
             };
 
-            await _unitOfWork.UserRepository.CreateAsync(user);
+            await _psqUnitOfWork.UserRepository.CreateAsync(user);
         }
 
         return await ReturnNewAuthResponseAsync(user);
@@ -93,7 +93,7 @@ public class IdentityService : IIdentityService
             return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Cannot find email in token"));
         }
 
-        var user = await _unitOfWork.UserRepository.GetByEmailAsync(email);
+        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(email);
 
         if (user is null)
         {
@@ -101,7 +101,7 @@ public class IdentityService : IIdentityService
             return ApiResponse<AuthResponse>.Failure(new RefreshTokenException($"Cannot find user with email: {email}"));
         }
 
-        var refreshToken = await _unitOfWork.RefreshTokenRepository.GetByJwtAsync(refreshTokenRequest.Jwt);
+        var refreshToken = await _psqUnitOfWork.RefreshTokenRepository.GetByJwtAsync(refreshTokenRequest.Jwt);
 
         if (refreshToken is null)
         {
@@ -128,15 +128,15 @@ public class IdentityService : IIdentityService
         }
 
         refreshToken.HasBeenUsed = true;
-        await _unitOfWork.RefreshTokenRepository.UpdateAsync(refreshToken);
-        await _unitOfWork.SaveChangesAsync();
+        await _psqUnitOfWork.RefreshTokenRepository.UpdateAsync(refreshToken);
+        await _psqUnitOfWork.SaveChangesAsync();
 
         return await ReturnNewAuthResponseAsync(user);
     }
 
     public async Task<ApiResponse<AuthResponse>> RegisterAsync(RegisterRequest registerRequest)
     {
-        var userWithTheSameEmail = await _unitOfWork.UserRepository.GetByEmailAsync(registerRequest.Email);
+        var userWithTheSameEmail = await _psqUnitOfWork.UserRepository.GetByEmailAsync(registerRequest.Email);
 
         if (userWithTheSameEmail is not null)
         {
@@ -145,7 +145,7 @@ public class IdentityService : IIdentityService
             return ApiResponse<AuthResponse>.Failure(new ArgumentException("User with the same email already exists"));
         }
 
-        var userWithTheSameUsername = await _unitOfWork.UserRepository.GetByUsernameAsync(registerRequest.Username);
+        var userWithTheSameUsername = await _psqUnitOfWork.UserRepository.GetByUsernameAsync(registerRequest.Username);
 
         if (userWithTheSameUsername is not null)
         {
@@ -187,15 +187,15 @@ public class IdentityService : IIdentityService
             user.ImageContainerName = imageBlob.ContainerName;
         }
 
-        var createdUser = await _unitOfWork.UserRepository.CreateAsync(user);
-        await _unitOfWork.SaveChangesAsync();
+        var createdUser = await _psqUnitOfWork.UserRepository.CreateAsync(user);
+        await _psqUnitOfWork.SaveChangesAsync();
         
         return await ReturnNewAuthResponseAsync(user);
     }
 
     public async Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest loginRequest)
     {
-        var user = await _unitOfWork.UserRepository.GetByEmailAsync(loginRequest.Email);
+        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(loginRequest.Email);
 
         if (user is null)
         {
@@ -247,8 +247,8 @@ public class IdentityService : IIdentityService
             HasBeenUsed = false
         };
 
-        await _unitOfWork.RefreshTokenRepository.CreateAsync(refreshToken);
-        await _unitOfWork.SaveChangesAsync();
+        await _psqUnitOfWork.RefreshTokenRepository.CreateAsync(refreshToken);
+        await _psqUnitOfWork.SaveChangesAsync();
 
         var response = new AuthResponse()
         {

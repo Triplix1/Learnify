@@ -5,7 +5,7 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 /// <summary>
 /// Courses repository
 /// </summary>
-public interface ICourseRepository : IBaseRepository<Course, string>
+public interface ICourseRepository : IBaseMongoRepository<Course, string>
 {
     
 }

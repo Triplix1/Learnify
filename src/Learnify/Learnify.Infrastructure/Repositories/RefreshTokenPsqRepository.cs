@@ -9,13 +9,13 @@ namespace Learnify.Infrastructure.Repositories;
 /// <summary>
 /// RefreshTokenRepository
 /// </summary>
-public class RefreshTokenRepository: BaseRepository<RefreshToken, int>, IRefreshTokenRepository
+public class RefreshTokenPsqRepository: BasePsqRepository<RefreshToken, int>, IRefreshTokenRepository
 {
     /// <summary>
-    /// Initializes a new instance of <see cref="RefreshTokenRepository"/>
+    /// Initializes a new instance of <see cref="RefreshTokenPsqRepository"/>
     /// </summary>
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
-    public RefreshTokenRepository(ApplicationDbContext context) : base(context)
+    public RefreshTokenPsqRepository(ApplicationDbContext context) : base(context)
     {
     }
 

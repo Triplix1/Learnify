@@ -1,7 +1,9 @@
 ﻿using Learnify.Core.Domain.Entities;
 using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Core.Specification;
 using Learnify.Infrastructure.Data.Interfaces;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace Learnify.Infrastructure.Repositories;
 
@@ -10,7 +12,7 @@ namespace Learnify.Infrastructure.Repositories;
 /// </summary>
 /// <typeparam name="T">Type of entity</typeparam>
 /// <typeparam name="TKey">Type's key</typeparam>
-public class BaseMongoRepository<T, TKey>: IBaseRepository<T, TKey> where T: BaseEntity<TKey>
+public class BaseMongoRepository<T, TKey>: IBaseMongoRepository<T, TKey> where T: BaseEntity<TKey>
 {
     /// <summary>
     /// <see cref="IMongoAppDbContext"/>
@@ -30,9 +32,17 @@ public class BaseMongoRepository<T, TKey>: IBaseRepository<T, TKey> where T: Bas
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public async Task<IEnumerable<T>> GetFilteredAsync(MongoFilter<T> filter)
     {
-        return await _collection.Find(_ => true).ToListAsync();
+        var result = _collection.AsQueryable();
+
+        if (filter.Specification is not null)
+            result = (IMongoQueryable<T>)Queryable.Where(result, filter.Specification.GetExpression());
+
+        if (filter.Pagination is not null)
+            result = (IMongoQueryable<T>)Queryable.Take(result.Skip(filter.Pagination.Skip), filter.Pagination.Take);
+        
+        return result.ToArray();
     }
 
     /// <inheritdoc />
@@ -45,6 +55,7 @@ public class BaseMongoRepository<T, TKey>: IBaseRepository<T, TKey> where T: Bas
     public async Task<T> CreateAsync(T entity)
     {
         await _collection.InsertOneAsync(entity);
+        
         return entity;
     }
 

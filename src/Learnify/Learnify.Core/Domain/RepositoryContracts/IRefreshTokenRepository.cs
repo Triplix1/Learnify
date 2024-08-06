@@ -6,7 +6,7 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 /// <summary>
 /// RefreshTokenRepository
 /// </summary>
-public interface IRefreshTokenRepository: IBaseRepository<RefreshToken, int>
+public interface IRefreshTokenRepository: IBasePsqRepository<RefreshToken, int>
 {
     /// <summary>
     /// Returns refresh token by access token

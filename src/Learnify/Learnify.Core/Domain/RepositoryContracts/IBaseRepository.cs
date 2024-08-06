@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Domain.Entities;
+using Learnify.Core.Specification;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
 
@@ -9,12 +10,6 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 /// <typeparam name="TKey">Key</typeparam>
 public interface IBaseRepository<T, TKey> where T: BaseEntity<TKey>
 {
-    /// <summary>
-    /// Returns all entities
-    /// </summary>
-    /// <returns></returns>
-    Task<IEnumerable<T>> GetAllAsync();
-    
     /// <summary>
     /// Returns entity by id
     /// </summary>

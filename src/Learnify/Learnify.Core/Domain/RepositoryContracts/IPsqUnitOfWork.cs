@@ -3,7 +3,7 @@
 /// <summary>
 /// Unit of work for profile app
 /// </summary>
-public interface IUnitOfWork: IBaseUnitOfWork
+public interface IPsqUnitOfWork
 {
     /// <summary>
     /// Get value of ProfileRepository
@@ -16,17 +16,14 @@ public interface IUnitOfWork: IBaseUnitOfWork
     IRefreshTokenRepository RefreshTokenRepository { get; }
     
     /// <summary>
-    /// Get value of CourseRepository
-    /// </summary>
-    ICourseRepository CourseRepository { get; }
-    
-    /// <summary>
     /// Get value of CourseRatingsRepository
     /// </summary>
     ICourseRatingsRepository CourseRatingsRepository { get; }
     
     /// <summary>
-    /// Get value of CourseLessonContentRepository
+    /// Saves changes made on db
     /// </summary>
-    ICourseLessonContentRepository CourseLessonContentRepository { get; }
+    /// <returns></returns>
+    Task SaveChangesAsync();
+    
 }

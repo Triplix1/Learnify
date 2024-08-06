@@ -7,13 +7,13 @@ namespace Learnify.Infrastructure.Repositories;
 /// <summary>
 /// CourseRating Repository
 /// </summary>
-public class CourseRatingRepository: BaseRepository<CourseRating, int>, ICourseRatingsRepository
+public class CourseRatingPsqRepository: BasePsqRepository<CourseRating, int>, ICourseRatingsRepository
 {
     /// <summary>
-    /// Initializes a new instance of <see cref="CourseRatingRepository"/>
+    /// Initializes a new instance of <see cref="CourseRatingPsqRepository"/>
     /// </summary>
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
-    public CourseRatingRepository(ApplicationDbContext context) : base(context)
+    public CourseRatingPsqRepository(ApplicationDbContext context) : base(context)
     {
     }
 }

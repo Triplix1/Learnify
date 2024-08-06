@@ -9,14 +9,14 @@ namespace Learnify.Infrastructure.Repositories;
 /// <summary>
 /// UserRepository
 /// </summary>
-public class UserRepository: BaseRepository<User, int>, IUserRepository
+public class UserPsqRepository: BasePsqRepository<User, int>, IUserRepository
 {
 
     /// <summary>
-    /// Initializes a new instance of <see cref="UserRepository"/>
+    /// Initializes a new instance of <see cref="UserPsqRepository"/>
     /// </summary>
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
-    public UserRepository(ApplicationDbContext context) : base(context)
+    public UserPsqRepository(ApplicationDbContext context) : base(context)
     {
     }
 

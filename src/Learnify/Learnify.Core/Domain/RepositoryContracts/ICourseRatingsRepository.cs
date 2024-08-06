@@ -5,7 +5,7 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 /// <summary>
 /// Interface for CourseRatingsRepository
 /// </summary>
-public interface ICourseRatingsRepository: IBaseRepository<CourseRating, int>
+public interface ICourseRatingsRepository: IBasePsqRepository<CourseRating, int>
 {
     
 }

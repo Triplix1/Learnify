@@ -14,12 +14,12 @@ public class InfrastructureInstaller: IInstaller
     /// <inheritdoc />
     public void InstallServices(IServiceCollection services, IConfiguration config)
     {
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenPsqRepository>();
+        services.AddScoped<IUserRepository, UserPsqRepository>();
         services.AddScoped<ICourseRepository, CourseRepository>();
-        services.AddScoped<ICourseRatingsRepository, CourseRatingRepository>();
+        services.AddScoped<ICourseRatingsRepository, CourseRatingPsqRepository>();
         services.AddScoped<ICourseLessonContentRepository, CourseLessonContentRepository>();
             
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IPsqUnitOfWork, PsqUnitOfWork>();
     }
 }

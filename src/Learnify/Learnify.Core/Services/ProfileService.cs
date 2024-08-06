@@ -10,7 +10,7 @@ namespace Learnify.Core.Services;
 /// <inheritdoc />
 public class ProfileService : IProfileService
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IMapper _mapper;
     private readonly IBlobStorage _blobStorage;
 
@@ -19,18 +19,18 @@ public class ProfileService : IProfileService
     /// </summary>
     /// <param name="mapper"><see cref="IMapper"/></param>
     /// <param name="blobStorage"><see cref="IBlobStorage"/></param>
-    /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-    public ProfileService(IMapper mapper, IUnitOfWork unitOfWork, IBlobStorage blobStorage)
+    /// <param name="psqUnitOfWork"><see cref="IPsqUnitOfWork"/></param>
+    public ProfileService(IMapper mapper, IPsqUnitOfWork psqUnitOfWork, IBlobStorage blobStorage)
     {
         _mapper = mapper;
-        _unitOfWork = unitOfWork;
+        _psqUnitOfWork = psqUnitOfWork;
         _blobStorage = blobStorage;
     }
 
     /// <inheritdoc />
     public async Task<ApiResponse<ProfileResponse>> GetByIdAsync(int id)
     {
-        var profile = await _unitOfWork.UserRepository.GetByIdAsync(id);
+        var profile = await _psqUnitOfWork.UserRepository.GetByIdAsync(id);
 
         return ApiResponse<ProfileResponse>.Success(_mapper.Map<ProfileResponse>(profile));
     }
@@ -38,7 +38,7 @@ public class ProfileService : IProfileService
     /// <inheritdoc />
     public async Task<ApiResponse<IEnumerable<ProfileResponse>>> GetAllProfilesAsync()
     {
-        var profiles = await _unitOfWork.UserRepository.GetAllAsync();
+        var profiles = await _psqUnitOfWork.UserRepository.GetFilteredAsync();
 
         return ApiResponse<IEnumerable<ProfileResponse>>.Success(_mapper.Map<IEnumerable<ProfileResponse>>(profiles));
     }
@@ -46,15 +46,15 @@ public class ProfileService : IProfileService
     /// <inheritdoc />
     public async Task<ApiResponse> DeleteAsync(int id)
     {
-        var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+        var user = await _psqUnitOfWork.UserRepository.GetByIdAsync(id);
         
         if(user is null)
             return ApiResponse.Failure(new KeyNotFoundException("Cannot find user with such id"));
         
-        if (!await _unitOfWork.UserRepository.DeleteAsync(user.Id))
+        if (!await _psqUnitOfWork.UserRepository.DeleteAsync(user.Id))
             return ApiResponse.Failure(new KeyNotFoundException("Cannot find user with such id"));
 
-        await _unitOfWork.SaveChangesAsync();
+        await _psqUnitOfWork.SaveChangesAsync();
 
         if (user.ImageContainerName is not null && user.ImageBlobName is not null)
         {
@@ -67,7 +67,7 @@ public class ProfileService : IProfileService
     /// <inheritdoc />
     public async Task<ApiResponse<ProfileResponse>> UpdateAsync(ProfileUpdateRequest profileUpdateRequest)
     {
-        var origin = await _unitOfWork.UserRepository.GetByIdAsync(profileUpdateRequest.Id);
+        var origin = await _psqUnitOfWork.UserRepository.GetByIdAsync(profileUpdateRequest.Id);
 
         if (origin is null)
             return ApiResponse<ProfileResponse>.Failure(new KeyNotFoundException("Cannot find user with such id"));
@@ -118,8 +118,8 @@ public class ProfileService : IProfileService
             origin.ImageBlobName = photoResult.Name;
         }
 
-        await _unitOfWork.UserRepository.UpdateAsync(origin);
-        await _unitOfWork.SaveChangesAsync();
+        await _psqUnitOfWork.UserRepository.UpdateAsync(origin);
+        await _psqUnitOfWork.SaveChangesAsync();
         
         return ApiResponse<ProfileResponse>.Success(_mapper.Map<ProfileResponse>(origin));
     }

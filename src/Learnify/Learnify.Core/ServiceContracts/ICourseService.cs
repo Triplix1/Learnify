@@ -1,4 +1,6 @@
-﻿using Learnify.Core.Dto;
+﻿using Learnify.Core.Domain.Entities.NoSql;
+using Learnify.Core.Dto;
+using Learnify.Core.Specification;
 
 namespace Learnify.Core.ServiceContracts;
 
@@ -11,7 +13,7 @@ public interface ICourseService
     /// Returns filtered courses
     /// </summary>
     /// <returns>Filtered courses</returns>
-    public Task<ApiResponse<IEnumerable<CourseResponse>>> GetFilteredAsync();
+    public Task<ApiResponse<IEnumerable<CourseResponse>>> GetFilteredAsync(MongoFilter<Course> filter);
     
     /// <summary>
     /// 
@@ -25,14 +27,14 @@ public interface ICourseService
     /// </summary>
     /// <param name="courseCreateRequest"></param>
     /// <returns></returns>
-    public Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest);
+    public Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int authorId);
    
     /// <summary>
     /// 
     /// </summary>
     /// <param name="courseUpdateRequest"></param>
     /// <returns></returns>
-    public Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest);
+    public Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int authorId);
    
     /// <summary>
     /// 

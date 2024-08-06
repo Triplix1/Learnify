@@ -4,15 +4,15 @@ using Learnify.Infrastructure.Data;
 namespace Learnify.Infrastructure.Repositories;
 
 /// <inheritdoc />
-public class UnitOfWork: IUnitOfWork
+public class PsqUnitOfWork: IPsqUnitOfWork
 {
     /// <summary>
-    /// Initializes a new instance of <see cref="UnitOfWork"/>
+    /// Initializes a new instance of <see cref="PsqUnitOfWork"/>
     /// </summary>
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
     /// <param name="userRepository"><see cref="IUserRepository"/></param>
     /// <param name="refreshTokenRepository"><see cref="IRefreshTokenRepository"/></param>
-    public UnitOfWork(ApplicationDbContext context, IUserRepository userRepository, IRefreshTokenRepository refreshTokenRepository, ICourseRepository courseRepository, ICourseRatingsRepository courseRatingsRepository, ICourseLessonContentRepository courseLessonContentRepository)
+    public PsqUnitOfWork(ApplicationDbContext context, IUserRepository userRepository, IRefreshTokenRepository refreshTokenRepository, ICourseRepository courseRepository, ICourseRatingsRepository courseRatingsRepository, ICourseLessonContentRepository courseLessonContentRepository)
     {
         _context = context;
         UserRepository = userRepository;
