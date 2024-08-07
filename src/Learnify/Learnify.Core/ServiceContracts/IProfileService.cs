@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Dto;
+using Learnify.Core.Dto.Profile;
 
 namespace Learnify.Core.ServiceContracts;
 
@@ -18,7 +19,7 @@ public interface IProfileService
     /// Gets all profiles
     /// </summary>
     /// <returns></returns>
-    Task<ApiResponse<IEnumerable<ProfileResponse>>> GetAllProfilesAsync();
+    Task<ApiResponse<IEnumerable<ProfileResponse>>> GetFilteredAsync();
     
     /// <summary>
     /// Deletes profile

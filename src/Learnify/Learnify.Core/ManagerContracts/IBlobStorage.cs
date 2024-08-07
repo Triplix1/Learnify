@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Dto;
+using Learnify.Core.Dto.Blob;
 
 namespace Learnify.Core.ManagerContracts;
 

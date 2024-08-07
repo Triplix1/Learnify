@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Learnify.Api.Controllers.Base;
 using Learnify.Core.Dto;
+using Learnify.Core.Dto.Profile;
 using Learnify.Core.ServiceContracts;
+using Learnify.Core.Specification;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,7 +48,7 @@ public class ProfileController : BaseApiController
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IEnumerable<ProfileResponse>>>> GetAll()
     {
-        var profiles = await _profileService.GetAllProfilesAsync();
+        var profiles = await _profileService.GetFilteredAsync();
         return Ok(profiles);
     }
 

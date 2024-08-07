@@ -2,8 +2,11 @@
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
+using Learnify.Core.Dto.Course;
+using Learnify.Core.Dto.Params;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Specification;
+using Learnify.Core.Specification.Custom;
 
 namespace Learnify.Core.Services;
 
@@ -25,8 +28,13 @@ public class CourseService: ICourseService
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<IEnumerable<CourseResponse>>> GetFilteredAsync(MongoFilter<Course> filter)
+    public async Task<ApiResponse<IEnumerable<CourseResponse>>> GetFilteredAsync(CourseParams courseParams)
     {
+        var filter = _mapper.Map<MongoFilter<Course>>(courseParams);
+
+        if (courseParams.Search is not null)
+            filter.Specification = new SearchCourseSpecification(courseParams.Search);
+            
         var courses = await _mongoUnitOfWork.CourseRepository.GetFilteredAsync(filter);
         return ApiResponse<IEnumerable<CourseResponse>>.Success(_mapper.Map<IEnumerable<CourseResponse>>(courses));
     }

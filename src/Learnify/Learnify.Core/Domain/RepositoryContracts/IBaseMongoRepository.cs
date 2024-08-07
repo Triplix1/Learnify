@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Domain.Entities;
+using Learnify.Core.Dto;
 using Learnify.Core.Specification;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
@@ -12,5 +13,5 @@ public interface IBaseMongoRepository<T, TKey>: IBaseRepository<T, TKey> where T
     /// Returns all entities
     /// </summary>
     /// <returns></returns>
-    Task<IEnumerable<T>> GetFilteredAsync(MongoFilter<T> filter);
+    Task<PagedList<T>> GetFilteredAsync(MongoFilter<T> filter);
 }

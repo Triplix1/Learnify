@@ -8,6 +8,7 @@ using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Auth;
+using Learnify.Core.Dto.Blob;
 using Learnify.Core.Enums;
 using Learnify.Core.Exceptions;
 using Learnify.Core.ManagerContracts;

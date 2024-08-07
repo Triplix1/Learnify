@@ -3,6 +3,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Learnify.Core.Dto;
+using Learnify.Core.Dto.Blob;
 using Learnify.Core.ManagerContracts;
 
 namespace Learnify.Core.Managers;

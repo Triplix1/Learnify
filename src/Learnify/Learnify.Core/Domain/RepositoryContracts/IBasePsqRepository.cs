@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Domain.Entities;
+using Learnify.Core.Dto;
 using Learnify.Core.Specification;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
@@ -14,5 +15,5 @@ public interface IBasePsqRepository<T, TKey>: IBaseRepository<T, TKey> where T: 
     /// Returns all entities
     /// </summary>
     /// <returns></returns>
-    Task<IEnumerable<T>> GetFilteredAsync(EfFilter<T> efFilter);
+    Task<PagedList<T>> GetFilteredAsync(EfFilter<T> efFilter);
 }

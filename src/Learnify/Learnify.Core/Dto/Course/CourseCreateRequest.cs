@@ -1,8 +1,7 @@
 ﻿using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Enums;
-using Microsoft.AspNetCore.Http;
 
-namespace Learnify.Core.Dto;
+namespace Learnify.Core.Dto.Course;
 
 /// <summary>
 /// CourseCreateRequest

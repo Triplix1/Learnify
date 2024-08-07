@@ -1,6 +1,6 @@
 ﻿using Learnify.Core.Enums;
 
-namespace Learnify.Core.Dto;
+namespace Learnify.Core.Dto.Profile;
 
 /// <summary>
 /// Profile response

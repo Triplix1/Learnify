@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
+using Learnify.Core.Dto.Blob;
+using Learnify.Core.Dto.Profile;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
+using Learnify.Core.Specification;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Learnify.Core.Services;
@@ -36,9 +40,9 @@ public class ProfileService : IProfileService
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<IEnumerable<ProfileResponse>>> GetAllProfilesAsync()
+    public async Task<ApiResponse<IEnumerable<ProfileResponse>>> GetFilteredAsync(EfFilter<User> filter)
     {
-        var profiles = await _psqUnitOfWork.UserRepository.GetFilteredAsync();
+        var profiles = await _psqUnitOfWork.UserRepository.GetFilteredAsync(filter);
 
         return ApiResponse<IEnumerable<ProfileResponse>>.Success(_mapper.Map<IEnumerable<ProfileResponse>>(profiles));
     }

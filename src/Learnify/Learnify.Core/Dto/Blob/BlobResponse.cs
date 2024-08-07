@@ -1,4 +1,4 @@
-﻿namespace Learnify.Core.Dto;
+﻿namespace Learnify.Core.Dto.Blob;
 
 /// <summary>
 /// BlobResponse

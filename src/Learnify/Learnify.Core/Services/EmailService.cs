@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Dto;
+using Learnify.Core.Dto.Mail;
 using Learnify.Core.Options;
 using Learnify.Core.ServiceContracts;
 using MailKit.Security;
