@@ -64,7 +64,7 @@ public class CourseService: ICourseService
     /// <inheritdoc />
     public async Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int authorId)
     {
-        throw new NotImplementedException();
+        
     }
 
     /// <inheritdoc />

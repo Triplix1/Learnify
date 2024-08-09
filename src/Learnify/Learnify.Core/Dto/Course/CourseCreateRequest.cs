@@ -27,6 +27,4 @@ public class CourseCreateRequest
     /// Gets or sets value for Lessons
     /// </summary>
     public IList<Paragraph> Paragraphs { get; set; }
-    
-    
 }

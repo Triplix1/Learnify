@@ -6,14 +6,9 @@
 public class Lesson
 {
     /// <summary>
-    /// Gets or sets value for CourseId
+    /// Gets or sets value for Name
     /// </summary>
-    public int CourseId { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for Course
-    /// </summary>
-    public Course Course { get; set; }
+    public string Name { get; set; }
     
     /// <summary>
     /// Id reference to content of lesson, which stores in NoSql
