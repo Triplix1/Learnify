@@ -3,6 +3,7 @@ using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Blob;
+using Learnify.Core.Dto.Params;
 using Learnify.Core.Dto.Profile;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
@@ -37,14 +38,6 @@ public class ProfileService : IProfileService
         var profile = await _psqUnitOfWork.UserRepository.GetByIdAsync(id);
 
         return ApiResponse<ProfileResponse>.Success(_mapper.Map<ProfileResponse>(profile));
-    }
-
-    /// <inheritdoc />
-    public async Task<ApiResponse<IEnumerable<ProfileResponse>>> GetFilteredAsync(EfFilter<User> filter)
-    {
-        var profiles = await _psqUnitOfWork.UserRepository.GetFilteredAsync(filter);
-
-        return ApiResponse<IEnumerable<ProfileResponse>>.Success(_mapper.Map<IEnumerable<ProfileResponse>>(profiles));
     }
 
     /// <inheritdoc />

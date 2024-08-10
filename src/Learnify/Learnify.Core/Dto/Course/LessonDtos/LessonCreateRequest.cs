@@ -1,4 +1,4 @@
-﻿namespace Learnify.Core.Dto.Course.Lesson;
+﻿namespace Learnify.Core.Dto.Course.LessonDtos;
 
 public class LessonCreateRequest
 {

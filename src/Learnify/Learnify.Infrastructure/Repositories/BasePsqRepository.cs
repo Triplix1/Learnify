@@ -1,5 +1,6 @@
 ﻿using Learnify.Core.Domain.Entities;
 using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Core.Dto;
 using Learnify.Core.Specification;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,7 @@ public abstract class BasePsqRepository<T, TKey> : IBasePsqRepository<T, TKey> w
     }
 
     /// <inheritdoc />
-    public virtual async Task<IEnumerable<T>> GetFilteredAsync(EfFilter<T> efFilter)
+    public virtual async Task<PagedList<T>> GetFilteredAsync(EfFilter<T> efFilter)
     {
         var result = Context.Set<T>().AsQueryable();
         
@@ -36,12 +37,8 @@ public abstract class BasePsqRepository<T, TKey> : IBasePsqRepository<T, TKey> w
 
         if (efFilter.Specification is not null)
             result = result.Where(efFilter.Specification.GetExpression());
-
-        if (efFilter.Pagination is not null)
-            result = result.Skip(efFilter.Pagination.Skip)
-                .Take(efFilter.Pagination.Take);
         
-        return await result.ToArrayAsync();
+        return await PagedList<T>.CreateAsync(result, efFilter.PageNumber, efFilter.PageSize);
     }
 
     /// <inheritdoc />

@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Domain.Entities.NoSql;
+using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Enums;
 
 namespace Learnify.Core.Dto.Course;
@@ -26,5 +27,5 @@ public class CourseCreateRequest
     /// <summary>
     /// Gets or sets value for Lessons
     /// </summary>
-    public IList<Paragraph> Paragraphs { get; set; }
+    public IList<ParagraphCreateRequest> Paragraphs { get; set; }
 }

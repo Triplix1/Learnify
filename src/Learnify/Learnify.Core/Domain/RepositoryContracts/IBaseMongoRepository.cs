@@ -1,4 +1,5 @@
-﻿using Learnify.Core.Domain.Entities;
+﻿using System.Linq.Expressions;
+using Learnify.Core.Domain.Entities;
 using Learnify.Core.Dto;
 using Learnify.Core.Specification;
 
@@ -14,4 +15,14 @@ public interface IBaseMongoRepository<T, TKey>: IBaseRepository<T, TKey> where T
     /// </summary>
     /// <returns></returns>
     Task<PagedList<T>> GetFilteredAsync(MongoFilter<T> filter);
+
+    /// <summary>
+    /// Updates only specific
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="field"></param>
+    /// <param name="value"></param>
+    /// <typeparam name="TField"></typeparam>
+    /// <returns></returns>
+    Task<T> UpdateAsync<TField>(TKey key, params (Expression<Func<T, TField>> Field, TField Value)[] updatedFields);
 }

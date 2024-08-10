@@ -16,12 +16,6 @@ public interface IProfileService
     Task<ApiResponse<ProfileResponse>> GetByIdAsync(int id);
     
     /// <summary>
-    /// Gets all profiles
-    /// </summary>
-    /// <returns></returns>
-    Task<ApiResponse<IEnumerable<ProfileResponse>>> GetFilteredAsync();
-    
-    /// <summary>
     /// Deletes profile
     /// </summary>
     /// <param name="id">Profile id</param>

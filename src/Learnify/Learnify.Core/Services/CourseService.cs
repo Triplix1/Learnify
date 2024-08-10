@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using JetBrains.Annotations;
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
@@ -11,7 +10,6 @@ using Learnify.Core.Specification.Custom;
 
 namespace Learnify.Core.Services;
 
-[TestSubject(typeof(CourseService))]
 /// <inheritdoc />
 public class CourseService: ICourseService
 {
@@ -64,7 +62,7 @@ public class CourseService: ICourseService
     /// <inheritdoc />
     public async Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int authorId)
     {
-        
+        throw new NotImplementedException();
     }
 
     /// <inheritdoc />

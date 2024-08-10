@@ -2,7 +2,7 @@
 
 namespace Learnify.Core.Specification;
 
-public class MongoFilter<T>: IBaseEntetyFilter<T>
+public class MongoFilter<T>: IBaseEntityFilter<T>
 {
     public Specification<T> Specification { get; set; }
     public int PageNumber { get; set; }

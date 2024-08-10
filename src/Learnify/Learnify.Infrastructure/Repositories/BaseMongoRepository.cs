@@ -1,9 +1,10 @@
-﻿using Learnify.Core.Domain.Entities;
+﻿using System.Linq.Expressions;
+using Learnify.Core.Domain.Entities;
 using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Core.Dto;
 using Learnify.Core.Specification;
 using Learnify.Infrastructure.Data.Interfaces;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 
 namespace Learnify.Infrastructure.Repositories;
 
@@ -32,17 +33,45 @@ public class BaseMongoRepository<T, TKey>: IBaseMongoRepository<T, TKey> where T
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<T>> GetFilteredAsync(MongoFilter<T> filter)
+    public async Task<PagedList<T>> GetFilteredAsync(MongoFilter<T> filter)
     {
-        var result = _collection.AsQueryable();
+        var query = _collection.Find(Builders<T>.Filter.Where(filter.Specification.GetExpression()));
+;
 
-        if (filter.Specification is not null)
-            result = (IMongoQueryable<T>)Queryable.Where(result, filter.Specification.GetExpression());
+        var count = await query.CountDocumentsAsync();
+        var items = await query.Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Limit(filter.PageSize)
+            .ToListAsync();
 
-        if (filter.Pagination is not null)
-            result = (IMongoQueryable<T>)Queryable.Take(result.Skip(filter.Pagination.Skip), filter.Pagination.Take);
-        
-        return result.ToArray();
+        return new PagedList<T>(items, (int)count, 1, filter.PageSize);
+    }
+
+    /// <inheritdoc />
+    public async Task<T> UpdateAsync<TField>(TKey key, params (Expression<Func<T, TField>> Field, TField Value)[] updatedFields)
+    {
+        var filter = Builders<T>.Filter.Eq(x => x.Id, key);
+
+        if (updatedFields is null || updatedFields.Length == 0)
+            throw new ArgumentOutOfRangeException(nameof(updatedFields),
+                $"{nameof(updatedFields)} should be more than 1");
+
+        UpdateDefinition<T> update = null;
+
+        foreach (var updatedField in updatedFields)
+        {
+            if (update is null)
+            {
+                update = Builders<T>.Update.Set(updatedField.Field, updatedField.Value);
+            }
+            else
+            {
+                update = update.Set(updatedField.Field, updatedField.Value);
+            }
+        }
+
+        await _collection.UpdateOneAsync(filter, update);
+
+        return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
     /// <inheritdoc />
@@ -67,6 +96,7 @@ public class BaseMongoRepository<T, TKey>: IBaseMongoRepository<T, TKey> where T
         {
             return entity;
         }
+        
         throw new Exception("Update failed");
     }
 
