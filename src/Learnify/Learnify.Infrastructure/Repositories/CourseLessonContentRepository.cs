@@ -1,5 +1,4 @@
-﻿using Learnify.Core.Domain.Entities.NoSql;
-using Learnify.Core.Domain.RepositoryContracts;
+﻿using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Infrastructure.Data.Interfaces;
 using Microsoft.Extensions.Configuration;
 
@@ -8,7 +7,7 @@ namespace Learnify.Infrastructure.Repositories;
 /// <summary>
 /// Lessons repository
 /// </summary>
-public class CourseLessonContentRepository: BaseMongoRepository<CourseLessonContent, string>, ICourseLessonContentRepository
+public class CourseLessonContentRepository: ICourseLessonContentRepository
 {
     /// <summary>
     /// Initializes a new instance of <see cref="CourseLessonContentRepository"/>

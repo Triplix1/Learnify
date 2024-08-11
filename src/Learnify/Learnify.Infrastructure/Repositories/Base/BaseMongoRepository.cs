@@ -36,7 +36,6 @@ public class BaseMongoRepository<T, TKey>: IBaseMongoRepository<T, TKey> where T
     public async Task<PagedList<T>> GetFilteredAsync(MongoFilter<T> filter)
     {
         var query = _collection.Find(Builders<T>.Filter.Where(filter.Specification.GetExpression()));
-;
 
         var count = await query.CountDocumentsAsync();
         var items = await query.Skip((filter.PageNumber - 1) * filter.PageSize)

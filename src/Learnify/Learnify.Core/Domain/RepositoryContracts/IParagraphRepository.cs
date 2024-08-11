@@ -1,42 +1,42 @@
 ﻿using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Dto;
-using Learnify.Core.Dto.Course;
+using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Specification;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
 
 /// <summary>
-/// Courses repository
+/// ParagraphRepository
 /// </summary>
-public interface ICourseRepository
+public interface IParagraphRepository
 {
     /// <summary>
     /// Gets filtered entities
     /// </summary>
-    /// <param name="filter"><see cref="MongoFilter{T}"/></param>
+    /// <param name="filter"><see cref="EfFilter{Paragraph}"/></param>
     /// <returns></returns>
-    Task<PagedList<CourseResponse>> GetFilteredAsync(EfFilter<Course> filter);
+    Task<PagedList<ParagraphResponse>> GetFilteredAsync(EfFilter<Paragraph> filter);
     
     /// <summary>
     /// Returns entity by id
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    Task<CourseResponse?> GetByIdAsync(int key);
+    Task<ParagraphResponse?> GetByIdAsync(int key);
     
     /// <summary>
     /// Creates entity
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<CourseResponse> CreateAsync(CourseCreateRequest entity, int authorId);
+    Task<ParagraphResponse> CreateAsync(ParagraphCreateRequest entity);
     
     /// <summary>
     /// Updates entity
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<CourseResponse> UpdateAsync(CourseUpdateRequest entity);
+    Task<ParagraphResponse> UpdateAsync(ParagraphUpdateRequest entity);
     
     /// <summary>
     /// Deletes entity
@@ -44,11 +44,11 @@ public interface ICourseRepository
     /// <param name="id"></param>
     /// <returns>Success of operation</returns>
     Task<bool> DeleteAsync(int id);
-
+    
     /// <summary>
-    /// Gets all lessonIds for specified course
+    /// Deletes entity
     /// </summary>
-    /// <param name="courseId">Course id</param>
-    /// <returns>LessonIds for specified course</returns>
-    Task<IEnumerable<string>> GetLessonIds(int courseId);
+    /// <param name="id"></param>
+    /// <returns>Success of operation</returns>
+    Task<int> GetAuthorId(int id);
 }

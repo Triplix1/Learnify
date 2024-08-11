@@ -1,8 +1,6 @@
-﻿using Learnify.Core.Domain.Entities.NoSql;
-using Learnify.Core.Dto;
+﻿using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
 using Learnify.Core.Dto.Params;
-using Learnify.Core.Specification;
 
 namespace Learnify.Core.ServiceContracts;
 
@@ -22,26 +20,28 @@ public interface ICourseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<ApiResponse<CourseResponse>> GetById(string id);
-  
+    public Task<ApiResponse<CourseResponse>> GetById(int id);
+
     /// <summary>
     /// 
     /// </summary>
     /// <param name="courseCreateRequest"></param>
+    /// <param name="authorId">Author Id</param>
     /// <returns></returns>
     public Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int authorId);
-   
+
     /// <summary>
     /// 
     /// </summary>
     /// <param name="courseUpdateRequest"></param>
+    /// <param name="authorId">Author Id</param>
     /// <returns></returns>
     public Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int authorId);
    
     /// <summary>
-    /// 
+    /// Deletes entity
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<ApiResponse> DeleteAsync(string id);
+    public Task<ApiResponse> DeleteAsync(int id);
 }

@@ -1,17 +1,55 @@
-﻿namespace Learnify.Core.Domain.Entities.NoSql;
+﻿using JetBrains.Annotations;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace Learnify.Core.Domain.Entities.NoSql;
 
 /// <summary>
-/// Paragraph's lesson
+/// CourseLessonContent
 /// </summary>
-public class Lesson
+public class Lesson: BaseEntity
 {
     /// <summary>
-    /// Gets or sets value for Name
+    /// Id
     /// </summary>
-    public string Name { get; set; }
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; }
     
     /// <summary>
-    /// Id reference to content of lesson, which stores in NoSql
+    /// Gets or sets value for ParagraphId
     /// </summary>
-    public string ContentId { get; set; }
+    public int ParagraphId { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value for Title
+    /// </summary>
+    public string Title { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value for Content
+    /// </summary>
+    [CanBeNull]
+    public string Content { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value for Video
+    /// </summary>
+    [CanBeNull]
+    public Attachment Video { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value for SubtitlesList
+    /// </summary>
+    public IList<Subtitles> SubtitlesList { get; set; }
+    
+    /// <summary>
+    /// User has opportunity to create quizzes
+    /// </summary>
+    public IList<QuizQuestion> Quizzes { get; set; }
+    
+    /// <summary>
+    /// User has opportunity to create Attachements
+    /// </summary>
+    public IList<Attachment> Attachments { get; set; }
 }

@@ -65,10 +65,14 @@ public class ApiResponse
     /// Initializes a new instance of <see cref="ApiResponse"/>
     /// </summary>
     /// <param name="error">Error</param>
-    protected ApiResponse(Exception error)
+    protected ApiResponse(Exception error): this(error.Message, error.StackTrace)
     {
-        ErrorMessage = error.Message;
-        ErrorStackTrace = error.StackTrace;
+    }
+
+    protected ApiResponse(string errorMessage, string stackTrace)
+    {
+        ErrorMessage = errorMessage;
+        ErrorStackTrace = stackTrace;
         IsSuccess = false;
     }
     
@@ -99,5 +103,16 @@ public class ApiResponse
     public static ApiResponse Failure(Exception error)
     {
         return new ApiResponse(error);
+    }
+    
+    /// <summary>
+    /// Creates a new error instance
+    /// </summary>
+    /// <param name="errorMessage">Error message</param>
+    /// <param name="stackTrace">Error stackTrace</param>
+    /// <returns></returns>
+    public static ApiResponse Failure(string errorMessage, string stackTrace)
+    {
+        return new ApiResponse(errorMessage, stackTrace);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Learnify.Core.Domain.Entities;
 using Learnify.Core.Domain.Entities.NoSql;
+using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Infrastructure.Data.Interfaces;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
@@ -22,6 +23,7 @@ public class MongoAppDbContext: IMongoAppDbContext
         _database = client.GetDatabase(configuration.GetSection("MongoDatabase:DatabaseName").Value);
 
         var viewsCollectionName = configuration.GetSection("MongoDatabase:ViewsCollectionName").Value;
+        var lessonsCollectionName = configuration.GetSection("MongoDatabase:LessonsCollectionName").Value;
         
         var filter = new BsonDocument("name", viewsCollectionName);
         var collections = _database.ListCollections(new ListCollectionsOptions { Filter = filter });
@@ -35,18 +37,14 @@ public class MongoAppDbContext: IMongoAppDbContext
             Views = _database.GetCollection<View>(viewsCollectionName);   
         }
 
-        Lessons = _database.GetCollection<CourseLessonContent>("MongoDatabase:CourseLessonsCollectionName");
-        Courses = _database.GetCollection<Course>("MongoDatabase:CoursesCollectionName");
+        Lessons = _database.GetCollection<Lesson>(lessonsCollectionName);
     }
     
     /// <inheritdoc />
     public IMongoCollection<View> Views { get; }
 
     /// <inheritdoc />
-    public IMongoCollection<CourseLessonContent> Lessons { get; }
-    
-    /// <inheritdoc />
-    public IMongoCollection<Course> Courses { get; }
+    public IMongoCollection<Lesson> Lessons { get; }
 
     /// <inheritdoc />
     public IMongoCollection<T> GetCollection<T>(string name)

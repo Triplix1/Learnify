@@ -1,6 +1,8 @@
 ﻿using Learnify.Core.Domain.Entities;
+using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.Entities.Sql;
 using Microsoft.EntityFrameworkCore;
+using Course = Learnify.Core.Domain.Entities.Sql.Course;
 
 namespace Learnify.Infrastructure.Data;
 
@@ -26,7 +28,17 @@ public class ApplicationDbContext: DbContext
     /// CourseRatings Db Set
     /// </summary>
     public DbSet<CourseRating> CourseRatings { get; }
-
+    
+    /// <summary>
+    /// Courses DbSet
+    /// </summary>
+    public DbSet<Course> Courses { get; }
+    
+    /// <summary>
+    /// Courses DbSet
+    /// </summary>
+    public DbSet<Paragraph> Paragraphs { get; }
+    
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder)
     {

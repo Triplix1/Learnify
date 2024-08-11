@@ -1,5 +1,4 @@
-﻿using Learnify.Core.Domain.Entities;
-using Learnify.Core.Domain.Entities.NoSql;
+﻿using Learnify.Core.Domain.Entities.NoSql;
 using MongoDB.Driver;
 
 namespace Learnify.Infrastructure.Data.Interfaces;
@@ -17,12 +16,7 @@ public interface IMongoAppDbContext
     /// <summary>
     /// Collection of <see cref="Lesson"/>
     /// </summary>
-    IMongoCollection<CourseLessonContent> Lessons { get; }
-    
-    /// <summary>
-    /// Collection of <see cref="Course"/>
-    /// </summary>
-    IMongoCollection<Course> Courses { get; }
+    IMongoCollection<Lesson> Lessons { get; }
 
     /// <summary>
     /// Gets collection for specified type by specified name

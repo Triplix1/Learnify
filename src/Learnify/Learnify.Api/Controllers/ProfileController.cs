@@ -42,17 +42,6 @@ public class ProfileController : BaseApiController
     }
 
     /// <summary>
-    /// Returns all profiles
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet]
-    public async Task<ActionResult<ApiResponse<IEnumerable<ProfileResponse>>>> GetAll()
-    {
-        var profiles = await _profileService.GetFilteredAsync();
-        return Ok(profiles);
-    }
-
-    /// <summary>
     /// Updates profile
     /// </summary>
     /// <param name="profileUpdateRequest"><see cref="ProfileUpdateRequest"/></param>

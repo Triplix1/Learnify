@@ -21,6 +21,11 @@ public interface IPsqUnitOfWork
     ICourseRatingsRepository CourseRatingsRepository { get; }
     
     /// <summary>
+    /// Get value of CourseRepository
+    /// </summary>
+    ICourseRepository CourseRepository { get; }
+    
+    /// <summary>
     /// Saves changes made on db
     /// </summary>
     /// <returns></returns>

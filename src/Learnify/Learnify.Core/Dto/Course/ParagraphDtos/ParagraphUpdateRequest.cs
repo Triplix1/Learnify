@@ -1,7 +1,7 @@
 ﻿namespace Learnify.Core.Dto.Course.ParagraphDtos;
 
-public class ParagraphCreateRequest
+public class ParagraphUpdateRequest
 {
-    public int CourseId { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; }
 }

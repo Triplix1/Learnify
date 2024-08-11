@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Learnify.Core.Domain.Entities.NoSql;
+using Learnify.Core.Domain.Entities.Sql;
 
 namespace Learnify.Core.Specification.Custom;
 

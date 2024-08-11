@@ -23,9 +23,4 @@ public class CourseCreateRequest
     /// Gets or sets value for PrimaryLanguage
     /// </summary>
     public Language PrimaryLanguage { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for Lessons
-    /// </summary>
-    public IList<ParagraphCreateRequest> Paragraphs { get; set; }
 }
