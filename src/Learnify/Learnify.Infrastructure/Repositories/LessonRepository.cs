@@ -74,9 +74,14 @@ public class LessonRepository: ILessonRepository
     /// <inheritdoc />
     public async Task<bool> DeleteAsync(string id)
     {
-        
+        var filter = Builders<Lesson>.Filter.Eq(l => l.Id, id);
+
+        var result = await _mongoContext.Lessons.DeleteOneAsync(filter);
+
+        return result.DeletedCount > 0;
     }
 
+    /// <inheritdoc />
     public async Task<long> DeleteForParagraphAsync(int paragraphId)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.ParagraphId, paragraphId);
@@ -90,6 +95,7 @@ public class LessonRepository: ILessonRepository
         return result.DeletedCount;
     }
 
+    /// <inheritdoc />
     public async Task<long> DeleteForParagraphsAsync(IEnumerable<int> paragraphIds)
     {
         var filter = Builders<Lesson>.Filter.Where(l => paragraphIds.Contains(l.ParagraphId));
