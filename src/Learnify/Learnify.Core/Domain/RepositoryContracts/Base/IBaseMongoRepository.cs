@@ -1,9 +1,9 @@
 ﻿using System.Linq.Expressions;
 using Learnify.Core.Domain.Entities;
 using Learnify.Core.Dto;
-using Learnify.Core.Specification;
+using Learnify.Core.Specification.Filters;
 
-namespace Learnify.Core.Domain.RepositoryContracts;
+namespace Learnify.Core.Domain.RepositoryContracts.Base;
 
 /// <summary>
 /// Base repository for mongo entities

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Learnify.Core.Specification;
+namespace Learnify.Core.Specification.Base;
 
 public abstract class Specification<T>
 {

@@ -1,12 +1,12 @@
 ﻿using System.Linq.Expressions;
 using Learnify.Core.Domain.Entities;
-using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Core.Domain.RepositoryContracts.Base;
 using Learnify.Core.Dto;
-using Learnify.Core.Specification;
+using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data.Interfaces;
 using MongoDB.Driver;
 
-namespace Learnify.Infrastructure.Repositories;
+namespace Learnify.Infrastructure.Repositories.Base;
 
 /// <summary>
 /// Base repository for mongo entities

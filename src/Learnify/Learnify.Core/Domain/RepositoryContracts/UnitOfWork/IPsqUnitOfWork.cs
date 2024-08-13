@@ -1,4 +1,4 @@
-﻿namespace Learnify.Core.Domain.RepositoryContracts;
+﻿namespace Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 
 /// <summary>
 /// Unit of work for profile app

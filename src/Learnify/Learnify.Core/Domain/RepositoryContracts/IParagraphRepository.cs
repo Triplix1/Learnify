@@ -2,6 +2,7 @@
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Specification;
+using Learnify.Core.Specification.Filters;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
 

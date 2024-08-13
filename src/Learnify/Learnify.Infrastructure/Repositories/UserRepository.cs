@@ -2,6 +2,7 @@
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Infrastructure.Data;
+using Learnify.Infrastructure.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
@@ -9,14 +10,14 @@ namespace Learnify.Infrastructure.Repositories;
 /// <summary>
 /// UserRepository
 /// </summary>
-public class UserPsqRepository: BasePsqRepository<User, int>, IUserRepository
+public class UserRepository: BasePsqRepository<User, int>, IUserRepository
 {
 
     /// <summary>
-    /// Initializes a new instance of <see cref="UserPsqRepository"/>
+    /// Initializes a new instance of <see cref="UserRepository"/>
     /// </summary>
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
-    public UserPsqRepository(ApplicationDbContext context) : base(context)
+    public UserRepository(ApplicationDbContext context) : base(context)
     {
     }
 

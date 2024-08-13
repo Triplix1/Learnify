@@ -8,8 +8,11 @@ using Learnify.Core.Dto.Course;
 using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Dto.Course.QuizQuestion;
+using Learnify.Core.Dto.Course.Subtitles;
+using Learnify.Core.Dto.Params;
 using Learnify.Core.Dto.Profile;
 using Learnify.Core.Enums;
+using Learnify.Core.Specification.Filters;
 using Attachment = System.Net.Mail.Attachment;
 
 namespace Learnify.Core.MappingProfile;
@@ -30,6 +33,7 @@ public class MappingProfiles: Profile
         CreateMap<CourseCreateRequest, Course>();
         CreateMap<CourseUpdateRequest, Course>();
         CreateMap<Course, CourseResponse>();
+        CreateMap<CourseParams, EfFilter<Course>>();
         
         // Paragraph
         CreateMap<ParagraphCreateRequest, Paragraph>();
@@ -37,7 +41,6 @@ public class MappingProfiles: Profile
         CreateMap<Paragraph, ParagraphResponse>();
         
         // Lesson
-        CreateMap<Lesson, LessonListResponse>();
         CreateMap<LessonCreateRequest, Lesson>();
         CreateMap<Lesson, LessonResponse>();
         CreateMap<Lesson, LessonTitleResponse>();
@@ -47,5 +50,8 @@ public class MappingProfiles: Profile
         
         // QuizQuestion
         CreateMap<QuizQuestion, QuizQuestionResponse>();
+        
+        // Subtitles
+        CreateMap<Subtitles, SubtitlesResponse>();
     }
 }

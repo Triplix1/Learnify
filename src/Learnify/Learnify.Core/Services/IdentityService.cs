@@ -6,6 +6,7 @@ using Google.Apis.Auth;
 using Learnify.Core.Domain.Entities;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Auth;
 using Learnify.Core.Dto.Blob;

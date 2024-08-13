@@ -1,6 +1,7 @@
-﻿using Learnify.Core.Specification.Filters.Contracts;
+﻿using Learnify.Core.Specification.Base;
+using Learnify.Core.Specification.Filters.Contracts;
 
-namespace Learnify.Core.Specification;
+namespace Learnify.Core.Specification.Filters;
 
 public class MongoFilter<T>: IBaseEntityFilter<T>
 {

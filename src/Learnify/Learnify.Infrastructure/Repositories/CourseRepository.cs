@@ -4,8 +4,8 @@ using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
 using Learnify.Core.Specification;
+using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
-using Learnify.Infrastructure.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
@@ -16,7 +16,7 @@ namespace Learnify.Infrastructure.Repositories;
 public class CourseRepository : ICourseRepository
 {
     private readonly ApplicationDbContext _context;
-    private readonly IMongoAppDbContext _mongoContext;
+    private readonly ILessonRepository _lessonRepository;
     private readonly IMapper _mapper;
 
     /// <summary>
@@ -24,30 +24,25 @@ public class CourseRepository : ICourseRepository
     /// </summary>
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
     /// <param name="mapper"><see cref="IMapper"/></param>
-    /// <param name="mongoContext"><see cref="IMongoAppDbContext"/></param>
-    public CourseRepository(ApplicationDbContext context, IMapper mapper, IMongoAppDbContext mongoContext)
+    /// <param name="lessonRepository"><see cref="ILessonRepository"/></param>
+    public CourseRepository(ApplicationDbContext context, IMapper mapper, ILessonRepository lessonRepository)
     {
         _context = context;
         _mapper = mapper;
-        _mongoContext = mongoContext;
+        _lessonRepository = lessonRepository;
     }
 
     /// <inheritdoc />
     public async Task<CourseResponse> GetByIdAsync(int key)
     {
-        var course = await _context.Courses.FindAsync(key);
+        var course = await _context.Courses.Include(c => c.Paragraphs).FirstOrDefaultAsync(c => c.Id == key);
 
         if (course is null)
             return null;
 
         var courseResponse = _mapper.Map<CourseResponse>(course);
-
-        foreach (var paragraph in courseResponse.Paragraphs)
-        {
-            
-        }
         
-        return ;
+        return courseResponse;
     }
 
     /// <inheritdoc />
@@ -102,9 +97,6 @@ public class CourseRepository : ICourseRepository
         
         return _mapper.Map<PagedList<CourseResponse>>(pagedList);
     }
-
-    public Task<IEnumerable<string>> GetLessonIds(int courseId)
-    {
-        _context.Courses.SelectMany(c => c.Paragraphs).SelectMany(p => p.)
-    }
+    
+    
 }

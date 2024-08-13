@@ -1,7 +1,6 @@
 ﻿using Learnify.Core.Domain.Entities;
-using Learnify.Core.Specification;
 
-namespace Learnify.Core.Domain.RepositoryContracts;
+namespace Learnify.Core.Domain.RepositoryContracts.Base;
 
 /// <summary>
 /// base repository for each entity

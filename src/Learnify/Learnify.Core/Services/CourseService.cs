@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
 using Learnify.Core.Dto.Params;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Specification;
 using Learnify.Core.Specification.Custom;
+using Learnify.Core.Specification.Filters;
 
 namespace Learnify.Core.Services;
 

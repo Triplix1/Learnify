@@ -1,11 +1,11 @@
 ﻿using Learnify.Core.Domain.Entities;
-using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Core.Domain.RepositoryContracts.Base;
 using Learnify.Core.Dto;
-using Learnify.Core.Specification;
+using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Learnify.Infrastructure.Repositories;
+namespace Learnify.Infrastructure.Repositories.Base;
 
 /// <inheritdoc />
 public abstract class BasePsqRepository<T, TKey> : IBasePsqRepository<T, TKey> where T: BaseEntity<TKey>

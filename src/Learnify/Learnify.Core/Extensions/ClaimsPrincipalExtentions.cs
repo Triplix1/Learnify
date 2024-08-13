@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Relaxinema.Core.Extentions;
+namespace Learnify.Core.Extensions;
 
 public static class ClaimsPrincipalExtentions
 {

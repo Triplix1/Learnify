@@ -2,6 +2,7 @@
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
 using Learnify.Core.Specification;
+using Learnify.Core.Specification.Filters;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
 
@@ -44,11 +45,4 @@ public interface ICourseRepository
     /// <param name="id"></param>
     /// <returns>Success of operation</returns>
     Task<bool> DeleteAsync(int id);
-
-    /// <summary>
-    /// Gets all lessonIds for specified course
-    /// </summary>
-    /// <param name="courseId">Course id</param>
-    /// <returns>LessonIds for specified course</returns>
-    Task<IEnumerable<string>> GetLessonIds(int courseId);
 }

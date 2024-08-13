@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Learnify.Core.Extensions;
 
-namespace Learnify.Core.Specification;
+namespace Learnify.Core.Specification.Base;
 
 public class AndSpecification<T>: Specification<T>
 {

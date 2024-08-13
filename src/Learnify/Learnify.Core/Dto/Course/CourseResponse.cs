@@ -6,6 +6,11 @@ namespace Learnify.Core.Dto.Course;
 public class CourseResponse
 {
     /// <summary>
+    /// Gets or sets value for Id
+    /// </summary>
+    public int Id { get; set; }
+    
+    /// <summary>
     /// Gets or sets value for AuthorId
     /// </summary>
     public int AuthorId { get; set; }
@@ -28,5 +33,5 @@ public class CourseResponse
     /// <summary>
     /// Gets or sets value for Lessons
     /// </summary>
-    public IList<ParagraphResponse> Paragraphs { get; set; }
+    public IEnumerable<ParagraphResponse> Paragraphs { get; set; }
 }

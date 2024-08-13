@@ -2,5 +2,6 @@
 
 public interface ILessonManager
 {
-    Task<bool> DeleteLessonsByParagraph(int paragraphId);
+    Task DeleteLessonsByParagraph(int paragraphId);
+    Task DeleteLessonsByParagraphs(IEnumerable<int> paragraphIds);
 }

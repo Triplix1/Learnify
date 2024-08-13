@@ -57,9 +57,24 @@ public class LessonRepository: ILessonRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Attachment>> GetAllAttachmentsForLessonsAsync(IEnumerable<string> lessonIds)
+    public async Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphAsync(int paragraphId)
     {
-        var filter = Builders<Lesson>.Filter.Where(l => lessonIds.Contains(l.Id));
+        var filter = Builders<Lesson>.Filter.Eq(l => l.ParagraphId, paragraphId);
+
+        var projection = Builders<Lesson>.Projection.Include(l => l.Attachments).Include(l => l.Video);
+
+        var lessons = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).ToListAsync();
+
+        var result = new List<Attachment>(lessons.SelectMany(l => l.Attachments));
+        result.AddRange(lessons.Select(l => l.Video));
+        
+        return result;
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphsAsync(IEnumerable<int> paragraphsId)
+    {
+        var filter = Builders<Lesson>.Filter.Where(l => paragraphsId.Contains(l.ParagraphId));
 
         var projection = Builders<Lesson>.Projection.Include(l => l.Attachments).Include(l => l.Video);
 
@@ -85,10 +100,6 @@ public class LessonRepository: ILessonRepository
     public async Task<long> DeleteForParagraphAsync(int paragraphId)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.ParagraphId, paragraphId);
-
-        var projection = Builders<Lesson>.Projection.Include(l => l.Id);
-
-        var lessonToDelete = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).FirstOrDefaultAsync();
 
         var result = await _mongoContext.Lessons.DeleteOneAsync(filter);
 

@@ -1,7 +1,8 @@
 ﻿using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Infrastructure.Data;
 
-namespace Learnify.Infrastructure.Repositories;
+namespace Learnify.Infrastructure.Repositories.UnitsOfWork;
 
 /// <inheritdoc />
 public class PsqUnitOfWork: IPsqUnitOfWork
@@ -41,7 +42,4 @@ public class PsqUnitOfWork: IPsqUnitOfWork
 
     /// <inheritdoc />
     public ICourseRatingsRepository CourseRatingsRepository { get; }
-
-    /// <inheritdoc />
-    public ICourseLessonContentRepository CourseLessonContentRepository { get; }
 }

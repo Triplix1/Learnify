@@ -42,11 +42,15 @@ public class CoreInstaller: IInstaller
         
         services.AddScoped<ITokenManager, TokenManager>();
         services.AddScoped<IGoogleAuthManager, GoogleAuthManager>();
+        services.AddScoped<ILessonManager, LessonManager>();
+        
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IBlobStorage, BlobStorage>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ICourseService, CourseService>();
+        services.AddScoped<IParagraphService, ParagraphService>();
+        services.AddScoped<ILessonService, LessonService>();
 
         services.Configure<GoogleAuthOptions>(config.GetSection("GoogleAuthSettings"));
         services.Configure<JwtOptions>(config.GetSection("JwtSettings"));
