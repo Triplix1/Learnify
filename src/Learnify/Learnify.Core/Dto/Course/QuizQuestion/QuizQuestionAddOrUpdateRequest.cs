@@ -2,17 +2,12 @@
 
 namespace Learnify.Core.Dto.Course.QuizQuestion;
 
-public class QuizQuestionResponse
+public class QuizQuestionAddOrUpdateRequest
 {
-    /// <summary>
-    /// Id
-    /// </summary>
-    public string Id { get; set; }
-    
     /// <summary>
     /// Gets or sets value for Media
     /// </summary>
-    public AttachmentResponse? Media { get; set; }
+    public AttachmentCreatedResponse? Media { get; set; }
     
     /// <summary>
     /// Question
@@ -23,4 +18,9 @@ public class QuizQuestionResponse
     /// Options
     /// </summary>
     public IEnumerable<string> Options { get; set; }
+    
+    /// <summary>
+    /// CorrectAnswer
+    /// </summary>
+    public int CorrectAnswer { get; set; }
 }

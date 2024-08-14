@@ -1,8 +1,4 @@
-﻿using Learnify.Core.Dto.Attachment;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace Learnify.Core.Domain.Entities.NoSql;
+﻿namespace Learnify.Core.Domain.Entities.NoSql;
 
 /// <summary>
 /// QuizQuestion
@@ -10,20 +6,9 @@ namespace Learnify.Core.Domain.Entities.NoSql;
 public class QuizQuestion
 {
     /// <summary>
-    /// Id
-    /// </summary>
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
-    /// <summary>
     /// Gets or sets value for Media
     /// </summary>
     public Attachment? Media { get; set; }
-    
-    /// <summary>
-    /// Question
-    /// </summary>
-    public string Question { get; set; }
     
     /// <summary>
     /// Options
@@ -33,5 +18,5 @@ public class QuizQuestion
     /// <summary>
     /// CorrectAnswer
     /// </summary>
-    public int CorrectAnswer { get; set; }
+    public string CorrectAnswer { get; set; }
 }

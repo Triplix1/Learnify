@@ -26,6 +26,11 @@ public interface IPsqUnitOfWork
     ICourseRepository CourseRepository { get; }
     
     /// <summary>
+    /// Get value of CourseRepository
+    /// </summary>
+    IParagraphRepository ParagraphRepository { get; }
+    
+    /// <summary>
     /// Saves changes made on db
     /// </summary>
     /// <returns></returns>

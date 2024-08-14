@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Learnify.Core.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -41,7 +42,7 @@ public class Lesson: BaseEntity
     /// <summary>
     /// Gets or sets value for SubtitlesList
     /// </summary>
-    public IList<Subtitles> SubtitlesList { get; set; }
+    public IList<Subtitles> Subtitles { get; set; }
     
     /// <summary>
     /// User has opportunity to create quizzes
@@ -52,4 +53,6 @@ public class Lesson: BaseEntity
     /// User has opportunity to create Attachements
     /// </summary>
     public IList<Attachment> Attachments { get; set; }
+
+    public LessonStates State { get; set; }
 }

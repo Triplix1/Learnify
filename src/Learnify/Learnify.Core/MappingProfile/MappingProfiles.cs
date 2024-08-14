@@ -41,12 +41,13 @@ public class MappingProfiles: Profile
         CreateMap<Paragraph, ParagraphResponse>();
         
         // Lesson
-        CreateMap<LessonCreateRequest, Lesson>();
+        CreateMap<LessonAddOrUpdateRequest, Lesson>();
         CreateMap<Lesson, LessonResponse>();
         CreateMap<Lesson, LessonTitleResponse>();
         
         // Attachment
         CreateMap<Attachment, AttachmentResponse>();
+        CreateMap<AttachmentCreatedResponse, Attachment>();
         
         // QuizQuestion
         CreateMap<QuizQuestion, QuizQuestionResponse>();

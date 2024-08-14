@@ -5,6 +5,8 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 
 public interface ILessonRepository
 {
+    Task<LessonUpdateResponse> GetLessonForUpdate(string id);
+    Task<LessonResponse> GetLessonById(string id);
     Task<IEnumerable<LessonTitleResponse>> GetLessonsForParagraphAsync(int paragraphId);
     Task<IEnumerable<Attachment>> GetAllAttachmentsForLessonAsync(string lessonId);
     Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphAsync(int paragraphId);

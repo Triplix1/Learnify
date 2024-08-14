@@ -1,9 +1,6 @@
-﻿namespace Learnify.Core.Domain.Entities.NoSql;
+﻿namespace Learnify.Core.Dto.Attachment;
 
-/// <summary>
-/// Attachment
-/// </summary>
-public class Attachment
+public class AttachmentCreatedResponse
 {
     /// <summary>
     /// Gets or sets value for FileBlobName
@@ -14,6 +11,11 @@ public class Attachment
     /// Gets or sets value for FileContainerName
     /// </summary>
     public string FileContainerName { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value for FileUrl
+    /// </summary>
+    public string FileUrl { get; set; }
     
     /// <summary>
     /// Gets or sets value for ContentType

@@ -13,18 +13,23 @@ public class PsqUnitOfWork: IPsqUnitOfWork
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
     /// <param name="userRepository"><see cref="IUserRepository"/></param>
     /// <param name="refreshTokenRepository"><see cref="IRefreshTokenRepository"/></param>
-    public PsqUnitOfWork(ApplicationDbContext context, IUserRepository userRepository, IRefreshTokenRepository refreshTokenRepository, ICourseRepository courseRepository, ICourseRatingsRepository courseRatingsRepository, ICourseLessonContentRepository courseLessonContentRepository)
+    public PsqUnitOfWork(ApplicationDbContext context, IUserRepository userRepository,
+        IRefreshTokenRepository refreshTokenRepository, ICourseRepository courseRepository,
+        ICourseRatingsRepository courseRatingsRepository, IParagraphRepository paragraphRepository)
     {
         _context = context;
         UserRepository = userRepository;
         RefreshTokenRepository = refreshTokenRepository;
         CourseRepository = courseRepository;
         CourseRatingsRepository = courseRatingsRepository;
-        CourseLessonContentRepository = courseLessonContentRepository;
+        ParagraphRepository = paragraphRepository;
     }
 
     private readonly ApplicationDbContext _context;
-    
+
+    /// <inheritdoc />
+    public IParagraphRepository ParagraphRepository { get; }
+
     /// <inheritdoc />
     public async Task SaveChangesAsync()
     {

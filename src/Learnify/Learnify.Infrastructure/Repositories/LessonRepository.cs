@@ -25,6 +25,32 @@ public class LessonRepository: ILessonRepository
     }
 
     /// <inheritdoc />
+    public async Task<LessonUpdateResponse> GetLessonForUpdate(string id)
+    {
+        var filter = Builders<Lesson>.Filter.Eq(l => l.Id, id);
+
+        var lesson = await _mongoContext.Lessons.Find(filter).FirstOrDefaultAsync();
+
+        if (lesson is null)
+            return null;
+
+        return _mapper.Map<LessonUpdateResponse>(lesson);
+    }
+
+    /// <inheritdoc />
+    public async Task<LessonResponse> GetLessonById(string id)
+    {
+        var filter = Builders<Lesson>.Filter.Eq(l => l.Id, id);
+
+        var lesson = await _mongoContext.Lessons.Find(filter).FirstOrDefaultAsync();
+
+        if (lesson is null)
+            return null;
+        
+        return _mapper.Map<LessonResponse>(lesson);
+    }
+
+    /// <inheritdoc />
     public async Task<IEnumerable<LessonTitleResponse>> GetLessonsForParagraphAsync(int paragraphId)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.ParagraphId, paragraphId);
@@ -41,7 +67,8 @@ public class LessonRepository: ILessonRepository
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
 
-        var projection = Builders<Lesson>.Projection.Include(l => l.Attachments).Include(l => l.Video);
+        var projection = Builders<Lesson>.Projection.Include(l => l.Attachments).Include(l => l.Video)
+            .Include(l => l.Quizzes).Include(l => l.Subtitles);
 
         var lesson = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).FirstOrDefaultAsync();
 
@@ -52,6 +79,9 @@ public class LessonRepository: ILessonRepository
         
         if (lesson.Video is not null)
             result.Add(lesson.Video);
+        
+        result.AddRange(lesson.Quizzes.Select(q => q.Media));
+        result.AddRange(lesson.Subtitles.Select(q => q.File));
 
         return result;
     }
@@ -61,14 +91,7 @@ public class LessonRepository: ILessonRepository
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.ParagraphId, paragraphId);
 
-        var projection = Builders<Lesson>.Projection.Include(l => l.Attachments).Include(l => l.Video);
-
-        var lessons = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).ToListAsync();
-
-        var result = new List<Attachment>(lessons.SelectMany(l => l.Attachments));
-        result.AddRange(lessons.Select(l => l.Video));
-        
-        return result;
+        return await GetAttachmentsForFilterAsync(filter);
     }
 
     /// <inheritdoc />
@@ -76,12 +99,20 @@ public class LessonRepository: ILessonRepository
     {
         var filter = Builders<Lesson>.Filter.Where(l => paragraphsId.Contains(l.ParagraphId));
 
-        var projection = Builders<Lesson>.Projection.Include(l => l.Attachments).Include(l => l.Video);
+        return await GetAttachmentsForFilterAsync(filter);
+    }
+
+    private async Task<IEnumerable<Attachment>> GetAttachmentsForFilterAsync(FilterDefinition<Lesson> filter)
+    {
+        var projection = Builders<Lesson>.Projection.Include(l => l.Attachments).Include(l => l.Video)
+            .Include(l => l.Quizzes).Include(l => l.Subtitles);
 
         var lessons = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).ToListAsync();
 
         var result = new List<Attachment>(lessons.SelectMany(l => l.Attachments));
         result.AddRange(lessons.Select(l => l.Video));
+        result.AddRange(lessons.SelectMany(l => l.Quizzes.Select(q => q.Media)));
+        result.AddRange(lessons.SelectMany(l => l.Subtitles.Select(q => q.File)));
         
         return result;
     }

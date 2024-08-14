@@ -43,6 +43,7 @@ public class CoreInstaller: IInstaller
         services.AddScoped<ITokenManager, TokenManager>();
         services.AddScoped<IGoogleAuthManager, GoogleAuthManager>();
         services.AddScoped<ILessonManager, LessonManager>();
+        services.AddScoped<IEncryptionHelper, EncryptionHelper>();
         
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IBlobStorage, BlobStorage>();
@@ -55,6 +56,7 @@ public class CoreInstaller: IInstaller
         services.Configure<GoogleAuthOptions>(config.GetSection("GoogleAuthSettings"));
         services.Configure<JwtOptions>(config.GetSection("JwtSettings"));
         services.Configure<MailOptions>(config.GetSection("MailConfig"));
+        services.Configure<EncryptionOptions>(config.GetSection("EncryptionOptions"));
         services.AddSingleton(x => new BlobServiceClient(config["BlobStorageSettings:ConnectionString"]));
     }
 }
