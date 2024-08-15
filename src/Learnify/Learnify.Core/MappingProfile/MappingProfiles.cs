@@ -41,7 +41,8 @@ public class MappingProfiles: Profile
         CreateMap<Paragraph, ParagraphResponse>();
         
         // Lesson
-        CreateMap<LessonAddOrUpdateRequest, Lesson>();
+        CreateMap<LessonUpdateRequest, Lesson>();
+        CreateMap<LessonCreateRequest, Lesson>();
         CreateMap<Lesson, LessonResponse>();
         CreateMap<Lesson, LessonTitleResponse>();
         

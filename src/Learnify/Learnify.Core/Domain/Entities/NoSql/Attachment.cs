@@ -1,4 +1,7 @@
-﻿namespace Learnify.Core.Domain.Entities.NoSql;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace Learnify.Core.Domain.Entities.NoSql;
 
 /// <summary>
 /// Attachment

@@ -1,4 +1,6 @@
-﻿using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
+﻿using AutoMapper;
+using Learnify.Core.Domain.Entities.NoSql;
+using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Attachment;
 using Learnify.Core.Dto.Course.LessonDtos;
@@ -12,14 +14,18 @@ public class LessonService: ILessonService
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IBlobStorage _blobStorage;
+    private readonly IMapper _mapper;
 
-    public LessonService(IMongoUnitOfWork mongoUnitOfWork, IPsqUnitOfWork psqUnitOfWork)
+    public LessonService(IMongoUnitOfWork mongoUnitOfWork, IPsqUnitOfWork psqUnitOfWork, IMapper mapper, IBlobStorage blobStorage)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
+        _mapper = mapper;
+        _blobStorage = blobStorage;
     }
 
-    public async Task<ApiResponse> DeleteAsync(string id)
+    /// <inheritdoc />
+    public async Task<ApiResponse> DeleteAsync(string id, int userId)
     {
         var attachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(id);
 
@@ -33,6 +39,7 @@ public class LessonService: ILessonService
         return ApiResponse.Success();
     }
 
+    /// <inheritdoc />
     public async Task<ApiResponse<LessonUpdateResponse>> GetForUpdateAsync(string id, int userId)
     {
         var lesson = await _mongoUnitOfWork.Lessons.GetLessonForUpdate(id);
@@ -41,27 +48,78 @@ public class LessonService: ILessonService
             return ApiResponse<LessonUpdateResponse>.Failure(
                 new KeyNotFoundException("Cannot find lesson with such Id"));
 
-        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(lesson.ParagraphId);
+        var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLesson(id);
+        
+        var actualAuthorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(currParagraphId);
 
-        if (userId != authorId)
+        if (actualAuthorId != userId)
             return ApiResponse<LessonUpdateResponse>.Failure(
                 new Exception("You should be author of the course to be able to edit it"));
+
+        return ApiResponse<LessonUpdateResponse>.Success(lesson);
+    }
+
+    /// <inheritdoc />
+    public async Task<ApiResponse<LessonResponse>> CreateAsync(LessonCreateRequest lessonCreateRequest, int userId)
+    {
+        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(lessonCreateRequest.ParagraphId);
+
+        if (userId != authorId)
+            return ApiResponse<LessonResponse>.Failure(
+                new Exception("You should be author of the course to be able to edit it"));
+
+        var lesson = _mapper.Map<Lesson>(lessonCreateRequest);
         
-        var 
+        //TODO: Here should be logic for generating subtitles
+
+        var createdLesson = await _mongoUnitOfWork.Lessons.CreateAsync(lesson);
+
+        return ApiResponse<LessonResponse>.Success(createdLesson);
     }
 
-    public async Task<ApiResponse<LessonUpdateResponse>> CreateOrUpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest)
+    /// <inheritdoc />
+    public async Task<ApiResponse<LessonResponse>> UpdateAsync(LessonUpdateRequest lessonUpdateRequest, int userId)
     {
-        throw new NotImplementedException();
-    }
-
-    public async Task<ApiResponse<LessonResponse>> GetByIdAsync(string id)
-    {
-        throw new NotImplementedException();
-    }
-
-    private IEnumerable<AttachmentCreatedResponse> FillUrlsForBlob()
-    {
+        var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLesson(lessonUpdateRequest.Id);
         
+        var actualAuthorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(currParagraphId);
+        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(lessonUpdateRequest.ParagraphId);
+
+        if (actualAuthorId != authorId || authorId != userId)
+            return ApiResponse<LessonResponse>.Failure(
+                new Exception("You should be author of the course to be able to edit it"));
+
+        var oldAttachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(lessonUpdateRequest.Id);
+
+        var currAttachments = new List<AttachmentCreatedResponse>(lessonUpdateRequest.Attachments);
+
+        if (lessonUpdateRequest.Video is not null)
+        {
+            currAttachments.Add(lessonUpdateRequest.Video);
+            if (oldAttachments.All(oat => oat.FileBlobName != lessonUpdateRequest.Video.FileBlobName))
+            {
+                
+            }
+        }
+        else
+        {
+            //TODO: Delete
+        }
+        
+        currAttachments.AddRange(lessonUpdateRequest.Quizzes.Select(q => q.Media));
+
+        
+    }
+
+    /// <inheritdoc />
+    public async Task<ApiResponse<LessonResponse>> GetByIdAsync(string id, int userId)
+    {
+        var lesson = await _mongoUnitOfWork.Lessons.GetLessonById(id);
+        
+        if (lesson is null)
+            return ApiResponse<LessonResponse>.Failure(
+                new KeyNotFoundException("Cannot find lesson with such Id"));
+
+        return ApiResponse<LessonResponse>.Success(lesson);
     }
 }
