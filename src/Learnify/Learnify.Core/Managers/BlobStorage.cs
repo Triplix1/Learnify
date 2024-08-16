@@ -11,6 +11,7 @@ namespace Learnify.Core.Managers;
 public class BlobStorage : IBlobStorage
 {
     private readonly BlobServiceClient _blobServiceClient;
+    private readonly IRedisCacheManager _redisCacheManager;
 
     public BlobStorage(BlobServiceClient blobServiceClient)
     {
@@ -31,10 +32,12 @@ public class BlobStorage : IBlobStorage
         if (isPrivate)
         {
             var blobContainerClient = new BlobContainerClient(blobClient.Uri, new DefaultAzureCredential());
-            await blobContainerClient.SetAccessPolicyAsync();
+            await blobContainerClient.SetAccessPolicyAsync(PublicAccessType.None);
         }
         
         var uri = blobClient.Uri.ToString();
+
+        await _redisCacheManager.SetCachedDataAsync(blobClient.BlobContainerName + blobClient.Name, uri, new TimeSpan(3,0,0));
         
         return new BlobResponse()
         {
@@ -49,19 +52,28 @@ public class BlobStorage : IBlobStorage
     {
         var blobClient = await GetBlobClientInternalAsync(containerName, blobId);
 
+        await _redisCacheManager.RemoveCachedDataAsync(containerName + blobId);
+
         return await blobClient.DeleteIfExistsAsync();
     }
     
-    public async Task<string> GetFileUrlAsync(string containerName, string blobId)
+    public async Task<string> GetFileUrlAsync(string containerName, string blobId, bool isPrivate = false)
     {
-        var blobClient = await GetBlobClientInternalAsync(containerName, blobId);
-        
-        if (!await blobClient.ExistsAsync())
-        {
-            throw new InvalidOperationException($"Blob with id:{blobId} does not exist.");
-        }
+        var url = await _redisCacheManager.GetCachedDataAsync<string>(containerName + blobId);
 
-        return blobClient.Uri.AbsoluteUri;
+        if (url is null)
+        {
+            var blobClient = await GetBlobClientInternalAsync(containerName, blobId);
+        
+            if (!await blobClient.ExistsAsync())
+            {
+                throw new InvalidOperationException($"Blob with id:{blobId} does not exist.");
+            }
+
+            url = blobClient.Uri.AbsoluteUri;
+        }
+        
+        return url;
     }
     
     public async Task<Stream> GetBlobStreamAsync(string containerName, string blobName)

@@ -13,7 +13,6 @@ using Learnify.Core.Dto.Params;
 using Learnify.Core.Dto.Profile;
 using Learnify.Core.Enums;
 using Learnify.Core.Specification.Filters;
-using Attachment = System.Net.Mail.Attachment;
 
 namespace Learnify.Core.MappingProfile;
 
@@ -47,7 +46,8 @@ public class MappingProfiles: Profile
         CreateMap<Lesson, LessonTitleResponse>();
         
         // Attachment
-        CreateMap<Attachment, AttachmentResponse>();
+        CreateMap<Attachment, AttachmentResponse>()
+            .ForMember(r => r.FileUrl, a => a.MapFrom(at => at.ConstantUrl));
         CreateMap<AttachmentCreatedResponse, Attachment>();
         
         // QuizQuestion

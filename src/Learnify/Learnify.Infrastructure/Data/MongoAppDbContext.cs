@@ -19,7 +19,7 @@ public class MongoAppDbContext: IMongoAppDbContext
     /// <param name="configuration"><see cref="IConfiguration"/></param>
     public MongoAppDbContext(IConfiguration configuration)
     {
-        var client = new MongoClient(configuration.GetSection("MongoDatabase:ConnectionString").Value);
+        var client = new MongoClient(configuration.GetConnectionString("MongoDb"));
         _database = client.GetDatabase(configuration.GetSection("MongoDatabase:DatabaseName").Value);
 
         var viewsCollectionName = configuration.GetSection("MongoDatabase:ViewsCollectionName").Value;

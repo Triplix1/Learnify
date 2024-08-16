@@ -33,11 +33,12 @@ public class CoreInstaller: IInstaller
                 Version = "v1",
                 Title = "Learnify API",
                 Description = "Learnify API"
-            });
-            
-            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            c.IncludeXmlComments(xmlPath);
+            }); 
+        });
+        
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = config.GetConnectionString("RedisCache");
         });
         
         services.AddScoped<ITokenManager, TokenManager>();
@@ -52,6 +53,7 @@ public class CoreInstaller: IInstaller
         services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<IParagraphService, ParagraphService>();
         services.AddScoped<ILessonService, LessonService>();
+        services.AddScoped<IRedisCacheManager, RedisCacheManager>();
 
         services.Configure<GoogleAuthOptions>(config.GetSection("GoogleAuthSettings"));
         services.Configure<JwtOptions>(config.GetSection("JwtSettings"));

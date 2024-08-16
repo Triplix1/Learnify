@@ -40,9 +40,4 @@ public class LessonResponse
     /// User has opportunity to create quizzes
     /// </summary>
     public IEnumerable<QuizQuestionResponse> Quizzes { get; set; }
-    
-    /// <summary>
-    /// User has opportunity to create Attachements
-    /// </summary>
-    public IEnumerable<AttachmentResponse> Attachments { get; set; }
 }

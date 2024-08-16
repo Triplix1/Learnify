@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using JetBrains.Annotations;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Learnify.Core.Domain.Entities.NoSql;
@@ -17,6 +18,12 @@ public class Attachment
     /// Gets or sets value for FileContainerName
     /// </summary>
     public string FileContainerName { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value for FileContainerName
+    /// </summary>
+    [CanBeNull]
+    public string ConstantUrl { get; set; }
     
     /// <summary>
     /// Gets or sets value for ContentType

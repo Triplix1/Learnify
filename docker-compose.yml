@@ -1,6 +1,17 @@
 ﻿version: '3.4'
 
-services:      
+services:
+  redis:
+    image: redis:latest
+    command: redis-server
+    volumes:
+      - redis:/var/lib/redis
+      - redis-config:/usr/local/etc/redis/redis.conf
+    ports:
+      - 6379:6379
+    networks:
+      - redis-network
+  
   rabbitmq:
     image: rabbitmq:3-management-alpine
     restart: always

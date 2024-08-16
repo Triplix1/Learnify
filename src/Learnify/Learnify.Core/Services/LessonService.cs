@@ -15,13 +15,15 @@ public class LessonService: ILessonService
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IBlobStorage _blobStorage;
     private readonly IMapper _mapper;
+    private readonly IRedisCacheManager _redisCacheManager;
 
-    public LessonService(IMongoUnitOfWork mongoUnitOfWork, IPsqUnitOfWork psqUnitOfWork, IMapper mapper, IBlobStorage blobStorage)
+    public LessonService(IMongoUnitOfWork mongoUnitOfWork, IPsqUnitOfWork psqUnitOfWork, IMapper mapper, IBlobStorage blobStorage, IRedisCacheManager redisCacheManager)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
         _mapper = mapper;
         _blobStorage = blobStorage;
+        _redisCacheManager = redisCacheManager;
     }
 
     /// <inheritdoc />
@@ -55,6 +57,8 @@ public class LessonService: ILessonService
         if (actualAuthorId != userId)
             return ApiResponse<LessonUpdateResponse>.Failure(
                 new Exception("You should be author of the course to be able to edit it"));
+        
+        if(lesson.Video is not null)
 
         return ApiResponse<LessonUpdateResponse>.Success(lesson);
     }
