@@ -39,6 +39,11 @@ public class ApplicationDbContext: DbContext
     /// </summary>
     public DbSet<Paragraph> Paragraphs { get; }
     
+    /// <summary>
+    /// Courses DbSet
+    /// </summary>
+    public DbSet<FileData> FileDatas { get; }
+    
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder)
     {

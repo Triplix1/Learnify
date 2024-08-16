@@ -30,10 +30,14 @@ public class LessonService: ILessonService
     public async Task<ApiResponse> DeleteAsync(string id, int userId)
     {
         var attachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(id);
-
-        foreach (var attachment in attachments)
+        
+        var attachmentFileIds = attachments.Select(a => a.FileId);
+        
+        var fileDatas = await _psqUnitOfWork.FileRepository.GetByIdsAsync(attachmentFileIds);
+        
+        foreach (var fileData in fileDatas)
         {
-            await _blobStorage.DeleteAsync(attachment.FileContainerName, attachment.FileBlobName);
+            await _blobStorage.DeleteAsync(fileData.ContainerName, fileData.BlobName);
         }
 
         await _mongoUnitOfWork.Lessons.DeleteAsync(id);
@@ -95,7 +99,7 @@ public class LessonService: ILessonService
 
         var oldAttachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(lessonUpdateRequest.Id);
 
-        var currAttachments = new List<AttachmentCreatedResponse>(lessonUpdateRequest.Attachments);
+        var currAttachments = new List<AttachmentResponse>(lessonUpdateRequest.);
 
         if (lessonUpdateRequest.Video is not null)
         {

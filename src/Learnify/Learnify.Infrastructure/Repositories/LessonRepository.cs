@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts;
-using Learnify.Core.Dto.Attachment;
 using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.ManagerContracts;
 using Learnify.Infrastructure.Data.Interfaces;
@@ -40,20 +39,7 @@ public class LessonRepository : ILessonRepository
             return null;
 
         var lessonToUpdate = _mapper.Map<LessonUpdateResponse>(lesson);
-
-        var attachments = new List<AttachmentCreatedResponse>(lessonToUpdate.Attachments);
-
-        if (lesson.Video is not null)
-            attachments.Add(lessonToUpdate.Video);
-
-        attachments.AddRange(lessonToUpdate.Quizzes.Select(q => q.Media));
-
-        foreach (var attachmentCreatedResponse in attachments)
-        {
-            attachmentCreatedResponse.FileUrl = await _blobStorage.GetFileUrlAsync(attachmentCreatedResponse.FileUrl,
-                attachmentCreatedResponse.FileBlobName);
-        }
-
+        
         return lessonToUpdate;
     }
 
@@ -63,33 +49,12 @@ public class LessonRepository : ILessonRepository
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, id);
 
         var lesson = await _mongoContext.Lessons.Find(filter).FirstOrDefaultAsync();
+        
+        var lessonResponse = _mapper.Map<LessonResponse>(lesson);
 
         if (lesson is null)
             return null;
-
-        var attachments = new List<Attachment>(lesson.Attachments);
-
-        if (lesson.Video is not null)
-            attachments.Add(lesson.Video);
-
-        attachments.AddRange(lesson.Quizzes.Select(q => q.Media));
-
-        var lessonResponse = _mapper.Map<LessonResponse>(lesson);
         
-        if (lessonResponse.Video is not null)
-            attachmentResponses.Add(lessonResponse.Video);
-
-        attachmentResponses.AddRange(lessonResponse.Quizzes.Select(q => q.Media));
-        attachmentResponses.AddRange(lessonResponse.SubtitlesList.Select(q => q.File));
-
-        foreach (var attachmentResponse in attachmentResponses)
-        {
-            var attachment = attachments.First(a => a.Id == attachmentResponse.Id);
-
-            attachmentResponse.FileUrl =
-                await _blobStorage.GetFileUrlAsync(attachment.FileContainerName, attachment.FileBlobName);
-        }
-
         return lessonResponse;
     }
 
@@ -110,7 +75,7 @@ public class LessonRepository : ILessonRepository
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
 
-        var projection = Builders<Lesson>.Projection.Include(l => l.Attachments).Include(l => l.Video)
+        var projection = Builders<Lesson>.Projection.Include(l => l.Video)
             .Include(l => l.Quizzes).Include(l => l.Subtitles);
 
         var lesson = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).FirstOrDefaultAsync();
@@ -118,7 +83,7 @@ public class LessonRepository : ILessonRepository
         if (lesson is null)
             return Enumerable.Empty<Attachment>();
 
-        var result = new List<Attachment>(lesson.Attachments);
+        var result = new List<Attachment>();
 
         if (lesson.Video is not null)
             result.Add(lesson.Video);
@@ -147,12 +112,12 @@ public class LessonRepository : ILessonRepository
 
     private async Task<IEnumerable<Attachment>> GetAttachmentsForFilterAsync(FilterDefinition<Lesson> filter)
     {
-        var projection = Builders<Lesson>.Projection.Include(l => l.Attachments).Include(l => l.Video)
+        var projection = Builders<Lesson>.Projection.Include(l => l.Video)
             .Include(l => l.Quizzes).Include(l => l.Subtitles);
 
         var lessons = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).ToListAsync();
 
-        var result = new List<Attachment>(lessons.SelectMany(l => l.Attachments));
+        var result = new List<Attachment>();
         result.AddRange(lessons.Select(l => l.Video));
         result.AddRange(lessons.SelectMany(l => l.Quizzes.Select(q => q.Media)));
         result.AddRange(lessons.SelectMany(l => l.Subtitles.Select(q => q.File)));
@@ -186,6 +151,11 @@ public class LessonRepository : ILessonRepository
     public async Task<LessonResponse> UpdateAsync(Lesson lessonUpdateRequest)
     {
         await _mongoContext.Lessons.ReplaceOneAsync(l => l.Id == lessonUpdateRequest.Id, lessonUpdateRequest);
+
+        var updatedLesson = await _mongoContext.Lessons
+            .Find(Builders<Lesson>.Filter.Eq(l => l.Id, lessonUpdateRequest.Id)).FirstOrDefaultAsync();
+        
+        return _mapper.Map<LessonResponse>(updatedLesson);
     }
 
     /// <inheritdoc />

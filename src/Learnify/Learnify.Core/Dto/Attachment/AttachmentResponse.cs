@@ -3,9 +3,9 @@
 public class AttachmentResponse
 {
     /// <summary>
-    /// Gets or sets value for FileUrl
+    /// Gets or sets value for FileBlobName
     /// </summary>
-    public string FileUrl { get; set; }
+    public int FileId { get; set; }
     
     /// <summary>
     /// Gets or sets value for ContentType

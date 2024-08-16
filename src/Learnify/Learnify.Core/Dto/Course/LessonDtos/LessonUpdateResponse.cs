@@ -31,7 +31,7 @@ public class LessonUpdateResponse
     /// <summary>
     /// Gets or sets value for Video
     /// </summary>
-    public AttachmentCreatedResponse Video { get; set; }
+    public AttachmentResponse Video { get; set; }
     
     /// <summary>
     /// User has opportunity to create quizzes
@@ -41,5 +41,5 @@ public class LessonUpdateResponse
     /// <summary>
     /// User has opportunity to create Attachments
     /// </summary>
-    public IEnumerable<AttachmentCreatedResponse> Attachments { get; set; }
+    public IEnumerable<AttachmentResponse> Attachments { get; set; }
 }

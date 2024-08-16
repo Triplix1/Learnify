@@ -9,6 +9,7 @@ using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Dto.Course.QuizQuestion;
 using Learnify.Core.Dto.Course.Subtitles;
+using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Params;
 using Learnify.Core.Dto.Profile;
 using Learnify.Core.Enums;
@@ -46,14 +47,16 @@ public class MappingProfiles: Profile
         CreateMap<Lesson, LessonTitleResponse>();
         
         // Attachment
-        CreateMap<Attachment, AttachmentResponse>()
-            .ForMember(r => r.FileUrl, a => a.MapFrom(at => at.ConstantUrl));
-        CreateMap<AttachmentCreatedResponse, Attachment>();
+        CreateMap<Attachment, AttachmentResponse>().ReverseMap();
         
         // QuizQuestion
         CreateMap<QuizQuestion, QuizQuestionResponse>();
         
         // Subtitles
         CreateMap<Subtitles, SubtitlesResponse>();
+        
+        // FileData
+        CreateMap<FileData, FileDataResponse>();
+        CreateMap<FileDataCreateRequest, FileData>();
     }
 }

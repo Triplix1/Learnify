@@ -7,6 +7,7 @@ namespace Learnify.Core.Managers;
 public class LessonManager: ILessonManager
 {
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
+    private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IBlobStorage _blobStorage;
     
     /// <summary>
@@ -14,10 +15,11 @@ public class LessonManager: ILessonManager
     /// </summary>
     /// <param name="mongoUnitOfWork"><see cref="IMongoUnitOfWork"/></param>
     /// <param name="blobStorage"><see cref="IBlobStorage"/></param>
-    public LessonManager(IMongoUnitOfWork mongoUnitOfWork, IBlobStorage blobStorage)
+    public LessonManager(IMongoUnitOfWork mongoUnitOfWork, IBlobStorage blobStorage, IPsqUnitOfWork psqUnitOfWork)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _blobStorage = blobStorage;
+        _psqUnitOfWork = psqUnitOfWork;
     }
 
     /// <inheritdoc />
@@ -25,9 +27,13 @@ public class LessonManager: ILessonManager
     {
         var attachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForParagraphAsync(paragraphId);
 
-        foreach (var attachment in attachments)
+        var attachmentFileIds = attachments.Select(a => a.FileId);
+        
+        var fileDatas = await _psqUnitOfWork.FileRepository.GetByIdsAsync(attachmentFileIds);
+        
+        foreach (var fileData in fileDatas)
         {
-            await _blobStorage.DeleteAsync(attachment.FileContainerName, attachment.FileBlobName);
+            await _blobStorage.DeleteAsync(fileData.ContainerName, fileData.BlobName);
         }
 
         await _mongoUnitOfWork.Lessons.DeleteForParagraphAsync(paragraphId);

@@ -7,7 +7,7 @@ public class QuizQuestionAddOrUpdateRequest
     /// <summary>
     /// Gets or sets value for Media
     /// </summary>
-    public AttachmentCreatedResponse? Media { get; set; }
+    public AttachmentResponse? Media { get; set; }
     
     /// <summary>
     /// Question

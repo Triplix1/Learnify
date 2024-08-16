@@ -24,22 +24,12 @@ public class LessonUpdateRequest
     public string Title { get; set; }
 
     /// <summary>
-    /// Gets or sets value for Content
-    /// </summary>
-    public string? Content { get; set; }
-
-    /// <summary>
     /// Gets or sets value for Video
     /// </summary>
-    public AttachmentCreatedResponse Video { get; set; }
+    public AttachmentResponse Video { get; set; }
 
     /// <summary>
     /// User has opportunity to create quizzes
     /// </summary>
     public IEnumerable<QuizQuestionAddOrUpdateRequest> Quizzes { get; set; }
-
-    /// <summary>
-    /// User has opportunity to create Attachments
-    /// </summary>
-    public IEnumerable<AttachmentCreatedResponse> Attachments { get; set; }
 }

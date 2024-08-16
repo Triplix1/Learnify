@@ -1,8 +1,6 @@
-﻿using Azure;
-using Azure.Identity;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Learnify.Core.Dto;
+using Azure.Storage.Sas;
 using Learnify.Core.Dto.Blob;
 using Learnify.Core.ManagerContracts;
 
@@ -13,9 +11,10 @@ public class BlobStorage : IBlobStorage
     private readonly BlobServiceClient _blobServiceClient;
     private readonly IRedisCacheManager _redisCacheManager;
 
-    public BlobStorage(BlobServiceClient blobServiceClient)
+    public BlobStorage(BlobServiceClient blobServiceClient, IRedisCacheManager redisCacheManager)
     {
         _blobServiceClient = blobServiceClient;
+        _redisCacheManager = redisCacheManager;
     }
 
     public async Task<BlobResponse> UploadAsync(BlobDto blobDto, bool isPrivate = false)
@@ -29,21 +28,25 @@ public class BlobStorage : IBlobStorage
 
         await blobClient.UploadAsync(new BinaryData(blobDto.Content ?? new byte[] { }));
         
-        if (isPrivate)
+        BlobSasBuilder sasBuilder = new BlobSasBuilder
         {
-            var blobContainerClient = new BlobContainerClient(blobClient.Uri, new DefaultAzureCredential());
-            await blobContainerClient.SetAccessPolicyAsync(PublicAccessType.None);
-        }
-        
-        var uri = blobClient.Uri.ToString();
+            BlobContainerName = blobDto.ContainerName,
+            BlobName = blobDto.Name,
+            Resource = "b",
+            ExpiresOn = DateTimeOffset.UtcNow.AddHours(3)
+        };
 
-        await _redisCacheManager.SetCachedDataAsync(blobClient.BlobContainerName + blobClient.Name, uri, new TimeSpan(3,0,0));
+        sasBuilder.SetPermissions(BlobSasPermissions.Read);
+
+        Uri sasUri = blobClient.GenerateSasUri(sasBuilder);
+        
+        await _redisCacheManager.SetCachedDataAsync(blobClient.BlobContainerName + blobClient.Name, sasUri.ToString(), new TimeSpan(3,0,0));
         
         return new BlobResponse()
         {
             Name = blobClient.Name,
             ContainerName = blobClient.BlobContainerName,
-            Url = uri,
+            Url = sasUri.ToString(),
             ContentType = (await blobClient.GetPropertiesAsync()).Value.ContentType
         };
     }
@@ -57,7 +60,7 @@ public class BlobStorage : IBlobStorage
         return await blobClient.DeleteIfExistsAsync();
     }
     
-    public async Task<string> GetFileUrlAsync(string containerName, string blobId, bool isPrivate = false)
+    public async Task<string> GetFileUrlAsync(string containerName, string blobId)
     {
         var url = await _redisCacheManager.GetCachedDataAsync<string>(containerName + blobId);
 
@@ -88,7 +91,7 @@ public class BlobStorage : IBlobStorage
         var blobStream = await blobClient.OpenReadAsync();
         return blobStream;
     }
-
+    
     private async Task<BlobClient> GetBlobClientInternalAsync(string containerName, string blobName)
     {
         var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);

@@ -5,7 +5,6 @@
 /// </summary>
 public class BlobResponse
 {
-    
     /// <summary>
     /// Gets or sets value for Name
     /// </summary>

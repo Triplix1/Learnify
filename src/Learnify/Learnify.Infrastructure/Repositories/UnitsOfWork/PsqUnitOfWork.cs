@@ -15,7 +15,7 @@ public class PsqUnitOfWork: IPsqUnitOfWork
     /// <param name="refreshTokenRepository"><see cref="IRefreshTokenRepository"/></param>
     public PsqUnitOfWork(ApplicationDbContext context, IUserRepository userRepository,
         IRefreshTokenRepository refreshTokenRepository, ICourseRepository courseRepository,
-        ICourseRatingsRepository courseRatingsRepository, IParagraphRepository paragraphRepository)
+        ICourseRatingsRepository courseRatingsRepository, IParagraphRepository paragraphRepository, IFileRepository fileRepository)
     {
         _context = context;
         UserRepository = userRepository;
@@ -23,6 +23,7 @@ public class PsqUnitOfWork: IPsqUnitOfWork
         CourseRepository = courseRepository;
         CourseRatingsRepository = courseRatingsRepository;
         ParagraphRepository = paragraphRepository;
+        FileRepository = fileRepository;
     }
 
     private readonly ApplicationDbContext _context;
@@ -30,11 +31,7 @@ public class PsqUnitOfWork: IPsqUnitOfWork
     /// <inheritdoc />
     public IParagraphRepository ParagraphRepository { get; }
 
-    /// <inheritdoc />
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
-    }
+    public IFileRepository FileRepository { get; }
 
     /// <inheritdoc />
     public IUserRepository UserRepository { get; }
@@ -47,4 +44,10 @@ public class PsqUnitOfWork: IPsqUnitOfWork
 
     /// <inheritdoc />
     public ICourseRatingsRepository CourseRatingsRepository { get; }
+    
+    /// <inheritdoc />
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 }

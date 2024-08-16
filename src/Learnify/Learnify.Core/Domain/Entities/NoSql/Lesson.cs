@@ -28,12 +28,6 @@ public class Lesson: BaseEntity
     public string Title { get; set; }
     
     /// <summary>
-    /// Gets or sets value for Content
-    /// </summary>
-    [CanBeNull]
-    public string Content { get; set; }
-    
-    /// <summary>
     /// Gets or sets value for Video
     /// </summary>
     [CanBeNull]
@@ -48,11 +42,4 @@ public class Lesson: BaseEntity
     /// User has opportunity to create quizzes
     /// </summary>
     public IList<QuizQuestion> Quizzes { get; set; }
-    
-    /// <summary>
-    /// User has opportunity to create Attachements
-    /// </summary>
-    public IList<Attachment> Attachments { get; set; }
-
-    public LessonStates State { get; set; }
 }
