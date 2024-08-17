@@ -97,32 +97,19 @@ public class LessonService: ILessonService
             return ApiResponse<LessonResponse>.Failure(
                 new Exception("You should be author of the course to be able to edit it"));
 
-        var oldAttachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(lessonUpdateRequest.Id);
+        var oldLesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonUpdateRequest.Id); 
 
-        var currAttachments = new List<AttachmentResponse>(lessonUpdateRequest.);
-
-        if (lessonUpdateRequest.Video is not null)
+        if (lessonUpdateRequest.Video?.FileId != oldLesson.Video.FileId)
         {
-            currAttachments.Add(lessonUpdateRequest.Video);
-            if (oldAttachments.All(oat => oat.FileBlobName != lessonUpdateRequest.Video.FileBlobName))
-            {
-                
-            }
+            
         }
-        else
-        {
-            //TODO: Delete
-        }
-        
-        currAttachments.AddRange(lessonUpdateRequest.Quizzes.Select(q => q.Media));
-
         
     }
 
     /// <inheritdoc />
     public async Task<ApiResponse<LessonResponse>> GetByIdAsync(string id, int userId)
     {
-        var lesson = await _mongoUnitOfWork.Lessons.GetLessonById(id);
+        var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(id);
         
         if (lesson is null)
             return ApiResponse<LessonResponse>.Failure(

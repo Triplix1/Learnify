@@ -44,7 +44,7 @@ public class LessonRepository : ILessonRepository
     }
 
     /// <inheritdoc />
-    public async Task<LessonResponse> GetLessonById(string id)
+    public async Task<LessonResponse> GetLessonByIdAsync(string id)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, id);
 
