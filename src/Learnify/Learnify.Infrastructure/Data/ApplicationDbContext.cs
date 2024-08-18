@@ -42,7 +42,12 @@ public class ApplicationDbContext: DbContext
     /// <summary>
     /// Courses DbSet
     /// </summary>
-    public DbSet<FileData> FileDatas { get; }
+    public DbSet<PrivateFileData> FileDatas { get; }
+    
+    /// <summary>
+    /// Subtitles DbSet
+    /// </summary>
+    public DbSet<Subtitle> Subtitles { get; }
     
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder)

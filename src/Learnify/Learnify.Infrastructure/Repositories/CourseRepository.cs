@@ -53,6 +53,7 @@ public class CourseRepository : ICourseRepository
         course.AuthorId = authorId;
 
         await _context.Courses.AddAsync(course);
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<CourseResponse>(course);
     }
@@ -68,6 +69,8 @@ public class CourseRepository : ICourseRepository
         _mapper.Map(entity, course);
         
         _context.Courses.Update(course);
+        await _context.SaveChangesAsync();
+        
         return _mapper.Map<CourseResponse>(course);
     }
 
@@ -80,6 +83,7 @@ public class CourseRepository : ICourseRepository
             return false;
 
         _context.Courses.Remove(course);
+        await _context.SaveChangesAsync();
         return true;
     }
 

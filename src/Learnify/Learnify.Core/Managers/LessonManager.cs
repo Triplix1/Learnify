@@ -29,7 +29,7 @@ public class LessonManager: ILessonManager
 
         var attachmentFileIds = attachments.Select(a => a.FileId);
         
-        var fileDatas = await _psqUnitOfWork.FileRepository.GetByIdsAsync(attachmentFileIds);
+        var fileDatas = await _psqUnitOfWork.PrivateFileRepository.GetByIdsAsync(attachmentFileIds);
         
         foreach (var fileData in fileDatas)
         {

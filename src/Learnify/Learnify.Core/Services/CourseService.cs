@@ -53,9 +53,7 @@ public class CourseService: ICourseService
     public async Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int authorId)
     {
         var course = await _psqUnitOfWork.CourseRepository.CreateAsync(courseCreateRequest, authorId);
-
-        await _psqUnitOfWork.SaveChangesAsync();
-
+        
         return ApiResponse<CourseResponse>.Success(course);
     }
 
@@ -70,7 +68,6 @@ public class CourseService: ICourseService
         if(response.AuthorId != authorId)
             return ApiResponse<CourseResponse>.Failure(new Exception("You have not permissions to update this course"));
 
-        await _psqUnitOfWork.SaveChangesAsync();
         return ApiResponse<CourseResponse>.Success(response);
     }
 

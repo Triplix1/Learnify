@@ -7,53 +7,53 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
 
-public class FileRepository: IFileRepository
+public class PrivateFileRepository: IPrivateFileRepository
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public FileRepository(ApplicationDbContext context, IMapper mapper)
+    public PrivateFileRepository(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
     }
 
-    public async Task<FileDataResponse> GetByIdAsync(int id)
+    public async Task<PrivateFileBlobInfoResponse> GetByIdAsync(int id)
     {
         var fileData = await _context.FileDatas.FindAsync(id);
 
         if (fileData is null)
             return null;
 
-        return _mapper.Map<FileDataResponse>(fileData);
+        return _mapper.Map<PrivateFileBlobInfoResponse>(fileData);
     }
 
-    public async Task<IEnumerable<FileDataResponse>> GetByIdsAsync(IEnumerable<int> ids)
+    public async Task<IEnumerable<PrivateFileBlobInfoResponse>> GetByIdsAsync(IEnumerable<int> ids)
     {
         var fileDatas = await _context.FileDatas.Where(f => ids.Contains(f.Id)).ToArrayAsync();
         
         if(fileDatas.Length != ids.Count())
             return null;
         
-        return _mapper.Map<IEnumerable<FileDataResponse>>(fileDatas);
+        return _mapper.Map<IEnumerable<PrivateFileBlobInfoResponse>>(fileDatas);
     }
 
-    public async Task<FileDataResponse> CreateFileAsync(FileDataCreateRequest fileDataCreateRequest)
+    public async Task<PrivateFileDataResponse> CreateFileAsync(PrivateFileDataCreateRequest privateFileDataCreateRequest)
     {
-        var fileDataToCreate = _mapper.Map<FileData>(fileDataCreateRequest);
+        var fileDataToCreate = _mapper.Map<PrivateFileData>(privateFileDataCreateRequest);
 
         await _context.FileDatas.AddAsync(fileDataToCreate);
 
-        return _mapper.Map<FileDataResponse>(fileDataToCreate);
+        return _mapper.Map<PrivateFileDataResponse>(fileDataToCreate);
     }
 
-    public async Task<IEnumerable<FileDataResponse>> CreateFilesAsync(IEnumerable<FileDataCreateRequest> fileDataCreateRequests)
+    public async Task<IEnumerable<PrivateFileDataResponse>> CreateFilesAsync(IEnumerable<PrivateFileDataCreateRequest> fileDataCreateRequests)
     {
-        var fileDatasToCreate = _mapper.Map<IEnumerable<FileData>>(fileDataCreateRequests);
+        var fileDatasToCreate = _mapper.Map<IEnumerable<PrivateFileData>>(fileDataCreateRequests);
         
         await _context.FileDatas.AddRangeAsync(fileDatasToCreate);
 
-        return _mapper.Map<IEnumerable<FileDataResponse>>(fileDatasToCreate);
+        return _mapper.Map<IEnumerable<PrivateFileDataResponse>>(fileDatasToCreate);
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -67,14 +67,14 @@ public class FileRepository: IFileRepository
         return true;
     }
 
-    public async Task<int> DeleteRangeAsync(IEnumerable<int> ids)
+    public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids)
     {
         var fileDatas = await _context.FileDatas.Where(f => ids.Contains(f.Id)).ToArrayAsync();
         
-        if(fileDatas.Length == 0)
-            return 0;
+        if(fileDatas.Length != ids.Count())
+            return false;
 
         _context.FileDatas.RemoveRange(fileDatas);
-        return fileDatas.Length;
+        return true;
     }
 }

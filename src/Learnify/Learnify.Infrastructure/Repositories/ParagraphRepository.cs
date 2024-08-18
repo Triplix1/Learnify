@@ -59,6 +59,7 @@ public class ParagraphRepository: IParagraphRepository
         var paragraph = _mapper.Map<Paragraph>(entity);
 
         await _context.Paragraphs.AddAsync(paragraph);
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<ParagraphResponse>(paragraph);
     }
@@ -74,6 +75,8 @@ public class ParagraphRepository: IParagraphRepository
         _mapper.Map(entity, paragraph);
 
         _context.Paragraphs.Update(paragraph);
+        await _context.SaveChangesAsync();
+        
         return _mapper.Map<ParagraphResponse>(paragraph);
     }
 
@@ -86,6 +89,8 @@ public class ParagraphRepository: IParagraphRepository
             return false;
 
         _context.Paragraphs.Remove(paragraph);
+        await _context.SaveChangesAsync();
+        
         return true;
     }
 

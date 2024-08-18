@@ -34,7 +34,7 @@ public class LessonResponse
     /// <summary>
     /// Gets or sets value for SubtitlesList
     /// </summary>
-    public IEnumerable<SubtitlesResponse> SubtitlesList { get; set; }
+    public IEnumerable<SubtitlesReferenceResponse> SubtitlesList { get; set; }
     
     /// <summary>
     /// User has opportunity to create quizzes

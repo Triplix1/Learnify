@@ -131,7 +131,6 @@ public class IdentityService : IIdentityService
 
         refreshToken.HasBeenUsed = true;
         await _psqUnitOfWork.RefreshTokenRepository.UpdateAsync(refreshToken);
-        await _psqUnitOfWork.SaveChangesAsync();
 
         return await ReturnNewAuthResponseAsync(user);
     }
@@ -190,7 +189,6 @@ public class IdentityService : IIdentityService
         }
 
         var createdUser = await _psqUnitOfWork.UserRepository.CreateAsync(user);
-        await _psqUnitOfWork.SaveChangesAsync();
         
         return await ReturnNewAuthResponseAsync(user);
     }
@@ -250,7 +248,6 @@ public class IdentityService : IIdentityService
         };
 
         await _psqUnitOfWork.RefreshTokenRepository.CreateAsync(refreshToken);
-        await _psqUnitOfWork.SaveChangesAsync();
 
         var response = new AuthResponse()
         {

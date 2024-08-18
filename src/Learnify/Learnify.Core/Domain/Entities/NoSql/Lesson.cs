@@ -36,7 +36,7 @@ public class Lesson: BaseEntity
     /// <summary>
     /// Gets or sets value for SubtitlesList
     /// </summary>
-    public IList<Subtitles> Subtitles { get; set; }
+    public IList<SubtitleReference> Subtitles { get; set; }
     
     /// <summary>
     /// User has opportunity to create quizzes

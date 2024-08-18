@@ -48,12 +48,12 @@ public class ProfileService : IProfileService
         
         if(user is null)
             return ApiResponse.Failure(new KeyNotFoundException("Cannot find user with such id"));
+
+        var deletionResult = await _psqUnitOfWork.UserRepository.DeleteAsync(user.Id);
         
-        if (!await _psqUnitOfWork.UserRepository.DeleteAsync(user.Id))
+        if (!deletionResult)
             return ApiResponse.Failure(new KeyNotFoundException("Cannot find user with such id"));
-
-        await _psqUnitOfWork.SaveChangesAsync();
-
+        
         if (user.ImageContainerName is not null && user.ImageBlobName is not null)
         {
             await _blobStorage.DeleteAsync(user.ImageContainerName, user.ImageBlobName);
@@ -117,7 +117,6 @@ public class ProfileService : IProfileService
         }
 
         await _psqUnitOfWork.UserRepository.UpdateAsync(origin);
-        await _psqUnitOfWork.SaveChangesAsync();
         
         return ApiResponse<ProfileResponse>.Success(_mapper.Map<ProfileResponse>(origin));
     }

@@ -15,7 +15,7 @@ public class PsqUnitOfWork: IPsqUnitOfWork
     /// <param name="refreshTokenRepository"><see cref="IRefreshTokenRepository"/></param>
     public PsqUnitOfWork(ApplicationDbContext context, IUserRepository userRepository,
         IRefreshTokenRepository refreshTokenRepository, ICourseRepository courseRepository,
-        ICourseRatingsRepository courseRatingsRepository, IParagraphRepository paragraphRepository, IFileRepository fileRepository)
+        ICourseRatingsRepository courseRatingsRepository, IParagraphRepository paragraphRepository, IPrivateFileRepository privateFileRepository)
     {
         _context = context;
         UserRepository = userRepository;
@@ -23,7 +23,7 @@ public class PsqUnitOfWork: IPsqUnitOfWork
         CourseRepository = courseRepository;
         CourseRatingsRepository = courseRatingsRepository;
         ParagraphRepository = paragraphRepository;
-        FileRepository = fileRepository;
+        PrivateFileRepository = privateFileRepository;
     }
 
     private readonly ApplicationDbContext _context;
@@ -31,7 +31,7 @@ public class PsqUnitOfWork: IPsqUnitOfWork
     /// <inheritdoc />
     public IParagraphRepository ParagraphRepository { get; }
 
-    public IFileRepository FileRepository { get; }
+    public IPrivateFileRepository PrivateFileRepository { get; }
 
     /// <inheritdoc />
     public IUserRepository UserRepository { get; }
