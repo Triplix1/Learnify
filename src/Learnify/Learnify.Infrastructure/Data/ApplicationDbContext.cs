@@ -49,6 +49,11 @@ public class ApplicationDbContext: DbContext
     /// </summary>
     public DbSet<Subtitle> Subtitles { get; }
     
+    /// <summary>
+    /// UserBoughts DbSet
+    /// </summary>
+    public DbSet<UserBought> UserBoughts { get; }
+    
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -57,6 +62,7 @@ public class ApplicationDbContext: DbContext
         builder.Entity<RefreshToken>().HasIndex(rt => rt.Jwt);
         builder.Entity<User>().HasIndex(u => u.Email);
         builder.Entity<CourseRating>().HasIndex(r => r.CourseId);
+        builder.Entity<UserBought>().HasKey(ub => new { ub.UserId, ub.CourseId });
     }
 
     /// <inheritdoc />

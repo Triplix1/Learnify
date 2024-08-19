@@ -40,6 +40,21 @@ public class SubtitlesRepository: ISubtitlesRepository
         return response;
     }
 
+    public async Task<SubtitlesResponse> UpdateAsync(SubtitlesUpdateRequest subtitlesUpdateRequest)
+    {
+        var subtitle = await _context.Subtitles.FindAsync(subtitlesUpdateRequest.Id);
+
+        if (subtitle is null)
+            return null;
+
+        _mapper.Map(subtitlesUpdateRequest, subtitle);
+        
+        _context.Subtitles.Update(subtitle);
+        await _context.SaveChangesAsync();
+        
+        return _mapper.Map<SubtitlesResponse>(subtitle);
+    }
+
     public async Task<bool> DeleteAsync(int id)
     {
         var subtitle = await _context.Subtitles.FindAsync(id);

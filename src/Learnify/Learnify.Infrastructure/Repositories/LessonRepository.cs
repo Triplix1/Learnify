@@ -13,19 +13,16 @@ public class LessonRepository : ILessonRepository
 {
     private readonly IMongoAppDbContext _mongoContext;
     private readonly IMapper _mapper;
-    private readonly IBlobStorage _blobStorage;
 
     /// <summary>
     /// Initializes a new instance of <see cref="LessonRepository"/>
     /// </summary>
     /// <param name="mongoContext"><see cref="IMongoAppDbContext"/></param>
     /// <param name="mapper"><see cref="IMapper"/></param>
-    /// <param name="blobStorage"><see cref="IBlobStorage"/></param>
-    public LessonRepository(IMongoAppDbContext mongoContext, IMapper mapper, IBlobStorage blobStorage)
+    public LessonRepository(IMongoAppDbContext mongoContext, IMapper mapper)
     {
         _mongoContext = mongoContext;
         _mapper = mapper;
-        _blobStorage = blobStorage;
     }
 
     /// <inheritdoc />
@@ -89,7 +86,6 @@ public class LessonRepository : ILessonRepository
             result.Add(lesson.Video);
 
         result.AddRange(lesson.Quizzes.Select(q => q.Media));
-        result.AddRange(lesson.Subtitles.Select(q => q.File));
 
         return result;
     }
@@ -120,7 +116,6 @@ public class LessonRepository : ILessonRepository
         var result = new List<Attachment>();
         result.AddRange(lessons.Select(l => l.Video));
         result.AddRange(lessons.SelectMany(l => l.Quizzes.Select(q => q.Media)));
-        result.AddRange(lessons.SelectMany(l => l.Subtitles.Select(q => q.File)));
 
         return result;
     }

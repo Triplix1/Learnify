@@ -43,6 +43,7 @@ public class PrivateFileRepository: IPrivateFileRepository
         var fileDataToCreate = _mapper.Map<PrivateFileData>(privateFileDataCreateRequest);
 
         await _context.FileDatas.AddAsync(fileDataToCreate);
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<PrivateFileDataResponse>(fileDataToCreate);
     }
@@ -64,6 +65,8 @@ public class PrivateFileRepository: IPrivateFileRepository
             return false;
 
         _context.FileDatas.Remove(fileData);
+        await _context.SaveChangesAsync();
+        
         return true;
     }
 
@@ -75,6 +78,8 @@ public class PrivateFileRepository: IPrivateFileRepository
             return false;
 
         _context.FileDatas.RemoveRange(fileDatas);
+        await _context.SaveChangesAsync();
+        
         return true;
     }
 }

@@ -44,10 +44,4 @@ public class PsqUnitOfWork: IPsqUnitOfWork
 
     /// <inheritdoc />
     public ICourseRatingsRepository CourseRatingsRepository { get; }
-    
-    /// <inheritdoc />
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
-    }
 }
