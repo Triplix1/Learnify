@@ -26,7 +26,7 @@ public class LessonRepository : ILessonRepository
     }
 
     /// <inheritdoc />
-    public async Task<LessonUpdateResponse> GetLessonForUpdate(string id)
+    public async Task<LessonUpdateResponse> GetLessonForUpdateAsync(string id)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, id);
 
@@ -121,7 +121,7 @@ public class LessonRepository : ILessonRepository
     }
 
     /// <inheritdoc />
-    public async Task<int> GetParagraphIdForLesson(string lessonId)
+    public async Task<int> GetParagraphIdForLessonAsync(string lessonId)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
 

@@ -4,13 +4,13 @@ namespace Learnify.Core.Extensions;
 
 public static class ClaimsPrincipalExtentions
 {
-    public static Guid GetUserId(this ClaimsPrincipal claimsPrincipal)
+    public static int GetUserId(this ClaimsPrincipal claimsPrincipal)
     {
         var userIdString = claimsPrincipal.FindFirst("id")?.Value;
-        Guid userId;
+        int userId;
         
         if (userIdString is not null)
-            userId = Guid.Parse(userIdString);
+            userId = int.Parse(userIdString);
         else
             throw new ApplicationException("User is not authorized");
         

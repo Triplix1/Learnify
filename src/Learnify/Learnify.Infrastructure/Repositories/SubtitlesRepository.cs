@@ -28,6 +28,15 @@ public class SubtitlesRepository: ISubtitlesRepository
         return _mapper.Map<SubtitlesResponse>(subtitle);
     }
 
+    public async Task<IEnumerable<SubtitlesResponse>> GetByIdsAsync(IEnumerable<int> ids)
+    {
+        var subtitles = _context.Subtitles.Where(s => ids.Contains(s.Id));
+
+        var result = _mapper.ProjectTo<SubtitlesResponse>(subtitles);
+
+        return await result.ToArrayAsync();
+    }
+
     public async Task<SubtitlesResponse> CreateAsync(SubtitlesCreateRequest subtitlesCreateRequest)
     {
         var subtitle = _mapper.Map<Subtitle>(subtitlesCreateRequest);

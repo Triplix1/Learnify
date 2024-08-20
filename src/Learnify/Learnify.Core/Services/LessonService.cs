@@ -37,13 +37,13 @@ public class LessonService: ILessonService
     /// <inheritdoc />
     public async Task<ApiResponse<LessonUpdateResponse>> GetForUpdateAsync(string id, int userId)
     {
-        var lesson = await _mongoUnitOfWork.Lessons.GetLessonForUpdate(id);
+        var lesson = await _mongoUnitOfWork.Lessons.GetLessonForUpdateAsync(id);
 
         if (lesson is null)
             return ApiResponse<LessonUpdateResponse>.Failure(
                 new KeyNotFoundException("Cannot find lesson with such Id"));
 
-        var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLesson(id);
+        var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(id);
         
         var actualAuthorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(currParagraphId);
 
@@ -75,7 +75,7 @@ public class LessonService: ILessonService
     /// <inheritdoc />
     public async Task<ApiResponse<LessonResponse>> UpdateAsync(LessonUpdateRequest lessonUpdateRequest, int userId)
     {
-        var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLesson(lessonUpdateRequest.Id);
+        var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(lessonUpdateRequest.Id);
         
         var actualAuthorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(currParagraphId);
         var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(lessonUpdateRequest.ParagraphId);

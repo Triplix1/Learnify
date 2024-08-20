@@ -7,15 +7,9 @@ namespace Learnify.Infrastructure.Repositories.UnitsOfWork;
 /// <inheritdoc />
 public class PsqUnitOfWork: IPsqUnitOfWork
 {
-    /// <summary>
-    /// Initializes a new instance of <see cref="PsqUnitOfWork"/>
-    /// </summary>
-    /// <param name="context"><see cref="ApplicationDbContext"/></param>
-    /// <param name="userRepository"><see cref="IUserRepository"/></param>
-    /// <param name="refreshTokenRepository"><see cref="IRefreshTokenRepository"/></param>
     public PsqUnitOfWork(ApplicationDbContext context, IUserRepository userRepository,
         IRefreshTokenRepository refreshTokenRepository, ICourseRepository courseRepository,
-        ICourseRatingsRepository courseRatingsRepository, IParagraphRepository paragraphRepository, IPrivateFileRepository privateFileRepository)
+        ICourseRatingsRepository courseRatingsRepository, IParagraphRepository paragraphRepository, IPrivateFileRepository privateFileRepository, IUserBoughtRepository userBoughtRepository, ISubtitlesRepository subtitlesRepository)
     {
         _context = context;
         UserRepository = userRepository;
@@ -24,6 +18,8 @@ public class PsqUnitOfWork: IPsqUnitOfWork
         CourseRatingsRepository = courseRatingsRepository;
         ParagraphRepository = paragraphRepository;
         PrivateFileRepository = privateFileRepository;
+        UserBoughtRepository = userBoughtRepository;
+        SubtitlesRepository = subtitlesRepository;
     }
 
     private readonly ApplicationDbContext _context;
@@ -31,7 +27,14 @@ public class PsqUnitOfWork: IPsqUnitOfWork
     /// <inheritdoc />
     public IParagraphRepository ParagraphRepository { get; }
 
+    /// <inheritdoc />
     public IPrivateFileRepository PrivateFileRepository { get; }
+    
+    /// <inheritdoc />
+    public IUserBoughtRepository UserBoughtRepository { get; }
+
+    /// <inheritdoc />
+    public ISubtitlesRepository SubtitlesRepository { get; }
 
     /// <inheritdoc />
     public IUserRepository UserRepository { get; }

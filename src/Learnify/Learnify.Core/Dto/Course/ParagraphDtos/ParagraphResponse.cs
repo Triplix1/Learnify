@@ -2,9 +2,7 @@
 
 public class ParagraphResponse
 {
-    /// <summary>
-    /// Gets or sets value for Id
-    /// </summary>
     public int Id { get; set; }
+    public int CourseId { get; set; }
     public string Name { get; set; }
 }

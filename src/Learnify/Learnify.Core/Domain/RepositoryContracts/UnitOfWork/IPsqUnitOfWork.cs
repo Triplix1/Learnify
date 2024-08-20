@@ -34,4 +34,14 @@ public interface IPsqUnitOfWork
     /// Get value of CourseRepository
     /// </summary>
     IPrivateFileRepository PrivateFileRepository { get; }
+    
+    /// <summary>
+    /// Get value of UserBoughtRepository
+    /// </summary>
+    IUserBoughtRepository UserBoughtRepository { get; }
+    
+    /// <summary>
+    /// Get value of SubtitlesRepository
+    /// </summary>
+    ISubtitlesRepository SubtitlesRepository { get; }
 }
