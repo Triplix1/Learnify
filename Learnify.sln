@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learnify.Core", "src\Learni
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learnify.Infrastructure", "src\Learnify\Learnify.Infrastructure\Learnify.Infrastructure.csproj", "{8970D970-8135-46B7-A6CA-C96074DB2141}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learnify.Contracts", "src\Learnify.Contracts\Learnify.Contracts.csproj", "{D329E442-0DCD-4FF7-9B82-DDD57B1940EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,11 +36,16 @@ Global
 		{8970D970-8135-46B7-A6CA-C96074DB2141}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8970D970-8135-46B7-A6CA-C96074DB2141}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8970D970-8135-46B7-A6CA-C96074DB2141}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D329E442-0DCD-4FF7-9B82-DDD57B1940EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D329E442-0DCD-4FF7-9B82-DDD57B1940EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D329E442-0DCD-4FF7-9B82-DDD57B1940EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D329E442-0DCD-4FF7-9B82-DDD57B1940EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5C07801E-33C5-4FC0-A376-4E777E56910D} = {EDDE5050-73AC-4900-90D7-063497E30A71}
 		{5B2AE503-81BC-4177-A8C4-8FCC07C45235} = {5C07801E-33C5-4FC0-A376-4E777E56910D}
 		{922F299E-57C9-4A73-99F9-95A11112A3AC} = {5C07801E-33C5-4FC0-A376-4E777E56910D}
 		{8970D970-8135-46B7-A6CA-C96074DB2141} = {5C07801E-33C5-4FC0-A376-4E777E56910D}
+		{D329E442-0DCD-4FF7-9B82-DDD57B1940EB} = {EDDE5050-73AC-4900-90D7-063497E30A71}
 	EndGlobalSection
 EndGlobal

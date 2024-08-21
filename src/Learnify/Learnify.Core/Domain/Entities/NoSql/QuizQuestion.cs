@@ -13,7 +13,7 @@ public class QuizQuestion
     /// <summary>
     /// Options
     /// </summary>
-    public List<string> Options { get; set; }
+    public IEnumerable<string> Options { get; set; }
     
     /// <summary>
     /// CorrectAnswer

@@ -49,6 +49,16 @@ public class SubtitlesRepository: ISubtitlesRepository
         return response;
     }
 
+    public async Task<IEnumerable<SubtitlesResponse>> CreateRangeAsync(IEnumerable<SubtitlesCreateRequest> subtitlesCreateRequest)
+    {
+        var subtitles = _mapper.Map<IEnumerable<Subtitle>>(subtitlesCreateRequest);
+
+        await _context.Subtitles.AddRangeAsync(subtitles);
+        await _context.SaveChangesAsync();
+
+        return _mapper.Map<IEnumerable<SubtitlesResponse>>(subtitles);
+    }
+
     public async Task<SubtitlesResponse> UpdateAsync(SubtitlesUpdateRequest subtitlesUpdateRequest)
     {
         var subtitle = await _context.Subtitles.FindAsync(subtitlesUpdateRequest.Id);

@@ -1,9 +1,15 @@
 ﻿using AutoMapper;
+using Learnify.Contracts;
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course.LessonDtos;
+using Learnify.Core.Dto.Course.Subtitles;
+using Learnify.Core.Dto.Subtitles;
+using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
+using Learnify.Core.Transactions;
+using MassTransit;
 
 namespace Learnify.Core.Services;
 
@@ -12,12 +18,17 @@ public class LessonService: ILessonService
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IMapper _mapper;
+    private readonly ISubtitlesManager _subtitlesManager;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public LessonService(IMongoUnitOfWork mongoUnitOfWork, IPsqUnitOfWork psqUnitOfWork, IMapper mapper)
+    public LessonService(IMongoUnitOfWork mongoUnitOfWork, IPsqUnitOfWork psqUnitOfWork, IMapper mapper,
+        ISubtitlesManager subtitlesManager, IPublishEndpoint publishEndpoint)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
         _mapper = mapper;
+        _subtitlesManager = subtitlesManager;
+        _publishEndpoint = publishEndpoint;
     }
 
     /// <inheritdoc />
@@ -84,18 +95,108 @@ public class LessonService: ILessonService
             return ApiResponse<LessonResponse>.Failure(
                 new Exception("You should be author of the course to be able to edit it"));
 
-        var oldLesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonUpdateRequest.Id); 
+        var oldLesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonUpdateRequest.Id);
+        var updatedLesson = _mapper.Map<Lesson>(lessonUpdateRequest);
 
-        if (lessonUpdateRequest.Video?.FileId != oldLesson.Video.FileId)
+        var response = default(LessonResponse);
+
+        if (oldLesson.Video?.Attachment.FileId is not null && lessonUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
         {
-            await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(oldLesson.SubtitlesList
-                .Where(s => s.File is not null).Select(s => s.File.FileId));
-
-            await _psqUnitOfWork
+            var subtitleIds = oldLesson.SubtitlesList.Select(s => s.SubtitleId);
+            using var ts = TransactionScopeBuilder.CreateRepeatableReadAsync();
             
-            //TODO: send message for stop generating Subtitles
+            await _subtitlesManager.DeleteRangeAsync(subtitleIds);
+            
+            ts.Complete();
+
+            if (lessonUpdateRequest.Video?.Attachment.FileId != null)
+            {
+                var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(lessonUpdateRequest.Video.Attachment.FileId);
+                var subtitlesCreateRequest = lessonUpdateRequest.Video.Subtitles.Select(s => new SubtitlesCreateRequest
+                {
+                    Language = s
+                });
+                var subtitles = _psqUnitOfWork.SubtitlesRepository.CreateRangeAsync(subtitlesCreateRequest);
+
+                updatedLesson.Video.Subtitles = _mapper.Map<IEnumerable<SubtitleReference>>(subtitles);
+                
+                var subtitlesInfo = _mapper.Map<IEnumerable<SubtitleInfo>>(subtitles);
+                
+                var subtitlesGenerateRequest = new SubtitlesGenerateRequest
+                {
+                    VideoBlobName = file.BlobName,
+                    VideoContainerName = file.ContainerName,
+                    SubtitleInfo = subtitlesInfo,
+                    PrimaryLanguage = lessonUpdateRequest.Video.PrimaryLanguage.ToString()
+                };
+            
+                await _publishEndpoint.Publish(subtitlesGenerateRequest);   
+            }
+        }
+        else
+        {
+            if (lessonUpdateRequest.Video is null)
+            {
+                var subtitleIds = oldLesson.SubtitlesList.Select(s => s.SubtitleId);
+                
+                using var ts = TransactionScopeBuilder.CreateRepeatableReadAsync();
+            
+                await _subtitlesManager.DeleteRangeAsync(subtitleIds);
+
+                ts.Complete();
+            }
+            else
+            {
+                var subtitlesDiff =
+                    oldLesson.SubtitlesList.Where(s => !lessonUpdateRequest.Video.Subtitles.Contains(s.Language));
+
+                var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
+
+                var diffSubtitleReferences = _mapper.Map<IEnumerable<SubtitleReference>>(oldLesson.SubtitlesList.Except(subtitlesDiff));
+                
+                var updatedLessonSubtitles = new List<SubtitleReference>(diffSubtitleReferences);
+                
+                using var ts = TransactionScopeBuilder.CreateRepeatableReadAsync();
+            
+                await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds);
+
+                ts.Complete();
+
+                var subtitlesToCreate = lessonUpdateRequest.Video.Subtitles.Where(l =>
+                    !oldLesson.SubtitlesList.Select(s => s.Language).Contains(l)).Select(l => new SubtitlesCreateRequest()
+                {
+                    Language = l
+                });
+
+                var createdSubtitles = await _psqUnitOfWork.SubtitlesRepository.CreateRangeAsync(subtitlesToCreate);
+
+                var newSubtitleReferences = _mapper.Map<IEnumerable<SubtitleReference>>(createdSubtitles);
+                updatedLessonSubtitles.AddRange(newSubtitleReferences);
+                updatedLesson.Video.Subtitles = updatedLessonSubtitles;
+
+                var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(lessonUpdateRequest.Video.Attachment.FileId);
+                
+                var subtitlesInfo = createdSubtitles.Select(s => new SubtitleInfo()
+                {
+                    Id = s.Id,
+                    Language = s.Language.ToString()
+                });
+
+                var generateRequest = new SubtitlesGenerateRequest()
+                {
+                    VideoBlobName = file.BlobName,
+                    VideoContainerName = file.ContainerName,
+                    SubtitleInfo = subtitlesInfo,
+                    PrimaryLanguage = lessonUpdateRequest.Video.PrimaryLanguage.ToString()
+                };
+
+                await _publishEndpoint.Publish(generateRequest);
+            }
         }
         
+        response = await _mongoUnitOfWork.Lessons.UpdateAsync(updatedLesson);
+        
+        return ApiResponse<LessonResponse>.Success(response);
     }
 
     /// <inheritdoc />

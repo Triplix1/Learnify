@@ -1,5 +1,6 @@
 ﻿using Learnify.Core.Dto.Attachment;
 using Learnify.Core.Dto.Course.QuizQuestion;
+using Learnify.Core.Dto.Course.Video;
 
 namespace Learnify.Core.Dto.Course.LessonDtos;
 
@@ -18,7 +19,7 @@ public class LessonCreateRequest
     /// <summary>
     /// Gets or sets value for Video
     /// </summary>
-    public AttachmentResponse Video { get; set; }
+    public VideoAddOrUpdateRequest Video { get; set; }
 
     /// <summary>
     /// User has opportunity to create quizzes

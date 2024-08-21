@@ -1,6 +1,7 @@
 ﻿using Learnify.Core.Dto.Attachment;
 using Learnify.Core.Dto.Course.QuizQuestion;
 using Learnify.Core.Dto.Course.Subtitles;
+using Learnify.Core.Dto.Course.Video;
 
 namespace Learnify.Core.Dto.Course.LessonDtos;
 
@@ -29,7 +30,7 @@ public class LessonResponse
     /// <summary>
     /// Gets or sets value for Video
     /// </summary>
-    public AttachmentResponse Video { get; set; }
+    public VideoResponse Video { get; set; }
     
     /// <summary>
     /// Gets or sets value for SubtitlesList

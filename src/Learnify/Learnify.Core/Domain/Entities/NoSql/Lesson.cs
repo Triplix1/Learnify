@@ -30,16 +30,10 @@ public class Lesson: BaseEntity
     /// <summary>
     /// Gets or sets value for Video
     /// </summary>
-    [CanBeNull]
-    public Attachment Video { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for SubtitlesList
-    /// </summary>
-    public IList<SubtitleReference> Subtitles { get; set; }
+    public Video Video { get; set; }
     
     /// <summary>
     /// User has opportunity to create quizzes
     /// </summary>
-    public IList<QuizQuestion> Quizzes { get; set; }
+    public IEnumerable<QuizQuestion> Quizzes { get; set; }
 }

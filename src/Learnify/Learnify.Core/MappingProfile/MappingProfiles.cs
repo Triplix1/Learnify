@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Learnify.Contracts;
 using Learnify.Core.Domain.Entities;
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.Entities.Sql;
@@ -52,11 +53,14 @@ public class MappingProfiles: Profile
 
         // QuizQuestion
         CreateMap<QuizQuestion, QuizQuestionResponse>();
-
+        
         // Subtitles
-        CreateMap<SubtitleReference, SubtitlesReferenceResponse>();
+        CreateMap<SubtitleReference, SubtitlesReferenceResponse>().ReverseMap();
         CreateMap<SubtitlesCreateRequest, Subtitle>();
         CreateMap<Subtitle, SubtitlesResponse>();
+        CreateMap<SubtitlesResponse, SubtitleInfo>();
+        CreateMap<SubtitlesResponse, SubtitleReference>()
+            .ForMember(s => s.SubtitleId, s => s.MapFrom(sr => sr.Id));
 
         // FileData
         CreateMap<PrivateFileData, PrivateFileDataResponse>();
