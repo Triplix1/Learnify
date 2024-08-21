@@ -39,7 +39,7 @@ public class SubtitlesManager: ISubtitlesManager
          {
              var oldFile = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.FileId.Value);
              
-             using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
+             using var ts = TransactionScopeBuilder.CreateRepeatableRead();
 
              await _psqUnitOfWork.PrivateFileRepository.DeleteAsync(oldFile.Id);
              
@@ -68,7 +68,7 @@ public class SubtitlesManager: ISubtitlesManager
         {
             var oldFile = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.FileId.Value);
             
-            using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
+            using var ts = TransactionScopeBuilder.CreateRepeatableRead();
 
             await _psqUnitOfWork.PrivateFileRepository.DeleteAsync(oldFile.Id);
             
@@ -97,7 +97,7 @@ public class SubtitlesManager: ISubtitlesManager
         {
             var files = await _psqUnitOfWork.PrivateFileRepository.GetByIdsAsync(fileIds);
             
-            using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
+            using var ts = TransactionScopeBuilder.CreateRepeatableRead();
 
             await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(fileIds);
             

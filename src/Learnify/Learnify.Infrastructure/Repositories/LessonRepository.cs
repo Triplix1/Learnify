@@ -2,8 +2,11 @@
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto.Course.LessonDtos;
+using Learnify.Core.Dto.Subtitles;
 using Learnify.Core.ManagerContracts;
+using Learnify.Infrastructure.Data;
 using Learnify.Infrastructure.Data.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 
 namespace Learnify.Infrastructure.Repositories;
@@ -12,6 +15,7 @@ namespace Learnify.Infrastructure.Repositories;
 public class LessonRepository : ILessonRepository
 {
     private readonly IMongoAppDbContext _mongoContext;
+    private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
 
     /// <summary>
@@ -19,10 +23,11 @@ public class LessonRepository : ILessonRepository
     /// </summary>
     /// <param name="mongoContext"><see cref="IMongoAppDbContext"/></param>
     /// <param name="mapper"><see cref="IMapper"/></param>
-    public LessonRepository(IMongoAppDbContext mongoContext, IMapper mapper)
+    public LessonRepository(IMongoAppDbContext mongoContext, IMapper mapper, ApplicationDbContext context)
     {
         _mongoContext = mongoContext;
         _mapper = mapper;
+        _context = context;
     }
 
     /// <inheritdoc />
@@ -47,10 +52,14 @@ public class LessonRepository : ILessonRepository
 
         var lesson = await _mongoContext.Lessons.Find(filter).FirstOrDefaultAsync();
         
+        if (lesson is null)
+                    return null;
+        
         var lessonResponse = _mapper.Map<LessonResponse>(lesson);
 
-        if (lesson is null)
-            return null;
+        var subtitles = _context.Subtitles.Where(s => lesson.Video.Subtitles.Any(su => su.SubtitleId == s.Id));
+        var subtitleResponses = await _mapper.ProjectTo<SubtitlesResponse>(subtitles).ToArrayAsync();
+        lessonResponse.Video.Subtitles = subtitleResponses;
         
         return lessonResponse;
     }
@@ -73,7 +82,7 @@ public class LessonRepository : ILessonRepository
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
 
         var projection = Builders<Lesson>.Projection.Include(l => l.Video)
-            .Include(l => l.Quizzes).Include(l => l.Subtitles);
+            .Include(l => l.Quizzes);
 
         var lesson = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).FirstOrDefaultAsync();
 
@@ -83,7 +92,7 @@ public class LessonRepository : ILessonRepository
         var result = new List<Attachment>();
 
         if (lesson.Video is not null)
-            result.Add(lesson.Video);
+            result.Add(lesson.Video.Attachment);
 
         result.AddRange(lesson.Quizzes.Select(q => q.Media));
 
@@ -109,12 +118,12 @@ public class LessonRepository : ILessonRepository
     private async Task<IEnumerable<Attachment>> GetAttachmentsForFilterAsync(FilterDefinition<Lesson> filter)
     {
         var projection = Builders<Lesson>.Projection.Include(l => l.Video)
-            .Include(l => l.Quizzes).Include(l => l.Subtitles);
+            .Include(l => l.Quizzes);
 
         var lessons = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).ToListAsync();
 
         var result = new List<Attachment>();
-        result.AddRange(lessons.Select(l => l.Video));
+        result.AddRange(lessons.Select(l => l.Video.Attachment));
         result.AddRange(lessons.SelectMany(l => l.Quizzes.Select(q => q.Media)));
 
         return result;
@@ -137,9 +146,7 @@ public class LessonRepository : ILessonRepository
     {
         await _mongoContext.Lessons.InsertOneAsync(lessonCreateRequest);
 
-        var lessonResponse = _mapper.Map<LessonResponse>(lessonCreateRequest);
-
-        return lessonResponse;
+        return await GetResponseAsync(lessonCreateRequest);
     }
 
     /// <inheritdoc />
@@ -181,5 +188,16 @@ public class LessonRepository : ILessonRepository
         var result = await _mongoContext.Lessons.DeleteManyAsync(filter);
 
         return result.DeletedCount;
+    }
+
+    private async Task<LessonResponse> GetResponseAsync(Lesson lesson)
+    {
+        var lessonResponse = _mapper.Map<LessonResponse>(lesson);
+
+        var subtitles = _context.Subtitles.Where(s => lesson.Video.Subtitles.Any(su => su.SubtitleId == s.Id));
+        var subtitleResponses = await _mapper.ProjectTo<SubtitlesResponse>(subtitles).ToArrayAsync();
+        lessonResponse.Video.Subtitles = subtitleResponses;
+
+        return lessonResponse;
     }
 }

@@ -33,11 +33,6 @@ public class LessonResponse
     public VideoResponse Video { get; set; }
     
     /// <summary>
-    /// Gets or sets value for SubtitlesList
-    /// </summary>
-    public IEnumerable<SubtitlesReferenceResponse> SubtitlesList { get; set; }
-    
-    /// <summary>
     /// User has opportunity to create quizzes
     /// </summary>
     public IEnumerable<QuizQuestionResponse> Quizzes { get; set; }

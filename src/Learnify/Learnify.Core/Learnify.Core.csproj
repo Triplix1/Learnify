@@ -32,6 +32,7 @@
 
     <ItemGroup>
       <Folder Include="Domain\" />
+      <Folder Include="Domain\Entities\Interfaces\" />
     </ItemGroup>
 
     <ItemGroup>
