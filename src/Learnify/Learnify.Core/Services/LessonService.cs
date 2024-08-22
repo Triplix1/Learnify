@@ -4,10 +4,8 @@ using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course.LessonDtos;
-using Learnify.Core.Dto.Course.Subtitles;
 using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Dto.Subtitles;
-using Learnify.Core.Enums;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Transactions;
@@ -37,12 +35,20 @@ public class LessonService: ILessonService
     public async Task<ApiResponse> DeleteAsync(string id, int userId)
     {
         var attachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(id);
+        var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(id);
         
         var attachmentFileIds = attachments.Select(a => a.FileId);
         
+        using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
+        
         await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(attachmentFileIds);
-
+        
+        var subtitleIds = lesson.Video.Subtitles.Select(s => s.Id);
+        await _subtitlesManager.DeleteRangeAsync(subtitleIds);
+        
         await _mongoUnitOfWork.Lessons.DeleteAsync(id);
+        
+        ts.Complete();
 
         return ApiResponse.Success();
     }
