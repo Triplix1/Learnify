@@ -54,6 +54,8 @@ public class CoreInstaller: IInstaller
         services.AddScoped<IParagraphService, ParagraphService>();
         services.AddScoped<ILessonService, LessonService>();
         services.AddScoped<IRedisCacheManager, RedisCacheManager>();
+        services.AddScoped<ICourseService, CourseService>();
+        services.AddScoped<IParagraphManager, ParagraphManager>();
 
         services.Configure<GoogleAuthOptions>(config.GetSection("GoogleAuthSettings"));
         services.Configure<JwtOptions>(config.GetSection("JwtSettings"));

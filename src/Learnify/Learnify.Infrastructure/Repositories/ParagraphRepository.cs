@@ -95,10 +95,10 @@ public class ParagraphRepository: IParagraphRepository
     }
 
     /// <inheritdoc />
-    public async Task<int> GetAuthorId(int id)
+    public async Task<int?> GetAuthorId(int id)
     {
         var course = await _context.Paragraphs.Include(p => p.Course).FirstOrDefaultAsync(p => p.Id == id);
 
-        return course.Course.AuthorId;
+        return course?.Course.AuthorId;
     }
 }

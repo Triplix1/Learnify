@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using Learnify.Core.Domain.Entities.Sql;
-using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
 using Learnify.Core.Dto.Params;
 using Learnify.Core.ServiceContracts;
-using Learnify.Core.Specification;
 using Learnify.Core.Specification.Custom;
 using Learnify.Core.Specification.Filters;
 
@@ -42,7 +40,7 @@ public class CourseService: ICourseService
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<CourseResponse>> GetById(int id)
+    public async Task<ApiResponse<CourseResponse>> GetByIdAsync(int id)
     {
         var course = await _psqUnitOfWork.CourseRepository.GetByIdAsync(id);
 
@@ -50,35 +48,55 @@ public class CourseService: ICourseService
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int authorId)
+    public async Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int userId)
     {
-        var course = await _psqUnitOfWork.CourseRepository.CreateAsync(courseCreateRequest, authorId);
+        var course = await _psqUnitOfWork.CourseRepository.CreateAsync(courseCreateRequest, userId);
         
         return ApiResponse<CourseResponse>.Success(course);
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int authorId)
+    public async Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int userId)
     {
+        var validationResult = await ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId);
+
+        if (validationResult is not null)
+            return ApiResponse<CourseResponse>.Failure(validationResult);
+        
         var response = await _psqUnitOfWork.CourseRepository.UpdateAsync(courseUpdateRequest);
 
         if (response is null)
             return ApiResponse<CourseResponse>.Failure(new KeyNotFoundException("Cannot find course with such Id"));
-        
-        if(response.AuthorId != authorId)
-            return ApiResponse<CourseResponse>.Failure(new Exception("You have not permissions to update this course"));
 
         return ApiResponse<CourseResponse>.Success(response);
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse> DeleteAsync(int id)
+    public async Task<ApiResponse> DeleteAsync(int id, int userId)
     {
+        var validationResult = await ValidateAuthorOfCourseAsync(id, userId);
+
+        if (validationResult is not null)
+            return ApiResponse.Failure(validationResult);
+        
         var result = await _psqUnitOfWork.CourseRepository.DeleteAsync(id);
         
         if(result) 
             return ApiResponse.Success();
 
         return ApiResponse.Failure(new Exception($"Errors while deleting course with Id: {id}"));
+    }
+    
+    private async Task<Exception> ValidateAuthorOfCourseAsync(int courseId, int userId)
+    {
+        var authorId = await _psqUnitOfWork.CourseRepository.GetAuthorId(courseId);
+
+        if (authorId is null)
+            return new KeyNotFoundException("Cannot find course with such Id");
+            
+        if(authorId != userId)
+            return new Exception("You have not permissions to update this course");
+
+        return null;
     }
 }

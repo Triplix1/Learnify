@@ -51,5 +51,5 @@ public interface IParagraphRepository
     /// </summary>
     /// <param name="id"></param>
     /// <returns>Success of operation</returns>
-    Task<int> GetAuthorId(int id);
+    Task<int?> GetAuthorId(int id);
 }

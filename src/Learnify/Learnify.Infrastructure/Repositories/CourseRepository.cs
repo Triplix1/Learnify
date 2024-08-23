@@ -88,6 +88,18 @@ public class CourseRepository : ICourseRepository
     }
 
     /// <inheritdoc />
+    public async Task<int?> GetAuthorId(int courseId)
+    {
+        var course = await _context.Courses.FindAsync(courseId);
+
+        if (course is null)
+            return null;
+        
+        return course.AuthorId;
+
+    }
+
+    /// <inheritdoc />
     public async Task<PagedList<CourseResponse>> GetFilteredAsync(EfFilter<Course> filter)
     {
         var query = _context.Courses.AsQueryable();

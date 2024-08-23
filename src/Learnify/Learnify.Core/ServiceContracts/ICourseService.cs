@@ -20,28 +20,29 @@ public interface ICourseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<ApiResponse<CourseResponse>> GetById(int id);
+    public Task<ApiResponse<CourseResponse>> GetByIdAsync(int id);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="courseCreateRequest"></param>
-    /// <param name="authorId">Author Id</param>
+    /// <param name="userId">Author Id</param>
     /// <returns></returns>
-    public Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int authorId);
+    public Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int userId);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="courseUpdateRequest"></param>
-    /// <param name="authorId">Author Id</param>
+    /// <param name="userId">Author Id</param>
     /// <returns></returns>
-    public Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int authorId);
-   
+    public Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int userId);
+
     /// <summary>
     /// Deletes entity
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="id">id</param>
+    /// <param name="userId">user Id</param>
     /// <returns></returns>
-    public Task<ApiResponse> DeleteAsync(int id);
+    public Task<ApiResponse> DeleteAsync(int id, int userId);
 }

@@ -45,4 +45,11 @@ public interface ICourseRepository
     /// <param name="id"></param>
     /// <returns>Success of operation</returns>
     Task<bool> DeleteAsync(int id);
+    
+    /// <summary>
+    /// Returns courseId
+    /// </summary>
+    /// <param name="courseId"></param>
+    /// <returns>Success of operation</returns>
+    Task<int?> GetAuthorId(int courseId);
 }
