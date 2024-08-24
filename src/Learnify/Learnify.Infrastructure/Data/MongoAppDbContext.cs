@@ -38,6 +38,7 @@ public class MongoAppDbContext: IMongoAppDbContext
         }
 
         Lessons = _database.GetCollection<Lesson>(lessonsCollectionName);
+        Lessons.Indexes.CreateOne(new CreateIndexModel<Lesson>(nameof(Lesson.EditedLessonId)));
     }
     
     /// <inheritdoc />

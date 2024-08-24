@@ -1,5 +1,4 @@
-﻿using Learnify.Core.Dto.Attachment;
-using Learnify.Core.Dto.Course.QuizQuestion;
+﻿using Learnify.Core.Dto.Course.QuizQuestion;
 using Learnify.Core.Dto.Course.Video;
 
 namespace Learnify.Core.Dto.Course.LessonDtos;

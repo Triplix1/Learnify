@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-using Learnify.Core.Enums;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Learnify.Core.Domain.Entities.NoSql;
@@ -26,6 +24,11 @@ public class Lesson: BaseEntity
     /// Gets or sets value for Title
     /// </summary>
     public string Title { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value for Title
+    /// </summary>
+    public string EditedLessonId { get; set; }
     
     /// <summary>
     /// Gets or sets value for Video

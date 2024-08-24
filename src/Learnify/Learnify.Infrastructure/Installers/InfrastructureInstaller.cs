@@ -16,12 +16,15 @@ public class InfrastructureInstaller: IInstaller
     /// <inheritdoc />
     public void InstallServices(IServiceCollection services, IConfiguration config)
     {
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<ICourseRatingsRepository, CourseRatingRepository>();
+        services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<ILessonRepository, LessonRepository>();
         services.AddScoped<IParagraphRepository, ParagraphRepository>();
+        services.AddScoped<IPrivateFileRepository, PrivateFileRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<ISubtitlesRepository, SubtitlesRepository>();
+        services.AddScoped<IUserBoughtRepository, UserBoughtRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         
         services.AddScoped<IPsqUnitOfWork, PsqUnitOfWork>();
         services.AddScoped<IMongoUnitOfWork, MongoUnitOfWork>();

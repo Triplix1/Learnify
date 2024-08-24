@@ -6,7 +6,7 @@ using Learnify.Core.Transactions;
 
 namespace Learnify.Core.Managers;
 
-public class PrivateFileManager
+public class PrivateFileManager: IPrivateFileManager
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IBlobStorage _blobStorage;
