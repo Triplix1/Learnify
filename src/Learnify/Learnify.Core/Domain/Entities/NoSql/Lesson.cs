@@ -31,6 +31,11 @@ public class Lesson: BaseEntity
     public string EditedLessonId { get; set; }
     
     /// <summary>
+    /// Gets or sets value for Title
+    /// </summary>
+    public bool IsDraft { get; set; }
+    
+    /// <summary>
     /// Gets or sets value for Video
     /// </summary>
     public Video Video { get; set; }

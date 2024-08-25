@@ -1,5 +1,6 @@
 ﻿using Learnify.Core.Dto.Attachment;
 using Learnify.Core.Dto.Course.QuizQuestion;
+using Learnify.Core.Dto.Course.Video;
 
 namespace Learnify.Core.Dto.Course.LessonDtos;
 
@@ -24,22 +25,22 @@ public class LessonUpdateResponse
     public string Title { get; set; }
     
     /// <summary>
-    /// Gets or sets value for Content
+    /// Gets or sets value for Title
     /// </summary>
-    public string? Content { get; set; }
+    public string EditedLessonId { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value for Title
+    /// </summary>
+    public bool IsDraft { get; set; }
     
     /// <summary>
     /// Gets or sets value for Video
     /// </summary>
-    public AttachmentResponse Video { get; set; }
+    public VideoResponse Video { get; set; }
     
     /// <summary>
     /// User has opportunity to create quizzes
     /// </summary>
-    public IEnumerable<QuizQuestionAddOrUpdateRequest> Quizzes { get; set; }
-    
-    /// <summary>
-    /// User has opportunity to create Attachments
-    /// </summary>
-    public IEnumerable<AttachmentResponse> Attachments { get; set; }
+    public IEnumerable<QuizQuestionUpdateResponse> Quizzes { get; set; }
 }

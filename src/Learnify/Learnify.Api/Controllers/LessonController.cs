@@ -19,7 +19,7 @@ public class LessonController: BaseApiController
 
     [Authorize]
     [HttpGet("{id}")]
-    public async Task<ApiResponse<LessonResponse>> GetLessonById(string id)
+    public async Task<ActionResult<ApiResponse<LessonResponse>>> GetLessonByIdAsync(string id)
     {
         var userId = User.GetUserId();
         var response = await _lessonService.GetByIdAsync(id, userId);
@@ -27,30 +27,39 @@ public class LessonController: BaseApiController
         return response;
     }
 
-    [Authorize]
-    [HttpPost]
-    public async Task<ApiResponse<LessonResponse>> CreateLesson(LessonCreateRequest lessonCreateRequest)
+    [HttpGet("paragraph/{paragraphId}")]
+    public async Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetTitlesByParagraphIdAsync(int paragraphId)
     {
-        var userId = User.GetUserId();
-        var response = await _lessonService.CreateAsync(lessonCreateRequest, userId);
+        var response = await _lessonService.GetByParagraphAsync(paragraphId);
 
         return response;
     }
 
     [Authorize]
-    [HttpPut]
-    public async Task<ApiResponse<LessonResponse>> UpdateAsync(LessonUpdateRequest lessonUpdateRequest)
+    [HttpPost]
+    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> UpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest)
     {
         var userId = User.GetUserId();
         
-        var response = await _lessonService.UpdateAsync(lessonUpdateRequest, userId);
+        var response = await _lessonService.AddOrUpdateAsync(lessonAddOrUpdateRequest, userId);
+
+        return response;
+    }
+    
+    [Authorize]
+    [HttpPost("draft")]
+    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> SaveDraftAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest)
+    {
+        var userId = User.GetUserId();
+        
+        var response = await _lessonService.SaveDraftAsync(lessonAddOrUpdateRequest, userId);
 
         return response;
     }
     
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<ApiResponse> DeleteAsync(string id)
+    public async Task<ActionResult<ApiResponse>> DeleteAsync(string id)
     {
         var userId = User.GetUserId();
         

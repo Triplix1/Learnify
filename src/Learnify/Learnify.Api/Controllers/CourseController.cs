@@ -18,7 +18,7 @@ public class CourseController: BaseApiController
     }
 
     [HttpGet("{id}")]
-    public async Task<ApiResponse<CourseResponse>> GetCourseAsync(int id)
+    public async Task<ActionResult<ApiResponse<CourseResponse>>> GetCourseAsync(int id)
     {
         var courseResponse = await _courseService.GetByIdAsync(id);
 
@@ -27,7 +27,7 @@ public class CourseController: BaseApiController
     
     [Authorize]
     [HttpPost]
-    public async Task<ApiResponse<CourseResponse>> CreateCourseAsync([FromBody]CourseCreateRequest courseCreateRequest)
+    public async Task<ActionResult<ApiResponse<CourseResponse>>> CreateCourseAsync([FromBody]CourseCreateRequest courseCreateRequest)
     {
         var userId = User.GetUserId();
         var courseResponse = await _courseService.CreateAsync(courseCreateRequest, userId);
@@ -37,7 +37,7 @@ public class CourseController: BaseApiController
 
     [Authorize]
     [HttpPut]
-    public async Task<ApiResponse<CourseResponse>> UpdateCourse([FromBody]CourseUpdateRequest courseUpdateRequest)
+    public async Task<ActionResult<ApiResponse<CourseResponse>>> UpdateCourse([FromBody]CourseUpdateRequest courseUpdateRequest)
     {
         var userId = User.GetUserId();
         var courseResponse = await _courseService.UpdateAsync(courseUpdateRequest, userId);
@@ -47,7 +47,7 @@ public class CourseController: BaseApiController
 
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<ApiResponse> DeleteAsync([FromRoute]int id)
+    public async Task<ActionResult<ApiResponse>> DeleteAsync([FromRoute]int id)
     {
         var userId = User.GetUserId();
         var response = await _courseService.DeleteAsync(id, userId);

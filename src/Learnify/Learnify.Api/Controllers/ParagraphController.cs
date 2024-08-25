@@ -19,7 +19,7 @@ public class ParagraphController: BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<ApiResponse<ParagraphResponse>> CreateAsync(ParagraphCreateRequest paragraphCreateRequest)
+    public async Task<ActionResult<ApiResponse<ParagraphResponse>>> CreateAsync(ParagraphCreateRequest paragraphCreateRequest)
     {
         var userId = User.GetUserId();
         var result = await _paragraphService.CreateAsync(paragraphCreateRequest, userId);
@@ -29,7 +29,7 @@ public class ParagraphController: BaseApiController
     
     [Authorize]
     [HttpPut]
-    public async Task<ApiResponse<ParagraphResponse>> UpdateAsync(ParagraphUpdateRequest paragraphUpdateRequest)
+    public async Task<ActionResult<ApiResponse<ParagraphResponse>>> UpdateAsync(ParagraphUpdateRequest paragraphUpdateRequest)
     {
         var userId = User.GetUserId();
         var result = await _paragraphService.UpdateAsync(paragraphUpdateRequest, userId);
@@ -39,7 +39,7 @@ public class ParagraphController: BaseApiController
     
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<ApiResponse> DeleteAsync(int id)
+    public async Task<ActionResult<ApiResponse>> DeleteAsync(int id)
     {
         var userId = User.GetUserId();
         var result = await _paragraphService.DeleteAsync(id, userId);

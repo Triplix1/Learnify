@@ -5,16 +5,15 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 
 public interface ILessonRepository
 {
-    Task<LessonUpdateResponse> GetLessonForUpdateAsync(string id);
-    Task<LessonResponse> GetLessonByIdAsync(string id);
-    Task<IEnumerable<LessonTitleResponse>> GetLessonsForParagraphAsync(int paragraphId);
+    Task<Lesson> GetLessonByIdAsync(string id);
+    Task<IEnumerable<LessonTitleResponse>> GetLessonTitlesForParagraphAsync(int paragraphId, bool includeDrafts);
     Task<IEnumerable<Attachment>> GetAllAttachmentsForLessonAsync(string lessonId);
     Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphAsync(int paragraphId);
     Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphsAsync(IEnumerable<int> paragraphId);
     Task<int> GetParagraphIdForLessonAsync(string lessonId);
 
-    Task<LessonResponse> CreateAsync(Lesson lessonCreateRequest);
-    Task<LessonResponse> UpdateAsync(Lesson lessonUpdateRequest);
+    Task<Lesson> CreateAsync(Lesson lessonCreateRequest);
+    Task<Lesson> UpdateAsync(Lesson lessonUpdateRequest);
     
     Task<bool> DeleteAsync(string id);
     Task<long> DeleteForParagraphAsync(int paragraphId);

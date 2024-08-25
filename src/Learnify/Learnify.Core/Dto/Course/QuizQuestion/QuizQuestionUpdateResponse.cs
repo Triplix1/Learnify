@@ -1,14 +1,13 @@
-﻿namespace Learnify.Core.Domain.Entities.NoSql;
+﻿using Learnify.Core.Dto.Attachment;
 
-/// <summary>
-/// QuizQuestion
-/// </summary>
-public class QuizQuestion
+namespace Learnify.Core.Dto.Course.QuizQuestion;
+
+public class QuizQuestionUpdateResponse
 {
     /// <summary>
     /// Gets or sets value for Media
     /// </summary>
-    public Attachment? Media { get; set; }
+    public AttachmentResponse? Media { get; set; }
     
     /// <summary>
     /// Question
@@ -23,5 +22,5 @@ public class QuizQuestion
     /// <summary>
     /// CorrectAnswer
     /// </summary>
-    public string CorrectAnswer { get; set; }
+    public int CorrectAnswer { get; set; }
 }

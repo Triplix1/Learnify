@@ -3,15 +3,12 @@ using Learnify.Core.Dto.Course.Video;
 
 namespace Learnify.Core.Dto.Course.LessonDtos;
 
-/// <summary>
-/// LessonAddOrUpdateRequest
-/// </summary>
-public class LessonUpdateRequest
+public class LessonDraftRequest
 {
     /// <summary>
     /// Gets or sets value for Id
     /// </summary>
-    public string Id { get; set; }
+    public string OriginId { get; set; }
 
     /// <summary>
     /// Gets or sets value for ParagraphId
@@ -22,7 +19,12 @@ public class LessonUpdateRequest
     /// Gets or sets value for Title
     /// </summary>
     public string Title { get; set; }
-
+    
+    /// <summary>
+    /// Gets or sets value for Title
+    /// </summary>
+    public string EditedLessonId { get; set; }
+    
     /// <summary>
     /// Gets or sets value for Video
     /// </summary>

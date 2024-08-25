@@ -43,8 +43,7 @@ public class MappingProfiles: Profile
         CreateMap<Paragraph, ParagraphResponse>();
 
         // Lesson
-        CreateMap<LessonUpdateRequest, Lesson>();
-        CreateMap<LessonCreateRequest, Lesson>();
+        CreateMap<LessonAddOrUpdateRequest, Lesson>();
         CreateMap<Lesson, LessonResponse>();
         CreateMap<Lesson, LessonTitleResponse>();
 
@@ -53,6 +52,8 @@ public class MappingProfiles: Profile
 
         // QuizQuestion
         CreateMap<QuizQuestion, QuizQuestionResponse>();
+        CreateMap<QuizQuestionAddOrUpdateRequest, QuizQuestion>();
+        CreateMap<QuizQuestion, QuizQuestionUpdateResponse>();
         
         // Subtitles
         CreateMap<SubtitleReference, SubtitlesReferenceResponse>().ReverseMap();

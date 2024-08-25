@@ -18,48 +18,37 @@ public class SubtitlesRepository: ISubtitlesRepository
         _mapper = mapper;
     }
 
-    public async Task<SubtitlesResponse> GetByIdAsync(int id)
+    public async Task<Subtitle> GetByIdAsync(int id)
     {
         var subtitle = await _context.Subtitles.FindAsync(id);
 
-        if (subtitle is null)
-            return null;
-
-        return _mapper.Map<SubtitlesResponse>(subtitle);
+        return subtitle;
     }
 
-    public async Task<IEnumerable<SubtitlesResponse>> GetByIdsAsync(IEnumerable<int> ids)
+    public async Task<IEnumerable<Subtitle>> GetByIdsAsync(IEnumerable<int> ids)
     {
-        var subtitles = _context.Subtitles.Where(s => ids.Contains(s.Id));
-
-        var result = _mapper.ProjectTo<SubtitlesResponse>(subtitles);
-
-        return await result.ToArrayAsync();
-    }
-
-    public async Task<SubtitlesResponse> CreateAsync(SubtitlesCreateRequest subtitlesCreateRequest)
-    {
-        var subtitle = _mapper.Map<Subtitle>(subtitlesCreateRequest);
+        var subtitles = await _context.Subtitles.Where(s => ids.Contains(s.Id)).ToArrayAsync();
         
-        await _context.Subtitles.AddAsync(subtitle);
-        await _context.SaveChangesAsync();
-
-        var response = _mapper.Map<SubtitlesResponse>(subtitle);
-
-        return response;
+        return subtitles;
     }
 
-    public async Task<IEnumerable<SubtitlesResponse>> CreateRangeAsync(IEnumerable<SubtitlesCreateRequest> subtitlesCreateRequest)
+    public async Task<Subtitle> CreateAsync(Subtitle subtitlesCreateRequest)
     {
-        var subtitles = _mapper.Map<IEnumerable<Subtitle>>(subtitlesCreateRequest);
-
-        await _context.Subtitles.AddRangeAsync(subtitles);
+        await _context.Subtitles.AddAsync(subtitlesCreateRequest);
         await _context.SaveChangesAsync();
-
-        return _mapper.Map<IEnumerable<SubtitlesResponse>>(subtitles);
+        
+        return subtitlesCreateRequest;
     }
 
-    public async Task<SubtitlesResponse> UpdateAsync(SubtitlesUpdateRequest subtitlesUpdateRequest)
+    public async Task<IEnumerable<Subtitle>> CreateRangeAsync(IEnumerable<Subtitle> subtitlesCreateRequest)
+    {
+        await _context.Subtitles.AddRangeAsync(subtitlesCreateRequest);
+        await _context.SaveChangesAsync();
+
+        return subtitlesCreateRequest;
+    }
+
+    public async Task<Subtitle> UpdateAsync(Subtitle subtitlesUpdateRequest)
     {
         var subtitle = await _context.Subtitles.FindAsync(subtitlesUpdateRequest.Id);
 
@@ -71,7 +60,7 @@ public class SubtitlesRepository: ISubtitlesRepository
         _context.Subtitles.Update(subtitle);
         await _context.SaveChangesAsync();
         
-        return _mapper.Map<SubtitlesResponse>(subtitle);
+        return subtitle;
     }
 
     public async Task<bool> DeleteAsync(int id)

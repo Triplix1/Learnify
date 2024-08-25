@@ -5,11 +5,6 @@ namespace Learnify.Core.Dto.Course.QuizQuestion;
 public class QuizQuestionResponse
 {
     /// <summary>
-    /// Id
-    /// </summary>
-    public string Id { get; set; }
-    
-    /// <summary>
     /// Gets or sets value for Media
     /// </summary>
     public AttachmentResponse? Media { get; set; }

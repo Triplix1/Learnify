@@ -1,4 +1,6 @@
-﻿using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
+﻿using AutoMapper;
+using Learnify.Core.Domain.Entities.Sql;
+using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto.Subtitles;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.Transactions;
@@ -9,31 +11,43 @@ public class SubtitlesManager: ISubtitlesManager
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IBlobStorage _blobStorage;
+    private readonly IMapper _mapper;
 
-    public SubtitlesManager(IPsqUnitOfWork psqUnitOfWork, IBlobStorage blobStorage)
+    public SubtitlesManager(IPsqUnitOfWork psqUnitOfWork, IBlobStorage blobStorage, IMapper mapper)
     {
         _psqUnitOfWork = psqUnitOfWork;
         _blobStorage = blobStorage;
+        _mapper = mapper;
     }
 
     public async Task<SubtitlesResponse> GetSubtitleByIdAsync(int id)
     {
-        return await _psqUnitOfWork.SubtitlesRepository.GetByIdAsync(id);
+        var subtitle = await _psqUnitOfWork.SubtitlesRepository.GetByIdAsync(id);
+
+        var response = _mapper.Map<SubtitlesResponse>(subtitle);
+        
+        return response;
     }
 
     public async Task<SubtitlesResponse> CreateAsync(SubtitlesCreateRequest subtitlesCreateRequest)
     {
-        return await _psqUnitOfWork.SubtitlesRepository.CreateAsync(subtitlesCreateRequest);
+        var subtitle = _mapper.Map<Subtitle>(subtitlesCreateRequest);
+
+        subtitle = await _psqUnitOfWork.SubtitlesRepository.CreateAsync(subtitle);
+
+        var response = _mapper.Map<SubtitlesResponse>(subtitle);
+
+        return response;
     }
 
     public async Task<SubtitlesResponse> UpdateAsync(SubtitlesUpdateRequest subtitlesUpdateRequest)
     {
-        SubtitlesResponse response;
-        
          var subtitles = await _psqUnitOfWork.SubtitlesRepository.GetByIdAsync(subtitlesUpdateRequest.Id);
 
          if (subtitles is null)
              throw new KeyNotFoundException("Cannot find subtitles with such id");
+
+         var subtitle = _mapper.Map<Subtitle>(subtitlesUpdateRequest);
 
          if (subtitles.FileId.HasValue && subtitles.FileId != subtitlesUpdateRequest.FileId)
          {
@@ -43,7 +57,7 @@ public class SubtitlesManager: ISubtitlesManager
 
              await _psqUnitOfWork.PrivateFileRepository.DeleteAsync(oldFile.Id);
              
-             response = await _psqUnitOfWork.SubtitlesRepository.UpdateAsync(subtitlesUpdateRequest);
+             subtitle = await _psqUnitOfWork.SubtitlesRepository.UpdateAsync(subtitle);
              
              await _blobStorage.DeleteAsync(oldFile.ContainerName, oldFile.BlobName);
              
@@ -51,8 +65,10 @@ public class SubtitlesManager: ISubtitlesManager
          }
          else
          {
-             response = await _psqUnitOfWork.SubtitlesRepository.UpdateAsync(subtitlesUpdateRequest);
+             subtitle = await _psqUnitOfWork.SubtitlesRepository.UpdateAsync(subtitle);
          }
+
+         var response = _mapper.Map<SubtitlesResponse>(subtitle);
 
          return response;
     }
