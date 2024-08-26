@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto.File;
 using Learnify.Core.ManagerContracts;
@@ -22,16 +23,20 @@ public class PrivateFileManager: IPrivateFileManager
     public async Task<PrivateFileDataResponse> CreateAsync(PrivateFileBlobCreateRequest privateFileBlobCreateRequest)
     {
         var lessonCreateRequest = _mapper.Map<PrivateFileDataCreateRequest>(privateFileBlobCreateRequest);
+
+        var privateFile = _mapper.Map<PrivateFileData>(privateFileBlobCreateRequest);
         
         using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
 
-        var fileResponse = await _psqUnitOfWork.PrivateFileRepository.CreateFileAsync(lessonCreateRequest);
+        var fileResponse = await _psqUnitOfWork.PrivateFileRepository.CreateFileAsync(privateFile);
         
         await _blobStorage.UploadAsync(privateFileBlobCreateRequest.BlobDto);
         
         ts.Complete();
 
-        return fileResponse;
+        var response = _mapper.Map<PrivateFileDataResponse>(fileResponse);
+
+        return response;
     }
 
     public async Task DeleteAsync(int id)

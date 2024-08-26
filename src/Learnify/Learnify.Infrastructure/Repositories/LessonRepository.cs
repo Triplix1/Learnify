@@ -2,10 +2,8 @@
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto.Course.LessonDtos;
-using Learnify.Core.Dto.Subtitles;
 using Learnify.Infrastructure.Data;
 using Learnify.Infrastructure.Data.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 
 namespace Learnify.Infrastructure.Repositories;

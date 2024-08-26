@@ -1,4 +1,6 @@
-﻿using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
+﻿using AutoMapper;
+using Learnify.Core.Domain.Entities.Sql;
+using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.ManagerContracts;
@@ -11,12 +13,15 @@ public class ParagraphService: IParagraphService
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly ICourseManager _courseManager;
     private readonly IParagraphManager _paragraphManager;
+    private readonly IMapper _mapper;
 
-    public ParagraphService(IPsqUnitOfWork psqUnitOfWork, ICourseManager courseManager, IParagraphManager paragraphManager)
+    public ParagraphService(IPsqUnitOfWork psqUnitOfWork, ICourseManager courseManager,
+        IParagraphManager paragraphManager, IMapper mapper)
     {
         _psqUnitOfWork = psqUnitOfWork;
         _courseManager = courseManager;
         _paragraphManager = paragraphManager;
+        _mapper = mapper;
     }
 
     public async Task<ApiResponse<ParagraphResponse>> CreateAsync(ParagraphCreateRequest paragraphCreateRequest, int userId)
@@ -26,9 +31,13 @@ public class ParagraphService: IParagraphService
         if (validationResult is not null)
             return ApiResponse<ParagraphResponse>.Failure(validationResult);
 
-        var result = await _psqUnitOfWork.ParagraphRepository.CreateAsync(paragraphCreateRequest);
+        var paragraph = _mapper.Map<Paragraph>(paragraphCreateRequest);
+        
+        paragraph = await _psqUnitOfWork.ParagraphRepository.CreateAsync(paragraph);
 
-        return ApiResponse<ParagraphResponse>.Success(result);
+        var response = _mapper.Map<ParagraphResponse>(paragraph);
+
+        return ApiResponse<ParagraphResponse>.Success(response);
     }
 
     public async Task<ApiResponse<ParagraphResponse>> UpdateAsync(ParagraphUpdateRequest paragraphUpdateRequest, int userId)
@@ -38,7 +47,11 @@ public class ParagraphService: IParagraphService
         if (validationResult is not null)
             return ApiResponse<ParagraphResponse>.Failure(validationResult);
 
-        var response = await _psqUnitOfWork.ParagraphRepository.UpdateAsync(paragraphUpdateRequest);
+        var paragraph = _mapper.Map<Paragraph>(paragraphUpdateRequest);
+        
+        paragraph = await _psqUnitOfWork.ParagraphRepository.UpdateAsync(paragraph);
+
+        var response = _mapper.Map<ParagraphResponse>(paragraph);
 
         return ApiResponse<ParagraphResponse>.Success(response);
     }

@@ -16,28 +16,28 @@ public interface ICourseRepository
     /// </summary>
     /// <param name="filter"><see cref="MongoFilter{T}"/></param>
     /// <returns></returns>
-    Task<PagedList<CourseResponse>> GetFilteredAsync(EfFilter<Course> filter);
+    Task<PagedList<Course>> GetFilteredAsync(EfFilter<Course> filter);
     
     /// <summary>
     /// Returns entity by id
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    Task<CourseResponse?> GetByIdAsync(int key);
+    Task<Course?> GetByIdAsync(int key, IEnumerable<string> includes);
     
     /// <summary>
     /// Creates entity
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<CourseResponse> CreateAsync(CourseCreateRequest entity, int authorId);
+    Task<Course> CreateAsync(Course entity);
     
     /// <summary>
     /// Updates entity
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<CourseResponse> UpdateAsync(CourseUpdateRequest entity);
+    Task<Course> UpdateAsync(Course entity);
     
     /// <summary>
     /// Deletes entity

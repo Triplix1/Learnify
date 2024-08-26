@@ -1,10 +1,10 @@
-﻿using Learnify.Core.Dto.UserBought;
+﻿using Learnify.Core.Domain.Entities.Sql;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
 
 public interface IUserBoughtRepository
 {
     Task<bool> UserBoughtExists(int userId, int courseId);
-    Task<UserBoughtResponse> CreateAsync(UserBoughtCreateRequest userBoughtCreateRequest);
+    Task<UserBought> CreateAsync(UserBought userBoughtCreateRequest);
     Task<bool> DeleteAsync(int userId, int courseId);
 }

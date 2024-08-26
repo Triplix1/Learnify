@@ -3,7 +3,6 @@ using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
-using Learnify.Core.Specification;
 using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -33,33 +32,26 @@ public class CourseRepository : ICourseRepository
     }
 
     /// <inheritdoc />
-    public async Task<CourseResponse> GetByIdAsync(int key)
+    public async Task<Course> GetByIdAsync(int key, IEnumerable<string> includes)
     {
-        var course = await _context.Courses.Include(c => c.Paragraphs).FirstOrDefaultAsync(c => c.Id == key);
+        var courseQuery = includes.Aggregate(_context.Courses.AsQueryable(), (c, include) => c.Include(include));
 
-        if (course is null)
-            return null;
-
-        var courseResponse = _mapper.Map<CourseResponse>(course);
+        var course = await courseQuery.FirstOrDefaultAsync(c => c.Id == key);
         
-        return courseResponse;
+        return course;
     }
 
     /// <inheritdoc />
-    public async Task<CourseResponse> CreateAsync(CourseCreateRequest courseCreateRequest, int authorId)
+    public async Task<Course> CreateAsync(Course courseCreateRequest)
     {
-        var course = _mapper.Map<Course>(courseCreateRequest);
-
-        course.AuthorId = authorId;
-
-        await _context.Courses.AddAsync(course);
+        await _context.Courses.AddAsync(courseCreateRequest);
         await _context.SaveChangesAsync();
 
-        return _mapper.Map<CourseResponse>(course);
+        return courseCreateRequest;
     }
 
     /// <inheritdoc />
-    public async Task<CourseResponse> UpdateAsync(CourseUpdateRequest entity)
+    public async Task<Course> UpdateAsync(Course entity)
     {
         var course = await _context.Courses.FindAsync(entity.Id);
 
@@ -71,7 +63,7 @@ public class CourseRepository : ICourseRepository
         _context.Courses.Update(course);
         await _context.SaveChangesAsync();
         
-        return _mapper.Map<CourseResponse>(course);
+        return course;
     }
 
     /// <inheritdoc />
@@ -100,7 +92,7 @@ public class CourseRepository : ICourseRepository
     }
 
     /// <inheritdoc />
-    public async Task<PagedList<CourseResponse>> GetFilteredAsync(EfFilter<Course> filter)
+    public async Task<PagedList<Course>> GetFilteredAsync(EfFilter<Course> filter)
     {
         var query = _context.Courses.AsQueryable();
 
@@ -111,7 +103,7 @@ public class CourseRepository : ICourseRepository
 
         var pagedList = await PagedList<Course>.CreateAsync(query, filter.PageNumber, filter.PageSize);
         
-        return _mapper.Map<PagedList<CourseResponse>>(pagedList);
+        return pagedList;
     }
     
     

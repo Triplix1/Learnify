@@ -42,17 +42,26 @@ public class CourseService: ICourseService
     /// <inheritdoc />
     public async Task<ApiResponse<CourseResponse>> GetByIdAsync(int id)
     {
-        var course = await _psqUnitOfWork.CourseRepository.GetByIdAsync(id);
+        var includes = new[] { nameof(Course.Paragraphs) };
+        
+        var course = await _psqUnitOfWork.CourseRepository.GetByIdAsync(id, includes);
 
-        return ApiResponse<CourseResponse>.Success(course);
+        var courseResponse = _mapper.Map<CourseResponse>(course);
+
+        return ApiResponse<CourseResponse>.Success(courseResponse);
     }
 
     /// <inheritdoc />
     public async Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int userId)
     {
-        var course = await _psqUnitOfWork.CourseRepository.CreateAsync(courseCreateRequest, userId);
+        var course = _mapper.Map<Course>(courseCreateRequest);
+        course.AuthorId = userId;
         
-        return ApiResponse<CourseResponse>.Success(course);
+        course = await _psqUnitOfWork.CourseRepository.CreateAsync(course);
+        
+        var courseResponse = _mapper.Map<CourseResponse>(course);
+        
+        return ApiResponse<CourseResponse>.Success(courseResponse);
     }
 
     /// <inheritdoc />
@@ -63,12 +72,16 @@ public class CourseService: ICourseService
         if (validationResult is not null)
             return ApiResponse<CourseResponse>.Failure(validationResult);
         
-        var response = await _psqUnitOfWork.CourseRepository.UpdateAsync(courseUpdateRequest);
+        var course = _mapper.Map<Course>(courseUpdateRequest);
+        
+        course = await _psqUnitOfWork.CourseRepository.UpdateAsync(course);
 
-        if (response is null)
+        if (course is null)
             return ApiResponse<CourseResponse>.Failure(new KeyNotFoundException("Cannot find course with such Id"));
-
-        return ApiResponse<CourseResponse>.Success(response);
+        
+        var courseResponse = _mapper.Map<CourseResponse>(course);
+        
+        return ApiResponse<CourseResponse>.Success(courseResponse);
     }
 
     /// <inheritdoc />

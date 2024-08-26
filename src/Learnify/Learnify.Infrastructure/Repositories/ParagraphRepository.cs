@@ -28,7 +28,7 @@ public class ParagraphRepository: IParagraphRepository
     }
 
     /// <inheritdoc />
-    public async Task<PagedList<ParagraphResponse>> GetFilteredAsync(EfFilter<Paragraph> filter)
+    public async Task<PagedList<Paragraph>> GetFilteredAsync(EfFilter<Paragraph> filter)
     {
         var query = _context.Paragraphs.AsQueryable();
 
@@ -39,33 +39,31 @@ public class ParagraphRepository: IParagraphRepository
 
         var pagedList = await PagedList<Paragraph>.CreateAsync(query, filter.PageNumber, filter.PageSize);
 
-        return _mapper.Map<PagedList<ParagraphResponse>>(pagedList);
+        return pagedList;
     }
 
     /// <inheritdoc />
-    public async Task<ParagraphResponse> GetByIdAsync(int key)
+    public async Task<Paragraph> GetByIdAsync(int key)
     {
         var paragraph = await _context.Paragraphs.FindAsync(key);
 
         if (paragraph is null)
             throw new KeyNotFoundException("Cannot find paragraph with such Id");
 
-        return _mapper.Map<ParagraphResponse>(paragraph);
+        return paragraph;
     }
 
     /// <inheritdoc />
-    public async Task<ParagraphResponse> CreateAsync(ParagraphCreateRequest entity)
+    public async Task<Paragraph> CreateAsync(Paragraph entity)
     {
-        var paragraph = _mapper.Map<Paragraph>(entity);
-
-        await _context.Paragraphs.AddAsync(paragraph);
+        await _context.Paragraphs.AddAsync(entity);
         await _context.SaveChangesAsync();
 
-        return _mapper.Map<ParagraphResponse>(paragraph);
+        return entity;
     }
 
     /// <inheritdoc />
-    public async Task<ParagraphResponse> UpdateAsync(ParagraphUpdateRequest entity)
+    public async Task<Paragraph> UpdateAsync(Paragraph entity)
     {
         var paragraph = await _context.Paragraphs.FindAsync(entity.Id);
 
@@ -77,7 +75,7 @@ public class ParagraphRepository: IParagraphRepository
         _context.Paragraphs.Update(paragraph);
         await _context.SaveChangesAsync();
         
-        return _mapper.Map<ParagraphResponse>(paragraph);
+        return paragraph;
     }
 
     /// <inheritdoc />

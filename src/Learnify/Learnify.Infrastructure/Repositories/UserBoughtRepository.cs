@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
-using Learnify.Core.Dto.UserBought;
 using Learnify.Infrastructure.Data;
 
 namespace Learnify.Infrastructure.Repositories;
@@ -9,12 +8,10 @@ namespace Learnify.Infrastructure.Repositories;
 public class UserBoughtRepository: IUserBoughtRepository
 {
     private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
 
-    public UserBoughtRepository(ApplicationDbContext context, IMapper mapper)
+    public UserBoughtRepository(ApplicationDbContext context)
     {
         _context = context;
-        _mapper = mapper;
     }
 
     public async Task<bool> UserBoughtExists(int userId, int courseId)
@@ -24,14 +21,12 @@ public class UserBoughtRepository: IUserBoughtRepository
         return userBought is not null;
     }
 
-    public async Task<UserBoughtResponse> CreateAsync(UserBoughtCreateRequest userBoughtCreateRequest)
+    public async Task<UserBought> CreateAsync(UserBought userBoughtCreateRequest)
     {
-        var userBought = _mapper.Map<UserBought>(userBoughtCreateRequest);
-
-        await _context.UserBoughts.AddAsync(userBought);
+        await _context.UserBoughts.AddAsync(userBoughtCreateRequest);
         await _context.SaveChangesAsync();
 
-        return _mapper.Map<UserBoughtResponse>(userBought);
+        return userBoughtCreateRequest;
     }
 
     public async Task<bool> DeleteAsync(int userId, int courseId)

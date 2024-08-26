@@ -1,7 +1,5 @@
 ﻿using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Dto;
-using Learnify.Core.Dto.Course.ParagraphDtos;
-using Learnify.Core.Specification;
 using Learnify.Core.Specification.Filters;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
@@ -16,28 +14,28 @@ public interface IParagraphRepository
     /// </summary>
     /// <param name="filter"><see cref="EfFilter{Paragraph}"/></param>
     /// <returns></returns>
-    Task<PagedList<ParagraphResponse>> GetFilteredAsync(EfFilter<Paragraph> filter);
+    Task<PagedList<Paragraph>> GetFilteredAsync(EfFilter<Paragraph> filter);
     
     /// <summary>
     /// Returns entity by id
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    Task<ParagraphResponse?> GetByIdAsync(int key);
+    Task<Paragraph?> GetByIdAsync(int key);
     
     /// <summary>
     /// Creates entity
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<ParagraphResponse> CreateAsync(ParagraphCreateRequest entity);
+    Task<Paragraph> CreateAsync(Paragraph entity);
     
     /// <summary>
     /// Updates entity
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<ParagraphResponse> UpdateAsync(ParagraphUpdateRequest entity);
+    Task<Paragraph> UpdateAsync(Paragraph entity);
     
     /// <summary>
     /// Deletes entity

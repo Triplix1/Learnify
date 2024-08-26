@@ -18,43 +18,40 @@ public class PrivateFileRepository: IPrivateFileRepository
         _mapper = mapper;
     }
 
-    public async Task<PrivateFileBlobInfoResponse> GetByIdAsync(int id)
+    public async Task<PrivateFileData> GetByIdAsync(int id)
     {
         var fileData = await _context.FileDatas.FindAsync(id);
 
         if (fileData is null)
             return null;
 
-        return _mapper.Map<PrivateFileBlobInfoResponse>(fileData);
+        return fileData;
     }
 
-    public async Task<IEnumerable<PrivateFileBlobInfoResponse>> GetByIdsAsync(IEnumerable<int> ids)
+    public async Task<IEnumerable<PrivateFileData>> GetByIdsAsync(IEnumerable<int> ids)
     {
         var fileDatas = await _context.FileDatas.Where(f => ids.Contains(f.Id)).ToArrayAsync();
         
         if(fileDatas.Length != ids.Count())
             return null;
         
-        return _mapper.Map<IEnumerable<PrivateFileBlobInfoResponse>>(fileDatas);
+        return fileDatas;
     }
 
-    public async Task<PrivateFileDataResponse> CreateFileAsync(PrivateFileDataCreateRequest privateFileDataCreateRequest)
-    {
-        var fileDataToCreate = _mapper.Map<PrivateFileData>(privateFileDataCreateRequest);
-
-        await _context.FileDatas.AddAsync(fileDataToCreate);
+    public async Task<PrivateFileData> CreateFileAsync(PrivateFileData privateFileDataCreateRequest)
+    { 
+        await _context.FileDatas.AddAsync(privateFileDataCreateRequest);
         await _context.SaveChangesAsync();
 
-        return _mapper.Map<PrivateFileDataResponse>(fileDataToCreate);
+        return privateFileDataCreateRequest;
     }
 
-    public async Task<IEnumerable<PrivateFileDataResponse>> CreateFilesAsync(IEnumerable<PrivateFileDataCreateRequest> fileDataCreateRequests)
+    public async Task<IEnumerable<PrivateFileData>> CreateFilesAsync(IEnumerable<PrivateFileData> fileDataCreateRequests)
     {
-        var fileDatasToCreate = _mapper.Map<IEnumerable<PrivateFileData>>(fileDataCreateRequests);
-        
-        await _context.FileDatas.AddRangeAsync(fileDatasToCreate);
+        await _context.FileDatas.AddRangeAsync(fileDataCreateRequests);
+        await _context.SaveChangesAsync();
 
-        return _mapper.Map<IEnumerable<PrivateFileDataResponse>>(fileDatasToCreate);
+        return fileDataCreateRequests;
     }
 
     public async Task<bool> DeleteAsync(int id)

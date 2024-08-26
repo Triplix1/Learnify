@@ -1,13 +1,13 @@
-﻿using Learnify.Core.Dto.File;
+﻿using Learnify.Core.Domain.Entities.Sql;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
 
 public interface IPrivateFileRepository
 {
-    Task<PrivateFileBlobInfoResponse> GetByIdAsync(int id);
-    Task<IEnumerable<PrivateFileBlobInfoResponse>> GetByIdsAsync(IEnumerable<int> ids);
-    Task<PrivateFileDataResponse> CreateFileAsync(PrivateFileDataCreateRequest privateFileDataCreateRequest);
-    Task<IEnumerable<PrivateFileDataResponse>> CreateFilesAsync(IEnumerable<PrivateFileDataCreateRequest> fileDataCreateRequests);
+    Task<PrivateFileData> GetByIdAsync(int id);
+    Task<IEnumerable<PrivateFileData>> GetByIdsAsync(IEnumerable<int> ids);
+    Task<PrivateFileData> CreateFileAsync(PrivateFileData privateFileDataCreateRequest);
+    Task<IEnumerable<PrivateFileData>> CreateFilesAsync(IEnumerable<PrivateFileData> fileDataCreateRequests);
     Task<bool> DeleteAsync(int id);
     Task<bool> DeleteRangeAsync(IEnumerable<int> ids);
 }
