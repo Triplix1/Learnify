@@ -15,6 +15,7 @@ public interface IUserRepository : IBasePsqRepository<User, int>
     /// <param name="email">Email</param>
     /// <returns></returns>
     Task<User?> GetByEmailAsync(string email);
+
     /// <summary>
     /// Returns user by username
     /// </summary>

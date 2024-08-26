@@ -1,17 +1,12 @@
-﻿version: '3.4'
-
-services:
+﻿services:
   redis:
     image: redis:latest
     command: redis-server
     volumes:
-      - redis:/var/lib/redis
-      - redis-config:/usr/local/etc/redis/redis.conf
+      - ./redisdata:/data
     ports:
       - 6379:6379
-    networks:
-      - redis-network
-  
+      
   rabbitmq:
     image: rabbitmq:3-management-alpine
     restart: always
@@ -36,7 +31,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: password
-      ME_CONFIG_MONGODB_URL: mongodb://root:password@mongo:27017/
+      ME_CONFIG_MONGODB_URL: ${MongoDb_CONN_STR}
       ME_CONFIG_BASICAUTH: false
       
   learnifydb:
@@ -62,19 +57,32 @@ services:
       - storageemulator
       - rabbitmq
       - mongo
+      - redis
     environment:
       - ASPNETCORE_URLS=http://*:80
-      - RabbitMq__Host=${RabbitMq}
-      - IdentityUrl=${IdentityUrl}
-      - ConnectionStrings__DefaultConnection=${LEARNIFY_DB_CONN_STR}
+      - AllowedOrigins=${AllowedOrigins}
+      - BlobStorageSettings__ConnectionString=${BLOB_CONN_STR}
       - GoogleAuthSettings__ClientId=${GoogleAuthSettingsClientId}
       - GoogleAuthSettings__ClientSecret=${GoogleAuthSettingsClientSecret}
       - JwtSettings__Key=${JwtSettingsKey}
       - JwtSettings__Expire=${JwtSettingsExpire}
       - JwtSettings__Audience=${JwtSettingsAudience}
       - JwtSettings__Issuer=${JwtSettingsIssuer}
-      - AllowedOrigins=${AllowedOrigins}
-      - BlobStorageSettings__ConnectionString=${BLOB_CONN_STR}
+      - ConnectionStrings__DefaultConnection=${LEARNIFY_DB_CONN_STR}
+      - ConnectionStrings__MongoDb=${MongoDb_CONN_STR}
+      - ConnectionStrings__RedisCache=${RedisCache_CONN_STR}
+      - MailConfig__Mail=${MailCfg_Mail}
+      - MailConfig__DisplayName=${MailCfg_Mail}
+      - MailConfig__Password=${MailCfg_Password}
+      - MailConfig__Host=${MailCfg_Host}
+      - MailConfig__Port=${MailCfg_Port}
+      - MongoDatabase__DatabaseName=${Mongo_DbName}
+      - MongoDatabase__ViewsCollectionName=${Mongo_ViewsCollectionName}
+      - MongoDatabase__CoursesCollectionName=${Mongo_CoursesCollectionName}
+      - MongoDatabase__LessonsCollectionName=${Mongo_LessonsCollectionName}
+      - EncryptionOptions__Key=${Encryption_Key}
+      - EncryptionOptions__IV=${Encryption_IV}
+      - RabbitMq__Host=${RabbitMq}
     ports:
       - "5000:80"
 

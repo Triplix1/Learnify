@@ -17,42 +17,42 @@ public class ApplicationDbContext: DbContext
     /// <summary>
     /// RefreshTokens Db Set
     /// </summary>
-    public DbSet<RefreshToken> RefreshTokens { get; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     
     /// <summary>
     /// Users Db Set
     /// </summary>
-    public DbSet<User> Users { get; }
+    public DbSet<User> Users { get; set; }
     
     /// <summary>
     /// CourseRatings Db Set
     /// </summary>
-    public DbSet<CourseRating> CourseRatings { get; }
+    public DbSet<CourseRating> CourseRatings { get; set; }
     
     /// <summary>
     /// Courses DbSet
     /// </summary>
-    public DbSet<Course> Courses { get; }
+    public DbSet<Course> Courses { get; set; }
     
     /// <summary>
     /// Courses DbSet
     /// </summary>
-    public DbSet<Paragraph> Paragraphs { get; }
+    public DbSet<Paragraph> Paragraphs { get; set; }
     
     /// <summary>
     /// Courses DbSet
     /// </summary>
-    public DbSet<PrivateFileData> FileDatas { get; }
+    public DbSet<PrivateFileData> FileDatas { get; set; }
     
     /// <summary>
     /// Subtitles DbSet
     /// </summary>
-    public DbSet<Subtitle> Subtitles { get; }
+    public DbSet<Subtitle> Subtitles { get; set; }
     
     /// <summary>
     /// UserBoughts DbSet
     /// </summary>
-    public DbSet<UserBought> UserBoughts { get; }
+    public DbSet<UserBought> UserBoughts { get; set; }
     
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder)
