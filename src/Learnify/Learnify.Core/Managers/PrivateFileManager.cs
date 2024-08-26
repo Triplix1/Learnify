@@ -22,8 +22,6 @@ public class PrivateFileManager: IPrivateFileManager
     
     public async Task<PrivateFileDataResponse> CreateAsync(PrivateFileBlobCreateRequest privateFileBlobCreateRequest)
     {
-        var lessonCreateRequest = _mapper.Map<PrivateFileDataCreateRequest>(privateFileBlobCreateRequest);
-
         var privateFile = _mapper.Map<PrivateFileData>(privateFileBlobCreateRequest);
         
         using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();

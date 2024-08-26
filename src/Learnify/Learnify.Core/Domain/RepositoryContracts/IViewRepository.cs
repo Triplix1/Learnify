@@ -4,7 +4,7 @@ using Learnify.Core.Specification.Filters;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
 
-public interface IViewsRepository
+public interface IViewRepository
 {
     IEnumerable<View> GetFilteredData(ViewSpecificationFilter specificationFilter);
 }

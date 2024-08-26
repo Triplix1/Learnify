@@ -126,6 +126,12 @@ public class LessonService: ILessonService
         var updatedLesson = _mapper.Map<Lesson>(lessonAddOrUpdateRequest);
         updatedLesson.IsDraft = draft;
 
+        if (!draft && oldLesson.EditedLessonId is not null)
+        {
+            await _mongoUnitOfWork.Lessons.DeleteAsync(oldLesson.EditedLessonId);
+            updatedLesson.EditedLessonId = null;
+        }
+
         if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
         {
             if (oldLesson.Video is not null)
@@ -195,41 +201,39 @@ public class LessonService: ILessonService
 
     public async Task<ApiResponse<LessonUpdateResponse>> SaveDraftAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest, int userId)
     {
-        // var actualAuthorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(lessonDraftRequest.ParagraphId);
-        // var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(lessonDraftRequest.ParagraphId);
-        //
-        // if (actualAuthorId != authorId || authorId != userId)
-        //     return ApiResponse<LessonUpdateResponse>.Failure(
-        //         new Exception("You should be author of the course to be able to edit it"));
-
-        if (lessonAddOrUpdateRequest.Id is not null)
+        if (lessonAddOrUpdateRequest.Id is null) return await CreateAsync(lessonAddOrUpdateRequest, userId, true);
+        
+        if (lessonAddOrUpdateRequest.EditedLessonId is not null)
         {
-            if (lessonAddOrUpdateRequest.EditedLessonId is not null)
-            {
-                lessonAddOrUpdateRequest.Id = lessonAddOrUpdateRequest.EditedLessonId;
-                lessonAddOrUpdateRequest.EditedLessonId = null;
+            lessonAddOrUpdateRequest.Id = lessonAddOrUpdateRequest.EditedLessonId;
+            lessonAddOrUpdateRequest.EditedLessonId = null;
 
-                await UpdateAsync(lessonAddOrUpdateRequest, userId, true);
-            }
-
-            var originalLesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id);
-
-            lessonAddOrUpdateRequest.Id = null;
-
-            var draft = await CreateAsync(lessonAddOrUpdateRequest, userId, true);
-
-            if (!draft.IsSuccess)
-                return draft;
-
-            originalLesson.EditedLessonId = draft.Data.Id;
-            originalLesson.IsDraft = false;
-
-            var response = await GetUpdateResponseAsync(originalLesson);
-
-            return ApiResponse<LessonUpdateResponse>.Success(response);
+            return await UpdateAsync(lessonAddOrUpdateRequest, userId, true);
         }
 
-        return await CreateAsync(lessonAddOrUpdateRequest, userId, true);
+        var originalLesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id);
+
+        if (originalLesson.IsDraft)
+        {
+            return await UpdateAsync(lessonAddOrUpdateRequest, userId, true);
+        }
+                
+        lessonAddOrUpdateRequest.Id = null;
+
+        var draft = await CreateAsync(lessonAddOrUpdateRequest, userId, true);
+
+        if (!draft.IsSuccess)
+            return draft;
+
+        originalLesson.EditedLessonId = draft.Data.Id;
+        originalLesson.IsDraft = false;
+
+        await _mongoUnitOfWork.Lessons.UpdateAsync(originalLesson);
+
+        var response = await GetUpdateResponseAsync(originalLesson);
+
+        return ApiResponse<LessonUpdateResponse>.Success(response);
+
     }
 
     /// <inheritdoc />

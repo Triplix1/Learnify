@@ -26,8 +26,18 @@ public class LessonController: BaseApiController
 
         return response;
     }
+    
+    [Authorize]
+    [HttpGet("for-update/{id}")]
+    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> GetLessonForUpdateAsync(string id)
+    {
+        var userId = User.GetUserId();
+        var response = await _lessonService.GetForUpdateAsync(id, userId);
 
-    [HttpGet("paragraph/{paragraphId}")]
+        return response;
+    }
+
+    [HttpGet("titles/{paragraphId}")]
     public async Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetTitlesByParagraphIdAsync(int paragraphId)
     {
         var response = await _lessonService.GetByParagraphAsync(paragraphId);
@@ -37,7 +47,7 @@ public class LessonController: BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> UpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest)
+    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> AddOrUpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest)
     {
         var userId = User.GetUserId();
         

@@ -9,16 +9,16 @@ public class MongoUnitOfWork: IMongoUnitOfWork
     /// <summary>
     /// Initializes a new instance of <see cref="MongoUnitOfWork"/>
     /// </summary>
-    /// <param name="views"><see cref="IViewsRepository"/></param>
+    /// <param name="view"><see cref="IViewRepository"/></param>
     /// <param name="lessons"><see cref="ILessonRepository"/></param>
-    public MongoUnitOfWork(IViewsRepository views, ILessonRepository lessons)
+    public MongoUnitOfWork(IViewRepository view, ILessonRepository lessons)
     {
-        Views = views;
+        View = view;
         Lessons = lessons;
     }
     
     /// <inheritdoc />
-    public IViewsRepository Views { get; }
+    public IViewRepository View { get; }
 
     /// <inheritdoc />
     public ILessonRepository Lessons { get; }

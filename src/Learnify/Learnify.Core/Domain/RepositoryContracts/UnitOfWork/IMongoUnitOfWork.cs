@@ -8,7 +8,7 @@ public interface IMongoUnitOfWork
     /// <summary>
     /// Get value of Views
     /// </summary>
-    IViewsRepository Views { get; }
+    IViewRepository View { get; }
     /// <summary>
     /// Get value of LLessonRepository
     /// </summary>
