@@ -1,11 +1,7 @@
 @import '../node_modules/@angular/material/theming';
-@import "tailwindcss/base";
-
-// Import Tailwind CSS component styles
-@import "tailwindcss/components";
-
-// Import Tailwind CSS utility styles
-@import "tailwindcss/utilities";
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 @include mat-core();
 
