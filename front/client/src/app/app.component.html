@@ -3,12 +3,12 @@
     <app-navbar (switchedTheme)="switchedMode($event)"></app-navbar>
 
     <div class="flex-grow flex flex-col justify-center items-center">
-        <div class="main w-100 bg-main">
+        <div class="main w-100 h-full bg-main">
             <router-outlet #outlet="outlet"></router-outlet>
         </div>
     </div>
 
-    <div class="w-full mt-auto">
+    <div class="w-full h-full mt-auto">
         <app-footer></app-footer>
     </div>
 </div>

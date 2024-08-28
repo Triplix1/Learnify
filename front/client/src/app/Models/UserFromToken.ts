@@ -1,4 +1,4 @@
-import { Role } from "./Role";
+import { Role } from "./enums/Role";
 
 export interface UserFromToken {
     id: number;

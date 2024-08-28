@@ -2,8 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiResponse } from 'src/app/Models/ApiResponse';
-import { ProfileResponse } from 'src/app/Models/ProfileResponse';
-import { ProfileUpdateRequest } from 'src/app/Models/ProfileUpdateRequest';
+import { ProfileResponse } from 'src/app/Models/Profile/ProfileResponse';
+import { ProfileUpdateRequest } from 'src/app/Models/Profile/ProfileUpdateRequest';
 import { environment } from 'src/environments/environment.development';
 import { objectToFormData } from '../helpers/formDataHelper';
 

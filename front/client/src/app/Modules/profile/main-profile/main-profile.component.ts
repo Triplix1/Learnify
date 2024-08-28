@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { switchMap, take } from 'rxjs';
 import { AuthService } from 'src/app/Core/services/auth.service';
 import { ProfileService } from 'src/app/Core/services/profile.service';
-import { ProfileResponse } from 'src/app/Models/ProfileResponse';
-import { ProfileUpdateRequest } from 'src/app/Models/ProfileUpdateRequest';
+import { ProfileResponse } from 'src/app/Models/Profile/ProfileResponse';
+import { ProfileUpdateRequest } from 'src/app/Models/Profile/ProfileUpdateRequest';
 
 @Component({
   selector: 'app-main-profile',

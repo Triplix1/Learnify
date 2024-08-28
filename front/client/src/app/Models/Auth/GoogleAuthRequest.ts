@@ -1,4 +1,4 @@
-import { RoleRequest } from "./RoleRequest";
+import { RoleRequest } from "../RoleRequest";
 
 export interface GoogleAuthRequest {
     code: string;

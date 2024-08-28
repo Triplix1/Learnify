@@ -2,15 +2,15 @@ import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 
-import { GoogleAuthRequest } from 'src/app/Models/GoogleAuthRequest';
 import { ApiResponse } from 'src/app/Models/ApiResponse';
-import { AuthResponse } from 'src/app/Models/AuthReponse';
+import { AuthResponse } from 'src/app/Models/Auth/AuthReponse';
 import { environment } from 'src/environments/environment';
-import { GoogleCodeRequest } from 'src/app/Models/GoogleCodeRequest';
-import { ReqisterRequest } from 'src/app/Models/RegisterRequest';
-import { LoginRequest } from 'src/app/Models/LoginRequest';
+import { GoogleCodeRequest } from 'src/app/Models/Auth/GoogleCodeRequest';
+import { ReqisterRequest } from 'src/app/Models/Auth/RegisterRequest';
+import { LoginRequest } from 'src/app/Models/Auth/LoginRequest';
 import { UserFromToken } from 'src/app/Models/UserFromToken';
-import { Role } from 'src/app/Models/Role';
+import { GoogleAuthRequest } from 'src/app/Models/Auth/GoogleAuthRequest';
+import { Role } from 'src/app/Models/enums/Role';
 
 @Injectable({
   providedIn: 'root'

@@ -1,0 +1,7 @@
+<select [formControl]="formControl"
+        class="p-2 rounded bg-gray-700 text-white w-full">
+    <option *ngFor="let option of options"
+            [value]="option.value">
+        {{ option.label }}
+    </option>
+</select>

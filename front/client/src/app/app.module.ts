@@ -10,6 +10,7 @@ import { RefreshInterceptor } from './Core/interceptors/refresh.interceptor';
 import { ErrorHandlerInterceptor } from './Core/interceptors/error-handler.interceptor';
 import { MainProfileComponent } from './Modules/profile/main-profile/main-profile.component';
 import { ProfileModule } from './Modules/profile/profile.module';
+import { CourseModule } from './Modules/course/course.module';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { ProfileModule } from './Modules/profile/profile.module';
     HomeModule,
     NoopAnimationsModule,
     BrowserAnimationsModule,
+    CourseModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorHandlerInterceptor, multi: true },

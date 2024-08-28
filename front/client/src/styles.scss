@@ -146,7 +146,7 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
     font-style: normal;
 }
 
-.container {
+.custom-container {
     width: 1120px;
     margin: 0 auto;
     padding: 0;
@@ -155,7 +155,7 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
 }
 
 .paddingless-container {
-    @extend .container;
+    @extend .custom-container;
     padding: 0;
 }
 

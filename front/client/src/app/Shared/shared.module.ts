@@ -14,6 +14,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DropdownComponent } from './components/dropdown/dropdown.component';
 import { ImageUploaderComponent } from './components/image-uploader/image-uploader.component';
 import { ImageCropperComponent } from './components/image-cropper/image-cropper.component';
+import { SelectorComponent } from './components/selector/selector.component';
 
 
 @NgModule({
@@ -25,6 +26,7 @@ import { ImageCropperComponent } from './components/image-cropper/image-cropper.
     DropdownComponent,
     ImageUploaderComponent,
     ImageCropperComponent,
+    SelectorComponent,
   ],
   imports: [
     CommonModule,
@@ -55,6 +57,7 @@ import { ImageCropperComponent } from './components/image-cropper/image-cropper.
     ReactiveFormsModule,
     DropdownComponent,
     ImageUploaderComponent,
+    SelectorComponent,
   ]
 })
 export class SharedModule { }

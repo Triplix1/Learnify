@@ -1,4 +1,4 @@
-import { UserType } from "./UserType";
+import { UserType } from "../enums/UserType";
 
 export interface ProfileResponse {
     id: number;
