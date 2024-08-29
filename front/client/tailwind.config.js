@@ -19,6 +19,7 @@ module.exports = {
         navlink: 'rgb(var(--navlink) / <alpha-value>)',
         buttonAccept: 'rgb(var(--buttonAccept) / <alpha-value>)',
         buttonCancel: 'rgb(var(--buttonCancel) / <alpha-value>)',
+        textInput: 'rgb(var(--textInput) / <alpha-value>)',
       },
     },
   },

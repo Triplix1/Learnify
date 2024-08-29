@@ -18,7 +18,7 @@ public class CourseCreateRequest
     /// Gets or sets value for Price
     /// </summary>
     public decimal Price { get; set; }
-
+    
     /// <summary>
     /// Gets or sets value for PrimaryLanguage
     /// </summary>

@@ -1,10 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiResponse } from 'src/app/Models/ApiResponse';
+import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { ProfileResponse } from 'src/app/Models/Profile/ProfileResponse';
 import { ProfileUpdateRequest } from 'src/app/Models/Profile/ProfileUpdateRequest';
-import { environment } from 'src/environments/environment.development';
+import { environment } from 'src/environments/environment';
 import { objectToFormData } from '../helpers/formDataHelper';
 
 @Injectable({
@@ -15,11 +15,11 @@ export class ProfileService {
 
   constructor(private readonly httpClient: HttpClient) { }
 
-  getById(id: number): Observable<ApiResponse<ProfileResponse>> {
-    return this.httpClient.get<ApiResponse<ProfileResponse>>(this.baseProfileUrl + "/" + id);
+  getById(id: number): Observable<ApiResponseWithData<ProfileResponse>> {
+    return this.httpClient.get<ApiResponseWithData<ProfileResponse>>(this.baseProfileUrl + "/" + id);
   }
 
-  update(profile: ProfileUpdateRequest): Observable<ApiResponse<ProfileResponse>> {
+  update(profile: ProfileUpdateRequest): Observable<ApiResponseWithData<ProfileResponse>> {
     const formData = objectToFormData(profile);
     let params = new HttpParams();
 
@@ -27,7 +27,7 @@ export class ProfileService {
       params: params,
       reportProgress: true,
     };
-    return this.httpClient.put<ApiResponse<ProfileResponse>>(this.baseProfileUrl + "/update", formData, options);
+    return this.httpClient.put<ApiResponseWithData<ProfileResponse>>(this.baseProfileUrl + "/update", formData, options);
 
   }
 }

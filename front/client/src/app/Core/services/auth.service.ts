@@ -2,7 +2,7 @@ import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 
-import { ApiResponse } from 'src/app/Models/ApiResponse';
+import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { AuthResponse } from 'src/app/Models/Auth/AuthReponse';
 import { environment } from 'src/environments/environment';
 import { GoogleCodeRequest } from 'src/app/Models/Auth/GoogleCodeRequest';
@@ -37,28 +37,28 @@ export class AuthService {
     // params.append("state", googleCodeRequest.state);
     // params.append("response_type", "code");
 
-    return this.httpClient.post<ApiResponse<AuthResponse>>(this.GoogleAuthUrl, googleCodeRequest);
+    return this.httpClient.post<ApiResponseWithData<AuthResponse>>(this.GoogleAuthUrl, googleCodeRequest);
   }
 
-  public loginGoogleExchangeCode(googleAuthRequest: GoogleAuthRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/auth/external/google", googleAuthRequest).pipe(
-      tap((response: ApiResponse<AuthResponse>) => {
+  public loginGoogleExchangeCode(googleAuthRequest: GoogleAuthRequest): Observable<ApiResponseWithData<AuthResponse>> {
+    return this.httpClient.post<ApiResponseWithData<AuthResponse>>(this.BaseApiUrl + "/auth/external/google", googleAuthRequest).pipe(
+      tap((response: ApiResponseWithData<AuthResponse>) => {
         this.handleTokenUpdate(response.data);
       })
     );
   }
 
-  public register(registerRequest: ReqisterRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/auth/register", registerRequest).pipe(
-      tap((response: ApiResponse<AuthResponse>) => {
+  public register(registerRequest: ReqisterRequest): Observable<ApiResponseWithData<AuthResponse>> {
+    return this.httpClient.post<ApiResponseWithData<AuthResponse>>(this.BaseApiUrl + "/auth/register", registerRequest).pipe(
+      tap((response: ApiResponseWithData<AuthResponse>) => {
         this.handleTokenUpdate(response.data);
       })
     );
   }
 
-  public login(loginRequest: LoginRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + "/auth/login", loginRequest).pipe(
-      tap((response: ApiResponse<AuthResponse>) => {
+  public login(loginRequest: LoginRequest): Observable<ApiResponseWithData<AuthResponse>> {
+    return this.httpClient.post<ApiResponseWithData<AuthResponse>>(this.BaseApiUrl + "/auth/login", loginRequest).pipe(
+      tap((response: ApiResponseWithData<AuthResponse>) => {
         this.handleTokenUpdate(response.data);
       })
     );
@@ -76,11 +76,11 @@ export class AuthService {
     return this.tokenData.value?.expires;
   }
 
-  refreshToken(): Observable<ApiResponse<AuthResponse>> {
+  refreshToken(): Observable<ApiResponseWithData<AuthResponse>> {
     if (!this.refreshTokenInProgress) {
       this.refreshTokenInProgress = true;
 
-      return this.httpClient.post<ApiResponse<AuthResponse>>(this.BaseApiUrl + '/auth/refresh', {
+      return this.httpClient.post<ApiResponseWithData<AuthResponse>>(this.BaseApiUrl + '/auth/refresh', {
         jwt: this.getAccessToken(),
         refreshToken: this.getRefreshToken()
       }).pipe(
@@ -88,7 +88,7 @@ export class AuthService {
           this.refreshTokenInProgress = false;
           return of(null);
         }),
-        tap((response: ApiResponse<AuthResponse>) => {
+        tap((response: ApiResponseWithData<AuthResponse>) => {
           this.refreshTokenInProgress = false;
           if (response !== null) {
             this.handleTokenUpdate(response.data);
@@ -96,7 +96,7 @@ export class AuthService {
         })
       );
     } else {
-      return of({ data: { token: this.getAccessToken(), refreshToken: this.getRefreshToken(), expires: this.getExpiration() }, error: {} } as ApiResponse<AuthResponse>);
+      return of({ data: { token: this.getAccessToken(), refreshToken: this.getRefreshToken(), expires: this.getExpiration() }, isSuccess: true } as ApiResponseWithData<AuthResponse>);
     }
   }
 

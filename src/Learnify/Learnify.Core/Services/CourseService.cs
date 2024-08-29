@@ -51,11 +51,26 @@ public class CourseService: ICourseService
         return ApiResponse<CourseResponse>.Success(courseResponse);
     }
 
+    public async Task<ApiResponse<CourseResponse>> PublishAsync(int id, bool publish, int userId)
+    {
+        var validationResult = await ValidateAuthorOfCourseAsync(id, userId);
+
+        if (validationResult is not null)
+            return ApiResponse<CourseResponse>.Failure(validationResult);
+        
+        var course = await _psqUnitOfWork.CourseRepository.PublishAsync(id, publish);
+        
+        var courseResponse = _mapper.Map<CourseResponse>(course);
+
+        return ApiResponse<CourseResponse>.Success(courseResponse);
+    }
+
     /// <inheritdoc />
     public async Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int userId)
     {
         var course = _mapper.Map<Course>(courseCreateRequest);
         course.AuthorId = userId;
+        course.IsPublished = false;
         
         course = await _psqUnitOfWork.CourseRepository.CreateAsync(course);
         

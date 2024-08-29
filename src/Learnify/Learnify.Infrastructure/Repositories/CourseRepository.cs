@@ -2,7 +2,6 @@
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
-using Learnify.Core.Dto.Course;
 using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +37,18 @@ public class CourseRepository : ICourseRepository
 
         var course = await courseQuery.FirstOrDefaultAsync(c => c.Id == key);
         
+        return course;
+    }
+
+    public async Task<Course> PublishAsync(int key, bool publish)
+    {
+        var course = await _context.Courses.FindAsync(key);
+
+        if (course is null)
+            return null;
+
+        course.IsPublished = publish;
+
         return course;
     }
 

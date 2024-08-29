@@ -7,7 +7,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { NavigationExtras, Router } from '@angular/router';
-import { ApiResponse } from 'src/app/Models/ApiResponse';
+import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
 
 @Injectable()
 export class ErrorHandlerInterceptor implements HttpInterceptor {
@@ -19,9 +19,9 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       tap((event: HttpEvent<any>) => {
         if (event instanceof HttpResponse) {
-          const apiResponse: ApiResponse<any> = event.body;
-          if (apiResponse && apiResponse.error) {
-            this.toastr.error(apiResponse.error);
+          const apiResponse: ApiResponseWithData<any> = event.body;
+          if (apiResponse && apiResponse.errorMessage) {
+            this.toastr.error(apiResponse.errorMessage);
           }
         }
       }),

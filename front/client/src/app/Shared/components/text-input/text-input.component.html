@@ -1,11 +1,12 @@
 <div class="w-100 mb-2">
-       <label [for]="label"
+       <label *ngIf="!hiddenLabel"
+              [for]="label"
               [ngClass]="control.dirty && control.invalid ? 'text-error' : ''"
               class="block mb-2 ml-2 text-sm font-medium text-primar">{{label}}</label>
        <input [id]="label"
               [formControl]="control"
               type="text"
-              class="border-[2px] border-gray-500 focus:border-gray-400 bg-input text-sm rounded-lg text-black font-medium placeholder-primar w-full py-[6px] px-2 {{classList}}"
+              class="border-[2px] border-gray-500 focus:border-gray-400 bg-input text-sm rounded-lg text-black font-medium placeholder-textInput w-full py-[6px] px-2 {{classList}}"
               [ngClass]="{'border-error text-error placeholder-error': control.dirty && control.errors}"
               [placeholder]="placeholder"
               [type]="type">

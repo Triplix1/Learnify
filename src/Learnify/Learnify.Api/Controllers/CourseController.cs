@@ -36,6 +36,16 @@ public class CourseController: BaseApiController
     }
 
     [Authorize]
+    [HttpPost("{id}")]
+    public async Task<ActionResult<ApiResponse<CourseResponse>>> PublishCourseAsync([FromRoute]int id, [FromBody]bool publish)
+    {
+        var userId = User.GetUserId();
+        var courseResponse = await _courseService.PublishAsync(id, publish, userId);
+
+        return courseResponse;
+    }
+
+    [Authorize]
     [HttpPut]
     public async Task<ActionResult<ApiResponse<CourseResponse>>> UpdateCourse([FromBody]CourseUpdateRequest courseUpdateRequest)
     {

@@ -23,7 +23,9 @@ public interface ICourseRepository
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    Task<Course?> GetByIdAsync(int key, IEnumerable<string> includes);
+    Task<Course> GetByIdAsync(int key, IEnumerable<string> includes);
+
+    Task<Course> PublishAsync(int key, bool publish);
     
     /// <summary>
     /// Creates entity

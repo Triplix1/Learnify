@@ -87,7 +87,8 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --main: 255 255 255;
         --error: 125 0 0;
         --link: 0 0 166;
-        --input: 255 255 255;
+        --input: 60 70 80;
+        --textInput: 200 200 200;
         --navlink: 200 200 200;
         --buttonAccept: 242 48 48;
         --buttonCancel: 225 225 225;
@@ -101,7 +102,8 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --main: 52 52 52;
         --error: 245 60 60;
         --link: 32 102 206;
-        --input: 170 170 170;
+        --input: 60 70 80;
+        --textInput: 180 180 180;
         --navlink: 170 170 170;
         --buttonAccept: 202 34 34;
         --buttonCancel: 213 213 213;
@@ -146,8 +148,12 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
     font-style: normal;
 }
 
+.container-width {
+    width: 1280px;
+}
+
 .custom-container {
-    width: 1120px;
+    width: 1280px;
     margin: 0 auto;
     padding: 0;
     height: 100%;

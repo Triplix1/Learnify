@@ -22,6 +22,8 @@ public interface ICourseService
     /// <returns></returns>
     public Task<ApiResponse<CourseResponse>> GetByIdAsync(int id);
 
+    public Task<ApiResponse<CourseResponse>> PublishAsync(int id, bool publish, int userId);
+
     /// <summary>
     /// 
     /// </summary>
