@@ -26,7 +26,7 @@ export class CreateCourseComponent {
   initializeForm() {
     this.courseForm = this.fb.group({
       name: ['', [Validators.required]],
-      price: ['', [Validators.required, Validators.pattern('[1-9]')]],
+      price: ['', [Validators.required, Validators.pattern('^\d+$')]],
       language: [Language.English, [Validators.required]],
     });
   }

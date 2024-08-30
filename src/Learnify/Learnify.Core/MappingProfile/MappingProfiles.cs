@@ -66,8 +66,5 @@ public class MappingProfiles: Profile
         // FileData
         CreateMap<PrivateFileData, PrivateFileDataResponse>();
         CreateMap<PrivateFileDataCreateRequest, PrivateFileData>();
-        CreateMap<PrivateFileBlobCreateRequest, PrivateFileDataCreateRequest>()
-            .ForMember(pd => pd.BlobName, p => p.MapFrom(pr => pr.BlobDto.Name))
-            .ForMember(pd => pd.ContainerName, p => p.MapFrom(pr => pr.BlobDto.ContainerName));
     }
 }

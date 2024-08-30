@@ -1,10 +1,8 @@
-﻿using Learnify.Core.Dto.Blob;
-
-namespace Learnify.Core.Dto.File;
+﻿namespace Learnify.Core.Dto.File;
 
 public class PrivateFileBlobCreateRequest
 {
-    public BlobDto BlobDto { get; set; }
+    public byte[] Content { get; set; }
     public string ContentType { get; set; }
     public int LessonId { get; set; }
 }

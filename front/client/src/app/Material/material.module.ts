@@ -13,6 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
+import { CdkAccordionModule } from '@angular/cdk/accordion';
 
 @NgModule({
   declarations: [],
@@ -32,6 +33,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatCheckboxModule,
     MatInputModule,
     MatDialogModule,
+    CdkAccordionModule,
   ],
   exports: [
     ReactiveFormsModule,
@@ -48,6 +50,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatCheckboxModule,
     MatInputModule,
     MatDialogModule,
+    CdkAccordionModule,
   ]
 })
 export class MaterialModule { }
