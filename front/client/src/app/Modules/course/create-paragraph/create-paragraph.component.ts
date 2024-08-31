@@ -10,17 +10,16 @@ import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResp
 export class CreateParagraphComponent {
   @Input() paragraphResponse: ParagraphResponse | null = null;
   paragraphForm: FormGroup = new FormGroup({});
-  lessons:
 
-    constructor(private readonly fb: FormBuilder) { }
+  constructor(private readonly fb: FormBuilder) { }
 
-ngOnInit(): void {
-  this.initializeForm();
-}
+  ngOnInit(): void {
+    this.initializeForm();
+  }
 
-initializeForm() {
-  this.paragraphForm = this.fb.group({
-    name: [this.paragraphResponse?.name ?? '', [Validators.required]],
-  });
-}
+  initializeForm() {
+    this.paragraphForm = this.fb.group({
+      name: [this.paragraphResponse?.name ?? '', [Validators.required]],
+    });
+  }
 }
