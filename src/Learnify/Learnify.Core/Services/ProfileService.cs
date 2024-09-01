@@ -84,15 +84,6 @@ public class ProfileService : IProfileService
                 origin.ImageBlobName = profileUpdateRequest.File.FileName;
             }
             
-            // var buffer = new byte[10000];
-            // var bytesRead = 0;
-            var fileBytes = Array.Empty<byte>();
-            // var totalBytesRead = 0;
-
-            // using var memoryStream = new MemoryStream();
-            // await profileUpdateRequest.File.CopyToAsync(memoryStream);
-            // fileBytes = memoryStream.ToArray();
-
             await using var stream = profileUpdateRequest.File.OpenReadStream();
 
             byte[] b;
