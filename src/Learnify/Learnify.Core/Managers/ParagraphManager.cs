@@ -12,7 +12,7 @@ public class ParagraphManager: IParagraphManager
         _psqUnitOfWork = psqUnitOfWork;
     }
 
-    public async Task<Exception> ValidateAuthorOfParagraphAsync(int paragraphId, int userId)
+    public async Task<Exception> ValidateExistAndAuthorOfParagraphAsync(int paragraphId, int userId)
     {
         var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(paragraphId);
 

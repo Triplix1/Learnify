@@ -8,11 +8,12 @@ import { catchError, tap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { NavigationExtras, Router } from '@angular/router';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Injectable()
 export class ErrorHandlerInterceptor implements HttpInterceptor {
 
-  constructor(private toastr: ToastrService, private router: Router) { }
+  constructor(private toastr: ToastrService, private router: Router, private readonly spinner: NgxSpinnerService) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
@@ -20,13 +21,17 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
       tap((event: HttpEvent<any>) => {
         if (event instanceof HttpResponse) {
           const apiResponse: ApiResponseWithData<any> = event.body;
-          if (apiResponse && apiResponse.errorMessage) {
-            this.toastr.error(apiResponse.errorMessage);
+          if (apiResponse && !apiResponse.isSuccess) {
+            if (apiResponse.errorMessage)
+              this.toastr.error(apiResponse.errorMessage);
+
+            this.spinner.hide();
           }
         }
       }),
       catchError(error => {
         this.toastr.error("Something went wrong");
+        this.spinner.hide();
         throw error;
       })
     )

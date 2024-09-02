@@ -92,6 +92,8 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --navlink: 200 200 200;
         --buttonAccept: 242 48 48;
         --buttonCancel: 225 225 225;
+        --buttonAcceptHover: 200 40 40;
+        --buttonCancelHover: 190 190 190;
     }
 
     .dark {
@@ -105,8 +107,10 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --input: 60 70 80;
         --textInput: 180 180 180;
         --navlink: 170 170 170;
-        --buttonAccept: 202 34 34;
-        --buttonCancel: 213 213 213;
+        --buttonAccept: 180 30 30;
+        --buttonCancel: 180 180 180;
+        --buttonAcceptHover: 202 34 34;
+        --buttonCancelHover: 213 213 213;
     }
 
     .login-form {
@@ -210,4 +214,8 @@ body {
 .dropdown-menu {
     max-height: 280px;
     overflow-y: auto;
+}
+
+.rounded-full-important {
+    border-radius: 9999px !important;
 }

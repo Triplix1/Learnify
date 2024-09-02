@@ -1,18 +1,40 @@
-<div>
-    <app-text-input [formControl]="$any(paragraphForm.controls['name'])"
-                    label="Name"
-                    placeholder="Name"
-                    [hiddenLabel]="true"></app-text-input>
+<div class="bg-gray-800 p-2 rounded mb-2">
 
     <cdk-accordion class="example-accordion">
-        @for (item of ; track item; let index = $index) {
-        <cdk-accordion-item #accordionItem="cdkAccordionItem"
+        <div *ngIf="editingMode">
+            <div class="w-full">
+                <app-text-input [formControl]="$any(paragraphForm.controls['name'])"
+                                label="Name"
+                                placeholder="Name"
+                                [hiddenLabel]="true"></app-text-input>
+            </div>
+            <div *ngIf="paragraphForm.dirty"
+                 class="flex justify-end mr-3 ">
+                <app-button class="mr-2"
+                            classList="px-2 py-1"
+                            type="accept"
+                            (buttonClick)="save()">
+                    <div class="text-sm">Save</div>
+                </app-button>
+                <app-button classList="px-2 py-1"
+                            type="cancel"
+                            (buttonClick)="cancel()">
+                    <div class="text-sm">Cancel</div>
+                </app-button>
+            </div>
+
+        </div>
+
+        <!-- <div *ngIf="!errorWhileLoadingLessons"> -->
+        <cdk-accordion-item *ngFor="let item of lessons; let index = index"
+                            #accordionItem="cdkAccordionItem"
                             class="example-accordion-item"
                             role="button"
                             tabindex="0"
                             [attr.id]="'accordion-header-' + index"
                             [attr.aria-expanded]="accordionItem.expanded"
-                            [attr.aria-controls]="'accordion-body-' + index">
+                            [attr.aria-controls]="'accordion-body-' + index"
+                            (expandedChange)="expanded($event)">
             <div class="example-accordion-item-header"
                  (click)="accordionItem.toggle()">
                 {{ item }}
@@ -25,11 +47,24 @@
                  [style.display]="accordionItem.expanded ? '' : 'none'"
                  [attr.id]="'accordion-body-' + index"
                  [attr.aria-labelledby]="'accordion-header-' + index">
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Perferendis
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis
                 excepturi incidunt ipsum deleniti labore, tempore non nam doloribus blanditiis
                 veritatis illo autem iure aliquid ullam rem tenetur deserunt velit culpa?
             </div>
         </cdk-accordion-item>
-        }
+        <!-- </div> -->
+
+        <div *ngIf="errorWhileLoadingLessons">
+            <cdk-accordion-item #accordionItem="cdkAccordionItem"
+                                class="example-accordion-item"
+                                role="button"
+                                tabindex="0"
+                                [attr.id]="'accordion-header-' + index"
+                                [attr.aria-expanded]="accordionItem.expanded"
+                                [attr.aria-controls]="'accordion-body-' + index">
+                <app-button (buttonClick)="loadLessons()">Reload</app-button>
+            </cdk-accordion-item>
+        </div>
+
     </cdk-accordion>
 </div>

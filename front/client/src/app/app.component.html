@@ -1,5 +1,9 @@
 <div [ngClass]="darkMode ? 'dark' : ''"
      class="body d-flex flex-column min-h-screen">
+
+    <ngx-spinner type='ball-clip-rotate'>
+    </ngx-spinner>
+
     <app-navbar (switchedTheme)="switchedMode($event)"></app-navbar>
 
     <div class="flex-grow flex flex-col justify-center items-center">

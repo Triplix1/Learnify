@@ -11,6 +11,7 @@ namespace Learnify.Core.Services;
 public class ParagraphService: IParagraphService
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
+    private readonly IMongoUnitOfWork _mongoUnitOfWork;
     private readonly ICourseManager _courseManager;
     private readonly IParagraphManager _paragraphManager;
     private readonly IMapper _mapper;
@@ -32,6 +33,7 @@ public class ParagraphService: IParagraphService
             return ApiResponse<ParagraphResponse>.Failure(validationResult);
 
         var paragraph = _mapper.Map<Paragraph>(paragraphCreateRequest);
+        paragraph.isPublished = false;
         
         paragraph = await _psqUnitOfWork.ParagraphRepository.CreateAsync(paragraph);
 
@@ -42,12 +44,33 @@ public class ParagraphService: IParagraphService
 
     public async Task<ApiResponse<ParagraphResponse>> UpdateAsync(ParagraphUpdateRequest paragraphUpdateRequest, int userId)
     {
-        var validationResult = await _paragraphManager.ValidateAuthorOfParagraphAsync(paragraphUpdateRequest.Id, userId);
+        var validationResult = await _paragraphManager.ValidateExistAndAuthorOfParagraphAsync(paragraphUpdateRequest.Id, userId);
 
         if (validationResult is not null)
             return ApiResponse<ParagraphResponse>.Failure(validationResult);
 
         var paragraph = _mapper.Map<Paragraph>(paragraphUpdateRequest);
+        
+        paragraph = await _psqUnitOfWork.ParagraphRepository.UpdateAsync(paragraph);
+
+        var response = _mapper.Map<ParagraphResponse>(paragraph);
+
+        return ApiResponse<ParagraphResponse>.Success(response);
+    }
+
+    public async Task<ApiResponse<ParagraphResponse>> PublishAsync(int paragraphId, int userId)
+    {
+        var validationResult = await _paragraphManager.ValidateExistAndAuthorOfParagraphAsync(paragraphId, userId);
+
+        if (validationResult is not null)
+            return ApiResponse<ParagraphResponse>.Failure(validationResult);
+
+        var paragraph = await _psqUnitOfWork.ParagraphRepository.GetByIdAsync(paragraphId);
+        
+        if(paragraph is null)
+            return ApiResponse<ParagraphResponse>.Failure(new KeyNotFoundException("Cannot find paragraph with specified id"));
+        
+        paragraph.isPublished = true;
         
         paragraph = await _psqUnitOfWork.ParagraphRepository.UpdateAsync(paragraph);
 

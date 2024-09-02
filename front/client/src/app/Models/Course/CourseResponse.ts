@@ -7,6 +7,6 @@ export interface CourseResponse {
     name: string;
     price: number;
     isPublished: boolean;
-    language: Language;
+    primaryLanguage: string;
     paragraphs: ParagraphResponse[];
 }

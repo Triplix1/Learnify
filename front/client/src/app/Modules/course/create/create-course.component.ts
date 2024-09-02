@@ -1,5 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { take } from 'rxjs';
+import { CourseService } from 'src/app/Core/services/course.service';
+import { CourseCreateRequest } from 'src/app/Models/Course/CourseCreateRequest';
+import { CourseResponse } from 'src/app/Models/Course/CourseResponse';
+import { CourseUpdateRequest } from 'src/app/Models/Course/CourseUpdateRequest';
+import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
 import { Language } from 'src/app/Models/enums/Language';
 import { SelectorOption } from 'src/app/Models/SelectorOption';
 
@@ -9,7 +16,10 @@ import { SelectorOption } from 'src/app/Models/SelectorOption';
   styleUrls: ['./create-course.component.scss']
 })
 export class CreateCourseComponent {
-  @Input() courseId: number;
+  @Input() courseId: number = null;
+  editingMode: boolean = false;
+  courseResponse: CourseResponse = null;
+  paragraphs: ParagraphResponse[] = [null];
   courseForm: FormGroup = new FormGroup({});
   selectorOptions: SelectorOption[] = Object.keys(Language)
     .filter(key => isNaN(Number(key)))  // Filter out numeric keys
@@ -17,17 +27,94 @@ export class CreateCourseComponent {
       return { label: key, value: Language[key as keyof typeof Language] };
     });
 
-  constructor(private readonly fb: FormBuilder) { }
+  constructor(private readonly fb: FormBuilder, private readonly courseService: CourseService, private readonly spinner: NgxSpinnerService) { }
 
   ngOnInit(): void {
     this.initializeForm();
+
+    if (this.courseId !== null) {
+      this.spinner.show();
+      this.courseService.getForUpdate(this.courseId).pipe(take(1))
+        .subscribe(
+          response => {
+            this.handleCourseUpdate(response.data);
+            this.spinner.hide();
+          }
+        );
+    }
   }
 
-  initializeForm() {
+  saveChanges() {
+    this.spinner.show();
+    if (this.courseId === null) {
+      const courseCreateRequest: CourseCreateRequest = {
+        name: this.courseForm.controls["name"].value,
+        price: this.courseForm.controls["price"].value + 0,
+        primaryLanguage: this.courseForm.controls["language"].value as Language
+      }
+
+      this.courseService.createCourse(courseCreateRequest).pipe(take(1)).subscribe(
+        courseResponse => {
+          this.handleCourseUpdate(courseResponse.data);
+          this.spinner.hide();
+        }
+      );
+    }
+    else {
+      const courseUpdateRequest: CourseUpdateRequest = {
+        id: this.courseId,
+        name: this.courseForm.controls["name"].value,
+        price: this.courseForm.controls["price"].value + 0,
+        primaryLanguage: this.courseForm.controls["language"].value as Language
+      }
+
+      this.courseService.updateCourse(courseUpdateRequest).pipe(take(1)).subscribe(
+        courseResponse => {
+          this.handleCourseUpdate(courseResponse.data);
+          this.spinner.hide();
+        }
+      );
+    }
+  }
+
+  cancelChanges() {
+    this.initializeForm();
+  }
+
+  publish(publish: boolean) {
+    this.spinner.show();
+
+    this.courseService.publishCourse(this.courseId, publish).pipe(take(1))
+      .subscribe(
+        response => {
+          this.courseResponse = response.data;
+          this.handleCourseUpdate(response.data);
+          this.spinner.hide();
+        }
+      );
+  }
+
+  addParagraph() {
+    this.paragraphs.push(null);
+  }
+
+  private handleCourseUpdate(courseResponse: CourseResponse) {
+    this.courseId = courseResponse.id;
+    this.courseResponse = courseResponse;
+    this.editingMode = courseResponse.isPublished;
+    this.paragraphs = courseResponse.paragraphs;
+
+    if (this.paragraphs.length === 0)
+      this.paragraphs = [null];
+
+    this.initializeForm();
+  }
+
+  private initializeForm() {
     this.courseForm = this.fb.group({
-      name: ['', [Validators.required]],
-      price: ['', [Validators.required, Validators.pattern('^\d+$')]],
-      language: [Language.English, [Validators.required]],
+      name: [this.courseResponse?.name ?? '', [Validators.required]],
+      price: [this.courseResponse?.price ?? '', [Validators.required, Validators.pattern('^\d+$')]],
+      language: this.courseResponse?.primaryLanguage ? Language[this.courseResponse.primaryLanguage as keyof typeof Language] : Language.English,
     });
   }
 }

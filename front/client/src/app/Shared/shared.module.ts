@@ -15,6 +15,8 @@ import { DropdownComponent } from './components/dropdown/dropdown.component';
 import { ImageUploaderComponent } from './components/image-uploader/image-uploader.component';
 import { ImageCropperComponent } from './components/image-cropper/image-cropper.component';
 import { SelectorComponent } from './components/selector/selector.component';
+import { ButtonComponent } from './components/button/button.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 
 @NgModule({
@@ -27,6 +29,7 @@ import { SelectorComponent } from './components/selector/selector.component';
     ImageUploaderComponent,
     ImageCropperComponent,
     SelectorComponent,
+    ButtonComponent,
   ],
   imports: [
     CommonModule,
@@ -40,6 +43,9 @@ import { SelectorComponent } from './components/selector/selector.component';
     MatIconModule,
     FormsModule,
     ReactiveFormsModule,
+    NgxSpinnerModule.forRoot({
+      type: 'ball-clip-rotate'
+    })
   ],
   exports: [
     CommonModule,
@@ -58,6 +64,8 @@ import { SelectorComponent } from './components/selector/selector.component';
     DropdownComponent,
     ImageUploaderComponent,
     SelectorComponent,
+    ButtonComponent,
+    NgxSpinnerModule
   ]
 })
 export class SharedModule { }

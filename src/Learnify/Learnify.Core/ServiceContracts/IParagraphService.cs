@@ -7,5 +7,6 @@ public interface IParagraphService
 {
     Task<ApiResponse<ParagraphResponse>> CreateAsync(ParagraphCreateRequest paragraphCreateRequest, int userId);
     Task<ApiResponse<ParagraphResponse>> UpdateAsync(ParagraphUpdateRequest paragraphCreateRequest, int userId);
+    Task<ApiResponse<ParagraphResponse>> PublishAsync(int paragraphId, int userId);
     Task<ApiResponse> DeleteAsync(int id, int userId);
 }

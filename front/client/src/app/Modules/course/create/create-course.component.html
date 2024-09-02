@@ -1,36 +1,74 @@
 <div class="min-main-height flex justify-center p-10">
     <div class="w-full container-width bg-navigation opacity-80 p-8 rounded-lg shadow-md ">
-        <div class="grid w-full grid-cols-2 gap-4 mb-4">
-            <app-text-input [formControl]="$any(courseForm.controls['name'])"
-                            placeholder="Name"
-                            label="Name"
-                            [hiddenLabel]="true"></app-text-input>
+        <div class="bg-gray-900 p-4 rounded-lg mb-2.5">
+            <div>
+                <div class="grid w-full grid-cols-2 gap-4 mb-2">
+                    <app-text-input [formControl]="$any(courseForm.controls['name'])"
+                                    placeholder="Name"
+                                    label="Name"
+                                    [hiddenLabel]="true"></app-text-input>
 
-            <app-text-input placeholder="Price"
-                            [formControl]="$any(courseForm.controls['price'])"
-                            label="Price"
-                            [hiddenLabel]="true"></app-text-input>
+                    <app-text-input placeholder="Price"
+                                    [formControl]="$any(courseForm.controls['price'])"
+                                    label="Price"
+                                    [hiddenLabel]="true"></app-text-input>
 
-        </div>
+                </div>
 
-        <div class="grid grid-cols-3 gap-4 mb-4">
-            <div></div>
-            <app-selector [formControl]="$any(courseForm.controls['language'])"
-                          [options]="selectorOptions"></app-selector>
-        </div>
-
-        <div class="bg-gray-900 p-4 rounded-lg">
-            <div class="flex justify-between items-center bg-gray-800 p-2 rounded mb-2">
-                <span class="text-white">Назва розділу</span>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div></div>
+                    <app-selector [formControl]="$any(courseForm.controls['language'])"
+                                  [options]="selectorOptions"></app-selector>
+                </div>
             </div>
+
+            <div *ngIf="courseForm.dirty"
+                 class="flex justify-end mr-4">
+                <div class=" flex">
+                    <app-button [disabled]="!courseForm.dirty"
+                                type="accept"
+                                (buttonClick)="saveChanges()">
+                        Save
+                    </app-button>
+
+                    <app-button *ngIf="courseId"
+                                classList="ml-3"
+                                [disabled]="!courseForm.dirty"
+                                type="cancel"
+                                (buttonClick)="cancelChanges()">
+                        Cancel
+                    </app-button>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="courseResponse"
+             class="bg-gray-900 p-4 rounded-lg mb-4">
+
+            <app-create-paragraph *ngFor="let paragagraph of paragraphs; let index = index"
+                                  [paragraphResponse]="paragagraph"
+                                  [index]="index"
+                                  [courseId]="courseResponse.id"></app-create-paragraph>
 
             <!-- Sections -->
             <!-- <app-section></app-section> -->
 
-            <button
-                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full mt-4 flex items-center">
-                <span class="text-xl">+</span> Розділ
-            </button>
+            <div *ngIf="!paragraphs.includes(null)"
+                 class="flex justify-center w-full">
+                <app-button (buttonClick)="addParagraph()"
+                            classList="rounded-full-important">
+                    <div class="font-semibold">+</div>
+                </app-button>
+            </div>
+
+        </div>
+
+        <div *ngIf="!editingMode"
+             class="flex justify-center w-full">
+            <app-button [disabled]="courseId === null"
+                        (buttonClick)="publish(true)">
+                Publish
+            </app-button>
         </div>
     </div>
 </div>

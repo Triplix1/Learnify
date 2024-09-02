@@ -50,7 +50,11 @@ public abstract class BasePsqRepository<T, TKey> : IBasePsqRepository<T, TKey> w
     /// <inheritdoc />
     public virtual async Task<T> CreateAsync(T entity)
     {
-        return (await Context.Set<T>().AddAsync(entity)).Entity;
+        var result = (await Context.Set<T>().AddAsync(entity)).Entity;
+
+        await Context.SaveChangesAsync();
+
+        return result;
     }
 
     /// <inheritdoc />
