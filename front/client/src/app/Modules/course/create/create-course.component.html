@@ -48,7 +48,8 @@
             <app-create-paragraph *ngFor="let paragagraph of paragraphs; let index = index"
                                   [paragraphResponse]="paragagraph"
                                   [index]="index"
-                                  [courseId]="courseResponse.id"></app-create-paragraph>
+                                  [courseId]="courseResponse.id"
+                                  (onUpdate)="paragraphUpdated($event)"></app-create-paragraph>
 
             <!-- Sections -->
             <!-- <app-section></app-section> -->

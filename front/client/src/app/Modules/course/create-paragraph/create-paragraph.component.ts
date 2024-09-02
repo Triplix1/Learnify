@@ -73,7 +73,7 @@ export class CreateParagraphComponent {
 
       this.paragraphService.updateParagraph(paragraphUpdateRequest).pipe(take(1))
         .subscribe(
-          response => this.paragraphResponse = response.data
+          response => this.handleUpdate(response.data)
         );
     }
     else {
@@ -84,12 +84,17 @@ export class CreateParagraphComponent {
 
       this.paragraphService.createParagraph(paragraphCreateRequest).pipe(take(1))
         .subscribe(
-          response => this.paragraphResponse = response.data
+          response => this.handleUpdate(response.data)
         );
     }
   }
 
   cancel() {
     this.initializeForm();
+  }
+
+  private handleUpdate(response: ParagraphResponse) {
+    this.paragraphResponse = response;
+    this.onUpdate.emit({ paragraph: response, index: this.index });
   }
 }

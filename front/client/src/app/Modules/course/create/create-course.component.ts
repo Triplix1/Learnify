@@ -8,6 +8,7 @@ import { CourseResponse } from 'src/app/Models/Course/CourseResponse';
 import { CourseUpdateRequest } from 'src/app/Models/Course/CourseUpdateRequest';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
 import { Language } from 'src/app/Models/enums/Language';
+import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
 import { SelectorOption } from 'src/app/Models/SelectorOption';
 
 @Component({
@@ -96,6 +97,10 @@ export class CreateCourseComponent {
 
   addParagraph() {
     this.paragraphs.push(null);
+  }
+
+  paragraphUpdated(paragraphUpdated: ParagraphUpdated) {
+    this.paragraphs[paragraphUpdated.index] = paragraphUpdated.paragraph;
   }
 
   private handleCourseUpdate(courseResponse: CourseResponse) {
