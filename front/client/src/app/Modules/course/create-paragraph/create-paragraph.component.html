@@ -1,90 +1,84 @@
 <div class="bg-gray-800 p-2 rounded mb-2">
 
     <cdk-accordion class="example-accordion">
-        <div *ngIf="editingMode">
-            <div class="w-full">
-                <app-text-input [formControl]="$any(paragraphForm.controls['name'])"
-                                label="Name"
-                                placeholder="Name"
-                                [hiddenLabel]="true"></app-text-input>
+        <cdk-accordion-item #accordionItem="cdkAccordionItem"
+                            class="example-accordion-item"
+                            role="button"
+                            tabindex="0"
+                            [attr.id]="'accordion-header-' + index"
+                            [attr.aria-expanded]="accordionItem.expanded"
+                            [attr.aria-controls]="'accordion-body-' + index"
+                            (opened)="loadLessons()">
+
+            <div class="flex items-center relative"
+                 (click)="accordionItem.toggle()">
+
+                <div class="flex items-center px-2">
+                    <mat-icon *ngIf="!accordionItem.expanded; else accordionOpened"
+                              class="mat-18 text-navlink flex items-center"
+                              fontIcon="chevron_right"></mat-icon>
+                    <ng-template #accordionOpened>
+                        <mat-icon class="mat-18 text-navlink"
+                                  fontIcon="keyboard_arrow_up"></mat-icon>
+                    </ng-template>
+                </div>
+
+                <div class="w-full"
+                     *ngIf="editingMode; else nonEditing">
+                    <div class="w-full"
+                         (click)="$event.stopPropagation()">
+                        <app-text-input [hiddenError]="true"
+                                        classList="w-full"
+                                        [formControl]="$any(paragraphForm.controls['name'])"
+                                        label="Name"
+                                        placeholder="Name"
+                                        [hiddenLabel]="true"></app-text-input>
+                    </div>
+                    <div *ngIf="$any(paragraphForm.controls['name'].value) !== '' "
+                         (click)="$event.stopPropagation()"
+                         class="flex justify-end mr-1.5 absolute right-0 top-1.5">
+                        <mat-icon *ngIf="paragraphForm.dirty"
+                                  class="mr-2 text-navlink hover:opacity-50 transition"
+                                  fontIcon="check"
+                                  (click)="save()">
+
+                        </mat-icon>
+                        <mat-icon class="mr-2 text-navlink hover:opacity-50 transition"
+                                  fontIcon="close"
+                                  (click)="cancel()">
+
+                        </mat-icon>
+                    </div>
+                </div>
+                <ng-template #nonEditing>
+                    <div class="w-full flex justify-between items-center">
+                        <div class="text-navlink">{{paragraphResponse.name}}</div>
+                        <div class="flex">
+                            <mat-icon class="mr-2 text-buttonAccept hover:opacity-50 transition"
+                                      fontIcon="edit"
+                                      (click)="editingToggle()">
+                            </mat-icon>
+                        </div>
+                    </div>
+                </ng-template>
             </div>
-            <div *ngIf="paragraphForm.dirty"
-                 class="flex justify-end mr-3 ">
-                <app-button class="mr-2"
-                            classList="px-2 py-1"
-                            type="accept"
-                            (buttonClick)="save()">
-                    <div class="text-sm">Save</div>
-                </app-button>
-                <app-button classList="px-2 py-1"
-                            type="cancel"
-                            (buttonClick)="cancel()">
-                    <div class="text-sm">Cancel</div>
-                </app-button>
+
+
+
+            <div class="example-accordion-item-body"
+                 role="region"
+                 [style.display]="accordionItem.expanded ? '' : 'none'"
+                 [attr.id]="'accordion-body-' + index"
+                 [attr.aria-labelledby]="'accordion-header-' + index">
+                <div *ngIf="errorWhileLoadingLessons; else notError">
+                    <app-button (buttonClick)="loadLessons()">Reload</app-button>
+                </div>
+
+                <ng-template #notError>
+                    <app-button (buttonClick)="addLesson()">Create lesson</app-button>
+                </ng-template>
+
             </div>
-
-        </div>
-
-        <div *ngIf="errorWhileLoadingLessons; else notError">
-            <cdk-accordion-item #accordionItem="cdkAccordionItem"
-                                class="example-accordion-item"
-                                role="button"
-                                tabindex="0"
-                                [attr.id]="'accordion-header-' + index"
-                                [attr.aria-expanded]="accordionItem.expanded"
-                                [attr.aria-controls]="'accordion-body-' + index">
-                <app-button (buttonClick)="loadLessons()">Reload</app-button>
-            </cdk-accordion-item>
-        </div>
-
-        <ng-template #notError>
-
-            <cdk-accordion-item *ngFor="let item of lessons; let index = index"
-                                #accordionItem="cdkAccordionItem"
-                                class="example-accordion-item"
-                                role="button"
-                                tabindex="0"
-                                [attr.id]="'accordion-header-' + index"
-                                [attr.aria-expanded]="accordionItem.expanded"
-                                [attr.aria-controls]="'accordion-body-' + index"
-                                (expandedChange)="expanded($event)">
-                <div class="example-accordion-item-header"
-                     (click)="accordionItem.toggle()">
-                    {{ item }}
-                    <span class="example-accordion-item-description">
-                        Click to {{ accordionItem.expanded ? 'close' : 'open' }}
-                    </span>
-                </div>
-                <div class="example-accordion-item-body"
-                     role="region"
-                     [style.display]="accordionItem.expanded ? '' : 'none'"
-                     [attr.id]="'accordion-body-' + index"
-                     [attr.aria-labelledby]="'accordion-header-' + index">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis
-                    excepturi incidunt ipsum deleniti labore, tempore non nam doloribus blanditiis
-                    veritatis illo autem iure aliquid ullam rem tenetur deserunt velit culpa?
-                </div>
-            </cdk-accordion-item>
-
-            <cdk-accordion-item #accordionItem="cdkAccordionItem"
-                                class="example-accordion-item"
-                                role="button"
-                                tabindex="0"
-                                [attr.id]="'accordion-header-' + index"
-                                [attr.aria-expanded]="accordionItem.expanded"
-                                [attr.aria-controls]="'accordion-body-' + index">
-
-                <div class="example-accordion-item-header"
-                     (click)="accordionItem.toggle()">
-                    {{ 0 }}
-                    <span class="example-accordion-item-description">
-                        Click to {{ accordionItem.expanded ? 'close' : 'open' }}
-                    </span>
-                </div>
-                <app-button (buttonClick)="addLesson()">A</app-button>
-            </cdk-accordion-item>
-
-        </ng-template>
-
+        </cdk-accordion-item>
     </cdk-accordion>
 </div>

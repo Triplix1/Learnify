@@ -9,6 +9,7 @@ import { ControlValueAccessor, FormControl, NgControl } from '@angular/forms';
 export class TextInputComponent implements ControlValueAccessor {
   @Input({ required: true }) label = '';
   @Input() hiddenLabel = false;
+  @Input() hiddenError: boolean = false;
   @Input() type = 'text';
   @Input() classList = '';
   @Input() placeholder = '';

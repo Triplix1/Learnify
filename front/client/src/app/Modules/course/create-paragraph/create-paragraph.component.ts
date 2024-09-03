@@ -43,13 +43,15 @@ export class CreateParagraphComponent {
   }
 
   loadLessons() {
-    this.lessonService.getLessonTitlesForParagraph(this.paragraphResponse.id).pipe(take(1))
-      .subscribe(
-        lessonTitles => {
-          this.lessons = lessonTitles.data;
-          this._lessonsLoaded = true;
-        },
-        _ => this.errorWhileLoadingLessons = true);
+    if (this.lessons !== null || this._lessonsLoaded)
+      return;
+
+    if (this.paragraphResponse === null) {
+      this.lessons = [];
+      return;
+    }
+
+    this.loadLessons();
   }
 
   expanded(value: boolean) {
@@ -91,14 +93,22 @@ export class CreateParagraphComponent {
 
   cancel() {
     this.initializeForm();
+
+    if (this.paragraphForm)
+      this.editingMode = false;
   }
 
   addLesson() {
     this.lessons.push(null);
   }
 
+  editingToggle() {
+    this.editingMode = true;
+  }
+
   private handleUpdate(response: ParagraphResponse) {
     this.paragraphResponse = response;
+    this.editingMode = false;
     this.onUpdate.emit({ paragraph: response, index: this.index });
   }
 }

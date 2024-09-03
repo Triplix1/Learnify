@@ -1,4 +1,5 @@
-<div class="w-100 mb-2">
+<div class="w-full">
+
        <label *ngIf="!hiddenLabel"
               [for]="label"
               [ngClass]="control.dirty && control.invalid ? 'text-error' : ''"
@@ -6,28 +7,30 @@
        <input [id]="label"
               [formControl]="control"
               type="text"
-              class="border-[2px] border-gray-500 focus:border-gray-400 bg-input text-sm rounded-lg text-black font-medium placeholder-textInput w-full py-[6px] px-2 {{classList}}"
-              [ngClass]="{'border-error text-error placeholder-error': control.dirty && control.errors}"
+              class="border-[2px] bg-input text-sm rounded-lg text-black font-medium w-full py-[6px] px-2 {{ control.dirty && control.errors && control.errors['hasError'] ? 'border-error focus:border-error text-error placeholder-error' : 'border-gray-500 focus:border-gray-400 placeholder-textInput' }} {{classList}}"
               [placeholder]="placeholder"
               [type]="type">
-       <div class="mt-1 text-error text-sm font-medium"
-            *ngIf="control.dirty && control.hasError('required')">
-              Будь ласка введіть {{label}}
+       <div *ngIf="!hiddenError">
+              <div class="mt-1 text-error text-sm font-medium"
+                   *ngIf="control.dirty && control.hasError('required')">
+                     Будь ласка введіть {{label}}
+              </div>
+              <div class="mt-1 text-error text-sm font-medium"
+                   *ngIf="control.dirty && control.hasError('email')">
+                     Введіть валідну пошту
+              </div>
+              <div class="mt-1 text-error text-sm font-medium"
+                   *ngIf="control.dirty && control.hasError('minlength')">
+                     {{label}} в діапазоні {{control.errors?.['minlength'].requiredLength}} символів
+              </div>
+              <div class="mt-1 text-error text-sm font-medium"
+                   *ngIf="control.dirty && control.hasError('maxlength')">
+                     {{label}} більше ніж {{control.errors?.['maxlength'].requiredLength}} символів
+              </div>
+              <div class="mt-1 text-error text-sm font-medium"
+                   *ngIf="control.dirty && control.hasError('notMatching')">
+                     Паролі не співпадають
+              </div>
        </div>
-       <div class="mt-1 text-error text-sm font-medium"
-            *ngIf="control.dirty && control.hasError('email')">
-              Введіть валідну пошту
-       </div>
-       <div class="mt-1 text-error text-sm font-medium"
-            *ngIf="control.dirty && control.hasError('minlength')">
-              {{label}} в діапазоні {{control.errors?.['minlength'].requiredLength}} символів
-       </div>
-       <div class="mt-1 text-error text-sm font-medium"
-            *ngIf="control.dirty && control.hasError('maxlength')">
-              {{label}} більше ніж {{control.errors?.['maxlength'].requiredLength}} символів
-       </div>
-       <div class="mt-1 text-error text-sm font-medium"
-            *ngIf="control.dirty && control.hasError('notMatching')">
-              Паролі не співпадають
-       </div>
+
 </div>
