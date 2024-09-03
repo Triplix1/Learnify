@@ -66,10 +66,17 @@
 
         <div *ngIf="!editingMode"
              class="flex justify-center w-full">
-            <app-button [disabled]="courseId === null"
+            <app-button *ngIf="courseId === null || !courseResponse.isPublished; else unpublish"
+                        [disabled]="courseId === null"
                         (buttonClick)="publish(true)">
                 Publish
             </app-button>
+
+            <ng-template #unpublish>
+                <app-button (buttonClick)="publish(false)">
+                    Unpublish
+                </app-button>
+            </ng-template>
         </div>
     </div>
 </div>

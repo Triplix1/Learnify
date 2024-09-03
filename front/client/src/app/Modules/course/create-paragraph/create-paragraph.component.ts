@@ -93,6 +93,10 @@ export class CreateParagraphComponent {
     this.initializeForm();
   }
 
+  addLesson() {
+    this.lessons.push(null);
+  }
+
   private handleUpdate(response: ParagraphResponse) {
     this.paragraphResponse = response;
     this.onUpdate.emit({ paragraph: response, index: this.index });
