@@ -40,12 +40,12 @@
                         <mat-icon *ngIf="paragraphForm.dirty"
                                   class="mr-2 text-navlink hover:opacity-50 transition"
                                   fontIcon="check"
-                                  (click)="save()">
+                                  (click)="save($event)">
 
                         </mat-icon>
                         <mat-icon class="mr-2 text-navlink hover:opacity-50 transition"
                                   fontIcon="close"
-                                  (click)="cancel()">
+                                  (click)="cancel($event)">
 
                         </mat-icon>
                     </div>
@@ -75,7 +75,23 @@
                 </div>
 
                 <ng-template #notError>
-                    <app-button (buttonClick)="addLesson()">Create lesson</app-button>
+
+                    <div class="mt-2">
+                        <div class="flex justify-center items-center">
+                            <app-button (buttonClick)="addLesson()"
+                                        classList="rounded-full-important">
+
+                                <div class="flex">
+                                    <div
+                                         class="flex justify-center items-center w-[30px] h-[30px] rounded-full mr-2 opacity-60 bg-main">
+                                        +</div>
+                                    <div>lesson</div>
+                                </div>
+
+                            </app-button>
+                        </div>
+                    </div>
+
                 </ng-template>
 
             </div>

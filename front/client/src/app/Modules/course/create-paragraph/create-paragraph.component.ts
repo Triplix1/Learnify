@@ -66,7 +66,8 @@ export class CreateParagraphComponent {
     this.loadLessons();
   }
 
-  save() {
+  save(event: MouseEvent) {
+    event.stopPropagation();
     if (this.paragraphResponse) {
       const paragraphUpdateRequest: ParagraphUpdateRequest = {
         id: this.paragraphResponse.id,
@@ -91,10 +92,11 @@ export class CreateParagraphComponent {
     }
   }
 
-  cancel() {
+  cancel(event: MouseEvent) {
+    event.stopPropagation();
     this.initializeForm();
 
-    if (this.paragraphForm)
+    if (this.paragraphResponse)
       this.editingMode = false;
   }
 
