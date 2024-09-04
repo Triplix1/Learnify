@@ -4,6 +4,7 @@ import { CreateCourseComponent } from './create/create-course.component';
 import { CourseRoutingModule } from './course-routing.module';
 import { SharedModule } from 'src/app/Shared/shared.module';
 import { CreateParagraphComponent } from './create-paragraph/create-paragraph.component';
+import { CreateLessonComponent } from './create-lesson/create-lesson.component';
 
 
 
@@ -11,6 +12,7 @@ import { CreateParagraphComponent } from './create-paragraph/create-paragraph.co
   declarations: [
     CreateCourseComponent,
     CreateParagraphComponent,
+    CreateLessonComponent,
   ],
   imports: [
     CommonModule,
