@@ -6,5 +6,5 @@ public class PrivateFileBlobCreateRequest
 {
     public IFormFile Content { get; set; }
     public string ContentType { get; set; }
-    public int LessonId { get; set; }
+    public int? CourseId { get; set; }
 }

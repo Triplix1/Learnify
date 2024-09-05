@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using Learnify.Core.Dto.Blob;
+using Learnify.Core.Dto.File;
 using Learnify.Core.ManagerContracts;
 
 namespace Learnify.Core.Managers;
@@ -25,8 +26,18 @@ public class BlobStorage : IBlobStorage
         {
             throw new InvalidOperationException($"BlobDto with id:{blobDto.Name} already exists.");
         }
-
-        await blobClient.UploadAsync(new BinaryData(blobDto.Content ?? new byte[] { }));
+        
+        var blobHttpHeaders = new BlobHttpHeaders
+        {
+            ContentType = blobDto.ContentType // Use the ContentType from BlobDto
+        };
+        
+        var blobUploadOptions = new BlobUploadOptions
+        {
+            HttpHeaders = blobHttpHeaders
+        };
+        
+        await blobClient.UploadAsync(new BinaryData(blobDto.Content ?? new byte[] { }), blobUploadOptions);
         
         BlobSasBuilder sasBuilder = new BlobSasBuilder
         {
@@ -79,7 +90,7 @@ public class BlobStorage : IBlobStorage
         return url;
     }
     
-    public async Task<Stream> GetBlobStreamAsync(string containerName, string blobName)
+    public async Task<FileStreamResponse> GetBlobStreamAsync(string containerName, string blobName)
     {
         var blobClient = await GetBlobClientInternalAsync(containerName, blobName);
 
@@ -88,8 +99,17 @@ public class BlobStorage : IBlobStorage
             throw new FileNotFoundException($"Blob with name:{blobName} does not exist in container:{containerName}.");
         }
 
+        var blobProperties = await blobClient.GetPropertiesAsync();
+        
         var blobStream = await blobClient.OpenReadAsync();
-        return blobStream;
+
+        var response = new FileStreamResponse()
+        {
+            Stream = blobStream,
+            ContentType = blobProperties.Value.ContentType
+        };
+
+        return response;
     }
     
     private async Task<BlobClient> GetBlobClientInternalAsync(string containerName, string blobName)

@@ -1,4 +1,6 @@
 ﻿using Learnify.Api.Controllers.Base;
+using Learnify.Core.Domain.Entities.Sql;
+using Learnify.Core.Dto.File;
 using Learnify.Core.Extensions;
 using Learnify.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
@@ -17,12 +19,24 @@ public class MediaController: BaseApiController
 
     [Authorize]
     [HttpGet("{fileId}")]
-    public async Task<ActionResult<Stream>> GetStreamForFileAsync(int fileId)
+    public async Task<IActionResult> GetStreamForFileAsync(int fileId)
     {
         var userId = HttpContext.User.GetUserId();
 
-        var stream = await _fileService.GetFileStreamById(fileId, userId);
+        var fileStreamResponse = await _fileService.GetFileStreamById(fileId, userId);
 
-        return stream;
+        return File(fileStreamResponse.Stream, fileStreamResponse.ContentType);
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<ActionResult<PrivateFileDataResponse>> CreateAsync(
+        [FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest)
+    {
+        var userId = HttpContext.User.GetUserId();
+
+        var fileResponse = await _fileService.CreateAsync(fileBlobCreateRequest);
+
+        return Ok(fileResponse);
     }
 }

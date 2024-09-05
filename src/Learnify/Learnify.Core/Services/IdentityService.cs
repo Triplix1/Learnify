@@ -178,7 +178,8 @@ public class IdentityService : IIdentityService
             {
                 Name = user.Email,
                 Content = fileBytes,
-                ContainerName = "indentity-user-images"
+                ContainerName = "indentity-user-images",
+                ContentType = "image/*"
             };
 
             var imageBlob = await _blobStorage.UploadAsync(imageBlobAddRequest);

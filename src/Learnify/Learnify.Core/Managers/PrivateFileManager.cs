@@ -20,45 +20,6 @@ public class PrivateFileManager: IPrivateFileManager
         _blobStorage = blobStorage;
         _mapper = mapper;
     }
-    
-    public async Task<PrivateFileDataResponse> CreateAsync(PrivateFileBlobCreateRequest privateFileBlobCreateRequest)
-    {
-        var privateFile = _mapper.Map<PrivateFileData>(privateFileBlobCreateRequest);
-
-        var container = "Learnify";
-        var blobName = Guid.NewGuid().ToString();
-
-        privateFile.ContainerName = container;
-        privateFile.BlobName = blobName;
-        
-        await using var stream = privateFileBlobCreateRequest.Content.OpenReadStream();
-
-        byte[] b;
-
-        using (BinaryReader br = new BinaryReader(stream))
-        {
-            b = br.ReadBytes((int)stream.Length);
-        }
-        
-        var blobDto = new BlobDto()
-        {
-            ContainerName = container,
-            Name = blobName,
-            Content = b
-        };
-        
-        using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
-
-        var fileResponse = await _psqUnitOfWork.PrivateFileRepository.CreateFileAsync(privateFile);
-        
-        await _blobStorage.UploadAsync(blobDto);
-        
-        ts.Complete();
-
-        var response = _mapper.Map<PrivateFileDataResponse>(fileResponse);
-
-        return response;
-    }
 
     public async Task DeleteAsync(int id)
     {

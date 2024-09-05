@@ -97,7 +97,8 @@ public class ProfileService : IProfileService
             {
                 Name = origin.ImageBlobName,
                 ContainerName = origin.ImageContainerName,
-                Content = b
+                Content = b,
+                ContentType = "image/*"
             };
             
             var photoResult = await _blobStorage.UploadAsync(blobDto);

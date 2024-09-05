@@ -1,1 +1,5 @@
-<p>create-lesson works!</p>
+<input type="file"
+       #fileInput
+       style="display: none;"
+       (change)="onFileSelected(fileInput.files ? fileInput.files[0] : null)" />
+<button (click)="fileInput.click()">Upload File</button>

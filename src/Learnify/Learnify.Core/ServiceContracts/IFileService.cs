@@ -1,8 +1,9 @@
-﻿using Learnify.Core.Dto;
+﻿using Learnify.Core.Dto.File;
 
 namespace Learnify.Core.ServiceContracts;
 
 public interface IFileService
 {
-    Task<Stream> GetFileStreamById(int id, int userId);
+    Task<FileStreamResponse> GetFileStreamById(int id, int userId);
+    Task<PrivateFileDataResponse> CreateAsync(PrivateFileBlobCreateRequest privateFileBlobCreateRequest);
 }

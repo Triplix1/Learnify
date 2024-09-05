@@ -4,5 +4,5 @@ public class PrivateFileDataResponse
 {
     public int Id { get; set; }
     public string ContentType { get; set; }
-    public string LessonId { get; set; }
+    public int? CourseId { get; set; }
 }
