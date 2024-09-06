@@ -1,5 +1,6 @@
 ﻿using Learnify.Api.Controllers.Base;
 using Learnify.Core.Domain.Entities.Sql;
+using Learnify.Core.Dto;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Extensions;
 using Learnify.Core.ServiceContracts;
@@ -30,12 +31,12 @@ public class MediaController: BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<PrivateFileDataResponse>> CreateAsync(
+    public async Task<ActionResult<ApiResponse<PrivateFileDataResponse>>> CreateAsync(
         [FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest)
     {
         var userId = HttpContext.User.GetUserId();
 
-        var fileResponse = await _fileService.CreateAsync(fileBlobCreateRequest);
+        var fileResponse = await _fileService.CreateAsync(fileBlobCreateRequest, userId);
 
         return Ok(fileResponse);
     }

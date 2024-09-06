@@ -16,11 +16,11 @@ export class LessonService {
 
   constructor(private readonly httpClient: HttpClient) { }
 
-  getLessonById(id: number): Observable<ApiResponseWithData<LessonResponse>> {
+  getLessonById(id: string): Observable<ApiResponseWithData<LessonResponse>> {
     return this.httpClient.get<ApiResponseWithData<LessonResponse>>(this.baseProfileUrl + "/" + id);
   }
 
-  getLessonForUpdateById(id: number): Observable<ApiResponseWithData<LessonUpdateResponse>> {
+  getLessonForUpdateById(id: string): Observable<ApiResponseWithData<LessonUpdateResponse>> {
     return this.httpClient.get<ApiResponseWithData<LessonUpdateResponse>>(this.baseProfileUrl + "/" + id);
   }
 
@@ -36,7 +36,7 @@ export class LessonService {
     return this.httpClient.post<ApiResponseWithData<LessonUpdateResponse>>(this.baseProfileUrl + "/draft", lessonAddOrUpdateRequest);
   }
 
-  deleteLesson(id: number): Observable<ApiResponse> {
+  deleteLesson(id: string): Observable<ApiResponse> {
     return this.httpClient.delete<ApiResponse>(this.baseProfileUrl + "/" + id);
   }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
+using Learnify.Core.Dto;
 using Learnify.Core.Dto.Blob;
 using Learnify.Core.Dto.File;
 using Learnify.Core.ManagerContracts;
@@ -33,10 +34,19 @@ public class FileService: IFileService
 
         if (file.CourseId.HasValue)
         {
-            var userHasBoughtThisCourse = await _psqUnitOfWork.UserBoughtRepository.UserBoughtExists(userId, file.CourseId.Value);
+            var courseAuthorId = await _psqUnitOfWork.CourseRepository.GetAuthorId(file.CourseId.Value);
 
-            if (!userHasBoughtThisCourse)
-                throw new Exception("User has not access for this file");
+            if (courseAuthorId is null)
+                ApiResponse.Failure(new KeyNotFoundException("cannot find course with such id"));
+
+            //Author should have access without buying the course
+            if (courseAuthorId != userId)
+            {
+                var userHasBoughtThisCourse = await _psqUnitOfWork.UserBoughtRepository.UserBoughtExists(userId, file.CourseId.Value);
+
+                if (!userHasBoughtThisCourse)
+                    throw new Exception("User has not access for this file");
+            }
         }
 
         var stream = await _blobStorage.GetBlobStreamAsync(file.ContainerName, file.BlobName);
@@ -44,8 +54,19 @@ public class FileService: IFileService
         return stream;
     }
     
-    public async Task<PrivateFileDataResponse> CreateAsync(PrivateFileBlobCreateRequest privateFileBlobCreateRequest)
+    public async Task<ApiResponse<PrivateFileDataResponse>> CreateAsync(PrivateFileBlobCreateRequest privateFileBlobCreateRequest, int userId)
     {
+        if (privateFileBlobCreateRequest.CourseId.HasValue)
+        {
+            var courseAuthorId = await _psqUnitOfWork.CourseRepository.GetAuthorId(privateFileBlobCreateRequest.CourseId.Value);
+
+            if (courseAuthorId is null)
+                ApiResponse.Failure(new KeyNotFoundException("cannot find course with such id"));
+            
+            if (courseAuthorId != userId)
+                ApiResponse.Failure(new UnauthorizedAccessException("You have not permissions to edit this course"));
+        }
+        
         var privateFile = _mapper.Map<PrivateFileData>(privateFileBlobCreateRequest);
 
         var container = "Learnify";
@@ -81,6 +102,6 @@ public class FileService: IFileService
 
         var response = _mapper.Map<PrivateFileDataResponse>(fileResponse);
 
-        return response;
+        return ApiResponse<PrivateFileDataResponse>.Success(response);
     }
 }
