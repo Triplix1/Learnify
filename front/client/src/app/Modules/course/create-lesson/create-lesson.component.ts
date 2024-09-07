@@ -33,11 +33,11 @@ export class CreateLessonComponent implements OnInit {
           this.lessonId = this.lessonResponse.id;
         })
     }
-    else{
+    else {
       this.lessonService.getLessonForUpdateById(this.lessonId).pipe(take(1))
-      .subscribe(response =>{
-        this.lessonResponse = response.data;
-      });
+        .subscribe(response => {
+          this.lessonResponse = response.data;
+        });
     }
   }
 
@@ -57,7 +57,7 @@ export class CreateLessonComponent implements OnInit {
 
       this.mediaService.create(fileCreateRequest).pipe(
         switchMap(response => {
-          response.
+          this.lessonService.saveDraft();
         })
       )
         .subscribe(response => {
