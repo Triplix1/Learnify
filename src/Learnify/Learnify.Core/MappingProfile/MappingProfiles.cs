@@ -7,6 +7,7 @@ using Learnify.Core.Dto.Course;
 using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Dto.Course.QuizQuestion;
+using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Params;
 using Learnify.Core.Dto.Profile;
@@ -43,6 +44,7 @@ public class MappingProfiles: Profile
         // Lesson
         CreateMap<LessonAddOrUpdateRequest, Lesson>();
         CreateMap<Lesson, LessonResponse>();
+        CreateMap<Lesson, LessonUpdateResponse>();
         CreateMap<Lesson, LessonTitleResponse>();
 
         // Attachment
@@ -62,5 +64,9 @@ public class MappingProfiles: Profile
 
         // FileData
         CreateMap<PrivateFileData, PrivateFileDataResponse>();
+        
+        //Video
+        CreateMap<VideoAddOrUpdateRequest, Video>();
+        CreateMap<Video, VideoResponse>();
     }
 }

@@ -78,6 +78,11 @@
 
                     <div class="mt-2">
                         <div class="flex justify-center items-center">
+                            <app-create-lesson *ngFor="let lesson of lessons"
+                                               [lessonId]="lesson?.id"
+                                               [paragraphId]="paragraphResponse.id"
+                                               [courseId]="paragraphResponse.courseId"></app-create-lesson>
+
                             <app-button (buttonClick)="addLesson()"
                                         classList="rounded-full-important">
 

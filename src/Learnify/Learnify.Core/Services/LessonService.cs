@@ -102,7 +102,8 @@ public class LessonService: ILessonService
         var lesson = _mapper.Map<Lesson>(lessonCreateRequest);
         lesson.IsDraft = draft;
 
-        lesson.Video.Subtitles = await AddNewVideoAsync(lessonCreateRequest.Video);
+        if(lessonCreateRequest.Video is not null)
+            lesson.Video.Subtitles = await AddNewVideoAsync(lessonCreateRequest.Video);
         
         var createdLesson = await _mongoUnitOfWork.Lessons.CreateAsync(lesson);
 
@@ -290,7 +291,8 @@ public class LessonService: ILessonService
     {
         var lessonResponse = _mapper.Map<LessonUpdateResponse>(lesson);
 
-        lessonResponse.Video.Subtitles = await GetSubtitlesForLessonAsync(lesson);
+        if(lessonResponse.Video is not null)
+            lessonResponse.Video.Subtitles = await GetSubtitlesForLessonAsync(lesson);
 
         return lessonResponse;
     }

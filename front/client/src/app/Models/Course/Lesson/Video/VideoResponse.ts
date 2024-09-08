@@ -4,6 +4,6 @@ import { SubtitlesResponse } from "../Subtitle/SubtitlesResponse";
 
 export interface VideoResponse {
     attachment: AttachmentResponse;
-    primaryLanguage: Language;
+    primaryLanguage: string;
     subtitles: SubtitlesResponse[];
 }

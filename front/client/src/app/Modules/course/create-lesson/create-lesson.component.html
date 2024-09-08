@@ -1,5 +1,5 @@
 <input type="file"
        #fileInput
        style="display: none;"
-       (change)="onFileSelected(fileInput.files ? fileInput.files[0] : null)" />
+       (change)="handleFileInput(fileInput.files ? fileInput.files[0] : null, null)" />
 <button (click)="fileInput.click()">Upload File</button>
