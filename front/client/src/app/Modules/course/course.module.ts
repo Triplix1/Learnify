@@ -5,6 +5,7 @@ import { CourseRoutingModule } from './course-routing.module';
 import { SharedModule } from 'src/app/Shared/shared.module';
 import { CreateParagraphComponent } from './create-paragraph/create-paragraph.component';
 import { CreateLessonComponent } from './create-lesson/create-lesson.component';
+import { CourseCartComponent } from './course-cart/course-cart.component';
 
 
 
@@ -13,11 +14,16 @@ import { CreateLessonComponent } from './create-lesson/create-lesson.component';
     CreateCourseComponent,
     CreateParagraphComponent,
     CreateLessonComponent,
+    CourseCartComponent,
   ],
   imports: [
     CommonModule,
     SharedModule,
     CourseRoutingModule,
+  ],
+  exports: [
+    CreateCourseComponent,
+    CourseCartComponent,
   ]
 })
 export class CourseModule { }

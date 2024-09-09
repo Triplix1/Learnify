@@ -8,14 +8,14 @@ const routes: Routes = [
     path: "course",
     children:
       [
-        { path: 'create', component: CreateCourseComponent }
+        { path: 'managing/:courseId', component: CreateCourseComponent }
       ]
   }
 
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { bindToComponentInputs: true })],
   exports: [RouterModule]
 })
 

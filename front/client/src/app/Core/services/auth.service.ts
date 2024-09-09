@@ -24,7 +24,9 @@ export class AuthService {
   tokenData$ = this.tokenData.asObservable();
   userData$ = this.userData.asObservable();
 
-  constructor(private readonly httpClient: HttpClient) { }
+  constructor(private readonly httpClient: HttpClient) {
+    this.updateTokenData()
+  }
 
   public loginGoogleCodeRequest(googleCodeRequest: GoogleCodeRequest) {
     // const params = new HttpParams();

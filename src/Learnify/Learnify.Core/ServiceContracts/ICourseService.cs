@@ -9,20 +9,22 @@ namespace Learnify.Core.ServiceContracts;
 /// </summary>
 public interface ICourseService
 {
+    Task<ApiResponse<PagedList<CourseTitleResponse>>> GetAllCourseTitles();
+    
     /// <summary>
     /// Returns filtered courses
     /// </summary>
     /// <returns>Filtered courses</returns>
-    public Task<ApiResponse<IEnumerable<CourseResponse>>> GetFilteredAsync(CourseParams courseParams);
+    Task<ApiResponse<IEnumerable<CourseResponse>>> GetFilteredAsync(CourseParams courseParams);
     
     /// <summary>
     /// 
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<ApiResponse<CourseResponse>> GetByIdAsync(int id);
+    Task<ApiResponse<CourseResponse>> GetByIdAsync(int id);
 
-    public Task<ApiResponse<CourseResponse>> PublishAsync(int id, bool publish, int userId);
+    Task<ApiResponse<CourseResponse>> PublishAsync(int id, bool publish, int userId);
 
     /// <summary>
     /// 
@@ -30,7 +32,7 @@ public interface ICourseService
     /// <param name="courseCreateRequest"></param>
     /// <param name="userId">Author Id</param>
     /// <returns></returns>
-    public Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int userId);
+    Task<ApiResponse<CourseResponse>> CreateAsync(CourseCreateRequest courseCreateRequest, int userId);
 
     /// <summary>
     /// 
@@ -38,7 +40,7 @@ public interface ICourseService
     /// <param name="courseUpdateRequest"></param>
     /// <param name="userId">Author Id</param>
     /// <returns></returns>
-    public Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int userId);
+    Task<ApiResponse<CourseResponse>> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int userId);
 
     /// <summary>
     /// Deletes entity
@@ -46,5 +48,5 @@ public interface ICourseService
     /// <param name="id">id</param>
     /// <param name="userId">user Id</param>
     /// <returns></returns>
-    public Task<ApiResponse> DeleteAsync(int id, int userId);
+    Task<ApiResponse> DeleteAsync(int id, int userId);
 }

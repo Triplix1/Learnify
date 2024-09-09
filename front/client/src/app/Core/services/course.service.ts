@@ -4,7 +4,9 @@ import { Observable } from 'rxjs';
 import { ApiResponse, ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { CourseCreateRequest } from 'src/app/Models/Course/CourseCreateRequest';
 import { CourseResponse } from 'src/app/Models/Course/CourseResponse';
+import { CourseTitleResponse } from 'src/app/Models/Course/CourseTitleResponse';
 import { CourseUpdateRequest } from 'src/app/Models/Course/CourseUpdateRequest';
+import { PagedList } from 'src/app/Models/PagedList';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -14,6 +16,10 @@ export class CourseService {
   baseCourseUrl: string = environment.baseApiUrl + "/course";
 
   constructor(private readonly httpClient: HttpClient) { }
+
+  getCourseTitles(): Observable<ApiResponseWithData<PagedList<CourseTitleResponse>>> {
+    return this.httpClient.get<ApiResponseWithData<PagedList<CourseTitleResponse>>>(this.baseCourseUrl);
+  }
 
   getForUpdate(id: number): Observable<ApiResponseWithData<CourseResponse>> {
     return this.httpClient.get<ApiResponseWithData<CourseResponse>>(this.baseCourseUrl + "/" + id);

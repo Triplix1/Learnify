@@ -26,7 +26,28 @@ public class CourseService: ICourseService
         _mapper = mapper;
         _psqUnitOfWork = psqUnitOfWork;
     }
-    
+
+    public async Task<ApiResponse<PagedList<CourseTitleResponse>>> GetAllCourseTitles()
+    {
+        var filter = new EfFilter<Course>();
+        
+        filter.PageNumber = 1;
+        filter.PageSize = 5;
+        filter.OrderByParams = new OrderByParams()
+        {
+            Asc = false,
+            OrderBy = nameof(Course.CreatedAt)
+        };
+        
+        var courses = await _psqUnitOfWork.CourseRepository.GetFilteredAsync(filter);
+
+        var courseTitleResponses = _mapper.Map<IEnumerable<CourseTitleResponse>>(courses.Items);
+        
+        var courseTitles = new PagedList<CourseTitleResponse>(courseTitleResponses, courses.TotalCount, courses.CurrentPage, courses.PageSize);
+
+        return ApiResponse<PagedList<CourseTitleResponse>>.Success(courseTitles);
+    }
+
     /// <inheritdoc />
     public async Task<ApiResponse<IEnumerable<CourseResponse>>> GetFilteredAsync(CourseParams courseParams)
     {

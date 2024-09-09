@@ -2,6 +2,7 @@
 using Learnify.Contracts;
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.Entities.Sql;
+using Learnify.Core.Dto;
 using Learnify.Core.Dto.Attachment;
 using Learnify.Core.Dto.Course;
 using Learnify.Core.Dto.Course.LessonDtos;
@@ -32,6 +33,7 @@ public class MappingProfiles: Profile
         // Course
         CreateMap<CourseCreateRequest, Course>();
         CreateMap<CourseUpdateRequest, Course>();
+        CreateMap<Course, CourseTitleResponse>();
         CreateMap<Course, CourseResponse>()
             .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));
         CreateMap<CourseParams, EfFilter<Course>>();
@@ -67,6 +69,5 @@ public class MappingProfiles: Profile
         
         //Video
         CreateMap<VideoAddOrUpdateRequest, Video>();
-        CreateMap<Video, VideoResponse>();
-    }
+        CreateMap<Video, VideoResponse>(); }
 }

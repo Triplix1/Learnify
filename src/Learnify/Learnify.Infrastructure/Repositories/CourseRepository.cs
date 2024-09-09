@@ -5,6 +5,7 @@ using Learnify.Core.Dto;
 using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Learnify.Core.Extensions;
 
 namespace Learnify.Infrastructure.Repositories;
 
@@ -107,15 +108,22 @@ public class CourseRepository : ICourseRepository
     {
         var query = _context.Courses.AsQueryable();
 
-        query = filter.Includes.Aggregate(query, (current, include) => current.Include(include));
+        if(filter.Includes is not null)
+            query = filter.Includes.Aggregate(query, (current, include) => current.Include(include));
 
         if (filter.Specification is not null)
             query = query.Where(filter.Specification.GetExpression());
+
+        if (filter.OrderByParams is not null)
+        {
+            if (!filter.OrderByParams.Asc.HasValue || filter.OrderByParams.Asc.Value)
+                query = query.OrderBy(filter.OrderByParams.OrderBy);
+            else
+                query = query.OrderByDescending(filter.OrderByParams.OrderBy);
+        }
 
         var pagedList = await PagedList<Course>.CreateAsync(query, filter.PageNumber, filter.PageSize);
         
         return pagedList;
     }
-    
-    
 }

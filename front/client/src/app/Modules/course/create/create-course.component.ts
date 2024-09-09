@@ -18,6 +18,7 @@ import { SelectorOption } from 'src/app/Models/SelectorOption';
 })
 export class CreateCourseComponent {
   @Input() courseId: number = null;
+
   editingMode: boolean = false;
   courseResponse: CourseResponse = null;
   paragraphs: ParagraphResponse[] = [null];
@@ -31,6 +32,8 @@ export class CreateCourseComponent {
   constructor(private readonly fb: FormBuilder, private readonly courseService: CourseService, private readonly spinner: NgxSpinnerService) { }
 
   ngOnInit(): void {
+    console.log(this.courseId);
+
     this.initializeForm();
 
     if (this.courseId !== null) {

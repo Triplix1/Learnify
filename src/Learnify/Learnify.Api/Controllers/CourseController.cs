@@ -17,6 +17,14 @@ public class CourseController: BaseApiController
         _courseService = courseService;
     }
 
+    [HttpGet]
+    public async Task<ActionResult<ApiResponse<PagedList<CourseTitleResponse>>>> GetCourseTitlesAsync()
+    {
+        var result = await _courseService.GetAllCourseTitles();
+
+        return Ok(result);
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ApiResponse<CourseResponse>>> GetCourseAsync(int id)
     {
