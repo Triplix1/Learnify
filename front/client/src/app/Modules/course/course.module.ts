@@ -6,6 +6,7 @@ import { SharedModule } from 'src/app/Shared/shared.module';
 import { CreateParagraphComponent } from './create-paragraph/create-paragraph.component';
 import { CreateLessonComponent } from './create-lesson/create-lesson.component';
 import { CourseCartComponent } from './course-cart/course-cart.component';
+import { CreateQuizComponent } from './create-quiz/create-quiz.component';
 
 
 
@@ -15,6 +16,7 @@ import { CourseCartComponent } from './course-cart/course-cart.component';
     CreateParagraphComponent,
     CreateLessonComponent,
     CourseCartComponent,
+    CreateQuizComponent,
   ],
   imports: [
     CommonModule,
