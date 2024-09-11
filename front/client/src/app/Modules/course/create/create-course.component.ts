@@ -28,6 +28,8 @@ export class CreateCourseComponent {
     .map(key => {
       return { label: key, value: Language[key as keyof typeof Language] };
     });
+  firstFormGroup: any;
+  secondFormGroup: any;
 
   constructor(private readonly fb: FormBuilder, private readonly courseService: CourseService, private readonly spinner: NgxSpinnerService) { }
 

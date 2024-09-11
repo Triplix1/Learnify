@@ -1,0 +1,44 @@
+stepper-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.stepper-header div {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid lightgray;
+}
+
+.stepper-header div.active {
+    border-bottom: 2px solid #007bff;
+}
+
+.stepper-header div.disabled {
+    color: gray;
+    cursor: not-allowed;
+}
+
+.stepper-content {
+    padding: 20px;
+    border: 1px solid #ddd;
+    margin-top: 10px;
+}
+
+.stepper-navigation {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: lightgray;
+    cursor: not-allowed;
+}

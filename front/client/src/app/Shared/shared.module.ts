@@ -17,6 +17,8 @@ import { ImageCropperComponent } from './components/image-cropper/image-cropper.
 import { SelectorComponent } from './components/selector/selector.component';
 import { ButtonComponent } from './components/button/button.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { StepperComponent } from './components/stepper/stepper.component';
+import { StepComponent } from './components/step/step.component';
 
 
 @NgModule({
@@ -30,6 +32,8 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     ImageCropperComponent,
     SelectorComponent,
     ButtonComponent,
+    StepperComponent,
+    StepComponent,
   ],
   imports: [
     CommonModule,
@@ -65,7 +69,9 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     ImageUploaderComponent,
     SelectorComponent,
     ButtonComponent,
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    StepComponent,
+    StepperComponent,
   ]
 })
 export class SharedModule { }

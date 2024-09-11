@@ -5,7 +5,6 @@ import { LessonService } from 'src/app/Core/services/lesson.service';
 import { MediaService } from 'src/app/Core/services/media.service';
 import { AttachmentResponse } from 'src/app/Models/Attachment/AttachmentResponse';
 import { LessonAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonAddOrUpdateRequest';
-import { LessonResponse } from 'src/app/Models/Course/Lesson/LessonResponse';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
 import { LessonUpdateResponse } from 'src/app/Models/Course/Lesson/LessonUpdateResponse';
 import { Language } from 'src/app/Models/enums/Language';

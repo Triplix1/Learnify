@@ -1,0 +1,19 @@
+<div class="stepper-header">
+    <div *ngFor="let step of steps.toArray(); let i = index"
+         [class.active]="i === currentStepIndex"
+         [class.disabled]="linear && !canGoToStep(i)"
+         (click)="goToStep(i)">
+        {{ step.label }}
+    </div>
+</div>
+
+<div class="stepper-content">
+    <ng-content></ng-content>
+</div>
+
+<div class="stepper-navigation">
+    <button (click)="previous()"
+            [disabled]="currentStepIndex === 0">Back</button>
+    <button (click)="next()"
+            [disabled]="!canGoNext()">Next</button>
+</div>
