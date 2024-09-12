@@ -4,12 +4,13 @@ import { StepComponent } from '../step/step.component';
 @Component({
   selector: 'app-stepper',
   templateUrl: './stepper.component.html',
-  styleUrls: ['./stepper.component.css']
+  styleUrls: ['./stepper.component.scss']
 })
 export class StepperComponent implements AfterContentInit {
   @ContentChildren(StepComponent) steps: QueryList<StepComponent>;
 
-  @Input() linear = true;  // Similar to MatStepper
+  @Input() linear: boolean = true;
+  @Input() disableButtons: boolean = false;
   currentStepIndex = 0;
 
   ngAfterContentInit() {

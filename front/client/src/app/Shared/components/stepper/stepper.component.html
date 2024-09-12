@@ -1,13 +1,14 @@
-<div class="stepper-header">
-    <div *ngFor="let step of steps.toArray(); let i = index"
-         [class.active]="i === currentStepIndex"
+<div class="flex justify-between mb-2">
+    <div class="py-1 px-1.5 rounded-lg text-navlink"
+         *ngFor="let step of steps.toArray(); let i = index"
+         [ngClass]="i === currentStepIndex ? 'bg-logo cursor-pointer' : !linear || canGoToStep(i) ? 'cursor-pointer' : 'cursor-not-allowed text-opacity-35'"
          [class.disabled]="linear && !canGoToStep(i)"
          (click)="goToStep(i)">
         {{ step.label }}
     </div>
 </div>
 
-<div class="stepper-content">
+<div class="p-1.5">
     <ng-content></ng-content>
 </div>
 
