@@ -22,5 +22,5 @@ public class CourseCreateRequest
     // /// <summary>
     // /// Gets or sets value for PrimaryLanguage
     // /// </summary>
-    // public Language PrimaryLanguage { get; set; }
+    public Language PrimaryLanguage { get; set; }
 }
