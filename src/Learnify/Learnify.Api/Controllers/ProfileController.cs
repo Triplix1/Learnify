@@ -16,17 +16,15 @@ namespace Learnify.Api.Controllers;
 public class ProfileController : BaseApiController
 {
     private readonly IProfileService _profileService;
-    private readonly IMapper _mapper;
 
     /// <summary>
     /// Initializes a nwe instance of <see cref="ProfileController"/>
     /// </summary>
     /// <param name="profileService"></param>
     /// <param name="mapper"></param>
-    public ProfileController(IProfileService profileService, IMapper mapper)
+    public ProfileController(IProfileService profileService)
     {
         _profileService = profileService;
-        _mapper = mapper;
     }
 
     /// <summary>
