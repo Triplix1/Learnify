@@ -10,6 +10,7 @@ using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Dto.Course.QuizQuestion;
 using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Dto.File;
+using Learnify.Core.Dto.Messages;
 using Learnify.Core.Dto.Params;
 using Learnify.Core.Dto.Profile;
 using Learnify.Core.Dto.Subtitles;
@@ -69,5 +70,10 @@ public class MappingProfiles: Profile
         
         //Video
         CreateMap<VideoAddOrUpdateRequest, Video>();
-        CreateMap<Video, VideoResponse>(); }
+        CreateMap<Video, VideoResponse>(); 
+        
+        //Message
+        CreateMap<Message, MessageResponse>()
+            .ForMember(m => m.SenderName, m => m.MapFrom(message => message.Sender.Name));
+    }
 }

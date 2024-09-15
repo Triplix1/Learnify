@@ -54,6 +54,11 @@ public class ApplicationDbContext: DbContext
     /// </summary>
     public DbSet<UserBought> UserBoughts { get; set; }
     
+    /// <summary>
+    /// Groups DbSet
+    /// </summary>
+    public DbSet<Group> Groups { get; set; }
+    
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder)
     {
