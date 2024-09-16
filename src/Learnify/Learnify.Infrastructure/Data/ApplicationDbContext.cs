@@ -59,6 +59,16 @@ public class ApplicationDbContext: DbContext
     /// </summary>
     public DbSet<Group> Groups { get; set; }
     
+    /// <summary>
+    /// Groups DbSet
+    /// </summary>
+    public DbSet<Message> Messages { get; set; }
+    
+    /// <summary>
+    /// Groups DbSet
+    /// </summary>
+    public DbSet<Connection> Connections { get; set; }
+    
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder)
     {
