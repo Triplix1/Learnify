@@ -26,6 +26,9 @@ public class InfrastructureInstaller: IInstaller
         services.AddScoped<IUserBoughtRepository, UserBoughtRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IViewRepository, ViewRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
+        services.AddScoped<IConnectionRepository, ConnectionRepository>();
+        services.AddScoped<IGroupRepository, GroupRepository>();
         
         services.AddScoped<IPsqUnitOfWork, PsqUnitOfWork>();
         services.AddScoped<IMongoUnitOfWork, MongoUnitOfWork>();

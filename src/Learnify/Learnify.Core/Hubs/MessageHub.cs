@@ -88,7 +88,7 @@ public class MessageHub: Hub
             await _groupRepository.CreateAsync(group);
         }
 
-        var connection = new Connection()
+        var connection = new Connection
         {
             UserId = Context.User.GetUserId()
         };
