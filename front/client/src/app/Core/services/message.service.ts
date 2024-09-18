@@ -12,7 +12,7 @@ import { Group } from '../_models/group';
   providedIn: 'root'
 })
 export class MessageService {
-  baseUrl = environment.apiUrl;
+  baseUrl = environment.baseApiUrl;
   hubUrl = environment.hubUrl;
   private hubConnection?: HubConnection;
   private messageThreadSouce = new BehaviorSubject<Message[]>([]);

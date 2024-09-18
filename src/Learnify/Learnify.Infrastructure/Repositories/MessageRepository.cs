@@ -23,13 +23,12 @@ public class MessageRepository: IMessageRepository
         return message;
     }
 
-    public async Task<IEnumerable<Message>> GetMessagesForGroupAsync(string groupName)
+    public async Task<IEnumerable<Message>> GetMessagesForGroupAsync(string groupName, string[] stringsToInclude)
     {
-        var group = await _context.Groups.Include(g => g.Messages).FirstOrDefaultAsync(g => g.Name == groupName);
+        var messages = _context.Messages.Where(m => m.Group.Name == groupName);
 
-        if (group is null)
-            return null;
+        stringsToInclude.Aggregate(messages, (c, include) => c.Include(include));
 
-        return group.Messages;
+        return messages;
     }
 }
