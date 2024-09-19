@@ -41,4 +41,9 @@ public class GroupRepository: IGroupRepository
     {
         return await _context.Groups.FirstOrDefaultAsync(g => g.Connections.Any(c => c.ConnectionId == connectionId));
     }
+
+    public async Task<Group> GetByMessageIdAsync(int messageId)
+    {
+        return await _context.Groups.SingleOrDefaultAsync(g => g.Messages.Any(m => m.Id == messageId));
+    }
 }

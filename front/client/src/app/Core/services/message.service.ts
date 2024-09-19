@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { getPaginatedResult, getPaginationHeaders } from './paginationHelper';
-import { Message } from '../_models/message';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-import { User } from '../_models/user';
-import { BehaviorSubject, take } from 'rxjs';
-import { Group } from '../_models/group';
+import { BehaviorSubject, Observable, take } from 'rxjs';
+import { Message } from 'src/app/Models/Message/Message';
+import { Group } from 'src/app/Models/Message/Group';
+import { AuthService } from './auth.service';
+import { AuthResponse } from 'src/app/Models/Auth/AuthReponse';
+import { MessageCreateRequest } from 'src/app/Models/Message/MessageCreateRequest';
 
 @Injectable({
   providedIn: 'root'
@@ -18,12 +19,12 @@ export class MessageService {
   private messageThreadSouce = new BehaviorSubject<Message[]>([]);
   messageThread$ = this.messageThreadSouce.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private readonly authService: AuthService) { }
 
-  createHubConnection(user: User, otherUsername: string) {
+  createHubConnection(authResponse: AuthResponse, groupName: string) {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(this.hubUrl + 'message?user=' + otherUsername, {
-        accessTokenFactory: () => user.token
+      .withUrl(this.hubUrl + 'message?group=' + groupName, {
+        accessTokenFactory: () => authResponse.token
       })
       .withAutomaticReconnect()
       .build();
@@ -42,13 +43,10 @@ export class MessageService {
     })
 
     this.hubConnection.on('UpdatedGroup', (group: Group) => {
-      if (group.connections.some(x => x.username === otherUsername)) {
+      if (group.name === groupName) {
         this.messageThread$.pipe(take(1)).subscribe({
           next: messages => {
             messages.forEach(message => {
-              if (!message.dateRead) {
-                message.dateRead = new Date(Date.now())
-              }
             })
             this.messageThreadSouce.next([...messages]);
           }
@@ -63,22 +61,21 @@ export class MessageService {
     }
   }
 
-  getMessages(pageNumber: number, pageSize: number, container: string) {
-    let params = getPaginationHeaders(pageNumber, pageSize);
-    params = params.append('Container', container);
-    return getPaginatedResult<Message[]>(this.baseUrl + 'messages', params, this.http);
+  getMessages(groupName: string): Observable<Message[]> {
+    return this.http.get<Message[]>(this.baseUrl + 'messages/' + groupName);
   }
 
-  getMessageThread(username: string) {
-    return this.http.get<Message[]>(this.baseUrl + 'messages/thread/' + username);
+  getMessageThread(groupName: string) {
+    return this.http.get<Message[]>(this.baseUrl + '/messages/thread/' + groupName);
   }
 
-  async sendMessage(username: string, content: string) {
-    return this.hubConnection?.invoke('SendMessage', { recipientUsername: username, content })
+  async sendMessage(messageCreateRequest: MessageCreateRequest) {
+    return this.hubConnection?.invoke('SendMessage', { messageCreateRequest })
       .catch(error => console.log(error));
   }
 
   deleteMessage(id: number) {
-    return this.http.delete(this.baseUrl + 'messages/' + id);
+    return this.hubConnection?.invoke('SendMessage', { id })
+      .catch(error => console.log(error));;
   }
 }

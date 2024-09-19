@@ -28,16 +28,17 @@ public class MessageHub: Hub
     public override async Task OnConnectedAsync()
     {
         var httpContext = Context.GetHttpContext();
-        var userId = Context.User.GetUserId();
         var groupName = httpContext.Request.Query["group"];
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        var group = await AddToGroup(groupName);
+        var group = await AddToGroup(groupName, Context.ConnectionId);
 
         await Clients.Group(groupName).SendAsync("UpdatedGroup", group);
 
-        var messages = await _messageRepository.GetMessagesForGroupAsync(groupName);
+        var messages = await _messageRepository.GetMessagesForGroupAsync(groupName, [nameof(Message.Sender)]);
 
-        await Clients.Caller.SendAsync("ReceiveMessageThread", messages);
+        var responses = _mapper.Map<IEnumerable<MessageResponse>>(messages);
+        
+        await Clients.Caller.SendAsync("ReceiveMessageThread", responses);
     }
 
     public override async Task OnDisconnectedAsync(Exception ex)
@@ -49,7 +50,9 @@ public class MessageHub: Hub
 
     public async Task SendMessage(MessageCreateRequest messageCreateRequest)
     {
-        var sender = await _userRepository.GetByIdAsync(messageCreateRequest.SenderId);
+        var userId = Context.User.GetUserId();
+        
+        var sender = await _userRepository.GetByIdAsync(userId);
         
         if(sender is null)
             throw new HubException("Not found user");
@@ -74,7 +77,32 @@ public class MessageHub: Hub
         await Clients.Group(messageCreateRequest.GroupName).SendAsync("NewMessage", _mapper.Map<MessageResponse>(message));
     }
     
-    private async Task<Group> AddToGroup(string groupName)
+    public async Task DeleteMessage(int messageId)
+    {
+        var userId = Context.User.GetUserId();
+        
+        var sender = await _userRepository.GetByIdAsync(userId);
+
+        if(sender is null)
+            throw new HubException("Not found user");
+        
+        var message = await _messageRepository.GetByIdAsync(messageId, [nameof(Message.Group)]);
+        
+        if(message is null)
+            throw new HubException("Cannot find such group");
+
+        if (message.SenderId != userId)
+            throw new HubException("You have not permissions to delete this message");
+        
+        var result = await _messageRepository.DeleteAsync(messageId);
+
+        if (!result)
+            throw new HubException("Cannot delete this message");
+        
+        await Clients.Group(message.Group.Name).SendAsync("MessageDeleted", messageId);
+    }
+    
+    private async Task<Group> AddToGroup(string groupName, string connectionId)
     {
         var group = await _groupRepository.GetByNameAsync(groupName);
 
@@ -90,6 +118,7 @@ public class MessageHub: Hub
 
         var connection = new Connection
         {
+            ConnectionId = connectionId,
             UserId = Context.User.GetUserId()
         };
         
