@@ -22,6 +22,8 @@ module.exports = {
         buttonAcceptHover: 'rgb(var(--buttonAcceptHover) / <alpha-value>)',
         buttonCancelHover: 'rgb(var(--buttonCancelHover) / <alpha-value>)',
         textInput: 'rgb(var(--textInput) / <alpha-value>)',
+        text: 'rgb(var(--text) / <alpha-value>)',
+        messageUsername: 'rgb(var(--messageUsername) / <alpha-value>)',
       },
     },
   },

@@ -19,6 +19,7 @@ import { ButtonComponent } from './components/button/button.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { StepperComponent } from './components/stepper/stepper.component';
 import { StepComponent } from './components/step/step.component';
+import { ContextMenuComponent } from './components/context-menu/context-menu.component';
 
 
 @NgModule({
@@ -34,6 +35,7 @@ import { StepComponent } from './components/step/step.component';
     ButtonComponent,
     StepperComponent,
     StepComponent,
+    ContextMenuComponent,
   ],
   imports: [
     CommonModule,
@@ -72,6 +74,7 @@ import { StepComponent } from './components/step/step.component';
     NgxSpinnerModule,
     StepComponent,
     StepperComponent,
+    ContextMenuComponent,
   ]
 })
 export class SharedModule { }

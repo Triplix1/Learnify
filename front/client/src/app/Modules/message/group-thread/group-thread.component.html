@@ -1,0 +1,16 @@
+<div class="min-main-height flex justify-center p-10">
+    <div class="w-full container-width bg-navigation opacity-80 p-4 rounded-lg shadow-md ">
+
+        <div>
+            <app-message *ngFor="let message of messageService.messageThread$ | async"
+                         [message]="message"></app-message>
+        </div>
+
+
+        <app-text-input label="message"
+                        [hiddenLabel]="true"
+                        [formControl]="$any(messageForm.controls['message'])"></app-text-input>
+        <app-button [disabled]="!messageForm.valid"
+                    (buttonClick)="sendMessage()">Send</app-button>
+    </div>
+</div>

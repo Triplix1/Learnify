@@ -14,6 +14,7 @@ export class NavbarComponent implements OnInit {
   dropdownItems: DropdownItem[] = [
     { itemText: "Профіль", link: "/profile" },
     { itemText: "Вийти", action: () => this.logout() },
+    { itemText: "Чати", link: "/messages/join" },
   ]
 
   Theme: string = "theme";

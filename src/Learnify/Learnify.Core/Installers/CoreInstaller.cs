@@ -26,6 +26,7 @@ public class CoreInstaller: IInstaller
         services.AddValidatorsFromAssembly(Assembly);
         services.AddFluentValidationAutoValidation();
         services.AddAutoMapper(Assembly);
+        services.AddSignalR();
 
         services.AddSwaggerGen(c =>
         {

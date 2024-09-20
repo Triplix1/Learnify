@@ -19,11 +19,13 @@ export class MessageService {
   private messageThreadSouce = new BehaviorSubject<Message[]>([]);
   messageThread$ = this.messageThreadSouce.asObservable();
 
-  constructor(private http: HttpClient, private readonly authService: AuthService) { }
+  constructor(private http: HttpClient) { }
 
   createHubConnection(authResponse: AuthResponse, groupName: string) {
+    console.log("creating hub conn");
+    debugger;
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(this.hubUrl + 'message?group=' + groupName, {
+      .withUrl(this.hubUrl + '/message?group=' + groupName, {
         accessTokenFactory: () => authResponse.token
       })
       .withAutomaticReconnect()
@@ -38,6 +40,14 @@ export class MessageService {
       this.messageThread$.pipe(take(1)).subscribe({
         next: messages => {
           this.messageThreadSouce.next([...messages, message])
+        }
+      })
+    })
+
+    this.hubConnection.on('MessageDeleted', messageId => {
+      this.messageThread$.pipe(take(1)).subscribe({
+        next: messages => {
+          this.messageThreadSouce.next([...messages].filter(m => m.id !== messageId))
         }
       })
     })
@@ -61,21 +71,21 @@ export class MessageService {
     }
   }
 
-  getMessages(groupName: string): Observable<Message[]> {
-    return this.http.get<Message[]>(this.baseUrl + 'messages/' + groupName);
-  }
+  // getMessages(groupName: string): Observable<Message[]> {
+  //   return this.http.get<Message[]>(this.baseUrl + 'messages/' + groupName);
+  // }
 
-  getMessageThread(groupName: string) {
-    return this.http.get<Message[]>(this.baseUrl + '/messages/thread/' + groupName);
-  }
+  // getMessageThread(groupName: string) {
+  //   return this.http.get<Message[]>(this.baseUrl + '/messages/thread/' + groupName);
+  // }
 
   async sendMessage(messageCreateRequest: MessageCreateRequest) {
     return this.hubConnection?.invoke('SendMessage', { messageCreateRequest })
       .catch(error => console.log(error));
   }
 
-  deleteMessage(id: number) {
-    return this.hubConnection?.invoke('SendMessage', { id })
-      .catch(error => console.log(error));;
+  async deleteMessage(id: number) {
+    return this.hubConnection?.invoke('DeleteMessage', { id })
+      .catch(error => console.log(error));
   }
 }

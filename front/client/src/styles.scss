@@ -94,6 +94,8 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --buttonCancel: 225 225 225;
         --buttonAcceptHover: 200 40 40;
         --buttonCancelHover: 190 190 190;
+        --text: 40 40 40;
+        --messageUsername: 70 70 70;
     }
 
     .dark {
@@ -111,6 +113,8 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --buttonCancel: 180 180 180;
         --buttonAcceptHover: 202 34 34;
         --buttonCancelHover: 213 213 213;
+        --text: 180 180 180;
+        --messageUsername: 210 210 210;
     }
 
     .login-form {

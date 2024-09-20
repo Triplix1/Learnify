@@ -12,6 +12,7 @@ import { MainProfileComponent } from './Modules/profile/main-profile/main-profil
 import { ProfileModule } from './Modules/profile/profile.module';
 import { CourseModule } from './Modules/course/course.module';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { MessageModule } from './Modules/message/message.module';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
     NoopAnimationsModule,
     BrowserAnimationsModule,
     CourseModule,
+    MessageModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorHandlerInterceptor, multi: true },

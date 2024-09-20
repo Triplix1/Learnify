@@ -1,0 +1,10 @@
+<div class="context-menu"
+     *ngIf="visible"
+     [ngStyle]="{'top.px': positionY, 'left.px': positionX}">
+    <ul>
+        <li *ngFor="let action of actions"
+            (click)="onActionClick(action)">
+            {{ action.label }}
+        </li>
+    </ul>
+</div>
