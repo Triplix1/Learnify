@@ -8,8 +8,12 @@
     </div>
 </div>
 
-<div class="p-1.5">
-    <ng-content></ng-content>
+<div class="p-1.5 step"
+     #contentWrapper>
+    <div class="step-content"
+         [@stepAnimation]="currentStepIndex">
+        <ng-content></ng-content>
+    </div>
 </div>
 
 <div class="stepper-navigation">

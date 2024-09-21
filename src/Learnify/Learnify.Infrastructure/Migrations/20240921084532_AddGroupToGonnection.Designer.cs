@@ -3,6 +3,7 @@ using System;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Learnify.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240921084532_AddGroupToGonnection")]
+    partial class AddGroupToGonnection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,7 +30,11 @@ namespace Learnify.Infrastructure.Migrations
                     b.Property<string>("ConnectionId")
                         .HasColumnType("text");
 
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("GroupName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("UserId")
@@ -343,7 +350,9 @@ namespace Learnify.Infrastructure.Migrations
                 {
                     b.HasOne("Learnify.Core.Domain.Entities.Sql.Group", "Group")
                         .WithMany("Connections")
-                        .HasForeignKey("GroupName");
+                        .HasForeignKey("GroupName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Learnify.Core.Domain.Entities.Sql.User", "User")
                         .WithMany()

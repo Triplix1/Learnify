@@ -5,7 +5,7 @@
                      class="mb-4">
 
             <app-step label="Course"
-                      [completed]="courseId !== null">
+                      [completed]="courseId !== null && courseId !== undefined">
                 <div class="bg-gray-900 p-4 rounded-lg mb-2.5">
                     <div>
                         <div class="grid w-full grid-cols-2 gap-4 mb-3">
@@ -50,8 +50,8 @@
 
                 <div *ngIf="!editingMode"
                      class="flex justify-center w-full">
-                    <app-button *ngIf="courseId === null || !courseResponse.isPublished; else unpublish"
-                                [disabled]="courseId === null"
+                    <app-button *ngIf="courseId === null || courseId === undefined || !courseResponse.isPublished; else unpublish"
+                                [disabled]="courseId === null || courseId === undefined"
                                 (buttonClick)="publish(true)">
                         Publish
                     </app-button>
@@ -65,7 +65,7 @@
             </app-step>
 
             <app-step label="Paragraph"
-                      [completed]="false">
+                      [completed]="!!currentLessonEditing">
                 <div *ngIf="courseResponse"
                      class="bg-gray-900 p-4 rounded-lg mb-4">
 
@@ -88,9 +88,9 @@
             </app-step>
 
             <app-step label="Lesson">
-                <h3>Step 3: Confirm Details</h3>
-                <p>Name: {{ firstFormGroup }}</p>
-                <p>Email: {{ secondFormGroup }}</p>
+                <app-create-lesson *ngIf="!!currentLessonEditing"
+                                   [courseId]="courseId"
+                                   [paragraphId]=""></app-create-lesson>
             </app-step>
         </app-stepper>
 

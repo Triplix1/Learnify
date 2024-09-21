@@ -1,4 +1,4 @@
 export interface MessageCreateRequest {
-    groupName: string;
-    content: string;
+    GroupName: string;
+    Content: string;
 }

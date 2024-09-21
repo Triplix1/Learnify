@@ -88,6 +88,8 @@ export class AuthService {
       }).pipe(
         catchError(err => {
           this.refreshTokenInProgress = false;
+          this.tokenData.next(null);
+          this.userData.next(null);
           return of(null);
         }),
         tap((response: ApiResponseWithData<AuthResponse>) => {
@@ -111,6 +113,12 @@ export class AuthService {
   }
 
   private handleTokenUpdate(authResponse: AuthResponse): void {
+    if (authResponse === null || authResponse === undefined) {
+      this.logout();
+      console.log('log out');
+      return;
+    }
+
     localStorage.setItem('accessToken', authResponse.token);
     localStorage.setItem('refreshToken', authResponse.refreshToken);
     localStorage.setItem('expires', authResponse.expires + '');

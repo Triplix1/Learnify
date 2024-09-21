@@ -14,9 +14,17 @@ public class GroupRepository: IGroupRepository
         _context = context;
     }
 
-    public async Task<Group> GetByNameAsync(string name)
+    public async Task<Group> GetByNameAsync(string name, IEnumerable<string> includes = null)
     {
-        return await _context.Groups.FindAsync(name);
+        if(includes == null || !includes.Any())
+            return await _context.Groups.FindAsync(name);
+
+        var query = _context.Groups.AsQueryable();
+        
+        if(includes is not null && includes.Any())
+            query = includes.Aggregate(query, (q, i) => q.Include(i));
+
+        return await query.FirstOrDefaultAsync(g => g.Name == name);
     }
 
     public async Task<Group> CreateAsync(Group group)

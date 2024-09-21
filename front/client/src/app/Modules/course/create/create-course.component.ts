@@ -6,6 +6,7 @@ import { CourseService } from 'src/app/Core/services/course.service';
 import { CourseCreateRequest } from 'src/app/Models/Course/CourseCreateRequest';
 import { CourseResponse } from 'src/app/Models/Course/CourseResponse';
 import { CourseUpdateRequest } from 'src/app/Models/Course/CourseUpdateRequest';
+import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
 import { Language } from 'src/app/Models/enums/Language';
 import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
@@ -21,7 +22,7 @@ export class CreateCourseComponent {
 
   editingMode: boolean = false;
   courseResponse: CourseResponse = null;
-  paragraphs: ParagraphResponse[] = [null];
+  paragraphs: ParagraphResponse[] = [];
   courseForm: FormGroup = new FormGroup({});
   selectorOptions: SelectorOption[] = Object.keys(Language)
     .filter(key => isNaN(Number(key)))  // Filter out numeric keys
@@ -30,6 +31,7 @@ export class CreateCourseComponent {
     });
   firstFormGroup: any;
   secondFormGroup: any;
+  currentLessonEditing: LessonTitleResponse;
 
   constructor(private readonly fb: FormBuilder, private readonly courseService: CourseService, private readonly spinner: NgxSpinnerService) { }
 
@@ -38,7 +40,7 @@ export class CreateCourseComponent {
 
     this.initializeForm();
 
-    if (this.courseId !== null) {
+    if (this.courseId !== null && this.courseId !== undefined) {
       this.spinner.show();
       this.courseService.getForUpdate(this.courseId).pipe(take(1))
         .subscribe(

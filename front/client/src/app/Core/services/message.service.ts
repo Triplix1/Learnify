@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import { HubConnection, HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { BehaviorSubject, Observable, take } from 'rxjs';
 import { Message } from 'src/app/Models/Message/Message';
 import { Group } from 'src/app/Models/Message/Group';
@@ -15,26 +15,33 @@ import { MessageCreateRequest } from 'src/app/Models/Message/MessageCreateReques
 export class MessageService {
   baseUrl = environment.baseApiUrl;
   hubUrl = environment.hubUrl;
-  private hubConnection?: HubConnection;
+  hubConnection?: HubConnection;
   private messageThreadSouce = new BehaviorSubject<Message[]>([]);
   messageThread$ = this.messageThreadSouce.asObservable();
 
   constructor(private http: HttpClient) { }
 
   createHubConnection(authResponse: AuthResponse, groupName: string) {
-    console.log("creating hub conn");
-    debugger;
+    if (this.hubConnection?.state == HubConnectionState.Connected)
+      this.hubConnection.stop();
+
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(this.hubUrl + '/message?group=' + groupName, {
         accessTokenFactory: () => authResponse.token
       })
-      .withAutomaticReconnect()
       .build();
     this.hubConnection.start().catch(error => console.log(error));
 
     this.hubConnection.on('ReceiveMessageThread', messages => {
       this.messageThreadSouce.next(messages);
     })
+
+    this.hubConnection.onclose(error => {
+      console.log('Connection closed:', error);
+    });
+    this.hubConnection.onreconnected(connectionId => {
+      console.log('Reconnected:', connectionId);
+    });
 
     this.hubConnection.on('NewMessage', message => {
       this.messageThread$.pipe(take(1)).subscribe({
@@ -68,6 +75,7 @@ export class MessageService {
   stopHubConnection() {
     if (this.hubConnection) {
       this.hubConnection?.stop();
+      this.messageThreadSouce.next([]);
     }
   }
 
@@ -80,7 +88,7 @@ export class MessageService {
   // }
 
   async sendMessage(messageCreateRequest: MessageCreateRequest) {
-    return this.hubConnection?.invoke('SendMessage', { messageCreateRequest })
+    return this.hubConnection?.invoke('SendMessage', messageCreateRequest)
       .catch(error => console.log(error));
   }
 

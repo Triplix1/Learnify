@@ -20,8 +20,9 @@ public class MessageRepository: IMessageRepository
             return await _context.Messages.FindAsync(messageId);
         
         var messages = _context.Messages.AsQueryable();
-
-        includes.Aggregate(messages, (m, prop) => m.Include(prop));
+        
+        if(includes is not null && includes.Any())
+            includes.Aggregate(messages, (m, prop) => m.Include(prop));
 
         return await messages.FirstOrDefaultAsync(m => m.Id == messageId);
     }
@@ -40,7 +41,7 @@ public class MessageRepository: IMessageRepository
         var messages = _context.Messages.Where(m => m.Group.Name == groupName);
 
         if(stringsToInclude is not null)
-            stringsToInclude.Aggregate(messages, (c, include) => c.Include(include));
+            messages = stringsToInclude.Aggregate(messages, (c, include) => c.Include(include));
 
         return messages;
     }

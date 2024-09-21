@@ -1,10 +1,12 @@
-<div class="w-full grid col-span-3"
-     (contextmenu)="onClickOutside($event)">
+<div class="w-full grid grid-cols-3">
+    <div *ngIf="
+     +userData.id ===message.senderId"></div>
+    <div *ngIf="+userData.id === message.senderId"></div>
     <div (contextmenu)="onRightClick($event)">
         <!-- The element you want to right-click on -->
         <div class="rounded-md bg-input p-3">
             <div class="mb-1 text-messageUsername">{{message.senderName}}</div>
-            <div class="text-text">message.senderName</div>
+            <div class="text-text">{{message.content}}</div>
         </div>
     </div>
 </div>

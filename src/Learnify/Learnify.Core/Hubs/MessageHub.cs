@@ -35,7 +35,7 @@ public class MessageHub: Hub
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
         var group = await AddToGroup(groupName, Context.ConnectionId);
 
-        await Clients.Group(groupName).SendAsync("UpdatedGroup", group);
+        // await Clients.Group(groupName).SendAsync("UpdatedGroup", group);
 
         var messages = await _messageRepository.GetMessagesForGroupAsync(groupName, [nameof(Message.Sender)]);
 
@@ -60,7 +60,7 @@ public class MessageHub: Hub
         if(sender is null)
             throw new HubException("Not found user");
         
-        var group = await _groupRepository.GetByNameAsync(messageCreateRequest.GroupName);
+        var group = await _groupRepository.GetByNameAsync(messageCreateRequest.GroupName, [nameof(Group.Connections)]);
 
         if (group is null)
             throw new HubException("cannot find group with specified name");
@@ -107,7 +107,7 @@ public class MessageHub: Hub
     
     private async Task<Group> AddToGroup(string groupName, string connectionId)
     {
-        var group = await _groupRepository.GetByNameAsync(groupName);
+        var group = await _groupRepository.GetByNameAsync(groupName, [nameof(Group.Connections)]);
 
         if (group == null)
         {
@@ -117,13 +117,18 @@ public class MessageHub: Hub
             };
             
             await _groupRepository.CreateAsync(group);
+            group.Connections = new List<Connection>();
         }
 
         var connection = new Connection
         {
             ConnectionId = connectionId,
-            UserId = Context.User.GetUserId()
+            UserId = Context.User.GetUserId(),
+            GroupName = group.Name
         };
+
+        if (group.Connections is null)
+            group.Connections = new List<Connection>();
         
         group.Connections.Add(connection);
 
@@ -159,7 +164,9 @@ public class MessageHub: Hub
             Content = $"User {user.Username} leaved the room",
             Group = group
         };
+        
+        await Clients.Group(group.Name).SendAsync("NewMessage", message);
 
-        throw new HubException("Failed to remove from group");
+        return group;
     }
 }

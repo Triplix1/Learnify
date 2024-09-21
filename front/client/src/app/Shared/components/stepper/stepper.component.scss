@@ -22,6 +22,18 @@
     padding: 20px;
     border: 1px solid #ddd;
     margin-top: 10px;
+    position: absolute;
+}
+
+.step {
+    position: relative;
+    /* Parent container is the boundary */
+    overflow: hidden;
+    /* Hides content outside the parent */
+    width: 100%;
+    /* Parent width ensures content is contained */
+    height: auto;
+    transition: height 300ms ease;
 }
 
 .stepper-navigation {
