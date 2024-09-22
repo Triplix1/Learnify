@@ -1,14 +1,21 @@
 import { Component, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { take } from 'rxjs';
+import { switchMap, take } from 'rxjs';
 import { CourseService } from 'src/app/Core/services/course.service';
+import { LessonService } from 'src/app/Core/services/lesson.service';
+import { MediaService } from 'src/app/Core/services/media.service';
+import { AttachmentResponse } from 'src/app/Models/Attachment/AttachmentResponse';
 import { CourseCreateRequest } from 'src/app/Models/Course/CourseCreateRequest';
 import { CourseResponse } from 'src/app/Models/Course/CourseResponse';
 import { CourseUpdateRequest } from 'src/app/Models/Course/CourseUpdateRequest';
+import { LessonAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonAddOrUpdateRequest';
+import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
+import { LessonUpdateResponse } from 'src/app/Models/Course/Lesson/LessonUpdateResponse';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
 import { Language } from 'src/app/Models/enums/Language';
+import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlobCreateRequest';
 import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
 import { SelectorOption } from 'src/app/Models/SelectorOption';
 
@@ -31,9 +38,20 @@ export class CreateCourseComponent {
     });
   firstFormGroup: any;
   secondFormGroup: any;
-  currentLessonEditing: LessonTitleResponse;
 
-  constructor(private readonly fb: FormBuilder, private readonly courseService: CourseService, private readonly spinner: NgxSpinnerService) { }
+  currentLessonEditing: LessonStepAddOrUpdateRequest;
+  lessonParagraphId: number;
+  lessonResponse: LessonUpdateResponse;
+  lessonAddOrUpdateRequest: LessonAddOrUpdateRequest;
+  lessonUpdatedTitleRespomse: LessonTitleResponse;
+  lessonForm: FormGroup = new FormGroup({});
+  possibleToCreateNewLesson: boolean = true;
+
+  constructor(private readonly fb: FormBuilder,
+    private readonly courseService: CourseService,
+    private readonly spinner: NgxSpinnerService,
+    private readonly lessonService: LessonService,
+    private readonly mediaService: MediaService) { }
 
   ngOnInit(): void {
     console.log(this.courseId);
@@ -108,6 +126,62 @@ export class CreateCourseComponent {
 
   paragraphUpdated(paragraphUpdated: ParagraphUpdated) {
     this.paragraphs[paragraphUpdated.index] = paragraphUpdated.paragraph;
+  }
+
+  editLessonRequest(lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest) {
+
+  }
+
+  handleFileInput(imageInput: File | null, quizIndex: number | null) {
+    if (imageInput) {
+      var fileCreateRequest: PrivateFileBlobCreateRequest = {
+        content: imageInput,
+        contentType: imageInput.type,
+        courseId: this.courseId
+      };
+
+      this.mediaService.create(fileCreateRequest).pipe(
+        take(1),
+        switchMap(response => {
+          const attachment: AttachmentResponse = {
+            contentType: response.data.contentType,
+            fileId: response.data.id
+          }
+
+          this.prepareLessonToUpdateDto();
+
+          if (quizIndex === null)
+            this.lessonAddOrUpdateRequest.video.attachment = attachment;
+          else
+            this.lessonAddOrUpdateRequest.quizzes[quizIndex].media = attachment;
+
+          return this.lessonService.saveDraft(this.lessonAddOrUpdateRequest);
+        })
+      )
+        .subscribe(response => {
+          this.handleLessonUpdate(response.data);
+        })
+    }
+  }
+
+  private prepareLessonToUpdateDto() {
+    this.lessonAddOrUpdateRequest.editedLessonId = this.lessonResponse.editedLessonId;
+    this.lessonAddOrUpdateRequest.id = this.lessonResponse.id;
+    this.lessonAddOrUpdateRequest.quizzes = this.lessonResponse.quizzes;
+    this.lessonAddOrUpdateRequest.video.attachment = this.lessonResponse.video.attachment;
+    this.lessonAddOrUpdateRequest.video.primaryLanguage = this.lessonResponse.video.primaryLanguage;
+
+    this.lessonAddOrUpdateRequest.video.subtitles = this.lessonResponse.video.subtitles.map(s => Language[s.language as keyof typeof Language]);
+
+    this.lessonAddOrUpdateRequest.title = this.lessonForm.controls['title'].value;
+  }
+
+  private handleLessonUpdate(lessonResponse: LessonUpdateResponse) {
+    this.currentLessonEditing = { id: lessonResponse.id, paragraphId: lessonResponse.paragraphId };
+    this.lessonResponse = lessonResponse;
+    this.lessonUpdatedTitleRespomse = { id: lessonResponse.id, title: lessonResponse.title }
+    this.lessonForm.controls['title'].setValue(lessonResponse.title);
+    this.lessonForm.controls['language'].setValue(Language[lessonResponse.video.primaryLanguage as keyof typeof Language]);
   }
 
   private handleCourseUpdate(courseResponse: CourseResponse) {

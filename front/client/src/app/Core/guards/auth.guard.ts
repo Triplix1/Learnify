@@ -8,11 +8,8 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   return accountService.tokenData$.pipe(
     switchMap(user => {
-      console.log(new Date(user?.expires.getTime()))
-      console.log(new Date(Date.now()))
-
       if (user !== null && user !== undefined) {
-        if (user.expires.getTime() > Date.now())
+        if (new Date(user.expires) > new Date(Date.now()))
           return of(user)
 
         console.log('refreshing token')

@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { take } from 'rxjs';
 import { LessonService } from 'src/app/Core/services/lesson.service';
 import { ParagraphService } from 'src/app/Core/services/paragraph.service';
+import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
 import { ParagraphCreateRequest } from 'src/app/Models/Course/Paragraph/ParagraphCreateRequest';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
@@ -14,11 +15,14 @@ import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
   templateUrl: './create-paragraph.component.html',
   styleUrls: ['./create-paragraph.component.scss']
 })
-export class CreateParagraphComponent {
+export class CreateParagraphComponent implements OnChanges {
   @Input() paragraphResponse: ParagraphResponse | null = null;
   @Input({ required: true }) index: number;
   @Input({ required: true }) courseId: number = null;
+  @Input({ required: true }) possibleToCreateNewLesson: boolean = true;
+  @Input({ required: true }) lessonUpdatedTitleRespomse: LessonTitleResponse = null;
   @Output() onUpdate: EventEmitter<ParagraphUpdated> = new EventEmitter<ParagraphUpdated>(null);
+  @Output() onLessonAddOrUpdateRequest: EventEmitter<LessonStepAddOrUpdateRequest> = new EventEmitter<LessonStepAddOrUpdateRequest>(null);
 
   editingMode: boolean = false;
   paragraphForm: FormGroup = new FormGroup({});
@@ -27,6 +31,10 @@ export class CreateParagraphComponent {
   errorWhileLoadingLessons: boolean = false;
 
   constructor(private readonly fb: FormBuilder, private readonly paragraphService: ParagraphService, private readonly lessonService: LessonService) { }
+  
+  ngOnChanges(changes: SimpleChanges): void {
+    changes[this.possibleToCreateNewLesson]. = 
+  }
 
   ngOnInit(): void {
     this.initializeForm();
@@ -101,7 +109,13 @@ export class CreateParagraphComponent {
   }
 
   addLesson() {
-    this.lessons.push(null);
+    if (this.paragraphResponse) {
+      var lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest = {
+        paragraphId: this.paragraphResponse.id
+      }
+
+      this.onLessonAddOrUpdateRequest.emit(lessonStepAddOrUpdateRequest);
+    }
   }
 
   editingToggle() {
