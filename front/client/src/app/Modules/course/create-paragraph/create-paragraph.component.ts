@@ -15,12 +15,11 @@ import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
   templateUrl: './create-paragraph.component.html',
   styleUrls: ['./create-paragraph.component.scss']
 })
-export class CreateParagraphComponent implements OnChanges {
+export class CreateParagraphComponent {
   @Input() paragraphResponse: ParagraphResponse | null = null;
   @Input({ required: true }) index: number;
   @Input({ required: true }) courseId: number = null;
   @Input({ required: true }) possibleToCreateNewLesson: boolean = true;
-  @Input({ required: true }) lessonUpdatedTitleRespomse: LessonTitleResponse = null;
   @Output() onUpdate: EventEmitter<ParagraphUpdated> = new EventEmitter<ParagraphUpdated>(null);
   @Output() onLessonAddOrUpdateRequest: EventEmitter<LessonStepAddOrUpdateRequest> = new EventEmitter<LessonStepAddOrUpdateRequest>(null);
 
@@ -31,10 +30,6 @@ export class CreateParagraphComponent implements OnChanges {
   errorWhileLoadingLessons: boolean = false;
 
   constructor(private readonly fb: FormBuilder, private readonly paragraphService: ParagraphService, private readonly lessonService: LessonService) { }
-  
-  ngOnChanges(changes: SimpleChanges): void {
-    changes[this.possibleToCreateNewLesson]. = 
-  }
 
   ngOnInit(): void {
     this.initializeForm();

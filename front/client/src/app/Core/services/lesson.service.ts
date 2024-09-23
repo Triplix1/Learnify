@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiResponse, ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { LessonAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonAddOrUpdateRequest';
 import { LessonResponse } from 'src/app/Models/Course/Lesson/LessonResponse';
+import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
 import { LessonUpdateResponse } from 'src/app/Models/Course/Lesson/LessonUpdateResponse';
 import { environment } from 'src/environments/environment';
@@ -13,6 +14,7 @@ import { environment } from 'src/environments/environment';
 })
 export class LessonService {
   baseProfileUrl: string = environment.baseApiUrl + "/lesson";
+  $lessonAddedOrUpdated: BehaviorSubject<LessonTitleResponse> = new BehaviorSubject<LessonTitleResponse>(null);
 
   constructor(private readonly httpClient: HttpClient) { }
 
@@ -29,7 +31,15 @@ export class LessonService {
   }
 
   createOrUpdateLesson(lessonAddOrUpdateRequest: LessonAddOrUpdateRequest): Observable<ApiResponseWithData<LessonUpdateResponse>> {
-    return this.httpClient.post<ApiResponseWithData<LessonUpdateResponse>>(this.baseProfileUrl, lessonAddOrUpdateRequest);
+    return this.httpClient.post<ApiResponseWithData<LessonUpdateResponse>>(this.baseProfileUrl, lessonAddOrUpdateRequest).pipe(
+      tap(response => {
+        const lessonTitleResponse: LessonTitleResponse = {
+          id: response.data.id,
+          title: response.data.title
+        }
+        this.$lessonAddedOrUpdated.next(lessonTitleResponse);
+      })
+    );
   }
 
   saveDraft(lessonAddOrUpdateRequest: LessonAddOrUpdateRequest): Observable<ApiResponseWithData<LessonUpdateResponse>> {
