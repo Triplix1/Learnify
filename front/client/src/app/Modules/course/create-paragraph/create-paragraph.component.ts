@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { take } from 'rxjs';
+import { take, takeUntil } from 'rxjs';
 import { LessonService } from 'src/app/Core/services/lesson.service';
 import { ParagraphService } from 'src/app/Core/services/paragraph.service';
 import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
@@ -37,89 +37,99 @@ export class CreateParagraphComponent {
     if (!this.paragraphResponse) {
       this.editingMode = true;
     }
+
+    this.lessonService.$lessonAddedOrUpdated.pipe(takeUntil()).subscribe(
+      updatedLesson => {
+        const lessonIndex = this.lessons.findIndex(l => l === null);
+
+        if (lessonIndex !== -1) {
+          this.lessons[lessonIndex] = updatedLesson;
+        }
+      });
+  }
+}
+
+initializeForm() {
+  this.paragraphForm = this.fb.group({
+    name: [this.paragraphResponse?.name ?? '', [Validators.required]],
+  });
+}
+
+loadLessons() {
+  if (this.lessons !== null || this._lessonsLoaded)
+    return;
+
+  if (this.paragraphResponse === null) {
+    this.lessons = [];
+    return;
   }
 
-  initializeForm() {
-    this.paragraphForm = this.fb.group({
-      name: [this.paragraphResponse?.name ?? '', [Validators.required]],
-    });
+  this.loadLessons();
+}
+
+expanded(value: boolean) {
+  if (value && this.lessons !== null || this._lessonsLoaded)
+    return;
+
+  if (this.paragraphResponse === null) {
+    this.lessons = [];
+    return;
   }
 
-  loadLessons() {
-    if (this.lessons !== null || this._lessonsLoaded)
-      return;
+  this.loadLessons();
+}
 
-    if (this.paragraphResponse === null) {
-      this.lessons = [];
-      return;
+save(event: MouseEvent) {
+  event.stopPropagation();
+  if (this.paragraphResponse) {
+    const paragraphUpdateRequest: ParagraphUpdateRequest = {
+      id: this.paragraphResponse.id,
+      name: this.paragraphForm.controls['name'].value
     }
 
-    this.loadLessons();
+    this.paragraphService.updateParagraph(paragraphUpdateRequest).pipe(take(1))
+      .subscribe(
+        response => this.handleUpdate(response.data)
+      );
   }
-
-  expanded(value: boolean) {
-    if (value && this.lessons !== null || this._lessonsLoaded)
-      return;
-
-    if (this.paragraphResponse === null) {
-      this.lessons = [];
-      return;
+  else {
+    const paragraphCreateRequest: ParagraphCreateRequest = {
+      courseId: this.courseId,
+      name: this.paragraphForm.controls['name'].value
     }
 
-    this.loadLessons();
+    this.paragraphService.createParagraph(paragraphCreateRequest).pipe(take(1))
+      .subscribe(
+        response => this.handleUpdate(response.data)
+      );
   }
+}
 
-  save(event: MouseEvent) {
-    event.stopPropagation();
-    if (this.paragraphResponse) {
-      const paragraphUpdateRequest: ParagraphUpdateRequest = {
-        id: this.paragraphResponse.id,
-        name: this.paragraphForm.controls['name'].value
-      }
+cancel(event: MouseEvent) {
+  event.stopPropagation();
+  this.initializeForm();
 
-      this.paragraphService.updateParagraph(paragraphUpdateRequest).pipe(take(1))
-        .subscribe(
-          response => this.handleUpdate(response.data)
-        );
+  if (this.paragraphResponse)
+    this.editingMode = false;
+}
+
+addLesson() {
+  if (this.paragraphResponse) {
+    var lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest = {
+      paragraphId: this.paragraphResponse.id
     }
-    else {
-      const paragraphCreateRequest: ParagraphCreateRequest = {
-        courseId: this.courseId,
-        name: this.paragraphForm.controls['name'].value
-      }
 
-      this.paragraphService.createParagraph(paragraphCreateRequest).pipe(take(1))
-        .subscribe(
-          response => this.handleUpdate(response.data)
-        );
-    }
+    this.onLessonAddOrUpdateRequest.emit(lessonStepAddOrUpdateRequest);
   }
+}
 
-  cancel(event: MouseEvent) {
-    event.stopPropagation();
-    this.initializeForm();
-
-    if (this.paragraphResponse)
-      this.editingMode = false;
-  }
-
-  addLesson() {
-    if (this.paragraphResponse) {
-      var lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest = {
-        paragraphId: this.paragraphResponse.id
-      }
-
-      this.onLessonAddOrUpdateRequest.emit(lessonStepAddOrUpdateRequest);
-    }
-  }
-
-  editingToggle() {
-    this.editingMode = true;
-  }
+editingToggle() {
+  this.editingMode = true;
+}
 
   private handleUpdate(response: ParagraphResponse) {
-    this.paragraphResponse = response;
-    this.editingMode = false;
-    this.onUpdate.emit({ paragraph: response, index: this.index });
-  }
+  this.paragraphResponse = response;
+  this.editingMode = false;
+  this.onUpdate.emit({ paragraph: response, index: this.index });
+}
 }
