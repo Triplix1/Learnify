@@ -127,8 +127,7 @@ public class MessageHub: Hub
             GroupName = group.Name
         };
 
-        if (group.Connections is null)
-            group.Connections = new List<Connection>();
+        group.Connections ??= new List<Connection>();
         
         group.Connections.Add(connection);
 
