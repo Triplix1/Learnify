@@ -1,1 +1,1 @@
-Learnify, course hosting web application123
+Learnify, course hosting web courses
