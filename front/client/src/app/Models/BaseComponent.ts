@@ -1,11 +1,15 @@
-import { OnDestroy } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { Subject } from "rxjs";
 
+@Component({
+    template: ''
+})
 export class BaseComponent implements OnDestroy {
     destroySubject: Subject<void> = new Subject<void>();
 
     ngOnDestroy(): void {
-        throw new Error("Method not implemented.");
+        this.destroySubject.next();
+        this.destroySubject.complete();
     }
 
 }

@@ -6,6 +6,7 @@ import { CourseService } from 'src/app/Core/services/course.service';
 import { LessonService } from 'src/app/Core/services/lesson.service';
 import { MediaService } from 'src/app/Core/services/media.service';
 import { AttachmentResponse } from 'src/app/Models/Attachment/AttachmentResponse';
+import { BaseComponent } from 'src/app/Models/BaseComponent';
 import { CourseCreateRequest } from 'src/app/Models/Course/CourseCreateRequest';
 import { CourseResponse } from 'src/app/Models/Course/CourseResponse';
 import { CourseUpdateRequest } from 'src/app/Models/Course/CourseUpdateRequest';
@@ -24,7 +25,7 @@ import { SelectorOption } from 'src/app/Models/SelectorOption';
   templateUrl: './create-course.component.html',
   styleUrls: ['./create-course.component.scss']
 })
-export class CreateCourseComponent {
+export class CreateCourseComponent extends BaseComponent {
   @Input() courseId: number = null;
 
   editingMode: boolean = false;
@@ -51,7 +52,9 @@ export class CreateCourseComponent {
     private readonly courseService: CourseService,
     private readonly spinner: NgxSpinnerService,
     private readonly lessonService: LessonService,
-    private readonly mediaService: MediaService) { }
+    private readonly mediaService: MediaService) {
+    super();
+  }
 
   ngOnInit(): void {
     console.log(this.courseId);
