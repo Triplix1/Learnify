@@ -14,6 +14,7 @@ import { LessonAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonAdd
 import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
 import { LessonUpdateResponse } from 'src/app/Models/Course/Lesson/LessonUpdateResponse';
+import { VideoAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/Video/VideoAddOrUpdateRequest';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
 import { Language } from 'src/app/Models/enums/Language';
 import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlobCreateRequest';
@@ -43,7 +44,6 @@ export class CreateCourseComponent extends BaseComponent {
   currentLessonEditing: LessonStepAddOrUpdateRequest;
   lessonParagraphId: number;
   lessonResponse: LessonUpdateResponse;
-  lessonAddOrUpdateRequest: LessonAddOrUpdateRequest;
   lessonUpdatedTitleRespomse: LessonTitleResponse;
   lessonForm: FormGroup = new FormGroup({});
   possibleToCreateNewLesson: boolean = true;
@@ -131,10 +131,6 @@ export class CreateCourseComponent extends BaseComponent {
     this.paragraphs[paragraphUpdated.index] = paragraphUpdated.paragraph;
   }
 
-  editLessonRequest(lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest) {
-
-  }
-
   handleFileInput(imageInput: File | null, quizIndex: number | null) {
     if (imageInput) {
       var fileCreateRequest: PrivateFileBlobCreateRequest = {
@@ -151,14 +147,14 @@ export class CreateCourseComponent extends BaseComponent {
             fileId: response.data.id
           }
 
-          this.prepareLessonToUpdateDto();
+          const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
 
           if (quizIndex === null)
-            this.lessonAddOrUpdateRequest.video.attachment = attachment;
+            lessonAddOrUpdateRequest.video.attachment = attachment;
           else
-            this.lessonAddOrUpdateRequest.quizzes[quizIndex].media = attachment;
+            lessonAddOrUpdateRequest.quizzes[quizIndex].media = attachment;
 
-          return this.lessonService.saveDraft(this.lessonAddOrUpdateRequest);
+          return this.lessonService.saveDraft(lessonAddOrUpdateRequest);
         })
       )
         .subscribe(response => {
@@ -167,16 +163,28 @@ export class CreateCourseComponent extends BaseComponent {
     }
   }
 
-  private prepareLessonToUpdateDto() {
-    this.lessonAddOrUpdateRequest.editedLessonId = this.lessonResponse.editedLessonId;
-    this.lessonAddOrUpdateRequest.id = this.lessonResponse.id;
-    this.lessonAddOrUpdateRequest.quizzes = this.lessonResponse.quizzes;
-    this.lessonAddOrUpdateRequest.video.attachment = this.lessonResponse.video.attachment;
-    this.lessonAddOrUpdateRequest.video.primaryLanguage = this.lessonResponse.video.primaryLanguage;
+  lessonAddOrUpdateRequest(lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest) {
+    this.currentLessonEditing = lessonStepAddOrUpdateRequest;
+  }
 
-    this.lessonAddOrUpdateRequest.video.subtitles = this.lessonResponse.video.subtitles.map(s => Language[s.language as keyof typeof Language]);
+  private prepareLessonToUpdateDto(): LessonAddOrUpdateRequest {
 
-    this.lessonAddOrUpdateRequest.title = this.lessonForm.controls['title'].value;
+    const video: VideoAddOrUpdateRequest = {
+      attachment: this.lessonResponse.video.attachment,
+      primaryLanguage: this.lessonResponse.video.primaryLanguage,
+      subtitles: this.lessonResponse.video.subtitles.map(s => Language[s.language as keyof typeof Language])
+    }
+
+    const lessonAddOrUpdateRequest: LessonAddOrUpdateRequest = {
+      editedLessonId: this.lessonResponse.editedLessonId,
+      id: this.lessonResponse.id,
+      quizzes: this.lessonResponse.quizzes,
+      paragraphId: this.lessonResponse.paragraphId,
+      video: video,
+      title: this.lessonForm.controls['title'].value
+    }
+
+    return lessonAddOrUpdateRequest;
   }
 
   private handleLessonUpdate(lessonResponse: LessonUpdateResponse) {

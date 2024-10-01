@@ -18,7 +18,6 @@ public class DbInstaller: IInstaller
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseNpgsql(config["ConnectionStrings:DefaultConnection"]);
-            var s = config["ConnectionStrings:DefaultConnection"];
         });
 
         services.AddScoped<IMongoAppDbContext, MongoAppDbContext>();

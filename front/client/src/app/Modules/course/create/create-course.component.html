@@ -50,8 +50,8 @@
 
                 <div *ngIf="!editingMode"
                      class="flex justify-center w-full">
-                    <app-button *ngIf="courseId === null || courseId === undefined || !courseResponse.isPublished; else unpublish"
-                                [disabled]="courseId === null || courseId === undefined"
+                    <app-button *ngIf="courseResponse === null || courseResponse === undefined || !courseResponse.isPublished; else unpublish"
+                                [disabled]="courseResponse === null || courseResponse === undefined"
                                 (buttonClick)="publish(true)">
                         Publish
                     </app-button>
@@ -74,7 +74,8 @@
                                           [possibleToCreateNewLesson]="lessonForm.dirty"
                                           [index]="index"
                                           [courseId]="courseResponse.id"
-                                          (onUpdate)="paragraphUpdated($event)"></app-create-paragraph>
+                                          (onUpdate)="paragraphUpdated($event)"
+                                          (onLessonAddOrUpdateRequest)="lessonAddOrUpdateRequest($event)"></app-create-paragraph>
 
 
                     <div *ngIf="!paragraphs.includes(null)"
