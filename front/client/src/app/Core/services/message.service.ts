@@ -79,14 +79,6 @@ export class MessageService {
     }
   }
 
-  // getMessages(groupName: string): Observable<Message[]> {
-  //   return this.http.get<Message[]>(this.baseUrl + 'messages/' + groupName);
-  // }
-
-  // getMessageThread(groupName: string) {
-  //   return this.http.get<Message[]>(this.baseUrl + '/messages/thread/' + groupName);
-  // }
-
   async sendMessage(messageCreateRequest: MessageCreateRequest) {
     return this.hubConnection?.invoke('SendMessage', messageCreateRequest)
       .catch(error => console.log(error));
