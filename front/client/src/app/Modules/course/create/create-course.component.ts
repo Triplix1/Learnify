@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { switchMap, take } from 'rxjs';
@@ -78,7 +78,7 @@ export class CreateCourseComponent extends BaseComponent {
     if (this.courseId === null) {
       const courseCreateRequest: CourseCreateRequest = {
         name: this.courseForm.controls["name"].value,
-        price: this.courseForm.controls["price"].value + 0,
+        price: +this.courseForm.controls["price"].value,
         primaryLanguage: this.courseForm.controls["language"].value as Language
       }
 
@@ -93,7 +93,7 @@ export class CreateCourseComponent extends BaseComponent {
       const courseUpdateRequest: CourseUpdateRequest = {
         id: this.courseId,
         name: this.courseForm.controls["name"].value,
-        price: this.courseForm.controls["price"].value + 0,
+        price: +this.courseForm.controls["price"].value,
         primaryLanguage: this.courseForm.controls["language"].value as Language
       }
 

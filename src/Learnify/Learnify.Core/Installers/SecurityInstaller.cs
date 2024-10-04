@@ -51,9 +51,9 @@ public class SecurityInstaller: IInstaller
                 {
                     policy
                         .WithOrigins(config.GetSection("AllowedOrigins").Get<string>()?.Split(';') ?? new string[] { })
+                        .AllowAnyHeader()
                         .AllowAnyMethod()
-                        .AllowCredentials()
-                        .AllowAnyHeader();
+                        .AllowCredentials();
                 });
             });
     }

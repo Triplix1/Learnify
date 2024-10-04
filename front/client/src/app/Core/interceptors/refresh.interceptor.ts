@@ -19,7 +19,6 @@ export class RefreshInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
     return this.authService.tokenData$.pipe(
-      take(1),
       switchMap(tokenData => {
         if (tokenData === null || tokenData === undefined) {
           return of(null)

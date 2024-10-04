@@ -20,8 +20,6 @@ if (app.Environment.IsDevelopment())
 }
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
-app.UseHttpsRedirection();
-
 app.UseCors("CorsPolicy");
 app.UseStaticFiles();
 app.UseAuthentication();

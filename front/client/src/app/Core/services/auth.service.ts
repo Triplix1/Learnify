@@ -11,6 +11,7 @@ import { LoginRequest } from 'src/app/Models/Auth/LoginRequest';
 import { UserFromToken } from 'src/app/Models/UserFromToken';
 import { GoogleAuthRequest } from 'src/app/Models/Auth/GoogleAuthRequest';
 import { Role } from 'src/app/Models/enums/Role';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -21,10 +22,10 @@ export class AuthService {
   private refreshTokenInProgress = false;
   private tokenData = new BehaviorSubject<AuthResponse>(null);
   private userData = new BehaviorSubject<UserFromToken>(null);
-  tokenData$ = this.tokenData.asObservable();
+  tokenData$ = this.tokenData.asObservable().pipe(catchError(e => { this.router.navigateByUrl("/login"); return of() }));
   userData$ = this.userData.asObservable();
 
-  constructor(private readonly httpClient: HttpClient) {
+  constructor(private readonly httpClient: HttpClient, private readonly router: Router) {
     this.updateTokenData()
   }
 

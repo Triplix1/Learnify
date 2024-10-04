@@ -24,7 +24,8 @@
 
             <div class="my-auto flex justify-end items-center">
 
-                <div class="mr-4 flex justify-between align-middle">
+                <div *ngIf="(this.tokenData| async)"
+                     class="mr-4 flex justify-between align-middle">
                     <a routerLink="/course/managing"
                        class="no-underline text-navlink">
                         Create course</a>

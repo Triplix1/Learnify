@@ -94,9 +94,10 @@
                      class="bg-gray-900 p-4 rounded-lg mb-4">
                     <input type="file"
                            #fileInput
+                           accept="video/mp4,video/x-m4v,video/*"
                            style="display: none;"
                            (change)="handleFileInput(fileInput.files ? fileInput.files[0] : null, null)" />
-                    <app-button onclick="fileInput.click()">Upload File</app-button>
+                    <app-button (buttonClick)="fileInput.click()">Upload File</app-button>
                 </div>
             </app-step>
         </app-stepper>

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
@@ -17,7 +17,13 @@ export class MediaService {
 
   create(fileCreateRequest: PrivateFileBlobCreateRequest): Observable<ApiResponseWithData<PrivateFileDataResponse>> {
     const formData = objectToFormData(fileCreateRequest);
+    let params = new HttpParams();
 
-    return this.httpClient.post<ApiResponseWithData<PrivateFileDataResponse>>(this.baseUrl, formData);
+    const options = {
+      params: params,
+      reportProgress: true,
+    };
+
+    return this.httpClient.post<ApiResponseWithData<PrivateFileDataResponse>>(this.baseUrl, formData, options);
   }
 }
