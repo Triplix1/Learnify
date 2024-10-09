@@ -50,10 +50,10 @@ public class SecurityInstaller: IInstaller
                 options.AddPolicy("CorsPolicy", policy =>
                 {
                     policy
-                        .WithOrigins(config.GetSection("AllowedOrigins").Get<string>()?.Split(';') ?? new string[] { })
+                        // .WithOrigins(config.GetSection("AllowedOrigins").Get<string>()?.Split(';') ?? new string[] { })
+                        .AllowAnyOrigin()
                         .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
+                        .AllowAnyMethod();
                 });
             });
     }

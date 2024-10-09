@@ -51,7 +51,7 @@ public class BlobStorage : IBlobStorage
 
         Uri sasUri = blobClient.GenerateSasUri(sasBuilder);
         
-        await _redisCacheManager.SetCachedDataAsync(blobClient.BlobContainerName + blobClient.Name, sasUri.ToString(), new TimeSpan(3,0,0));
+        // await _redisCacheManager.SetCachedDataAsync(blobClient.BlobContainerName + blobClient.Name, sasUri.ToString(), new TimeSpan(3,0,0));
         
         return new BlobResponse()
         {
@@ -116,9 +116,9 @@ public class BlobStorage : IBlobStorage
     {
         var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
         
-        await containerClient.SetAccessPolicyAsync(PublicAccessType.Blob);
-
         await containerClient.CreateIfNotExistsAsync();
+        
+        await containerClient.SetAccessPolicyAsync(PublicAccessType.Blob);
         
         return containerClient.GetBlobClient(blobName);
     }

@@ -67,10 +67,14 @@ public class FileService: IFileService
                 ApiResponse.Failure(new UnauthorizedAccessException("You have not permissions to edit this course"));
         }
         
-        var privateFile = _mapper.Map<PrivateFileData>(privateFileBlobCreateRequest);
+        var privateFile = new PrivateFileData()
+        {
+            CourseId = privateFileBlobCreateRequest.CourseId,
+            ContentType = privateFileBlobCreateRequest.ContentType
+        };
 
-        var container = "Learnify";
-        var blobName = Guid.NewGuid().ToString();
+        var container = "learnify";
+        var blobName = new string(Guid.NewGuid().ToString().Except("-").ToArray());
 
         privateFile.ContainerName = container;
         privateFile.BlobName = blobName;

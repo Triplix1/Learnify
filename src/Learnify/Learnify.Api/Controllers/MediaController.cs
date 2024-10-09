@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Learnify.Api.Controllers;
 
+[Route("api/media")]
 public class MediaController: BaseApiController
 {
     private readonly IFileService _fileService;
@@ -29,8 +30,8 @@ public class MediaController: BaseApiController
         return File(fileStreamResponse.Stream, fileStreamResponse.ContentType);
     }
 
-    [Authorize]
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<ApiResponse<PrivateFileDataResponse>>> CreateAsync([FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest)
     {
         var userId = HttpContext.User.GetUserId();

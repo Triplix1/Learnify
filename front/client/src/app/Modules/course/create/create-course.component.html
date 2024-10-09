@@ -92,8 +92,8 @@
             <app-step label="Lesson">
                 <div *ngIf="courseResponse"
                      class="bg-gray-900 p-4 rounded-lg mb-4">
-                    <input type="file"
-                           #fileInput
+                    <input #fileInput
+                           type="file"
                            accept="video/mp4,video/x-m4v,video/*"
                            style="display: none;"
                            (change)="handleFileInput(fileInput.files ? fileInput.files[0] : null, null)" />

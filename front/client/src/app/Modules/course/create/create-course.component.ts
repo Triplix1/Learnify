@@ -131,9 +131,11 @@ export class CreateCourseComponent extends BaseComponent {
     this.paragraphs[paragraphUpdated.index] = paragraphUpdated.paragraph;
   }
 
-  handleFileInput(imageInput: File | null, quizIndex: number | null) {
+  handleFileInput(imageInput: any, quizIndex: number | null) {
     if (imageInput) {
-      var fileCreateRequest: PrivateFileBlobCreateRequest = {
+      console.log('File selected:', imageInput);  // Check if the file is correctly selected
+
+      const fileCreateRequest: PrivateFileBlobCreateRequest = {
         content: imageInput,
         contentType: imageInput.type,
         courseId: this.courseId
@@ -145,7 +147,7 @@ export class CreateCourseComponent extends BaseComponent {
           const attachment: AttachmentResponse = {
             contentType: response.data.contentType,
             fileId: response.data.id
-          }
+          };
 
           const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
 
@@ -159,7 +161,7 @@ export class CreateCourseComponent extends BaseComponent {
       )
         .subscribe(response => {
           this.handleLessonUpdate(response.data);
-        })
+        });
     }
   }
 
