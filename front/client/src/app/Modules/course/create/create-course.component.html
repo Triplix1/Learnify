@@ -75,7 +75,8 @@
                                           [index]="index"
                                           [courseId]="courseResponse.id"
                                           (onUpdate)="paragraphUpdated($event)"
-                                          (onLessonAddOrUpdateRequest)="lessonAddOrUpdateRequest($event)"></app-create-paragraph>
+                                          (onLessonAddOrUpdateRequest)="lessonAddOrUpdateRequest($event)"
+                                          (onLessonDelete)="lessonDeleted($event)"></app-create-paragraph>
 
 
                     <div *ngIf="!paragraphs.includes(null)"
@@ -90,8 +91,19 @@
             </app-step>
 
             <app-step label="Lesson">
-                <div *ngIf="courseResponse"
+                <div *ngIf="!!currentLessonEditing"
                      class="bg-gray-900 p-4 rounded-lg mb-4">
+
+                    <div>
+                        <app-text-input [formControl]="$any(lessonForm.controls['title'])"
+                                        placeholder="Title"
+                                        label="Title"
+                                        (changedInput)="saveDraft()"></app-text-input>
+                    </div>
+
+                    <div *ngIf="lessonResponse?.video?.attachment">
+                        <video [src]="mediaUrl"></video>
+                    </div>
                     <input #fileInput
                            type="file"
                            accept="video/mp4,video/x-m4v,video/*"

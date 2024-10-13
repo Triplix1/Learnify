@@ -7,6 +7,7 @@ import { CreateParagraphComponent } from './create-paragraph/create-paragraph.co
 import { CreateLessonComponent } from './create-lesson/create-lesson.component';
 import { CourseCartComponent } from './course-cart/course-cart.component';
 import { CreateQuizComponent } from './create-quiz/create-quiz.component';
+import { LessonTitleComponent } from './lesson-title/lesson-title.component';
 
 
 
@@ -17,6 +18,7 @@ import { CreateQuizComponent } from './create-quiz/create-quiz.component';
     CreateLessonComponent,
     CourseCartComponent,
     CreateQuizComponent,
+    LessonTitleComponent,
   ],
   imports: [
     CommonModule,

@@ -23,6 +23,7 @@ export class CreateParagraphComponent extends BaseComponent {
   @Input({ required: true }) possibleToCreateNewLesson: boolean = true;
   @Output() onUpdate: EventEmitter<ParagraphUpdated> = new EventEmitter<ParagraphUpdated>(null);
   @Output() onLessonAddOrUpdateRequest: EventEmitter<LessonStepAddOrUpdateRequest> = new EventEmitter<LessonStepAddOrUpdateRequest>(null);
+  @Output() onLessonDelete: EventEmitter<LessonTitleResponse> = new EventEmitter<LessonTitleResponse>(null);
 
   editingMode: boolean = false;
   paragraphForm: FormGroup = new FormGroup({});
@@ -34,6 +35,10 @@ export class CreateParagraphComponent extends BaseComponent {
     super();
   }
 
+  get lessonTitlesList() {
+    return this.lessons.filter(l => l !== null);
+  }
+
   ngOnInit(): void {
     this.initializeForm();
 
@@ -41,12 +46,14 @@ export class CreateParagraphComponent extends BaseComponent {
       this.editingMode = true;
     }
 
-    this.lessonService.$lessonAddedOrUpdated.pipe(takeUntil(this.destroySubject)).subscribe(
+    this.lessonService.$lessonAddedOrUpdated.pipe().subscribe(
       updatedLesson => {
-        const lessonIndex = this.lessons.findIndex(l => l === null);
+        if (this.lessons) {
+          const lessonIndex = this.lessons.findIndex(l => l === null);
 
-        if (lessonIndex !== -1) {
-          this.lessons[lessonIndex] = updatedLesson;
+          if (lessonIndex !== -1) {
+            this.lessons[lessonIndex] = updatedLesson;
+          }
         }
       });
   }
@@ -59,7 +66,7 @@ export class CreateParagraphComponent extends BaseComponent {
   }
 
   loadLessons() {
-    if (this.lessons !== null || this._lessonsLoaded)
+    if (this._lessonsLoaded)
       return;
 
     if (this.paragraphResponse === null) {
@@ -67,19 +74,10 @@ export class CreateParagraphComponent extends BaseComponent {
       return;
     }
 
-    this.loadLessons();
-  }
-
-  expanded(value: boolean) {
-    if (value && this.lessons !== null || this._lessonsLoaded)
-      return;
-
-    if (this.paragraphResponse === null) {
-      this.lessons = [];
-      return;
-    }
-
-    this.loadLessons();
+    this.lessonService.getLessonTitlesForParagraph(this.paragraphResponse.id, true).pipe(take(1)).subscribe(lessons => {
+      this.lessons = lessons.data;
+      this._lessonsLoaded = true;
+    })
   }
 
   save(event: MouseEvent) {
@@ -122,12 +120,34 @@ export class CreateParagraphComponent extends BaseComponent {
         paragraphId: this.paragraphResponse.id
       }
 
+      this.lessons.push(null);
+
       this.onLessonAddOrUpdateRequest.emit(lessonStepAddOrUpdateRequest);
     }
   }
 
   editingToggle() {
     this.editingMode = true;
+  }
+
+  lessonDeleted(id: string) {
+    let lesson = this.lessons.find(l => l.id === id);
+    if (lesson) {
+      this.lessons = this.lessons.filter(l => l.id !== id);
+      this.onLessonDelete.emit(lesson);
+    }
+  }
+
+  editLesson(id: string) {
+    let lesson = this.lessons.find(l => l.id === id);
+    if (lesson) {
+      var lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest = {
+        id: lesson.id,
+        paragraphId: this.paragraphResponse.id,
+      }
+
+      this.onLessonAddOrUpdateRequest.emit(lessonStepAddOrUpdateRequest);
+    }
   }
 
   private handleUpdate(response: ParagraphResponse) {

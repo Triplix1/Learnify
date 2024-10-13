@@ -43,10 +43,13 @@ public class LessonService: ILessonService
         using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
         
         await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(attachmentFileIds);
-        
-        var subtitleIds = lesson.Video.Subtitles.Select(s => s.SubtitleId);
-        await _subtitlesManager.DeleteRangeAsync(subtitleIds);
-        
+
+        if (lesson.Video != null)
+        {
+            var subtitleIds = lesson.Video.Subtitles.Select(s => s.SubtitleId);
+            await _subtitlesManager.DeleteRangeAsync(subtitleIds);
+        }
+
         await _mongoUnitOfWork.Lessons.DeleteAsync(id);
         
         ts.Complete();
@@ -54,9 +57,17 @@ public class LessonService: ILessonService
         return ApiResponse.Success();
     }
 
-    public async Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetByParagraphAsync(int paragraphId)
+    public async Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetByParagraphAsync(int paragraphId, int userId, bool includeDrafts = false)
     {
-        var response = await _mongoUnitOfWork.Lessons.GetLessonTitlesForParagraphAsync(paragraphId, false);
+        if (includeDrafts)
+        {
+            var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(paragraphId);
+            if(userId != authorId)
+                return ApiResponse<IEnumerable<LessonTitleResponse>>.Failure(
+                    new Exception("You should be author of the course to be able see draft lessons"));
+        }
+        
+        var response = await _mongoUnitOfWork.Lessons.GetLessonTitlesForParagraphAsync(paragraphId, includeDrafts);
         
         return ApiResponse<IEnumerable<LessonTitleResponse>>.Success(response);
     }
@@ -72,7 +83,7 @@ public class LessonService: ILessonService
 
         var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(id);
         
-        var actualAuthorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(currParagraphId);
+        var actualAuthorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(currParagraphId);
 
         if (actualAuthorId != userId)
             return ApiResponse<LessonUpdateResponse>.Failure(
@@ -93,7 +104,7 @@ public class LessonService: ILessonService
 
     private async Task<ApiResponse<LessonUpdateResponse>> CreateAsync(LessonAddOrUpdateRequest lessonCreateRequest, int userId, bool draft = false)
     {
-        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(lessonCreateRequest.ParagraphId);
+        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(lessonCreateRequest.ParagraphId);
 
         if (userId != authorId)
             return ApiResponse<LessonUpdateResponse>.Failure(
@@ -116,8 +127,8 @@ public class LessonService: ILessonService
     {
         var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(lessonAddOrUpdateRequest.Id);
 
-        var actualAuthorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(currParagraphId);
-        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(lessonAddOrUpdateRequest.ParagraphId);
+        var actualAuthorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(currParagraphId);
+        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(lessonAddOrUpdateRequest.ParagraphId);
 
         if (actualAuthorId != authorId || authorId != userId)
             return ApiResponse<LessonUpdateResponse>.Failure(

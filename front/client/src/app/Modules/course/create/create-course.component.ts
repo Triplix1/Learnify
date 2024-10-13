@@ -20,6 +20,7 @@ import { Language } from 'src/app/Models/enums/Language';
 import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlobCreateRequest';
 import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
 import { SelectorOption } from 'src/app/Models/SelectorOption';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-create-course',
@@ -54,6 +55,12 @@ export class CreateCourseComponent extends BaseComponent {
     private readonly lessonService: LessonService,
     private readonly mediaService: MediaService) {
     super();
+  }
+
+  get mediaUrl(): string {
+    if (this.lessonResponse?.video?.attachment)
+      return environment.baseMediaUrl + "/" + this.lessonResponse.video.attachment.fileId
+    return null;
   }
 
   ngOnInit(): void {
@@ -167,23 +174,80 @@ export class CreateCourseComponent extends BaseComponent {
 
   lessonAddOrUpdateRequest(lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest) {
     this.currentLessonEditing = lessonStepAddOrUpdateRequest;
+
+    if (lessonStepAddOrUpdateRequest.id) {
+      this.lessonService.getLessonForUpdateById(lessonStepAddOrUpdateRequest.id).pipe(take(1)).subscribe(response => {
+        this.handleLessonUpdate(response.data)
+      });
+    }
+
+    this.initializeLessonForm();
+  }
+
+  initializeLessonForm() {
+    this.lessonForm = this.fb.group({
+      title: ['', Validators.required],
+      language: [Language.English, Validators.required],
+    })
+  }
+
+  saveDraft() {
+    const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
+
+    lessonAddOrUpdateRequest.title = this.lessonForm.controls['title'].value ?? lessonAddOrUpdateRequest.title;
+
+    if (lessonAddOrUpdateRequest.video)
+      lessonAddOrUpdateRequest.video.primaryLanguage = this.lessonForm.controls['language'].value ?? lessonAddOrUpdateRequest.video.primaryLanguage;
+
+    this.lessonService.saveDraft(lessonAddOrUpdateRequest).pipe(take(1)).subscribe(response => this.handleLessonUpdate(response.data));
+  }
+
+  lessonDeleted(lessonTitleResponse: LessonTitleResponse) {
+    if (this.currentLessonEditing.id === lessonTitleResponse.id) {
+      this.clearLessonTab();
+    }
+  }
+
+  private clearLessonTab() {
+    this.currentLessonEditing = null;
+    this.lessonParagraphId = null;
+    this.lessonResponse = null;
+    this.lessonUpdatedTitleRespomse = null;
+    this.initializeLessonForm();
   }
 
   private prepareLessonToUpdateDto(): LessonAddOrUpdateRequest {
+    let lessonAddOrUpdateRequest: LessonAddOrUpdateRequest;
+    if (this.lessonResponse) {
+      let video: VideoAddOrUpdateRequest;
 
-    const video: VideoAddOrUpdateRequest = {
-      attachment: this.lessonResponse.video.attachment,
-      primaryLanguage: this.lessonResponse.video.primaryLanguage,
-      subtitles: this.lessonResponse.video.subtitles.map(s => Language[s.language as keyof typeof Language])
+      if (this.lessonResponse.video) {
+        video = {
+          attachment: this.lessonResponse.video.attachment,
+          primaryLanguage: this.lessonResponse.video.primaryLanguage,
+          subtitles: this.lessonResponse.video.subtitles.map(s => Language[s.language as keyof typeof Language])
+        }
+      }
+
+
+      lessonAddOrUpdateRequest = {
+        editedLessonId: this.lessonResponse.editedLessonId,
+        id: this.lessonResponse.id,
+        quizzes: this.lessonResponse.quizzes,
+        paragraphId: this.lessonResponse.paragraphId,
+        video: video,
+        title: this.lessonForm.controls['title'].value
+      }
     }
-
-    const lessonAddOrUpdateRequest: LessonAddOrUpdateRequest = {
-      editedLessonId: this.lessonResponse.editedLessonId,
-      id: this.lessonResponse.id,
-      quizzes: this.lessonResponse.quizzes,
-      paragraphId: this.lessonResponse.paragraphId,
-      video: video,
-      title: this.lessonForm.controls['title'].value
+    else {
+      lessonAddOrUpdateRequest = {
+        editedLessonId: null,
+        paragraphId: this.currentLessonEditing.paragraphId,
+        id: this.currentLessonEditing.id,
+        quizzes: null,
+        title: null,
+        video: null
+      }
     }
 
     return lessonAddOrUpdateRequest;
@@ -194,7 +258,11 @@ export class CreateCourseComponent extends BaseComponent {
     this.lessonResponse = lessonResponse;
     this.lessonUpdatedTitleRespomse = { id: lessonResponse.id, title: lessonResponse.title }
     this.lessonForm.controls['title'].setValue(lessonResponse.title);
-    this.lessonForm.controls['language'].setValue(Language[lessonResponse.video.primaryLanguage as keyof typeof Language]);
+
+    if (lessonResponse.video)
+      this.lessonForm.controls['language'].setValue(Language[lessonResponse.video.primaryLanguage as keyof typeof Language]);
+
+    this.lessonService.$lessonAddedOrUpdated.next(this.lessonResponse);
   }
 
   private handleCourseUpdate(courseResponse: CourseResponse) {

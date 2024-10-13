@@ -14,7 +14,7 @@ public class ParagraphManager: IParagraphManager
 
     public async Task<Exception> ValidateExistAndAuthorOfParagraphAsync(int paragraphId, int userId)
     {
-        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorId(paragraphId);
+        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(paragraphId);
 
         if (authorId is null)
             return new KeyNotFoundException("Cannot find course with such Id");

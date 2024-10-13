@@ -38,9 +38,11 @@ public class LessonController: BaseApiController
     }
 
     [HttpGet("titles/{paragraphId}")]
-    public async Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetTitlesByParagraphIdAsync(int paragraphId)
+    public async Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetTitlesByParagraphIdAsync(int paragraphId, [FromQuery] bool includeDraft = false)
     {
-        var response = await _lessonService.GetByParagraphAsync(paragraphId);
+        var userId = User.GetUserId();
+        
+        var response = await _lessonService.GetByParagraphAsync(paragraphId, userId, includeDraft);
 
         return response;
     }

@@ -1,5 +1,4 @@
 ﻿using Learnify.Api.Controllers.Base;
-using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Extensions;

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiResponse, ApiResponseWithData } from 'src/app/Models/ApiResponse';
@@ -26,8 +26,11 @@ export class LessonService {
     return this.httpClient.get<ApiResponseWithData<LessonUpdateResponse>>(this.baseProfileUrl + "/" + id);
   }
 
-  getLessonTitlesForParagraph(paragraphId: number): Observable<ApiResponseWithData<LessonTitleResponse[]>> {
-    return this.httpClient.get<ApiResponseWithData<LessonTitleResponse[]>>(this.baseProfileUrl + "/titles/" + paragraphId);
+  getLessonTitlesForParagraph(paragraphId: number, includeDrafts: boolean): Observable<ApiResponseWithData<LessonTitleResponse[]>> {
+    let params = new HttpParams()
+      .set('includeDraft', includeDrafts);
+
+    return this.httpClient.get<ApiResponseWithData<LessonTitleResponse[]>>(this.baseProfileUrl + "/titles/" + paragraphId, { params });
   }
 
   createOrUpdateLesson(lessonAddOrUpdateRequest: LessonAddOrUpdateRequest): Observable<ApiResponseWithData<LessonUpdateResponse>> {
