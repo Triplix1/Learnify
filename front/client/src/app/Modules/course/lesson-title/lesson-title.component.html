@@ -1,0 +1,16 @@
+<div class="flex items-center justify-between py-2 px-3 bg-gray-800 text-white rounded-lg shadow-md w-full">
+    <span>{{ lessonTitle.title }}</span>
+    <div class="flex">
+        <button class="mr-2"
+                (click)="invokeEdit()">
+            <mat-icon class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                      fontIcon="edit">
+            </mat-icon>
+        </button>
+        <button (click)="onDelete()">
+            <mat-icon class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                      fontIcon="delete">
+            </mat-icon>
+        </button>
+    </div>
+</div>
