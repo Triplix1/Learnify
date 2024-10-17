@@ -18,7 +18,6 @@ public class MediaController: BaseApiController
         _fileService = fileService;
     }
 
-    [Authorize]
     [HttpGet("{fileId}")]
     public async Task<IActionResult> GetStreamForFileAsync(int fileId)
     {
@@ -26,7 +25,7 @@ public class MediaController: BaseApiController
 
         var fileStreamResponse = await _fileService.GetFileStreamById(fileId, userId);
 
-        return File(fileStreamResponse.Stream, fileStreamResponse.ContentType);
+        return File(fileStreamResponse.Stream, fileStreamResponse.ContentType, enableRangeProcessing: true);
     }
 
     [HttpPost]

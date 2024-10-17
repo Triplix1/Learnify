@@ -158,8 +158,13 @@ export class CreateCourseComponent extends BaseComponent {
 
           const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
 
-          if (quizIndex === null)
-            lessonAddOrUpdateRequest.video.attachment = attachment;
+          if (quizIndex === null) {
+            lessonAddOrUpdateRequest.video = {
+              primaryLanguage: this.lessonForm.controls['language'].value ?? lessonAddOrUpdateRequest.video.primaryLanguage,
+              attachment: attachment,
+              subtitles: []
+            }
+          }
           else
             lessonAddOrUpdateRequest.quizzes[quizIndex].media = attachment;
 
@@ -218,6 +223,7 @@ export class CreateCourseComponent extends BaseComponent {
 
   private prepareLessonToUpdateDto(): LessonAddOrUpdateRequest {
     let lessonAddOrUpdateRequest: LessonAddOrUpdateRequest;
+
     if (this.lessonResponse) {
       let video: VideoAddOrUpdateRequest;
 
@@ -228,7 +234,6 @@ export class CreateCourseComponent extends BaseComponent {
           subtitles: this.lessonResponse.video.subtitles.map(s => Language[s.language as keyof typeof Language])
         }
       }
-
 
       lessonAddOrUpdateRequest = {
         editedLessonId: this.lessonResponse.editedLessonId,
