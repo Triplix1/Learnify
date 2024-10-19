@@ -26,7 +26,10 @@ public class BlobStorage : IBlobStorage
         {
             throw new InvalidOperationException($"BlobDto with id:{blobDto.Name} already exists.");
         }
-        
+
+        if (blobDto.Content is null)
+            throw new ArgumentNullException(nameof(blobDto.Content), "Content to upload into storage cannot be null");
+            
         var blobHttpHeaders = new BlobHttpHeaders
         {
             ContentType = blobDto.ContentType // Use the ContentType from BlobDto
@@ -37,7 +40,7 @@ public class BlobStorage : IBlobStorage
             HttpHeaders = blobHttpHeaders
         };
         
-        await blobClient.UploadAsync(new BinaryData(blobDto.Content ?? new byte[] { }), blobUploadOptions);
+        await blobClient.UploadAsync(blobDto.Content, blobUploadOptions);
         
         BlobSasBuilder sasBuilder = new BlobSasBuilder
         {

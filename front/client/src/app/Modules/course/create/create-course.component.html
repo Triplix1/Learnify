@@ -102,10 +102,7 @@
                     </div>
 
                     <div *ngIf="lessonResponse?.video?.attachment">
-                        <video>
-                            <source [src]="mediaUrl"
-                                    [type]="lessonResponse.video.attachment.contentType">
-                        </video>
+                        <app-video-player [fileId]="lessonResponse.video.attachment.fileId"></app-video-player>
                     </div>
                     <input #fileInput
                            type="file"

@@ -170,14 +170,12 @@ public class IdentityService : IIdentityService
 
         if (registerRequest.Image is not null)
         {
-            using var memoryStream = new MemoryStream();
-            await registerRequest.Image.CopyToAsync(memoryStream);
-            var fileBytes = memoryStream.ToArray();
+            var stream = registerRequest.Image.OpenReadStream();
 
             var imageBlobAddRequest = new BlobDto()
             {
                 Name = user.Email,
-                Content = fileBytes,
+                Content = stream,
                 ContainerName = "indentity-user-images",
                 ContentType = "image/*"
             };

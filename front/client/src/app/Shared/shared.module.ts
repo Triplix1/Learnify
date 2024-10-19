@@ -20,6 +20,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { StepperComponent } from './components/stepper/stepper.component';
 import { StepComponent } from './components/step/step.component';
 import { ContextMenuComponent } from './components/context-menu/context-menu.component';
+import { VideoPlayerComponent } from './components/video-player/video-player.component';
 
 
 @NgModule({
@@ -36,6 +37,7 @@ import { ContextMenuComponent } from './components/context-menu/context-menu.com
     StepperComponent,
     StepComponent,
     ContextMenuComponent,
+    VideoPlayerComponent,
   ],
   imports: [
     CommonModule,
@@ -75,6 +77,7 @@ import { ContextMenuComponent } from './components/context-menu/context-menu.com
     StepComponent,
     StepperComponent,
     ContextMenuComponent,
+    VideoPlayerComponent,
   ]
 })
 export class SharedModule { }

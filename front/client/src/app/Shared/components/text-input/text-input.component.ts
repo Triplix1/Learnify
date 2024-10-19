@@ -41,7 +41,7 @@ export class TextInputComponent implements ControlValueAccessor, OnInit {
   }
 
   changed() {
-    if (this.ngControl.valid)
+    if (this.ngControl.valid && this.ngControl.dirty)
       of(this.ngControl.value).pipe(debounceTime(500)).subscribe(value => this.changedInput.emit(value));
   }
 }

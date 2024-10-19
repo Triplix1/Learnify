@@ -28,8 +28,9 @@ public class MediaController: BaseApiController
         return File(fileStreamResponse.Stream, fileStreamResponse.ContentType, enableRangeProcessing: true);
     }
 
-    [HttpPost]
     [Authorize]
+    [HttpPost]
+    [RequestSizeLimit((long)10 * 1024 * 1024 * 1024)]
     public async Task<ActionResult<ApiResponse<PrivateFileDataResponse>>> CreateAsync([FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest)
     {
         var userId = HttpContext.User.GetUserId();

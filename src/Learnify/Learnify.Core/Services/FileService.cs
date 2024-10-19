@@ -80,19 +80,12 @@ public class FileService: IFileService
         privateFile.BlobName = blobName;
         
         await using var stream = privateFileBlobCreateRequest.Content.OpenReadStream();
-
-        byte[] b;
-
-        using (BinaryReader br = new BinaryReader(stream))
-        {
-            b = br.ReadBytes((int)stream.Length);
-        }
         
         var blobDto = new BlobDto()
         {
             ContainerName = container,
             Name = blobName,
-            Content = b,
+            Content = stream,
             ContentType = privateFileBlobCreateRequest.ContentType
         };
         

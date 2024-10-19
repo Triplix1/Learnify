@@ -179,6 +179,7 @@ export class CreateCourseComponent extends BaseComponent {
 
   lessonAddOrUpdateRequest(lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest) {
     this.currentLessonEditing = lessonStepAddOrUpdateRequest;
+    this.lessonResponse = null;
 
     if (lessonStepAddOrUpdateRequest.id) {
       this.lessonService.getLessonForUpdateById(lessonStepAddOrUpdateRequest.id).pipe(take(1)).subscribe(response => {

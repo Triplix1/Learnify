@@ -85,19 +85,12 @@ public class ProfileService : IProfileService
             }
             
             await using var stream = profileUpdateRequest.File.OpenReadStream();
-
-            byte[] b;
-
-            using (BinaryReader br = new BinaryReader(stream))
-            {
-                b = br.ReadBytes((int)stream.Length);
-            }
             
             var blobDto = new BlobDto()
             {
                 Name = origin.ImageBlobName,
                 ContainerName = origin.ImageContainerName,
-                Content = b,
+                Content = stream,
                 ContentType = "image/*"
             };
             

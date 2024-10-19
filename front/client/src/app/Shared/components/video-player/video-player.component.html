@@ -1,0 +1,13 @@
+<div class="w-full flex justify-center items-center">
+    <div class="w-4/6 p-4">
+        <video *ngIf="this.fileId"
+               controls
+               class="w-full"
+               [autoplay]="false"
+               [src]="videoUrl"
+               (loadedmetadata)="onVideoLoad()"
+               (error)="onVideoError($event)">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+</div>

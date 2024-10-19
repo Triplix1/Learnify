@@ -23,5 +23,5 @@ public class BlobDto
     /// <summary>
     /// Gets or sets value for Content
     /// </summary>
-    public byte[]? Content { get; set; }
+    public Stream Content { get; set; }
 }

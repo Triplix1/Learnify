@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Json.Serialization;
 using Azure.Storage.Blobs;
 using FluentValidation;
 using Learnify.Core.Installer;
@@ -8,6 +9,7 @@ using Learnify.Core.Options;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Services;
 using MassTransit;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
@@ -27,6 +29,16 @@ public class CoreInstaller: IInstaller
         services.AddFluentValidationAutoValidation();
         services.AddAutoMapper(Assembly);
         services.AddSignalR();
+
+        services.Configure<FormOptions>(opts =>
+        {
+            opts.MultipartBodyLengthLimit = (long)10 * 1024 * 1024 * 1024;
+        });
+        
+        services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
 
         services.AddSwaggerGen(c =>
         {
