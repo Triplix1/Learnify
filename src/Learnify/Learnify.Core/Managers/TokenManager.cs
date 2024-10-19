@@ -14,7 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Learnify.Core.Managers;
 
-public class TokenManager: ITokenManager
+public class TokenManager : ITokenManager
 {
     private readonly ILogger<TokenManager> _logger;
     private readonly JwtOptions _jwtOptions;
@@ -24,7 +24,7 @@ public class TokenManager: ITokenManager
         _logger = logger;
         _jwtOptions = jwtOptions.Value;
     }
-    
+
     public JwtSecurityToken GetDataFromToken(string jwt)
     {
         var handler = new JwtSecurityTokenHandler();
@@ -37,18 +37,18 @@ public class TokenManager: ITokenManager
     {
         var claims = new List<Claim>
         {
-            new Claim("id", user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim("name", user.Name),
-            new Claim("surname", user.Surname),
-            new Claim(ClaimTypes.Role, user.Role.ToString()),
+            new("id", user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new("name", user.Name),
+            new("surname", user.Surname),
+            new(ClaimTypes.Role, user.Role.ToString())
         };
-        
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var expires = DateTime.UtcNow.AddMilliseconds(_jwtOptions.Expire.TotalMilliseconds);
-        
+
         JwtSecurityToken tokenGenerator = new(
             _jwtOptions.Issuer,
             _jwtOptions.Audience,
@@ -71,23 +71,24 @@ public class TokenManager: ITokenManager
 
         return new TokenResponse(token, expires);
     }
-    
+
     public string GenerateRefreshToken()
     {
-        const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?";
+        const string validChars =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?";
 
         // Generate a random byte array
-        byte[] randomNumber = new byte[64];
+        var randomNumber = new byte[64];
         using (var rng = new RNGCryptoServiceProvider())
         {
             rng.GetBytes(randomNumber);
         }
 
         // Convert the byte array to a character array
-        char[] chars = new char[64];
-        for (int i = 0; i < 64; i++)
+        var chars = new char[64];
+        for (var i = 0; i < 64; i++)
         {
-            int index = randomNumber[i] % validChars.Length;
+            var index = randomNumber[i] % validChars.Length;
             chars[i] = validChars[index];
         }
 

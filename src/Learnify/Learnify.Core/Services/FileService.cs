@@ -10,14 +10,15 @@ using Learnify.Core.Transactions;
 
 namespace Learnify.Core.Services;
 
-public class FileService: IFileService
+public class FileService : IFileService
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
     private readonly IBlobStorage _blobStorage;
     private readonly IMapper _mapper;
 
-    public FileService(IPsqUnitOfWork psqUnitOfWork, IBlobStorage blobStorage, IMongoUnitOfWork mongoUnitOfWork, IMapper mapper)
+    public FileService(IPsqUnitOfWork psqUnitOfWork, IBlobStorage blobStorage, IMongoUnitOfWork mongoUnitOfWork,
+        IMapper mapper)
     {
         _psqUnitOfWork = psqUnitOfWork;
         _blobStorage = blobStorage;
@@ -25,16 +26,18 @@ public class FileService: IFileService
         _mapper = mapper;
     }
 
-    public async Task<FileStreamResponse> GetFileStreamById(int id, int userId)
+    public async Task<FileStreamResponse> GetFileStreamById(int id, int userId,
+        CancellationToken cancellationToken = default)
     {
-        var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(id);
+        var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(id, cancellationToken);
 
         if (file is null)
             throw new KeyNotFoundException("Cannot find file with such id");
 
         if (file.CourseId.HasValue)
         {
-            var courseAuthorId = await _psqUnitOfWork.CourseRepository.GetAuthorId(file.CourseId.Value);
+            var courseAuthorId =
+                await _psqUnitOfWork.CourseRepository.GetAuthorIdAsync(file.CourseId.Value, cancellationToken);
 
             if (courseAuthorId is null)
                 ApiResponse.Failure(new KeyNotFoundException("cannot find course with such id"));
@@ -42,31 +45,37 @@ public class FileService: IFileService
             //Author should have access without buying the course
             if (courseAuthorId != userId)
             {
-                var userHasBoughtThisCourse = await _psqUnitOfWork.UserBoughtRepository.UserBoughtExists(userId, file.CourseId.Value);
+                var userHasBoughtThisCourse =
+                    await _psqUnitOfWork.UserBoughtRepository.UserBoughtExistsAsync(userId, file.CourseId.Value,
+                        cancellationToken);
 
                 if (!userHasBoughtThisCourse)
                     throw new Exception("User has not access for this file");
             }
         }
 
-        var stream = await _blobStorage.GetBlobStreamAsync(file.ContainerName, file.BlobName);
+        var stream = await _blobStorage.GetBlobStreamAsync(file.ContainerName, file.BlobName, cancellationToken);
 
         return stream;
     }
-    
-    public async Task<ApiResponse<PrivateFileDataResponse>> CreateAsync(PrivateFileBlobCreateRequest privateFileBlobCreateRequest, int userId)
+
+    public async Task<ApiResponse<PrivateFileDataResponse>> CreateAsync(
+        PrivateFileBlobCreateRequest privateFileBlobCreateRequest, int userId,
+        CancellationToken cancellationToken = default)
     {
         if (privateFileBlobCreateRequest.CourseId.HasValue)
         {
-            var courseAuthorId = await _psqUnitOfWork.CourseRepository.GetAuthorId(privateFileBlobCreateRequest.CourseId.Value);
+            var courseAuthorId =
+                await _psqUnitOfWork.CourseRepository.GetAuthorIdAsync(privateFileBlobCreateRequest.CourseId.Value,
+                    cancellationToken);
 
             if (courseAuthorId is null)
                 ApiResponse.Failure(new KeyNotFoundException("cannot find course with such id"));
-            
+
             if (courseAuthorId != userId)
                 ApiResponse.Failure(new UnauthorizedAccessException("You have not permissions to edit this course"));
         }
-        
+
         var privateFile = new PrivateFileData()
         {
             CourseId = privateFileBlobCreateRequest.CourseId,
@@ -78,9 +87,9 @@ public class FileService: IFileService
 
         privateFile.ContainerName = container;
         privateFile.BlobName = blobName;
-        
+
         await using var stream = privateFileBlobCreateRequest.Content.OpenReadStream();
-        
+
         var blobDto = new BlobDto()
         {
             ContainerName = container,
@@ -88,13 +97,13 @@ public class FileService: IFileService
             Content = stream,
             ContentType = privateFileBlobCreateRequest.ContentType
         };
-        
+
         using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
 
-        var fileResponse = await _psqUnitOfWork.PrivateFileRepository.CreateFileAsync(privateFile);
-        
-        await _blobStorage.UploadAsync(blobDto);
-        
+        var fileResponse = await _psqUnitOfWork.PrivateFileRepository.CreateFileAsync(privateFile, cancellationToken);
+
+        await _blobStorage.UploadAsync(blobDto, cancellationToken: cancellationToken);
+
         ts.Complete();
 
         var response = _mapper.Map<PrivateFileDataResponse>(fileResponse);

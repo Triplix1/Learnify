@@ -10,7 +10,7 @@ namespace Learnify.Infrastructure.Repositories;
 /// <summary>
 /// RefreshTokenRepository
 /// </summary>
-public class RefreshTokenRepository: BasePsqRepository<RefreshToken, int>, IRefreshTokenRepository
+public class RefreshTokenRepository : BasePsqRepository<RefreshToken, int>, IRefreshTokenRepository
 {
     /// <summary>
     /// Initializes a new instance of <see cref="RefreshTokenRepository"/>
@@ -21,8 +21,9 @@ public class RefreshTokenRepository: BasePsqRepository<RefreshToken, int>, IRefr
     }
 
     /// <inheritdoc />
-    public async Task<RefreshToken?> GetByJwtAsync(string jwt)
+    public async Task<RefreshToken?> GetByJwtAsync(string jwt, CancellationToken cancellationToken = default)
     {
-        return await Context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Jwt == jwt);
+        return await Context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Jwt == jwt,
+            cancellationToken: cancellationToken);
     }
 }

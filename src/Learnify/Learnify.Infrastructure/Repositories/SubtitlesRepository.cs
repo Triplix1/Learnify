@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
 
-public class SubtitlesRepository: ISubtitlesRepository
+public class SubtitlesRepository : ISubtitlesRepository
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -18,74 +18,86 @@ public class SubtitlesRepository: ISubtitlesRepository
         _mapper = mapper;
     }
 
-    public async Task<Subtitle> GetByIdAsync(int id)
+    public async Task<Subtitle> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var subtitle = await _context.Subtitles.FindAsync(id);
 
         return subtitle;
     }
 
-    public async Task<IEnumerable<Subtitle>> GetByIdsAsync(IEnumerable<int> ids)
+    public async Task<IEnumerable<Subtitle>> GetByIdsAsync(IEnumerable<int> ids,
+        CancellationToken cancellationToken = default)
     {
-        var subtitles = await _context.Subtitles.Where(s => ids.Contains(s.Id)).ToArrayAsync();
-        
+        var subtitles = await _context.Subtitles.Where(s => ids.Contains(s.Id))
+            .ToArrayAsync(cancellationToken: cancellationToken);
+
         return subtitles;
     }
 
-    public async Task<Subtitle> CreateAsync(Subtitle subtitlesCreateRequest)
+    public async Task<Subtitle> CreateAsync(Subtitle subtitlesCreateRequest,
+        CancellationToken cancellationToken = default)
     {
-        await _context.Subtitles.AddAsync(subtitlesCreateRequest);
-        await _context.SaveChangesAsync();
-        
-        return subtitlesCreateRequest;
-    }
-
-    public async Task<IEnumerable<Subtitle>> CreateRangeAsync(IEnumerable<Subtitle> subtitlesCreateRequest)
-    {
-        await _context.Subtitles.AddRangeAsync(subtitlesCreateRequest);
-        await _context.SaveChangesAsync();
+        await _context.Subtitles.AddAsync(subtitlesCreateRequest, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return subtitlesCreateRequest;
     }
 
-    public async Task<Subtitle> UpdateAsync(Subtitle subtitlesUpdateRequest)
+    public async Task<IEnumerable<Subtitle>> CreateRangeAsync(IEnumerable<Subtitle> subtitlesCreateRequest,
+        CancellationToken cancellationToken = default)
     {
+        await _context.Subtitles.AddRangeAsync(subtitlesCreateRequest, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return subtitlesCreateRequest;
+    }
+
+    public async Task<Subtitle> UpdateAsync(Subtitle subtitlesUpdateRequest,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var subtitle = await _context.Subtitles.FindAsync(subtitlesUpdateRequest.Id);
 
         if (subtitle is null)
             return null;
 
         _mapper.Map(subtitlesUpdateRequest, subtitle);
-        
+
         _context.Subtitles.Update(subtitle);
-        await _context.SaveChangesAsync();
-        
+        await _context.SaveChangesAsync(cancellationToken);
+
         return subtitle;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        
         var subtitle = await _context.Subtitles.FindAsync(id);
 
         if (subtitle is null)
             return false;
 
         _context.Subtitles.Remove(subtitle);
-        await _context.SaveChangesAsync();
-        
+        await _context.SaveChangesAsync(cancellationToken);
+
         return true;
     }
 
-    public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids)
+    public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
-        var subtitles = await _context.Subtitles.Where(s => ids.Contains(s.Id)).ToArrayAsync();
+        var subtitles = await _context.Subtitles.Where(s => ids.Contains(s.Id))
+            .ToArrayAsync(cancellationToken: cancellationToken);
 
         if (subtitles.Length != ids.Count())
             return false;
 
         _context.Subtitles.RemoveRange(subtitles);
-        await _context.SaveChangesAsync();
-        
+        await _context.SaveChangesAsync(cancellationToken);
+
         return true;
     }
 }

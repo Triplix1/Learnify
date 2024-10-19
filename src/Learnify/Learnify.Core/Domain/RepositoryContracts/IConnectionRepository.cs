@@ -2,5 +2,5 @@
 
 public interface IConnectionRepository
 {
-    Task<bool> RemoveAsync(string connectionId);
+    Task<bool> RemoveAsync(string connectionId, CancellationToken cancellationToken = default);
 }

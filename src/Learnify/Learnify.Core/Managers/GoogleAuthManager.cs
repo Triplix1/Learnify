@@ -18,14 +18,16 @@ public class GoogleAuthManager : IGoogleAuthManager
     private readonly GoogleAuthOptions _googleAuthOptions;
     private const string GoogleTokenUrl = "https://oauth2.googleapis.com/token";
 
-    public GoogleAuthManager(IOptions<GoogleAuthOptions> googleAuthOptions, IHttpClientFactory httpClientFactory, ILogger<GoogleAuthManager> logger)
+    public GoogleAuthManager(IOptions<GoogleAuthOptions> googleAuthOptions, IHttpClientFactory httpClientFactory,
+        ILogger<GoogleAuthManager> logger)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
         _googleAuthOptions = googleAuthOptions.Value;
     }
 
-    public async Task<GoogleTokenResult> GetGoogleTokenAsync(GoogleAuthRequest googleAuthRequest)
+    public async Task<GoogleTokenResult> GetGoogleTokenAsync(GoogleAuthRequest googleAuthRequest,
+        CancellationToken cancellationToken = default)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, GoogleTokenUrl);
 
@@ -39,19 +41,21 @@ public class GoogleAuthManager : IGoogleAuthManager
             { "code_verifier", googleAuthRequest.CodeVerifier },
             { "redirect_uri", googleAuthRequest.RedirectUrl }
         };
-        
+
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
         request.Content = new FormUrlEncodedContent(query);
 
-        var response = await _httpClientFactory.CreateClient().SendAsync(request);
-        var data = await response.Content.ReadAsStringAsync();
+        var response = await _httpClientFactory.CreateClient().SendAsync(request, cancellationToken);
+        var data = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Error response from https://oauth2.googleapis.com/token, while trying to get token, message: {ResponseMessage}", data);
+            _logger.LogError(
+                "Error response from https://oauth2.googleapis.com/token, while trying to get token, message: {ResponseMessage}",
+                data);
             throw new TokenExchangeException();
         }
-        
+
         var tokenResult = JsonConvert.DeserializeObject<GoogleTokenResult>(data);
 
         if (tokenResult is null)
@@ -63,8 +67,9 @@ public class GoogleAuthManager : IGoogleAuthManager
         _logger.LogDebug("Google token request completed successfully");
         return tokenResult;
     }
-    
-    public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(string idToken)
+
+    public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleTokenAsync(string idToken,
+        CancellationToken cancellationToken = default)
     {
         var settings = new GoogleJsonWebSignature.ValidationSettings()
         {
@@ -72,9 +77,11 @@ public class GoogleAuthManager : IGoogleAuthManager
         };
 
         GoogleJsonWebSignature.Payload payload;
-        
+
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
         }
         catch (Exception)

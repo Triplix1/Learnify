@@ -6,7 +6,7 @@ namespace Learnify.Infrastructure.Repositories;
 
 public class ViewRepository: IViewRepository
 {
-    public IEnumerable<View> GetFilteredData(ViewSpecificationFilter specificationFilter)
+    public IEnumerable<View> GetFilteredData(ViewSpecificationFilter specificationFilter, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

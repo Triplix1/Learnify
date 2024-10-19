@@ -2,5 +2,6 @@
 
 public interface ICourseManager
 {
-    Task<Exception> ValidateAuthorOfCourseAsync(int courseId, int userId);
+    Task<Exception> ValidateAuthorOfCourseAsync(int courseId, int userId,
+        CancellationToken cancellationToken = default);
 }

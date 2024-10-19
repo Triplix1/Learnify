@@ -7,7 +7,7 @@ using Learnify.Core.Transactions;
 
 namespace Learnify.Core.Managers;
 
-public class SubtitlesManager: ISubtitlesManager
+public class SubtitlesManager : ISubtitlesManager
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IBlobStorage _blobStorage;
@@ -20,115 +20,121 @@ public class SubtitlesManager: ISubtitlesManager
         _mapper = mapper;
     }
 
-    public async Task<SubtitlesResponse> GetSubtitleByIdAsync(int id)
+    public async Task<SubtitlesResponse> GetSubtitleByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var subtitle = await _psqUnitOfWork.SubtitlesRepository.GetByIdAsync(id);
+        var subtitle = await _psqUnitOfWork.SubtitlesRepository.GetByIdAsync(id, cancellationToken);
 
         var response = _mapper.Map<SubtitlesResponse>(subtitle);
-        
+
         return response;
     }
 
-    public async Task<SubtitlesResponse> CreateAsync(SubtitlesCreateRequest subtitlesCreateRequest)
+    public async Task<SubtitlesResponse> CreateAsync(SubtitlesCreateRequest subtitlesCreateRequest,
+        CancellationToken cancellationToken = default)
     {
         var subtitle = _mapper.Map<Subtitle>(subtitlesCreateRequest);
 
-        subtitle = await _psqUnitOfWork.SubtitlesRepository.CreateAsync(subtitle);
+        subtitle = await _psqUnitOfWork.SubtitlesRepository.CreateAsync(subtitle, cancellationToken);
 
         var response = _mapper.Map<SubtitlesResponse>(subtitle);
 
         return response;
     }
 
-    public async Task<SubtitlesResponse> UpdateAsync(SubtitlesUpdateRequest subtitlesUpdateRequest)
+    public async Task<SubtitlesResponse> UpdateAsync(SubtitlesUpdateRequest subtitlesUpdateRequest,
+        CancellationToken cancellationToken = default)
     {
-         var subtitles = await _psqUnitOfWork.SubtitlesRepository.GetByIdAsync(subtitlesUpdateRequest.Id);
+        var subtitles =
+            await _psqUnitOfWork.SubtitlesRepository.GetByIdAsync(subtitlesUpdateRequest.Id, cancellationToken);
 
-         if (subtitles is null)
-             throw new KeyNotFoundException("Cannot find subtitles with such id");
+        if (subtitles is null)
+            throw new KeyNotFoundException("Cannot find subtitles with such id");
 
-         var subtitle = _mapper.Map<Subtitle>(subtitlesUpdateRequest);
+        var subtitle = _mapper.Map<Subtitle>(subtitlesUpdateRequest);
 
-         if (subtitles.FileId.HasValue && subtitles.FileId != subtitlesUpdateRequest.FileId)
-         {
-             var oldFile = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.FileId.Value);
-             
-             using var ts = TransactionScopeBuilder.CreateRepeatableReadAsync();
+        if (subtitles.FileId.HasValue && subtitles.FileId != subtitlesUpdateRequest.FileId)
+        {
+            var oldFile =
+                await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.FileId.Value, cancellationToken);
 
-             await _psqUnitOfWork.PrivateFileRepository.DeleteAsync(oldFile.Id);
-             
-             subtitle = await _psqUnitOfWork.SubtitlesRepository.UpdateAsync(subtitle);
-             
-             await _blobStorage.DeleteAsync(oldFile.ContainerName, oldFile.BlobName);
-             
-             ts.Complete();
-         }
-         else
-         {
-             subtitle = await _psqUnitOfWork.SubtitlesRepository.UpdateAsync(subtitle);
-         }
+            using var ts = TransactionScopeBuilder.CreateRepeatableReadAsync();
 
-         var response = _mapper.Map<SubtitlesResponse>(subtitle);
+            await _psqUnitOfWork.PrivateFileRepository.DeleteAsync(oldFile.Id, cancellationToken);
 
-         return response;
+            subtitle = await _psqUnitOfWork.SubtitlesRepository.UpdateAsync(subtitle, cancellationToken);
+
+            await _blobStorage.DeleteAsync(oldFile.ContainerName, oldFile.BlobName, cancellationToken);
+
+            ts.Complete();
+        }
+        else
+        {
+            subtitle = await _psqUnitOfWork.SubtitlesRepository.UpdateAsync(subtitle, cancellationToken);
+        }
+
+        var response = _mapper.Map<SubtitlesResponse>(subtitle);
+
+        return response;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var subtitles = await _psqUnitOfWork.SubtitlesRepository.GetByIdAsync(id);
+        var subtitles = await _psqUnitOfWork.SubtitlesRepository.GetByIdAsync(id, cancellationToken);
 
         if (subtitles is null)
             return false;
 
+        using var ts = TransactionScopeBuilder.CreateRepeatableReadAsync();
+
         if (subtitles.FileId.HasValue)
         {
-            var oldFile = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.FileId.Value);
-            
-            using var ts = TransactionScopeBuilder.CreateRepeatableReadAsync();
+            var oldFile =
+                await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.FileId.Value, cancellationToken);
 
-            await _psqUnitOfWork.PrivateFileRepository.DeleteAsync(oldFile.Id);
-            
-            var result = await _psqUnitOfWork.SubtitlesRepository.DeleteAsync(subtitles.Id);
 
-            await _blobStorage.DeleteAsync(oldFile.ContainerName, oldFile.BlobName);
-             
-            ts.Complete();
+            await _psqUnitOfWork.PrivateFileRepository.DeleteAsync(oldFile.Id, cancellationToken);
+
+            var result = await _psqUnitOfWork.SubtitlesRepository.DeleteAsync(subtitles.Id, cancellationToken);
+
+            await _blobStorage.DeleteAsync(oldFile.ContainerName, oldFile.BlobName, cancellationToken);
 
             return result;
         }
-        
-        return await _psqUnitOfWork.SubtitlesRepository.DeleteAsync(subtitles.Id);
+
+        var response = await _psqUnitOfWork.SubtitlesRepository.DeleteAsync(subtitles.Id, cancellationToken);
+
+        ts.Complete();
+
+        return response;
     }
 
-    public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids)
+    public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
-        var subtitles = await _psqUnitOfWork.SubtitlesRepository.GetByIdsAsync(ids);
+        var subtitles = await _psqUnitOfWork.SubtitlesRepository.GetByIdsAsync(ids, cancellationToken);
 
         if (subtitles is null)
             return false;
 
         var fileIds = subtitles.Where(s => s.FileId.HasValue).Select(s => s.FileId.Value);
-        
+
         if (fileIds.Any())
         {
-            var files = await _psqUnitOfWork.PrivateFileRepository.GetByIdsAsync(fileIds);
-            
+            var files = await _psqUnitOfWork.PrivateFileRepository.GetByIdsAsync(fileIds, cancellationToken);
+
             using var ts = TransactionScopeBuilder.CreateRepeatableReadAsync();
 
-            await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(fileIds);
-            
-            var result = await _psqUnitOfWork.SubtitlesRepository.DeleteRangeAsync(ids);
+            await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(fileIds, cancellationToken);
+
+            var result = await _psqUnitOfWork.SubtitlesRepository.DeleteRangeAsync(ids, cancellationToken);
 
             foreach (var file in files)
-            {
-                await _blobStorage.DeleteAsync(file.ContainerName, file.BlobName);
-            }
-             
+                await _blobStorage.DeleteAsync(file.ContainerName, file.BlobName, cancellationToken);
+
             ts.Complete();
 
             return result;
         }
-        
-        return await _psqUnitOfWork.SubtitlesRepository.DeleteRangeAsync(ids);
+
+        return await _psqUnitOfWork.SubtitlesRepository.DeleteRangeAsync(ids, cancellationToken);
     }
 }

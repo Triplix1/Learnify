@@ -9,6 +9,7 @@ using Learnify.Core.Dto.Profile;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Specification;
+using Learnify.Core.Transactions;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Learnify.Core.Services;
@@ -34,75 +35,82 @@ public class ProfileService : IProfileService
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<ProfileResponse>> GetByIdAsync(int id)
+    public async Task<ApiResponse<ProfileResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var profile = await _psqUnitOfWork.UserRepository.GetByIdAsync(id);
+        var profile = await _psqUnitOfWork.UserRepository.GetByIdAsync(id, cancellationToken);
 
         return ApiResponse<ProfileResponse>.Success(_mapper.Map<ProfileResponse>(profile));
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse> DeleteAsync(int id)
+    public async Task<ApiResponse> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var user = await _psqUnitOfWork.UserRepository.GetByIdAsync(id);
-        
-        if(user is null)
+        var user = await _psqUnitOfWork.UserRepository.GetByIdAsync(id, cancellationToken);
+
+        if (user is null)
             return ApiResponse.Failure(new KeyNotFoundException("Cannot find user with such id"));
 
-        var deletionResult = await _psqUnitOfWork.UserRepository.DeleteAsync(user.Id);
-        
+        using var transaction = TransactionScopeBuilder.CreateReadCommittedAsync();
+
+        var deletionResult = await _psqUnitOfWork.UserRepository.DeleteAsync(user.Id, cancellationToken);
+
         if (!deletionResult)
             return ApiResponse.Failure(new KeyNotFoundException("Cannot find user with such id"));
-        
+
         if (user.ImageContainerName is not null && user.ImageBlobName is not null)
-        {
-            await _blobStorage.DeleteAsync(user.ImageContainerName, user.ImageBlobName);
-        }
+            await _blobStorage.DeleteAsync(user.ImageContainerName, user.ImageBlobName, cancellationToken);
+
+        transaction.Complete();
 
         return ApiResponse.Success();
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<ProfileResponse>> UpdateAsync(ProfileUpdateRequest profileUpdateRequest)
+    public async Task<ApiResponse<ProfileResponse>> UpdateAsync(ProfileUpdateRequest profileUpdateRequest,
+        CancellationToken cancellationToken = default)
     {
-        var origin = await _psqUnitOfWork.UserRepository.GetByIdAsync(profileUpdateRequest.Id);
+        var origin = await _psqUnitOfWork.UserRepository.GetByIdAsync(profileUpdateRequest.Id, cancellationToken);
 
         if (origin is null)
             return ApiResponse<ProfileResponse>.Failure(new KeyNotFoundException("Cannot find user with such id"));
-        
+
         _mapper.Map(profileUpdateRequest, origin);
-
-        if (profileUpdateRequest.File is not null)
+        using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
         {
-            if (origin.ImageContainerName is not null && origin.ImageBlobName is not null)
+            if (profileUpdateRequest.File is not null)
             {
-                await _blobStorage.DeleteAsync(origin.ImageContainerName, origin.ImageBlobName);
-            }
-            else
-            {
-                origin.ImageContainerName = "profile";
-                origin.ImageBlobName = profileUpdateRequest.File.FileName;
-            }
-            
-            await using var stream = profileUpdateRequest.File.OpenReadStream();
-            
-            var blobDto = new BlobDto()
-            {
-                Name = origin.ImageBlobName,
-                ContainerName = origin.ImageContainerName,
-                Content = stream,
-                ContentType = "image/*"
-            };
-            
-            var photoResult = await _blobStorage.UploadAsync(blobDto);
+                if (origin.ImageContainerName is not null && origin.ImageBlobName is not null)
+                {
+                    await _blobStorage.DeleteAsync(origin.ImageContainerName, origin.ImageBlobName, cancellationToken);
+                }
+                else
+                {
+                    origin.ImageContainerName = "profile";
+                    origin.ImageBlobName = profileUpdateRequest.File.FileName;
+                }
 
-            origin.ImageUrl = photoResult.Url;
-            origin.ImageContainerName = photoResult.ContainerName;
-            origin.ImageBlobName = photoResult.Name;
+                await using var stream = profileUpdateRequest.File.OpenReadStream();
+
+                var blobDto = new BlobDto()
+                {
+                    Name = origin.ImageBlobName,
+                    ContainerName = origin.ImageContainerName,
+                    Content = stream,
+                    ContentType = "image/*"
+                };
+
+                var photoResult = await _blobStorage.UploadAsync(blobDto, cancellationToken: cancellationToken);
+
+                origin.ImageUrl = photoResult.Url;
+                origin.ImageContainerName = photoResult.ContainerName;
+                origin.ImageBlobName = photoResult.Name;
+            }
+
+            await _psqUnitOfWork.UserRepository.UpdateAsync(origin, cancellationToken);
+
+            ts.Complete();
         }
 
-        await _psqUnitOfWork.UserRepository.UpdateAsync(origin);
-        
         return ApiResponse<ProfileResponse>.Success(_mapper.Map<ProfileResponse>(origin));
     }
 }

@@ -8,7 +8,7 @@ using Learnify.Core.Transactions;
 
 namespace Learnify.Core.Managers;
 
-public class PrivateFileManager: IPrivateFileManager
+public class PrivateFileManager : IPrivateFileManager
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IBlobStorage _blobStorage;
@@ -21,38 +21,31 @@ public class PrivateFileManager: IPrivateFileManager
         _mapper = mapper;
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var privateFile = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(id);
-        
+        var privateFile = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(id, cancellationToken);
+
         using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
 
-        var deleted = await _psqUnitOfWork.PrivateFileRepository.DeleteAsync(id);
+        var deleted = await _psqUnitOfWork.PrivateFileRepository.DeleteAsync(id, cancellationToken);
 
-        if (deleted)
-        {
-            await _blobStorage.DeleteAsync(privateFile.ContainerName, privateFile.BlobName);
-        }
-        
+        if (deleted) await _blobStorage.DeleteAsync(privateFile.ContainerName, privateFile.BlobName, cancellationToken);
+
         ts.Complete();
     }
 
-    public async Task DeleteRangeAsync(IEnumerable<int> ids)
+    public async Task DeleteRangeAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
-        var privateFiles = await _psqUnitOfWork.PrivateFileRepository.GetByIdsAsync(ids);
-        
+        var privateFiles = await _psqUnitOfWork.PrivateFileRepository.GetByIdsAsync(ids, cancellationToken);
+
         using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
 
-        var deleted = await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(ids);
+        var deleted = await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(ids, cancellationToken);
 
         if (deleted)
-        {
             foreach (var privateFile in privateFiles)
-            {
-                await _blobStorage.DeleteAsync(privateFile.ContainerName, privateFile.BlobName);
-            }
-        }
-        
+                await _blobStorage.DeleteAsync(privateFile.ContainerName, privateFile.BlobName, cancellationToken);
+
         ts.Complete();
     }
 }

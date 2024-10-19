@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 namespace Learnify.Core.Managers;
 
 /// <inheritdoc />
-public class EncryptionHelper: IEncryptionHelper
+public class EncryptionHelper : IEncryptionHelper
 {
     private static EncryptionOptions _encryption;
 
@@ -23,17 +23,17 @@ public class EncryptionHelper: IEncryptionHelper
     /// <inheritdoc />
     public string Encrypt(string plainText)
     {
-        using Aes aes = Aes.Create();
+        using var aes = Aes.Create();
         aes.Key = Encoding.UTF8.GetBytes(_encryption.Key);
         aes.IV = Encoding.UTF8.GetBytes(_encryption.IV);
 
-        ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+        var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
 
-        using (MemoryStream ms = new MemoryStream())
+        using (var ms = new MemoryStream())
         {
-            using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+            using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
             {
-                using (StreamWriter sw = new StreamWriter(cs))
+                using (var sw = new StreamWriter(cs))
                 {
                     sw.Write(plainText);
                 }
@@ -46,15 +46,15 @@ public class EncryptionHelper: IEncryptionHelper
     /// <inheritdoc />
     public string Decrypt(string cipherText)
     {
-        using Aes aes = Aes.Create();
+        using var aes = Aes.Create();
         aes.Key = Encoding.UTF8.GetBytes(_encryption.Key);
         aes.IV = Encoding.UTF8.GetBytes(_encryption.IV);
 
-        ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+        var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
 
-        using MemoryStream ms = new MemoryStream(Convert.FromBase64String(cipherText));
-        using CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read);
-        using StreamReader sr = new StreamReader(cs);
+        using var ms = new MemoryStream(Convert.FromBase64String(cipherText));
+        using var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read);
+        using var sr = new StreamReader(cs);
         return sr.ReadToEnd();
     }
 }

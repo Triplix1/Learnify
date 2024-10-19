@@ -15,5 +15,5 @@ public interface IBasePsqRepository<T, TKey>: IBaseRepository<T, TKey> where T: 
     /// Returns all entities
     /// </summary>
     /// <returns></returns>
-    Task<PagedList<T>> GetFilteredAsync(EfFilter<T> efFilter);
+    Task<PagedList<T>> GetFilteredAsync(EfFilter<T> efFilter, CancellationToken cancellationToken = default);
 }

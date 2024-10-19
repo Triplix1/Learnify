@@ -14,9 +14,11 @@ public class PagedList<T>
     public int PageSize { get; set; }
     public int TotalCount { get; set; }
 
-    public static Task<PagedList<T>> CreateAsync(IQueryable<T> source, int pageNumber, int pageSize)
+    public static Task<PagedList<T>> CreateAsync(IQueryable<T> source, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var count = source.Count();
+        cancellationToken.ThrowIfCancellationRequested();
         var items = source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
         return Task.FromResult(new PagedList<T>(items, count, pageNumber, pageSize));
     }

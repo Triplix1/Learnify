@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Learnify.Api.Controllers;
 
-public class LessonController: BaseApiController
+public class LessonController : BaseApiController
 {
     private readonly ILessonService _lessonService;
 
@@ -19,63 +19,68 @@ public class LessonController: BaseApiController
 
     [Authorize]
     [HttpGet("{id}")]
-    public async Task<ActionResult<ApiResponse<LessonResponse>>> GetLessonByIdAsync(string id)
+    public async Task<ActionResult<ApiResponse<LessonResponse>>> GetLessonByIdAsync(string id,
+        CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var response = await _lessonService.GetByIdAsync(id, userId);
+        var response = await _lessonService.GetByIdAsync(id, userId, cancellationToken);
 
         return response;
     }
-    
+
     [Authorize]
     [HttpGet("for-update/{id}")]
-    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> GetLessonForUpdateAsync(string id)
+    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> GetLessonForUpdateAsync(string id,
+        CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var response = await _lessonService.GetForUpdateAsync(id, userId);
+        var response = await _lessonService.GetForUpdateAsync(id, userId, cancellationToken);
 
         return response;
     }
 
     [HttpGet("titles/{paragraphId}")]
-    public async Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetTitlesByParagraphIdAsync(int paragraphId, [FromQuery] bool includeDraft = false)
+    public async Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetTitlesByParagraphIdAsync(int paragraphId,
+        [FromQuery]bool includeDraft = false, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        
-        var response = await _lessonService.GetByParagraphAsync(paragraphId, userId, includeDraft);
+
+        var response = await _lessonService.GetByParagraphAsync(paragraphId, userId, includeDraft, cancellationToken);
 
         return response;
     }
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> AddOrUpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest)
+    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> AddOrUpdateAsync(
+        LessonAddOrUpdateRequest lessonAddOrUpdateRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        
-        var response = await _lessonService.AddOrUpdateAsync(lessonAddOrUpdateRequest, userId);
+
+        var response = await _lessonService.AddOrUpdateAsync(lessonAddOrUpdateRequest, userId, cancellationToken);
 
         return response;
     }
-    
+
     [Authorize]
     [HttpPost("draft")]
-    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> SaveDraftAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest)
+    public async Task<ActionResult<ApiResponse<LessonUpdateResponse>>> SaveDraftAsync(
+        LessonAddOrUpdateRequest lessonAddOrUpdateRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        
-        var response = await _lessonService.SaveDraftAsync(lessonAddOrUpdateRequest, userId);
+
+        var response = await _lessonService.SaveDraftAsync(lessonAddOrUpdateRequest, userId, cancellationToken);
 
         return response;
     }
-    
+
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<ActionResult<ApiResponse>> DeleteAsync(string id)
+    public async Task<ActionResult<ApiResponse>> DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        
-        var response = await _lessonService.DeleteAsync(id, userId);
+
+        var response = await _lessonService.DeleteAsync(id, userId, cancellationToken);
 
         return response;
     }

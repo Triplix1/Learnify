@@ -5,7 +5,7 @@ using Learnify.Infrastructure.Data;
 
 namespace Learnify.Infrastructure.Repositories;
 
-public class UserBoughtRepository: IUserBoughtRepository
+public class UserBoughtRepository : IUserBoughtRepository
 {
     private readonly ApplicationDbContext _context;
 
@@ -14,30 +14,35 @@ public class UserBoughtRepository: IUserBoughtRepository
         _context = context;
     }
 
-    public async Task<bool> UserBoughtExists(int userId, int courseId)
+    public async Task<bool> UserBoughtExistsAsync(int userId, int courseId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var userBought = await _context.UserBoughts.FindAsync(userId, courseId);
-        
+
         return userBought is not null;
     }
 
-    public async Task<UserBought> CreateAsync(UserBought userBoughtCreateRequest)
+    public async Task<UserBought> CreateAsync(UserBought userBoughtCreateRequest,
+        CancellationToken cancellationToken = default)
     {
-        await _context.UserBoughts.AddAsync(userBoughtCreateRequest);
-        await _context.SaveChangesAsync();
+        await _context.UserBoughts.AddAsync(userBoughtCreateRequest, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return userBoughtCreateRequest;
     }
 
-    public async Task<bool> DeleteAsync(int userId, int courseId)
+    public async Task<bool> DeleteAsync(int userId, int courseId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var userBought = await _context.UserBoughts.FindAsync(userId, courseId);
 
         if (userBought is null)
             return false;
 
         _context.UserBoughts.Remove(userBought);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return true;
     }

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Learnify.Infrastructure.Repositories;
 
 /// <inheritdoc />
-public class ParagraphRepository: IParagraphRepository
+public class ParagraphRepository : IParagraphRepository
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -28,7 +28,8 @@ public class ParagraphRepository: IParagraphRepository
     }
 
     /// <inheritdoc />
-    public async Task<PagedList<Paragraph>> GetFilteredAsync(EfFilter<Paragraph> filter)
+    public async Task<PagedList<Paragraph>> GetFilteredAsync(EfFilter<Paragraph> filter,
+        CancellationToken cancellationToken = default)
     {
         var query = _context.Paragraphs.AsQueryable();
 
@@ -37,14 +38,17 @@ public class ParagraphRepository: IParagraphRepository
         if (filter.Specification is not null)
             query = query.Where(filter.Specification.GetExpression());
 
-        var pagedList = await PagedList<Paragraph>.CreateAsync(query, filter.PageNumber, filter.PageSize);
+        var pagedList =
+            await PagedList<Paragraph>.CreateAsync(query, filter.PageNumber, filter.PageSize, cancellationToken);
 
         return pagedList;
     }
 
     /// <inheritdoc />
-    public async Task<Paragraph> GetByIdAsync(int key)
+    public async Task<Paragraph> GetByIdAsync(int key, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var paragraph = await _context.Paragraphs.FindAsync(key);
 
         if (paragraph is null)
@@ -54,17 +58,19 @@ public class ParagraphRepository: IParagraphRepository
     }
 
     /// <inheritdoc />
-    public async Task<Paragraph> CreateAsync(Paragraph entity)
+    public async Task<Paragraph> CreateAsync(Paragraph entity, CancellationToken cancellationToken = default)
     {
-        await _context.Paragraphs.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        await _context.Paragraphs.AddAsync(entity, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return entity;
     }
 
     /// <inheritdoc />
-    public async Task<Paragraph> UpdateAsync(Paragraph entity)
+    public async Task<Paragraph> UpdateAsync(Paragraph entity, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var paragraph = await _context.Paragraphs.FindAsync(entity.Id);
 
         if (paragraph is null)
@@ -73,29 +79,32 @@ public class ParagraphRepository: IParagraphRepository
         _mapper.Map(entity, paragraph);
 
         _context.Paragraphs.Update(paragraph);
-        await _context.SaveChangesAsync();
-        
+        await _context.SaveChangesAsync(cancellationToken);
+
         return paragraph;
     }
 
     /// <inheritdoc />
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        
         var paragraph = await _context.Paragraphs.FindAsync(id);
 
         if (paragraph is null)
             return false;
 
         _context.Paragraphs.Remove(paragraph);
-        await _context.SaveChangesAsync();
-        
+        await _context.SaveChangesAsync(cancellationToken);
+
         return true;
     }
 
     /// <inheritdoc />
-    public async Task<int?> GetAuthorIdAsync(int id)
+    public async Task<int?> GetAuthorIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var course = await _context.Paragraphs.Include(p => p.Course).FirstOrDefaultAsync(p => p.Id == id);
+        var course = await _context.Paragraphs.Include(p => p.Course)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken: cancellationToken);
 
         return course?.Course.AuthorId;
     }

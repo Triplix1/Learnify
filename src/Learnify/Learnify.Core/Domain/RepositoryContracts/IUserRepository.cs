@@ -14,12 +14,12 @@ public interface IUserRepository : IBasePsqRepository<User, int>
     /// </summary>
     /// <param name="email">Email</param>
     /// <returns></returns>
-    Task<User?> GetByEmailAsync(string email);
+    Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Returns user by username
     /// </summary>
     /// <param name="username">Username</param>
     /// <returns></returns>
-    Task<User?> GetByUsernameAsync(string username);
+    Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default);
 }

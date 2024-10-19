@@ -33,9 +33,10 @@ public class ProfileController : BaseApiController
     /// <param name="id">Profile id</param>
     /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<ApiResponse<ProfileResponse>>> GetById([FromRoute]int id)
+    public async Task<ActionResult<ApiResponse<ProfileResponse>>> GetById([FromRoute]int id,
+        CancellationToken cancellationToken = default)
     {
-        var profile = await _profileService.GetByIdAsync(id);
+        var profile = await _profileService.GetByIdAsync(id, cancellationToken);
         return Ok(profile);
     }
 
@@ -45,10 +46,11 @@ public class ProfileController : BaseApiController
     /// <param name="profileUpdateRequest"><see cref="ProfileUpdateRequest"/></param>
     /// <returns></returns>
     [HttpPut("update")]
-    public async Task<ActionResult<ApiResponse<ProfileResponse>>> Update([FromForm]ProfileUpdateRequest profileUpdateRequest)
+    public async Task<ActionResult<ApiResponse<ProfileResponse>>> Update(
+        [FromForm]ProfileUpdateRequest profileUpdateRequest, CancellationToken cancellationToken = default)
     {
-        var result = await _profileService.UpdateAsync(profileUpdateRequest);
-        
+        var result = await _profileService.UpdateAsync(profileUpdateRequest, cancellationToken);
+
         return Ok(result);
     }
 
@@ -58,10 +60,11 @@ public class ProfileController : BaseApiController
     /// <param name="id">profile's id</param>
     /// <returns></returns>
     [HttpDelete("delete/{id}")]
-    public async Task<ActionResult<ApiResponse>> Delete([FromRoute]int id)
+    public async Task<ActionResult<ApiResponse>> Delete([FromRoute]int id,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _profileService.DeleteAsync(id);
-        
+        var result = await _profileService.DeleteAsync(id, cancellationToken);
+
         return Ok(result);
     }
 }

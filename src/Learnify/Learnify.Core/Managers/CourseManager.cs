@@ -3,7 +3,7 @@ using Learnify.Core.ManagerContracts;
 
 namespace Learnify.Core.Managers;
 
-public class CourseManager: ICourseManager
+public class CourseManager : ICourseManager
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
 
@@ -12,14 +12,15 @@ public class CourseManager: ICourseManager
         _psqUnitOfWork = psqUnitOfWork;
     }
 
-    public async Task<Exception> ValidateAuthorOfCourseAsync(int courseId, int userId)
+    public async Task<Exception> ValidateAuthorOfCourseAsync(int courseId, int userId,
+        CancellationToken cancellationToken = default)
     {
-        var authorId = await _psqUnitOfWork.CourseRepository.GetAuthorId(courseId);
+        var authorId = await _psqUnitOfWork.CourseRepository.GetAuthorIdAsync(courseId, cancellationToken);
 
         if (authorId is null)
             return new KeyNotFoundException("Cannot find course with such Id");
-            
-        if(authorId != userId)
+
+        if (authorId != userId)
             return new Exception("You have not permissions to update this course");
 
         return null;

@@ -14,5 +14,5 @@ public interface IRefreshTokenRepository: IBasePsqRepository<RefreshToken, int>
     /// </summary>
     /// <param name="jwt"></param>
     /// <returns></returns>
-    Task<RefreshToken?> GetByJwtAsync(string jwt);
+    Task<RefreshToken?> GetByJwtAsync(string jwt, CancellationToken cancellationToken = default);
 }

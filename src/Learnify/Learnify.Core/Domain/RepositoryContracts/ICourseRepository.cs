@@ -16,42 +16,42 @@ public interface ICourseRepository
     /// </summary>
     /// <param name="filter"><see cref="MongoFilter{T}"/></param>
     /// <returns></returns>
-    Task<PagedList<Course>> GetFilteredAsync(EfFilter<Course> filter);
+    Task<PagedList<Course>> GetFilteredAsync(EfFilter<Course> filter, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Returns entity by id
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    Task<Course> GetByIdAsync(int key, IEnumerable<string> includes);
+    Task<Course> GetByIdAsync(int key, IEnumerable<string> includes, CancellationToken cancellationToken = default);
 
-    Task<Course> PublishAsync(int key, bool publish);
+    Task<Course> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Creates entity
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<Course> CreateAsync(Course entity);
+    Task<Course> CreateAsync(Course entity, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Updates entity
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<Course> UpdateAsync(Course entity);
+    Task<Course> UpdateAsync(Course entity, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Deletes entity
     /// </summary>
     /// <param name="id"></param>
     /// <returns>Success of operation</returns>
-    Task<bool> DeleteAsync(int id);
+    Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Returns courseId
     /// </summary>
     /// <param name="courseId"></param>
     /// <returns>Success of operation</returns>
-    Task<int?> GetAuthorId(int courseId);
+    Task<int?> GetAuthorIdAsync(int courseId, CancellationToken cancellationToken = default);
 }

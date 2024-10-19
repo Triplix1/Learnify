@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Learnify.Api.Controllers;
 
 [Route("api/media")]
-public class MediaController: BaseApiController
+public class MediaController : BaseApiController
 {
     private readonly IFileService _fileService;
 
@@ -19,23 +19,24 @@ public class MediaController: BaseApiController
     }
 
     [HttpGet("{fileId}")]
-    public async Task<IActionResult> GetStreamForFileAsync(int fileId)
+    public async Task<IActionResult> GetStreamForFileAsync(int fileId, CancellationToken cancellationToken = default)
     {
         var userId = HttpContext.User.GetUserId();
 
-        var fileStreamResponse = await _fileService.GetFileStreamById(fileId, userId);
+        var fileStreamResponse = await _fileService.GetFileStreamById(fileId, userId, cancellationToken);
 
-        return File(fileStreamResponse.Stream, fileStreamResponse.ContentType, enableRangeProcessing: true);
+        return File(fileStreamResponse.Stream, fileStreamResponse.ContentType, true);
     }
 
     [Authorize]
     [HttpPost]
     [RequestSizeLimit((long)10 * 1024 * 1024 * 1024)]
-    public async Task<ActionResult<ApiResponse<PrivateFileDataResponse>>> CreateAsync([FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest)
+    public async Task<ActionResult<ApiResponse<PrivateFileDataResponse>>> CreateAsync(
+        [FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest, CancellationToken cancellationToken = default)
     {
         var userId = HttpContext.User.GetUserId();
 
-        var fileResponse = await _fileService.CreateAsync(fileBlobCreateRequest, userId);
+        var fileResponse = await _fileService.CreateAsync(fileBlobCreateRequest, userId, cancellationToken);
 
         return Ok(fileResponse);
     }

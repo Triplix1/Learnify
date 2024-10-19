@@ -3,7 +3,7 @@ using Learnify.Infrastructure.Data;
 
 namespace Learnify.Infrastructure.Repositories;
 
-public class ConnectionRepository: IConnectionRepository
+public class ConnectionRepository : IConnectionRepository
 {
     private readonly ApplicationDbContext _context;
 
@@ -12,8 +12,10 @@ public class ConnectionRepository: IConnectionRepository
         _context = context;
     }
 
-    public async Task<bool> RemoveAsync(string connectionId)
+    public async Task<bool> RemoveAsync(string connectionId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        
         var connection = await _context.Connections.FindAsync(connectionId);
 
         if (connection is null)
@@ -21,7 +23,7 @@ public class ConnectionRepository: IConnectionRepository
 
         _context.Connections.Remove(connection);
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return true;
     }

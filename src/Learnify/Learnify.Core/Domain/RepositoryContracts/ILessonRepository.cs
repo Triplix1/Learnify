@@ -5,17 +5,17 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 
 public interface ILessonRepository
 {
-    Task<Lesson> GetLessonByIdAsync(string id);
-    Task<IEnumerable<LessonTitleResponse>> GetLessonTitlesForParagraphAsync(int paragraphId, bool includeDrafts);
-    Task<IEnumerable<Attachment>> GetAllAttachmentsForLessonAsync(string lessonId);
-    Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphAsync(int paragraphId);
-    Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphsAsync(IEnumerable<int> paragraphId);
-    Task<int> GetParagraphIdForLessonAsync(string lessonId);
+    Task<Lesson> GetLessonByIdAsync(string id, CancellationToken cancellationToken = default);
+    Task<IEnumerable<LessonTitleResponse>> GetLessonTitlesForParagraphAsync(int paragraphId, bool includeDrafts, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Attachment>> GetAllAttachmentsForLessonAsync(string lessonId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphAsync(int paragraphId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphsAsync(IEnumerable<int> paragraphId, CancellationToken cancellationToken = default);
+    Task<int> GetParagraphIdForLessonAsync(string lessonId, CancellationToken cancellationToken = default);
 
-    Task<Lesson> CreateAsync(Lesson lessonCreateRequest);
-    Task<Lesson> UpdateAsync(Lesson lessonUpdateRequest);
+    Task<Lesson> CreateAsync(Lesson lessonCreateRequest, CancellationToken cancellationToken = default);
+    Task<Lesson> UpdateAsync(Lesson lessonUpdateRequest, CancellationToken cancellationToken = default);
     
-    Task<bool> DeleteAsync(string id);
-    Task<long> DeleteForParagraphAsync(int paragraphId);
-    Task<long> DeleteForParagraphsAsync(IEnumerable<int> paragraphIds);
+    Task<bool> DeleteAsync(string id, CancellationToken cancellationToken = default);
+    Task<long> DeleteForParagraphAsync(int paragraphId, CancellationToken cancellationToken = default);
+    Task<long> DeleteForParagraphsAsync(IEnumerable<int> paragraphIds, CancellationToken cancellationToken = default);
 }

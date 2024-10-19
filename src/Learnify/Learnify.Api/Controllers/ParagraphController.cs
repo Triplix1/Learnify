@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Learnify.Api.Controllers;
 
-public class ParagraphController: BaseApiController
+public class ParagraphController : BaseApiController
 {
     private readonly IParagraphService _paragraphService;
 
@@ -19,32 +19,33 @@ public class ParagraphController: BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<ParagraphResponse>>> CreateAsync(ParagraphCreateRequest paragraphCreateRequest)
+    public async Task<ActionResult<ApiResponse<ParagraphResponse>>> CreateAsync(
+        ParagraphCreateRequest paragraphCreateRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var result = await _paragraphService.CreateAsync(paragraphCreateRequest, userId);
+        var result = await _paragraphService.CreateAsync(paragraphCreateRequest, userId, cancellationToken);
 
         return result;
     }
-    
+
     [Authorize]
     [HttpPut]
-    public async Task<ActionResult<ApiResponse<ParagraphResponse>>> UpdateAsync(ParagraphUpdateRequest paragraphUpdateRequest)
+    public async Task<ActionResult<ApiResponse<ParagraphResponse>>> UpdateAsync(
+        ParagraphUpdateRequest paragraphUpdateRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var result = await _paragraphService.UpdateAsync(paragraphUpdateRequest, userId);
+        var result = await _paragraphService.UpdateAsync(paragraphUpdateRequest, userId, cancellationToken);
 
         return result;
     }
-    
+
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<ActionResult<ApiResponse>> DeleteAsync(int id)
+    public async Task<ActionResult<ApiResponse>> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var result = await _paragraphService.DeleteAsync(id, userId);
+        var result = await _paragraphService.DeleteAsync(id, userId, cancellationToken);
 
         return result;
     }
-
 }

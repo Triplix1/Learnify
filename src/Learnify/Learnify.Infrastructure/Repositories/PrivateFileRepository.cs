@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
 
-public class PrivateFileRepository: IPrivateFileRepository
+public class PrivateFileRepository : IPrivateFileRepository
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -18,8 +18,10 @@ public class PrivateFileRepository: IPrivateFileRepository
         _mapper = mapper;
     }
 
-    public async Task<PrivateFileData> GetByIdAsync(int id)
+    public async Task<PrivateFileData> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var fileData = await _context.FileDatas.FindAsync(id);
 
         if (fileData is null)
@@ -28,55 +30,62 @@ public class PrivateFileRepository: IPrivateFileRepository
         return fileData;
     }
 
-    public async Task<IEnumerable<PrivateFileData>> GetByIdsAsync(IEnumerable<int> ids)
+    public async Task<IEnumerable<PrivateFileData>> GetByIdsAsync(IEnumerable<int> ids,
+        CancellationToken cancellationToken = default)
     {
-        var fileDatas = await _context.FileDatas.Where(f => ids.Contains(f.Id)).ToArrayAsync();
-        
-        if(fileDatas.Length != ids.Count())
+        var fileDatas = await _context.FileDatas.Where(f => ids.Contains(f.Id))
+            .ToArrayAsync(cancellationToken: cancellationToken);
+
+        if (fileDatas.Length != ids.Count())
             return null;
-        
+
         return fileDatas;
     }
 
-    public async Task<PrivateFileData> CreateFileAsync(PrivateFileData privateFileDataCreateRequest)
-    { 
-        await _context.FileDatas.AddAsync(privateFileDataCreateRequest);
-        await _context.SaveChangesAsync();
+    public async Task<PrivateFileData> CreateFileAsync(PrivateFileData privateFileDataCreateRequest,
+        CancellationToken cancellationToken = default)
+    {
+        await _context.FileDatas.AddAsync(privateFileDataCreateRequest, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return privateFileDataCreateRequest;
     }
 
-    public async Task<IEnumerable<PrivateFileData>> CreateFilesAsync(IEnumerable<PrivateFileData> fileDataCreateRequests)
+    public async Task<IEnumerable<PrivateFileData>> CreateFilesAsync(
+        IEnumerable<PrivateFileData> fileDataCreateRequests, CancellationToken cancellationToken = default)
     {
-        await _context.FileDatas.AddRangeAsync(fileDataCreateRequests);
-        await _context.SaveChangesAsync();
+        await _context.FileDatas.AddRangeAsync(fileDataCreateRequests, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return fileDataCreateRequests;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var fileData = await _context.FileDatas.FindAsync(id);
-        
-        if(fileData is null)
+
+        if (fileData is null)
             return false;
 
         _context.FileDatas.Remove(fileData);
-        await _context.SaveChangesAsync();
-        
+        await _context.SaveChangesAsync(cancellationToken);
+
         return true;
     }
 
-    public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids)
+    public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
-        var fileDatas = await _context.FileDatas.Where(f => ids.Contains(f.Id)).ToArrayAsync();
-        
-        if(fileDatas.Length != ids.Count())
+        var fileDatas = await _context.FileDatas.Where(f => ids.Contains(f.Id))
+            .ToArrayAsync(cancellationToken: cancellationToken);
+
+        if (fileDatas.Length != ids.Count())
             return false;
 
         _context.FileDatas.RemoveRange(fileDatas);
-        await _context.SaveChangesAsync();
-        
+        await _context.SaveChangesAsync(cancellationToken);
+
         return true;
     }
 }

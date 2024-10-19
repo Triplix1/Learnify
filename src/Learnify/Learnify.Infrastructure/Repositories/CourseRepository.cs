@@ -32,17 +32,19 @@ public class CourseRepository : ICourseRepository
     }
 
     /// <inheritdoc />
-    public async Task<Course> GetByIdAsync(int key, IEnumerable<string> includes)
+    public async Task<Course> GetByIdAsync(int key, IEnumerable<string> includes,
+        CancellationToken cancellationToken = default)
     {
         var courseQuery = includes.Aggregate(_context.Courses.AsQueryable(), (c, include) => c.Include(include));
 
-        var course = await courseQuery.FirstOrDefaultAsync(c => c.Id == key);
-        
+        var course = await courseQuery.FirstOrDefaultAsync(c => c.Id == key, cancellationToken: cancellationToken);
+
         return course;
     }
 
-    public async Task<Course> PublishAsync(int key, bool publish)
+    public async Task<Course> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var course = await _context.Courses.FindAsync(key);
 
         if (course is null)
@@ -50,65 +52,72 @@ public class CourseRepository : ICourseRepository
 
         course.IsPublished = publish;
 
+        await _context.SaveChangesAsync(cancellationToken);
+
         return course;
     }
 
     /// <inheritdoc />
-    public async Task<Course> CreateAsync(Course courseCreateRequest)
+    public async Task<Course> CreateAsync(Course courseCreateRequest, CancellationToken cancellationToken = default)
     {
-        await _context.Courses.AddAsync(courseCreateRequest);
-        await _context.SaveChangesAsync();
+        await _context.Courses.AddAsync(courseCreateRequest, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return courseCreateRequest;
     }
 
     /// <inheritdoc />
-    public async Task<Course> UpdateAsync(Course entity)
+    public async Task<Course> UpdateAsync(Course entity, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var course = await _context.Courses.FindAsync(entity.Id);
 
         if (course is null)
             return null;
 
         _mapper.Map(entity, course);
-        
+
         _context.Courses.Update(course);
-        await _context.SaveChangesAsync();
-        
+        await _context.SaveChangesAsync(cancellationToken);
+
         return course;
     }
 
     /// <inheritdoc />
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var course = await _context.Courses.FindAsync(id);
 
         if (course is null)
             return false;
 
         _context.Courses.Remove(course);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
         return true;
     }
 
     /// <inheritdoc />
-    public async Task<int?> GetAuthorId(int courseId)
+    public async Task<int?> GetAuthorIdAsync(int courseId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var course = await _context.Courses.FindAsync(courseId);
 
         if (course is null)
             return null;
-        
-        return course.AuthorId;
 
+        return course.AuthorId;
     }
 
     /// <inheritdoc />
-    public async Task<PagedList<Course>> GetFilteredAsync(EfFilter<Course> filter)
+    public async Task<PagedList<Course>> GetFilteredAsync(EfFilter<Course> filter,
+        CancellationToken cancellationToken = default)
     {
         var query = _context.Courses.AsQueryable();
 
-        if(filter.Includes is not null)
+        if (filter.Includes is not null)
             query = filter.Includes.Aggregate(query, (current, include) => current.Include(include));
 
         if (filter.Specification is not null)
@@ -122,8 +131,9 @@ public class CourseRepository : ICourseRepository
                 query = query.OrderByDescending(filter.OrderByParams.OrderBy);
         }
 
-        var pagedList = await PagedList<Course>.CreateAsync(query, filter.PageNumber, filter.PageSize);
-        
+        var pagedList =
+            await PagedList<Course>.CreateAsync(query, filter.PageNumber, filter.PageSize, cancellationToken);
+
         return pagedList;
     }
 }

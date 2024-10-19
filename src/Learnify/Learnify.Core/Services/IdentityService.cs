@@ -3,9 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
 using Google.Apis.Auth;
-using Learnify.Core.Domain.Entities;
 using Learnify.Core.Domain.Entities.Sql;
-using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Auth;
@@ -30,8 +28,8 @@ public class IdentityService : IIdentityService
     public IdentityService(IGoogleAuthManager googleAuthManager,
         ILogger<IdentityService> logger,
         ITokenManager tokenManager,
-        IMapper mapper, 
-        IBlobStorage blobStorage, 
+        IMapper mapper,
+        IBlobStorage blobStorage,
         IPsqUnitOfWork psqUnitOfWork)
     {
         _googleAuthManager = googleAuthManager;
@@ -42,23 +40,24 @@ public class IdentityService : IIdentityService
         _psqUnitOfWork = psqUnitOfWork;
     }
 
-    public async Task<ApiResponse<AuthResponse>> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest)
+    public async Task<ApiResponse<AuthResponse>> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest,
+        CancellationToken cancellationToken = default)
     {
         GoogleJsonWebSignature.Payload tokenPayload;
         try
         {
-            var googleToken = await _googleAuthManager.GetGoogleTokenAsync(googleAuthRequest);
+            var googleToken = await _googleAuthManager.GetGoogleTokenAsync(googleAuthRequest, cancellationToken);
 
-            tokenPayload = await _googleAuthManager.VerifyGoogleToken(googleToken.IdToken);
+            tokenPayload = await _googleAuthManager.VerifyGoogleTokenAsync(googleToken.IdToken, cancellationToken);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             return ApiResponse<AuthResponse>.Failure(e);
         }
-        
 
-        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(tokenPayload.Email);
+
+        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(tokenPayload.Email, cancellationToken);
 
         if (user is null)
         {
@@ -71,13 +70,14 @@ public class IdentityService : IIdentityService
                 IsGoogleAuth = true
             };
 
-            await _psqUnitOfWork.UserRepository.CreateAsync(user);
+            await _psqUnitOfWork.UserRepository.CreateAsync(user, cancellationToken);
         }
 
-        return await ReturnNewAuthResponseAsync(user);
+        return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }
 
-    public async Task<ApiResponse<AuthResponse>> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
+    public async Task<ApiResponse<AuthResponse>> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest,
+        CancellationToken cancellationToken = default)
     {
         var tokenData = _tokenManager.GetDataFromToken(refreshTokenRequest.Jwt);
 
@@ -95,26 +95,30 @@ public class IdentityService : IIdentityService
             return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Cannot find email in token"));
         }
 
-        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(email);
+        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(email, cancellationToken);
 
         if (user is null)
         {
             _logger.LogError("Cannot find user with email: {email}", email);
-            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException($"Cannot find user with email: {email}"));
+            return ApiResponse<AuthResponse>.Failure(
+                new RefreshTokenException($"Cannot find user with email: {email}"));
         }
 
-        var refreshToken = await _psqUnitOfWork.RefreshTokenRepository.GetByJwtAsync(refreshTokenRequest.Jwt);
+        var refreshToken =
+            await _psqUnitOfWork.RefreshTokenRepository.GetByJwtAsync(refreshTokenRequest.Jwt, cancellationToken);
 
         if (refreshToken is null)
         {
             _logger.LogError("Cannot find refresh token for specified jwt");
-            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Cannot find refresh token for specified jwt"));
+            return ApiResponse<AuthResponse>.Failure(
+                new RefreshTokenException("Cannot find refresh token for specified jwt"));
         }
 
         if (refreshToken.Refresh != refreshTokenRequest.RefreshToken)
         {
             _logger.LogError("Invalid refresh token for specified jwt");
-            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Invalid refresh token for specified jwt"));
+            return ApiResponse<AuthResponse>.Failure(
+                new RefreshTokenException("Invalid refresh token for specified jwt"));
         }
 
         if (refreshToken.Expire < DateTime.UtcNow)
@@ -130,14 +134,16 @@ public class IdentityService : IIdentityService
         }
 
         refreshToken.HasBeenUsed = true;
-        await _psqUnitOfWork.RefreshTokenRepository.UpdateAsync(refreshToken);
+        await _psqUnitOfWork.RefreshTokenRepository.UpdateAsync(refreshToken, cancellationToken);
 
-        return await ReturnNewAuthResponseAsync(user);
+        return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }
 
-    public async Task<ApiResponse<AuthResponse>> RegisterAsync(RegisterRequest registerRequest)
+    public async Task<ApiResponse<AuthResponse>> RegisterAsync(RegisterRequest registerRequest,
+        CancellationToken cancellationToken = default)
     {
-        var userWithTheSameEmail = await _psqUnitOfWork.UserRepository.GetByEmailAsync(registerRequest.Email);
+        var userWithTheSameEmail =
+            await _psqUnitOfWork.UserRepository.GetByEmailAsync(registerRequest.Email, cancellationToken);
 
         if (userWithTheSameEmail is not null)
         {
@@ -146,13 +152,15 @@ public class IdentityService : IIdentityService
             return ApiResponse<AuthResponse>.Failure(new ArgumentException("User with the same email already exists"));
         }
 
-        var userWithTheSameUsername = await _psqUnitOfWork.UserRepository.GetByUsernameAsync(registerRequest.Username);
+        var userWithTheSameUsername =
+            await _psqUnitOfWork.UserRepository.GetByUsernameAsync(registerRequest.Username, cancellationToken);
 
         if (userWithTheSameUsername is not null)
         {
             _logger.LogError("Cannot register user with username: {username}, because it already exists",
                 registerRequest.Username);
-            return ApiResponse<AuthResponse>.Failure(new ArgumentException("User with the same username already exists"));
+            return ApiResponse<AuthResponse>.Failure(
+                new ArgumentException("User with the same username already exists"));
         }
 
         using var hmac = new HMACSHA512();
@@ -176,25 +184,26 @@ public class IdentityService : IIdentityService
             {
                 Name = user.Email,
                 Content = stream,
-                ContainerName = "indentity-user-images",
+                ContainerName = "identity-user-images",
                 ContentType = "image/*"
             };
 
-            var imageBlob = await _blobStorage.UploadAsync(imageBlobAddRequest);
+            var imageBlob = await _blobStorage.UploadAsync(imageBlobAddRequest, cancellationToken: cancellationToken);
 
             user.ImageUrl = imageBlob.Url;
             user.ImageBlobName = imageBlob.Name;
             user.ImageContainerName = imageBlob.ContainerName;
         }
 
-        var createdUser = await _psqUnitOfWork.UserRepository.CreateAsync(user);
-        
-        return await ReturnNewAuthResponseAsync(user);
+        var createdUser = await _psqUnitOfWork.UserRepository.CreateAsync(user, cancellationToken);
+
+        return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }
 
-    public async Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest loginRequest)
+    public async Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest loginRequest,
+        CancellationToken cancellationToken = default)
     {
-        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(loginRequest.Email);
+        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(loginRequest.Email, cancellationToken);
 
         if (user is null)
         {
@@ -216,17 +225,18 @@ public class IdentityService : IIdentityService
 
         if (computedHash.Where((t, i) => t != user.PasswordHash[i]).Any())
         {
-            _logger.LogError("Login faild, invalid password for user: {email}", loginRequest.Email);
+            _logger.LogError("Login failed, invalid password for user: {email}", loginRequest.Email);
             return ApiResponse<AuthResponse>.Failure(new AuthenticationException("Invalid Password"));
         }
 
-        return await ReturnNewAuthResponseAsync(user);
+        return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }
 
-    private async Task<ApiResponse<AuthResponse>> ReturnNewAuthResponseAsync(User user)
+    private async Task<ApiResponse<AuthResponse>> ReturnNewAuthResponseAsync(User user,
+        CancellationToken cancellationToken = default)
     {
         TokenResponse accessToken;
-        
+
         try
         {
             accessToken = _tokenManager.GenerateJwtToken(user);
@@ -235,7 +245,7 @@ public class IdentityService : IIdentityService
         {
             return ApiResponse<AuthResponse>.Failure(e);
         }
-        
+
         var refreshTokenString = _tokenManager.GenerateRefreshToken();
 
         var refreshToken = new RefreshToken()
@@ -246,7 +256,7 @@ public class IdentityService : IIdentityService
             HasBeenUsed = false
         };
 
-        await _psqUnitOfWork.RefreshTokenRepository.CreateAsync(refreshToken);
+        await _psqUnitOfWork.RefreshTokenRepository.CreateAsync(refreshToken, cancellationToken);
 
         var response = new AuthResponse()
         {

@@ -5,10 +5,20 @@ namespace Learnify.Core.ServiceContracts;
 
 public interface ILessonService
 {
-    Task<ApiResponse> DeleteAsync(string id, int userId);
-    Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetByParagraphAsync(int paragraphId, int userId, bool includeDrafts = false); 
-    Task<ApiResponse<LessonUpdateResponse>> GetForUpdateAsync(string id, int userId);
-    Task<ApiResponse<LessonUpdateResponse>> AddOrUpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest, int userId);
-    Task<ApiResponse<LessonUpdateResponse>> SaveDraftAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest, int userId);
-    Task<ApiResponse<LessonResponse>> GetByIdAsync(string id, int userId);
+    Task<ApiResponse> DeleteAsync(string id, int userId, CancellationToken cancellationToken = default);
+
+    Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetByParagraphAsync(int paragraphId, int userId,
+        bool includeDrafts = false, CancellationToken cancellationToken = default);
+
+    Task<ApiResponse<LessonUpdateResponse>> GetForUpdateAsync(string id, int userId,
+        CancellationToken cancellationToken = default);
+
+    Task<ApiResponse<LessonUpdateResponse>> AddOrUpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest,
+        int userId, CancellationToken cancellationToken = default);
+
+    Task<ApiResponse<LessonUpdateResponse>> SaveDraftAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest,
+        int userId, CancellationToken cancellationToken = default);
+
+    Task<ApiResponse<LessonResponse>>
+        GetByIdAsync(string id, int userId, CancellationToken cancellationToken = default);
 }

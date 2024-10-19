@@ -14,40 +14,40 @@ public interface IParagraphRepository
     /// </summary>
     /// <param name="filter"><see cref="EfFilter{Paragraph}"/></param>
     /// <returns></returns>
-    Task<PagedList<Paragraph>> GetFilteredAsync(EfFilter<Paragraph> filter);
+    Task<PagedList<Paragraph>> GetFilteredAsync(EfFilter<Paragraph> filter, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Returns entity by id
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    Task<Paragraph?> GetByIdAsync(int key);
+    Task<Paragraph?> GetByIdAsync(int key, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Creates entity
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<Paragraph> CreateAsync(Paragraph entity);
+    Task<Paragraph> CreateAsync(Paragraph entity, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Updates entity
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<Paragraph> UpdateAsync(Paragraph entity);
+    Task<Paragraph> UpdateAsync(Paragraph entity, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Deletes entity
     /// </summary>
     /// <param name="id"></param>
     /// <returns>Success of operation</returns>
-    Task<bool> DeleteAsync(int id);
+    Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Deletes entity
     /// </summary>
     /// <param name="id"></param>
     /// <returns>Success of operation</returns>
-    Task<int?> GetAuthorIdAsync(int id);
+    Task<int?> GetAuthorIdAsync(int id, CancellationToken cancellationToken = default);
 }

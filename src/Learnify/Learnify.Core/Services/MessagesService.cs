@@ -6,7 +6,7 @@ using Learnify.Core.ServiceContracts;
 
 namespace Learnify.Core.Services;
 
-public class MessagesService: IMessageService
+public class MessagesService : IMessageService
 {
     private readonly IMessageRepository _messageRepository;
     private readonly IMapper _mapper;
@@ -17,9 +17,11 @@ public class MessagesService: IMessageService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<MessageResponse>> GetMessagesForGroupAsync(string groupName)
+    public async Task<IEnumerable<MessageResponse>> GetMessagesForGroupAsync(string groupName,
+        CancellationToken cancellationToken = default)
     {
-        var messages = await _messageRepository.GetMessagesForGroupAsync(groupName, new []{nameof(Message.Group), nameof(Message.Sender)});
+        var messages = await _messageRepository.GetMessagesForGroupAsync(groupName,
+            new[] { nameof(Message.Group), nameof(Message.Sender) }, cancellationToken);
 
         return _mapper.Map<IEnumerable<MessageResponse>>(messages);
     }

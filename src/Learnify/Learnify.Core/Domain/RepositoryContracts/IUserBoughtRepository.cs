@@ -4,7 +4,7 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 
 public interface IUserBoughtRepository
 {
-    Task<bool> UserBoughtExists(int userId, int courseId);
-    Task<UserBought> CreateAsync(UserBought userBoughtCreateRequest);
-    Task<bool> DeleteAsync(int userId, int courseId);
+    Task<bool> UserBoughtExistsAsync(int userId, int courseId, CancellationToken cancellationToken = default);
+    Task<UserBought> CreateAsync(UserBought userBoughtCreateRequest, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(int userId, int courseId, CancellationToken cancellationToken = default);
 }

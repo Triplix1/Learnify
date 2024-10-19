@@ -2,5 +2,6 @@
 
 public interface IParagraphManager
 {
-    Task<Exception> ValidateExistAndAuthorOfParagraphAsync(int paragraphId, int userId);
+    Task<Exception> ValidateExistAndAuthorOfParagraphAsync(int paragraphId, int userId,
+        CancellationToken cancellationToken = default);
 }

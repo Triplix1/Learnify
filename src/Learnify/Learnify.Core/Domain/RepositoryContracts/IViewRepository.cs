@@ -6,5 +6,5 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 
 public interface IViewRepository
 {
-    IEnumerable<View> GetFilteredData(ViewSpecificationFilter specificationFilter);
+    IEnumerable<View> GetFilteredData(ViewSpecificationFilter specificationFilter, CancellationToken cancellationToken = default);
 }

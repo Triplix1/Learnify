@@ -9,9 +9,8 @@ namespace Learnify.Infrastructure.Repositories;
 /// <summary>
 /// UserRepository
 /// </summary>
-public class UserRepository: BasePsqRepository<User, int>, IUserRepository
+public class UserRepository : BasePsqRepository<User, int>, IUserRepository
 {
-
     /// <summary>
     /// Initializes a new instance of <see cref="UserRepository"/>
     /// </summary>
@@ -21,14 +20,15 @@ public class UserRepository: BasePsqRepository<User, int>, IUserRepository
     }
 
     /// <inheritdoc />
-    public async Task<User?> GetByEmailAsync(string email)
+    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await Context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return await Context.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken: cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<User?> GetByUsernameAsync(string username)
+    public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default)
     {
-        return await Context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        return await Context.Users.FirstOrDefaultAsync(u => u.Username == username,
+            cancellationToken: cancellationToken);
     }
 }

@@ -3,7 +3,7 @@ using Learnify.Core.ManagerContracts;
 
 namespace Learnify.Core.Managers;
 
-public class ParagraphManager: IParagraphManager
+public class ParagraphManager : IParagraphManager
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
 
@@ -12,14 +12,15 @@ public class ParagraphManager: IParagraphManager
         _psqUnitOfWork = psqUnitOfWork;
     }
 
-    public async Task<Exception> ValidateExistAndAuthorOfParagraphAsync(int paragraphId, int userId)
+    public async Task<Exception> ValidateExistAndAuthorOfParagraphAsync(int paragraphId, int userId,
+        CancellationToken cancellationToken = default)
     {
-        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(paragraphId);
+        var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(paragraphId, cancellationToken);
 
         if (authorId is null)
             return new KeyNotFoundException("Cannot find course with such Id");
-            
-        if(authorId != userId)
+
+        if (authorId != userId)
             return new Exception("You have not permissions to update this course");
 
         return null;

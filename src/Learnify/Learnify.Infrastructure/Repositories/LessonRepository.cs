@@ -26,19 +26,20 @@ public class LessonRepository : ILessonRepository
         _mapper = mapper;
         _context = context;
     }
-    
+
     /// <inheritdoc />
-    public async Task<Lesson> GetLessonByIdAsync(string id)
+    public async Task<Lesson> GetLessonByIdAsync(string id, CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, id);
 
-        var lesson = await _mongoContext.Lessons.Find(filter).FirstOrDefaultAsync();
-        
+        var lesson = await _mongoContext.Lessons.Find(filter).FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
         return lesson;
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<LessonTitleResponse>> GetLessonTitlesForParagraphAsync(int paragraphId, bool includeDrafts)
+    public async Task<IEnumerable<LessonTitleResponse>> GetLessonTitlesForParagraphAsync(int paragraphId,
+        bool includeDrafts, CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.ParagraphId, paragraphId);
 
@@ -47,22 +48,25 @@ public class LessonRepository : ILessonRepository
             var includeDraftsFilter = Builders<Lesson>.Filter.Where(l => !l.IsDraft);
             filter = Builders<Lesson>.Filter.And(filter, includeDraftsFilter);
         }
-        
+
         var projection =
             Builders<Lesson>.Projection.Expression(l => new LessonTitleResponse { Id = l.Id, Title = l.Title });
 
-        return await _mongoContext.Lessons.Find(filter).Project(projection).ToListAsync();
+        return await _mongoContext.Lessons.Find(filter).Project(projection)
+            .ToListAsync(cancellationToken: cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Attachment>> GetAllAttachmentsForLessonAsync(string lessonId)
+    public async Task<IEnumerable<Attachment>> GetAllAttachmentsForLessonAsync(string lessonId,
+        CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
 
         var projection = Builders<Lesson>.Projection.Include(l => l.Video)
             .Include(l => l.Quizzes);
 
-        var lesson = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).FirstOrDefaultAsync();
+        var lesson = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (lesson is null)
             return Enumerable.Empty<Attachment>();
@@ -78,27 +82,31 @@ public class LessonRepository : ILessonRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphAsync(int paragraphId)
+    public async Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphAsync(int paragraphId,
+        CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.ParagraphId, paragraphId);
 
-        return await GetAttachmentsForFilterAsync(filter);
+        return await GetAttachmentsForFilterAsync(filter, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphsAsync(IEnumerable<int> paragraphsId)
+    public async Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphsAsync(IEnumerable<int> paragraphsId,
+        CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Where(l => paragraphsId.Contains(l.ParagraphId));
 
-        return await GetAttachmentsForFilterAsync(filter);
+        return await GetAttachmentsForFilterAsync(filter, cancellationToken);
     }
 
-    private async Task<IEnumerable<Attachment>> GetAttachmentsForFilterAsync(FilterDefinition<Lesson> filter)
+    private async Task<IEnumerable<Attachment>> GetAttachmentsForFilterAsync(FilterDefinition<Lesson> filter,
+        CancellationToken cancellationToken = default)
     {
         var projection = Builders<Lesson>.Projection.Include(l => l.Video)
             .Include(l => l.Quizzes);
 
-        var lessons = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection).ToListAsync();
+        var lessons = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection)
+            .ToListAsync(cancellationToken: cancellationToken);
 
         var result = new List<Attachment>();
         result.AddRange(lessons.Select(l => l.Video.Attachment));
@@ -108,62 +116,66 @@ public class LessonRepository : ILessonRepository
     }
 
     /// <inheritdoc />
-    public async Task<int> GetParagraphIdForLessonAsync(string lessonId)
+    public async Task<int> GetParagraphIdForLessonAsync(string lessonId, CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
 
         var projection = Builders<Lesson>.Projection.Expression(l => new { l.ParagraphId });
 
-        var result = await _mongoContext.Lessons.Find(filter).Project(projection).FirstOrDefaultAsync();
+        var result = await _mongoContext.Lessons.Find(filter).Project(projection)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         return result.ParagraphId;
     }
 
     /// <inheritdoc />
-    public async Task<Lesson> CreateAsync(Lesson lessonCreateRequest)
+    public async Task<Lesson> CreateAsync(Lesson lessonCreateRequest, CancellationToken cancellationToken = default)
     {
-        await _mongoContext.Lessons.InsertOneAsync(lessonCreateRequest);
+        await _mongoContext.Lessons.InsertOneAsync(lessonCreateRequest, cancellationToken: cancellationToken);
 
         return lessonCreateRequest;
     }
 
     /// <inheritdoc />
-    public async Task<Lesson> UpdateAsync(Lesson lessonUpdateRequest)
+    public async Task<Lesson> UpdateAsync(Lesson lessonUpdateRequest, CancellationToken cancellationToken = default)
     {
-        await _mongoContext.Lessons.ReplaceOneAsync(l => l.Id == lessonUpdateRequest.Id, lessonUpdateRequest);
+        await _mongoContext.Lessons.ReplaceOneAsync(l => l.Id == lessonUpdateRequest.Id, lessonUpdateRequest,
+            cancellationToken: cancellationToken);
 
         var updatedLesson = await _mongoContext.Lessons
-            .Find(Builders<Lesson>.Filter.Eq(l => l.Id, lessonUpdateRequest.Id)).FirstOrDefaultAsync();
-        
+            .Find(Builders<Lesson>.Filter.Eq(l => l.Id, lessonUpdateRequest.Id))
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
         return lessonUpdateRequest;
     }
 
     /// <inheritdoc />
-    public async Task<bool> DeleteAsync(string id)
+    public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, id);
 
-        var result = await _mongoContext.Lessons.DeleteOneAsync(filter);
+        var result = await _mongoContext.Lessons.DeleteOneAsync(filter, cancellationToken);
 
         return result.DeletedCount > 0;
     }
 
     /// <inheritdoc />
-    public async Task<long> DeleteForParagraphAsync(int paragraphId)
+    public async Task<long> DeleteForParagraphAsync(int paragraphId, CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.ParagraphId, paragraphId);
 
-        var result = await _mongoContext.Lessons.DeleteOneAsync(filter);
+        var result = await _mongoContext.Lessons.DeleteOneAsync(filter, cancellationToken);
 
         return result.DeletedCount;
     }
 
     /// <inheritdoc />
-    public async Task<long> DeleteForParagraphsAsync(IEnumerable<int> paragraphIds)
+    public async Task<long> DeleteForParagraphsAsync(IEnumerable<int> paragraphIds,
+        CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Where(l => paragraphIds.Contains(l.ParagraphId));
 
-        var result = await _mongoContext.Lessons.DeleteManyAsync(filter);
+        var result = await _mongoContext.Lessons.DeleteManyAsync(filter, cancellationToken);
 
         return result.DeletedCount;
     }
