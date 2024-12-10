@@ -29,19 +29,16 @@ export class MediaService {
     )
   }
 
-  create(fileCreateRequest: PrivateFileBlobCreateRequest): Observable<ApiResponseWithData<PrivateFileDataResponse>> {
+  create(fileCreateRequest: PrivateFileBlobCreateRequest): Observable<Object> {
     const formData = objectToFormData(fileCreateRequest);
 
-    console.log(formData);
-
-    const options = {
+    return this.httpClient.post(this.baseUrl, formData, {
       params: new HttpParams(),
-      reportProgress: true,
+      reportProgress: true,  // Enable progress reporting
+      observe: 'events',      // Observe multiple events including upload progress
       headers: new HttpHeaders({
         'enctype': 'multipart/form-data'
-      })
-    };
-
-    return this.httpClient.post<ApiResponseWithData<PrivateFileDataResponse>>(this.baseUrl, formData, options);
+      }),
+    });
   }
 }

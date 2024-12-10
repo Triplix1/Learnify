@@ -1,0 +1,18 @@
+<div class="flex flex-col items-center space-y-4">
+     <input #fileInput
+            type="file"
+            accept="video/mp4,video/x-m4v,video/*,.mkv"
+            style="display: none;"
+            (change)="handleFileInput(fileInput.files ? fileInput.files[0] : null, null)" />
+     <app-button (buttonClick)="fileInput.click()">Upload File</app-button>
+     <div *ngIf="uploadProgress >= 0 && uploadProgress < 100"
+          class="w-full bg-gray-200 rounded-full h-4">
+          <div class="bg-blue-600 h-4 rounded-full"
+               [style.width]="uploadProgress + '%'">
+          </div>
+     </div>
+
+     <!-- Display the percentage as text -->
+     <p *ngIf="uploadProgress >= 0 && uploadProgress < 100"
+        class="text-sm text-gray-600">{{ uploadProgress }}%</p>
+</div>

@@ -8,6 +8,7 @@ import { CreateLessonComponent } from './create-lesson/create-lesson.component';
 import { CourseCartComponent } from './course-cart/course-cart.component';
 import { CreateQuizComponent } from './create-quiz/create-quiz.component';
 import { LessonTitleComponent } from './lesson-title/lesson-title.component';
+import { CreateSingleQuizComponent } from './create-single-quiz/create-single-quiz.component';
 
 
 
@@ -19,6 +20,7 @@ import { LessonTitleComponent } from './lesson-title/lesson-title.component';
     CourseCartComponent,
     CreateQuizComponent,
     LessonTitleComponent,
+    CreateSingleQuizComponent,
   ],
   imports: [
     CommonModule,

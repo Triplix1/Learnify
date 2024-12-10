@@ -1,0 +1,18 @@
+<cdk-accordion-item #accordionItem="cdkAccordionItem"
+                    class="example-accordion-item"
+                    role="button"
+                    tabindex="0"
+                    [attr.id]="'accordion-header-' + index"
+                    [attr.aria-expanded]="accordionItem.expanded"
+                    [attr.aria-controls]="'accordion-body-' + index"
+                    (opened)="opened()">
+
+    <app-accordion-header [accordionItem]="accordionItem">
+        <ng-content select=".accordion-header"></ng-content>
+    </app-accordion-header>
+
+    <app-accordion-body>
+        <ng-content select=".accordion-body"></ng-content>
+    </app-accordion-body>
+
+</cdk-accordion-item>

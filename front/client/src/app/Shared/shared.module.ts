@@ -21,7 +21,11 @@ import { StepperComponent } from './components/stepper/stepper.component';
 import { StepComponent } from './components/step/step.component';
 import { ContextMenuComponent } from './components/context-menu/context-menu.component';
 import { VideoPlayerComponent } from './components/video-player/video-player.component';
-
+import { FileUploaderComponent } from './components/file-uploader/file-uploader.component';
+import { AccordionArrowComponent } from './components/accordion-arrow/accordion-arrow.component';
+import { AccordionItemComponent } from './components/accordion-item/accordion-item.component';
+import { AccordionHeaderComponent } from './components/accordion-header/accordion-header.component';
+import { AccordionBodyComponent } from './components/accordion-body/accordion-body.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +42,11 @@ import { VideoPlayerComponent } from './components/video-player/video-player.com
     StepComponent,
     ContextMenuComponent,
     VideoPlayerComponent,
+    FileUploaderComponent,
+    AccordionArrowComponent,
+    AccordionItemComponent,
+    AccordionHeaderComponent,
+    AccordionBodyComponent,
   ],
   imports: [
     CommonModule,
@@ -78,6 +87,11 @@ import { VideoPlayerComponent } from './components/video-player/video-player.com
     StepperComponent,
     ContextMenuComponent,
     VideoPlayerComponent,
+    FileUploaderComponent,
+    AccordionArrowComponent,
+    AccordionItemComponent,
+    AccordionHeaderComponent,
+    AccordionBodyComponent,
   ]
 })
 export class SharedModule { }

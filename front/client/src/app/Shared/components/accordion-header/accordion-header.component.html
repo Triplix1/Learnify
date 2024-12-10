@@ -1,0 +1,7 @@
+<div class="flex items-center relative"
+     (click)="accordionItem.toggle()">
+
+    <app-accordion-arrow [accordionItem]="accordionItem"></app-accordion-arrow>
+
+    <ng-content></ng-content>
+</div>

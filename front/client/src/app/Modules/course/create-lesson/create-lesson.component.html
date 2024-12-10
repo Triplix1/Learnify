@@ -1,5 +1,21 @@
-<input type="file"
-       #image
-       style="display: none;"
-       (change)="handleFileInput(image.files ? image.files[0] : null, null)" />
-<button (click)="image.click()">Upload File</button>
+<div *ngIf="!!currentLessonEditing"
+     class="bg-gray-900 p-4 rounded-lg mb-4">
+
+       <div>
+              <app-text-input [formControl]="$any(lessonForm.controls['title'])"
+                              placeholder="Title"
+                              label="Title"
+                              (changedInput)="saveDraft()"></app-text-input>
+       </div>
+
+       <div *ngIf="lessonResponse?.video?.attachment">
+              <app-video-player [fileId]="lessonResponse.video.attachment.fileId"></app-video-player>
+       </div>
+
+       <app-file-uploader [courseId]="courseId"
+                          (fileUploaded)="handleFileInput($event, null)"></app-file-uploader>
+
+       <div>
+              <app-create-quiz></app-create-quiz>
+       </div>
+</div>

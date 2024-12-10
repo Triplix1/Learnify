@@ -71,7 +71,7 @@
 
                     <app-create-paragraph *ngFor="let paragagraph of paragraphs; let index = index"
                                           [paragraphResponse]="paragagraph"
-                                          [possibleToCreateNewLesson]="lessonForm.dirty"
+                                          [possibleToCreateNewLesson]="possibleToCreateNewLesson"
                                           [index]="index"
                                           [courseId]="courseResponse.id"
                                           (onUpdate)="paragraphUpdated($event)"
@@ -91,26 +91,9 @@
             </app-step>
 
             <app-step label="Lesson">
-                <div *ngIf="!!currentLessonEditing"
-                     class="bg-gray-900 p-4 rounded-lg mb-4">
-
-                    <div>
-                        <app-text-input [formControl]="$any(lessonForm.controls['title'])"
-                                        placeholder="Title"
-                                        label="Title"
-                                        (changedInput)="saveDraft()"></app-text-input>
-                    </div>
-
-                    <div *ngIf="lessonResponse?.video?.attachment">
-                        <app-video-player [fileId]="lessonResponse.video.attachment.fileId"></app-video-player>
-                    </div>
-                    <input #fileInput
-                           type="file"
-                           accept="video/mp4,video/x-m4v,video/*"
-                           style="display: none;"
-                           (change)="handleFileInput(fileInput.files ? fileInput.files[0] : null, null)" />
-                    <app-button (buttonClick)="fileInput.click()">Upload File</app-button>
-                </div>
+                <app-create-lesson [currentLessonEditing]="currentLessonEditing"
+                                   [courseId]="courseId"
+                                   [(possibleToCreateNewLesson)]="possibleToCreateNewLesson"></app-create-lesson>
             </app-step>
         </app-stepper>
 

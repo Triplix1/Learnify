@@ -20,16 +20,18 @@ public class LessonService : ILessonService
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IMapper _mapper;
     private readonly ISubtitlesManager _subtitlesManager;
+    private readonly IPrivateFileManager _privateFileManager;
     private readonly IPublishEndpoint _publishEndpoint;
 
     public LessonService(IMongoUnitOfWork mongoUnitOfWork, IPsqUnitOfWork psqUnitOfWork, IMapper mapper,
-        ISubtitlesManager subtitlesManager, IPublishEndpoint publishEndpoint)
+        ISubtitlesManager subtitlesManager, IPublishEndpoint publishEndpoint, IPrivateFileManager privateFileManager)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
         _mapper = mapper;
         _subtitlesManager = subtitlesManager;
         _publishEndpoint = publishEndpoint;
+        _privateFileManager = privateFileManager;
     }
 
     /// <inheritdoc />
@@ -161,75 +163,82 @@ public class LessonService : ILessonService
 
         using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
         {
-            
-        }
-        
-        if (!draft && oldLesson.EditedLessonId is not null)
-        {
-            await _mongoUnitOfWork.Lessons.DeleteAsync(oldLesson.EditedLessonId, cancellationToken);
-            updatedLesson.EditedLessonId = null;
-        }
-
-        if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
-        {
-            if (oldLesson.Video is not null)
+            if (!draft && oldLesson.EditedLessonId is not null)
             {
-                var subtitleIds = oldLesson.Video.Subtitles.Select(s => s.SubtitleId);
-                await _subtitlesManager.DeleteRangeAsync(subtitleIds, cancellationToken);
+                await _mongoUnitOfWork.Lessons.DeleteAsync(oldLesson.EditedLessonId, cancellationToken);
+                updatedLesson.EditedLessonId = null;
             }
 
-            if (lessonAddOrUpdateRequest.Video?.Attachment?.FileId != null)
-                updatedLesson.Video.Subtitles =
-                    await AddNewVideoAsync(lessonAddOrUpdateRequest.Video, cancellationToken);
+            var quizzesDiff =
+                oldLesson.Quizzes.Where(q => q.Media != null && !updatedLesson.Quizzes.All(up => up.Media?.FileId != q.Media.FileId)).Select(q => q.Media.FileId);
+
+            await _privateFileManager.DeleteRangeAsync(quizzesDiff, cancellationToken);
+            
+            if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
+            {
+                if (oldLesson.Video is not null)
+                {
+                    var subtitleIds = oldLesson.Video.Subtitles.Select(s => s.SubtitleId);
+                    await _privateFileManager.DeleteAsync(oldLesson.Video.Attachment.FileId, cancellationToken);
+                    await _subtitlesManager.DeleteRangeAsync(subtitleIds, cancellationToken);
+                }
+
+                if (lessonAddOrUpdateRequest.Video?.Attachment?.FileId != null)
+                    updatedLesson.Video.Subtitles =
+                        await AddNewVideoAsync(lessonAddOrUpdateRequest.Video, cancellationToken);
+            }
+            else if (lessonAddOrUpdateRequest.Video is not null && oldLesson.Video is not null)
+            {
+                var subtitlesDiff =
+                    oldLesson.Video.Subtitles.Where(s =>
+                        !lessonAddOrUpdateRequest.Video.Subtitles.Contains(s.Language));
+
+                var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
+
+                var diffSubtitleReferences =
+                    _mapper.Map<IEnumerable<SubtitleReference>>(oldLesson.Video.Subtitles.Except(subtitlesDiff));
+
+                var updatedLessonSubtitles = new List<SubtitleReference>(diffSubtitleReferences);
+
+                await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
+
+                var subtitlesToCreate = lessonAddOrUpdateRequest.Video.Subtitles.Where(l =>
+                    !oldLesson.Video.Subtitles.Select(s => s.Language).Contains(l)).Select(l => new Subtitle()
+                {
+                    Language = l
+                });
+
+                var createdSubtitles =
+                    await _psqUnitOfWork.SubtitlesRepository.CreateRangeAsync(subtitlesToCreate, cancellationToken);
+
+                var newSubtitleReferences = _mapper.Map<IEnumerable<SubtitleReference>>(createdSubtitles);
+                updatedLessonSubtitles.AddRange(newSubtitleReferences);
+                updatedLesson.Video.Subtitles = updatedLessonSubtitles;
+
+                var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(lessonAddOrUpdateRequest.Video
+                    .Attachment
+                    .FileId, cancellationToken);
+
+                var subtitlesInfo = createdSubtitles.Select(s => new SubtitleInfo()
+                {
+                    Id = s.Id,
+                    Language = s.Language.ToString()
+                });
+
+                var generateRequest = new SubtitlesGenerateRequest()
+                {
+                    VideoBlobName = file.BlobName,
+                    VideoContainerName = file.ContainerName,
+                    SubtitleInfo = subtitlesInfo,
+                    PrimaryLanguage = lessonAddOrUpdateRequest.Video.PrimaryLanguage.ToString()
+                };
+
+                await _publishEndpoint.Publish(generateRequest, cancellationToken);
+            }
+
+            updatedLesson = await _mongoUnitOfWork.Lessons.UpdateAsync(updatedLesson, cancellationToken);
+            ts.Complete();
         }
-        else if (lessonAddOrUpdateRequest.Video is not null && oldLesson.Video is not null)
-        {
-            var subtitlesDiff =
-                oldLesson.Video.Subtitles.Where(s => !lessonAddOrUpdateRequest.Video.Subtitles.Contains(s.Language));
-
-            var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
-
-            var diffSubtitleReferences =
-                _mapper.Map<IEnumerable<SubtitleReference>>(oldLesson.Video.Subtitles.Except(subtitlesDiff));
-
-            var updatedLessonSubtitles = new List<SubtitleReference>(diffSubtitleReferences);
-
-            await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
-
-            var subtitlesToCreate = lessonAddOrUpdateRequest.Video.Subtitles.Where(l =>
-                !oldLesson.Video.Subtitles.Select(s => s.Language).Contains(l)).Select(l => new Subtitle()
-            {
-                Language = l
-            });
-
-            var createdSubtitles =
-                await _psqUnitOfWork.SubtitlesRepository.CreateRangeAsync(subtitlesToCreate, cancellationToken);
-
-            var newSubtitleReferences = _mapper.Map<IEnumerable<SubtitleReference>>(createdSubtitles);
-            updatedLessonSubtitles.AddRange(newSubtitleReferences);
-            updatedLesson.Video.Subtitles = updatedLessonSubtitles;
-
-            var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(lessonAddOrUpdateRequest.Video.Attachment
-                .FileId, cancellationToken);
-
-            var subtitlesInfo = createdSubtitles.Select(s => new SubtitleInfo()
-            {
-                Id = s.Id,
-                Language = s.Language.ToString()
-            });
-
-            var generateRequest = new SubtitlesGenerateRequest()
-            {
-                VideoBlobName = file.BlobName,
-                VideoContainerName = file.ContainerName,
-                SubtitleInfo = subtitlesInfo,
-                PrimaryLanguage = lessonAddOrUpdateRequest.Video.PrimaryLanguage.ToString()
-            };
-
-            await _publishEndpoint.Publish(generateRequest, cancellationToken);
-        }
-
-        updatedLesson = await _mongoUnitOfWork.Lessons.UpdateAsync(updatedLesson, cancellationToken);
 
         var response = await GetUpdateResponseAsync(updatedLesson, cancellationToken);
 
