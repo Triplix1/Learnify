@@ -19,8 +19,6 @@ public class GroupRepository : IGroupRepository
     {
         if (includes == null || !includes.Any())
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             return await _context.Groups.FindAsync([name], cancellationToken);
         }
 

@@ -19,8 +19,6 @@ public class MessageRepository : IMessageRepository
     {
         if (includes is null || !includes.Any())
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             return await _context.Messages.FindAsync([messageId], cancellationToken);
         }
 
@@ -53,8 +51,6 @@ public class MessageRepository : IMessageRepository
 
     public async Task<bool> DeleteAsync(int messageId, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var message = await _context.Messages.FindAsync([messageId], cancellationToken);
 
         if (message is null)

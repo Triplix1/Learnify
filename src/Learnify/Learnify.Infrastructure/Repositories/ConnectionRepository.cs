@@ -14,8 +14,6 @@ public class ConnectionRepository : IConnectionRepository
 
     public async Task<bool> RemoveAsync(string connectionId, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        
         var connection = await _context.Connections.FindAsync([connectionId], cancellationToken);
 
         if (connection is null)

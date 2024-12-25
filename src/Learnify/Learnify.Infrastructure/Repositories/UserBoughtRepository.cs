@@ -16,8 +16,6 @@ public class UserBoughtRepository : IUserBoughtRepository
 
     public async Task<bool> UserBoughtExistsAsync(int userId, int courseId, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var userBought = await _context.UserBoughts.FindAsync([userId, courseId], cancellationToken);
 
         return userBought is not null;
@@ -34,8 +32,6 @@ public class UserBoughtRepository : IUserBoughtRepository
 
     public async Task<bool> DeleteAsync(int userId, int courseId, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var userBought = await _context.UserBoughts.FindAsync([userId, courseId], cancellationToken);
 
         if (userBought is null)

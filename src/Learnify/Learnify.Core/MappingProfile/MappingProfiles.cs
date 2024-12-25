@@ -28,12 +28,10 @@ public class MappingProfiles: Profile
             .ConvertUsing(src => Enum.Parse<Role>(src.ToString()));
 
         // User
-        CreateMap<User, User>();
         CreateMap<User, ProfileResponse>();
         CreateMap<ProfileUpdateRequest, User>();
 
         // Course
-        CreateMap<Course, Course>();
         CreateMap<CourseCreateRequest, Course>();
         CreateMap<CourseUpdateRequest, Course>();
         CreateMap<Course, CourseTitleResponse>();
@@ -42,30 +40,25 @@ public class MappingProfiles: Profile
         CreateMap<CourseParams, EfFilter<Course>>();
 
         // Paragraph
-        CreateMap<Paragraph, Paragraph>();
         CreateMap<ParagraphCreateRequest, Paragraph>();
         CreateMap<ParagraphUpdateRequest, Paragraph>();
         CreateMap<Paragraph, ParagraphResponse>();
 
         // Lesson
-        CreateMap<Lesson, Lesson>();
         CreateMap<LessonAddOrUpdateRequest, Lesson>();
         CreateMap<Lesson, LessonResponse>();
         CreateMap<Lesson, LessonUpdateResponse>();
         CreateMap<Lesson, LessonTitleResponse>();
 
         // Attachment
-        CreateMap<Attachment, Attachment>();
         CreateMap<Attachment, AttachmentResponse>().ReverseMap();
 
         // QuizQuestion
-        CreateMap<QuizQuestion, QuizQuestion>();
         CreateMap<QuizQuestion, QuizQuestionResponse>();
         CreateMap<QuizQuestionAddOrUpdateRequest, QuizQuestion>();
         CreateMap<QuizQuestion, QuizQuestionUpdateResponse>();
         
         // Subtitles
-        CreateMap<Subtitle, Subtitle>();
         CreateMap<SubtitlesCreateRequest, Subtitle>();
         CreateMap<Subtitle, SubtitlesResponse>();
         CreateMap<SubtitlesResponse, SubtitleInfo>();
@@ -73,16 +66,13 @@ public class MappingProfiles: Profile
             .ForMember(s => s.SubtitleId, s => s.MapFrom(sr => sr.Id));
 
         // FileData
-        CreateMap<PrivateFileData, PrivateFileData>();
         CreateMap<PrivateFileData, PrivateFileDataResponse>();
         
         //Video
-        CreateMap<Video, Video>();
         CreateMap<VideoAddOrUpdateRequest, Video>();
         CreateMap<Video, VideoResponse>(); 
         
         //Message
-        CreateMap<Message, Message>();
         CreateMap<Message, MessageResponse>()
             .ForMember(m => m.SenderName, m => m.MapFrom(message => message.Sender.Name));
     }

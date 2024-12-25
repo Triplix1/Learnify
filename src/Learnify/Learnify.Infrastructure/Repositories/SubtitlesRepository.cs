@@ -20,8 +20,6 @@ public class SubtitlesRepository : ISubtitlesRepository
 
     public async Task<Subtitle> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var subtitle = await _context.Subtitles.FindAsync([id], cancellationToken);
 
         return subtitle;
@@ -57,8 +55,6 @@ public class SubtitlesRepository : ISubtitlesRepository
     public async Task<Subtitle> UpdateAsync(Subtitle subtitlesUpdateRequest,
         CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var subtitle = await _context.Subtitles.FindAsync([subtitlesUpdateRequest.Id], cancellationToken);
 
         if (subtitle is null)
@@ -74,8 +70,6 @@ public class SubtitlesRepository : ISubtitlesRepository
 
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        
         var subtitle = await _context.Subtitles.FindAsync([id], cancellationToken);
 
         if (subtitle is null)

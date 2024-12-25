@@ -45,8 +45,6 @@ public abstract class BasePsqRepository<T, TKey> : IBasePsqRepository<T, TKey> w
     /// <inheritdoc />
     public virtual async Task<T?> GetByIdAsync(TKey key, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        
         return await Context.Set<T>().FindAsync([key], cancellationToken);
     }
 
@@ -75,8 +73,6 @@ public abstract class BasePsqRepository<T, TKey> : IBasePsqRepository<T, TKey> w
     /// <inheritdoc />
     public virtual async Task<bool> DeleteAsync(TKey id, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        
         var entity = await Context.Set<T>().FindAsync([id], cancellationToken);
 
         if (entity is null)

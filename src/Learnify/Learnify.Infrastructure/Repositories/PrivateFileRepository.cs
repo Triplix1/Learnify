@@ -20,8 +20,6 @@ public class PrivateFileRepository : IPrivateFileRepository
 
     public async Task<PrivateFileData> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var fileData = await _context.FileDatas.FindAsync([id], cancellationToken);
 
         if (fileData is null)
@@ -62,8 +60,6 @@ public class PrivateFileRepository : IPrivateFileRepository
 
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var fileData = await _context.FileDatas.FindAsync([id], cancellationToken);
 
         if (fileData is null)
