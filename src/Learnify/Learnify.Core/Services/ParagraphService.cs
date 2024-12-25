@@ -44,6 +44,11 @@ public class ParagraphService : IParagraphService
     public async Task<ParagraphResponse> UpdateAsync(ParagraphUpdateRequest paragraphUpdateRequest,
         int userId, CancellationToken cancellationToken = default)
     {
+        var originalParagraph = await _psqUnitOfWork.ParagraphRepository.GetByIdAsync(paragraphUpdateRequest.Id, cancellationToken: cancellationToken);
+        
+        if(originalParagraph is null)
+            throw new KeyNotFoundException("cannot find paragraph with such id");
+        
         var validationResult =
             await _userValidatorManager.ValidateAuthorOfParagraphAsync(paragraphUpdateRequest.Id, userId,
                 cancellationToken);
@@ -51,7 +56,7 @@ public class ParagraphService : IParagraphService
         if (validationResult is not null)
             throw validationResult;
 
-        var paragraph = _mapper.Map<Paragraph>(paragraphUpdateRequest);
+        var paragraph = _mapper.Map(paragraphUpdateRequest, originalParagraph);
 
         paragraph = await _psqUnitOfWork.ParagraphRepository.UpdateAsync(paragraph, cancellationToken);
 
@@ -69,7 +74,7 @@ public class ParagraphService : IParagraphService
         if (validationResult is not null)
             throw validationResult;
 
-        var paragraph = await _psqUnitOfWork.ParagraphRepository.GetByIdAsync(paragraphId, cancellationToken);
+        var paragraph = await _psqUnitOfWork.ParagraphRepository.GetByIdAsync(paragraphId, cancellationToken: cancellationToken);
 
         if (paragraph is null)
             throw new KeyNotFoundException("Cannot find paragraph with specified id");
@@ -85,7 +90,7 @@ public class ParagraphService : IParagraphService
 
     public async Task DeleteAsync(int id, int userId, CancellationToken cancellationToken = default)
     {
-        var paragraph = await _psqUnitOfWork.ParagraphRepository.GetByIdAsync(id, cancellationToken);
+        var paragraph = await _psqUnitOfWork.ParagraphRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
 
         if (paragraph is null)
             throw new KeyNotFoundException("Cannot find paragraph with such id");

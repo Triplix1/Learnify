@@ -6,43 +6,33 @@ using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Learnify.Core.Extensions;
+using Learnify.Infrastructure.Helpers;
 
 namespace Learnify.Infrastructure.Repositories;
 
-/// <summary>
-/// Courses repo
-/// </summary>
 public class CourseRepository : ICourseRepository
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    /// <summary>
-    /// Courses constructor
-    /// </summary>
-    /// <param name="context"><see cref="ApplicationDbContext"/></param>
-    /// <param name="mapper"><see cref="IMapper"/></param>
-    /// <param name="lessonRepository"><see cref="ILessonRepository"/></param>
     public CourseRepository(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
     }
 
-    /// <inheritdoc />
-    public async Task<Course> GetByIdAsync(int key, IEnumerable<string> includes,
+    public async Task<Course> GetByIdAsync(int key, IEnumerable<string> includes = null,
         CancellationToken cancellationToken = default)
     {
-        var courseQuery = includes.Aggregate(_context.Courses.AsQueryable(), (c, include) => c.Include(include));
+        var query = IncludeParamsHelper.IncludeStrings(includes, _context.Courses);
 
-        var course = await courseQuery.FirstOrDefaultAsync(c => c.Id == key, cancellationToken: cancellationToken);
+        var course = await query.FirstOrDefaultAsync(c => c.Id == key, cancellationToken: cancellationToken);
 
         return course;
     }
 
     public async Task<Course> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
         var course = await _context.Courses.FindAsync([key], cancellationToken);
 
         if (course is null)
@@ -55,7 +45,6 @@ public class CourseRepository : ICourseRepository
         return course;
     }
 
-    /// <inheritdoc />
     public async Task<Course> CreateAsync(Course courseCreateRequest, CancellationToken cancellationToken = default)
     {
         await _context.Courses.AddAsync(courseCreateRequest, cancellationToken);
@@ -64,10 +53,8 @@ public class CourseRepository : ICourseRepository
         return courseCreateRequest;
     }
 
-    /// <inheritdoc />
     public async Task<Course> UpdateAsync(Course entity, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
         var course = await _context.Courses.FindAsync([entity.Id], cancellationToken);
 
         if (course is null)
@@ -81,11 +68,8 @@ public class CourseRepository : ICourseRepository
         return course;
     }
 
-    /// <inheritdoc />
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var course = await _context.Courses.FindAsync([id], cancellationToken);
 
         if (course is null)
@@ -96,11 +80,8 @@ public class CourseRepository : ICourseRepository
         return true;
     }
 
-    /// <inheritdoc />
     public async Task<int?> GetAuthorIdAsync(int courseId, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var course = await _context.Courses.FindAsync([courseId], cancellationToken);
 
         if (course is null)
@@ -109,7 +90,6 @@ public class CourseRepository : ICourseRepository
         return course.AuthorId;
     }
 
-    /// <inheritdoc />
     public async Task<PagedList<Course>> GetFilteredAsync(EfFilter<Course> filter,
         CancellationToken cancellationToken = default)
     {

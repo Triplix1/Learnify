@@ -2,10 +2,9 @@
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
-using Learnify.Core.Dto.Course.ParagraphDtos;
-using Learnify.Core.Specification;
 using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
+using Learnify.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
@@ -45,11 +44,11 @@ public class ParagraphRepository : IParagraphRepository
     }
 
     /// <inheritdoc />
-    public async Task<Paragraph> GetByIdAsync(int key, CancellationToken cancellationToken = default)
+    public async Task<Paragraph> GetByIdAsync(int key, IEnumerable<string> stringToInclude = null, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var paragraph = await _context.Paragraphs.FindAsync([key], cancellationToken);
+        var query = IncludeParamsHelper.IncludeStrings(stringToInclude, _context.Paragraphs);
+        
+        var paragraph = await query.FirstOrDefaultAsync(x => x.Id == key, cancellationToken);
 
         if (paragraph is null)
             throw new KeyNotFoundException("Cannot find paragraph with such Id");
@@ -69,8 +68,6 @@ public class ParagraphRepository : IParagraphRepository
     /// <inheritdoc />
     public async Task<Paragraph> UpdateAsync(Paragraph entity, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var paragraph = await _context.Paragraphs.FindAsync([entity.Id], cancellationToken);
 
         if (paragraph is null)
@@ -87,8 +84,6 @@ public class ParagraphRepository : IParagraphRepository
     /// <inheritdoc />
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        
         var paragraph = await _context.Paragraphs.FindAsync([id], cancellationToken);
 
         if (paragraph is null)

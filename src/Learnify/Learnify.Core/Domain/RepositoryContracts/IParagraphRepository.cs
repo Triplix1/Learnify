@@ -21,7 +21,7 @@ public interface IParagraphRepository
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    Task<Paragraph?> GetByIdAsync(int key, CancellationToken cancellationToken = default);
+    Task<Paragraph?> GetByIdAsync(int key, IEnumerable<string> stringsToInclude = null, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Creates entity

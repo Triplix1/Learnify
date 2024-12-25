@@ -103,12 +103,17 @@ public class CourseService : ICourseService
     public async Task<CourseResponse> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int userId,
         CancellationToken cancellationToken = default)
     {
+        var originalCourse = await _psqUnitOfWork.CourseRepository.GetByIdAsync(courseUpdateRequest.Id, [nameof(Course.Paragraphs)], cancellationToken:cancellationToken);
+
+        if (originalCourse is null)
+            throw new KeyNotFoundException("Cannot find course with such id");
+        
         var validationResult = await _userValidatorManager.ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId, cancellationToken);
 
         if (validationResult is not null)
             throw validationResult;
 
-        var course = _mapper.Map<Course>(courseUpdateRequest);
+        var course = _mapper.Map(courseUpdateRequest, originalCourse);
 
         course = await _psqUnitOfWork.CourseRepository.UpdateAsync(course, cancellationToken);
 

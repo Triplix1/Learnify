@@ -23,7 +23,7 @@ public interface ICourseRepository
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    Task<Course> GetByIdAsync(int key, IEnumerable<string> includes, CancellationToken cancellationToken = default);
+    Task<Course> GetByIdAsync(int key, IEnumerable<string> includes = null, CancellationToken cancellationToken = default);
 
     Task<Course> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default);
     
