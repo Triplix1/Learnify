@@ -1,0 +1,6 @@
+<div [ngSwitch]="mediaType">
+    <app-video-player *ngSwitchCase="MediaType.Video"
+                      [fileId]="media.fileId"></app-video-player>
+    <app-image *ngSwitchCase="MediaType.Image"
+               [fileId]="media.fileId"></app-image>
+</div>

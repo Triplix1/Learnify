@@ -1,0 +1,24 @@
+<ul>
+    <li *ngFor="let answer of answers; let i = index"
+        class="answer-item">
+        <!-- Input for editing -->
+        <input type="text"
+               [(ngModel)]="answers[i]"
+               (change)="editAnswer(i, answers[i])"
+               placeholder="Enter answer" />
+
+        <!-- Set correct answer button -->
+        <button (click)="setCorrectAnswerIndex(i)"
+                [class.correct]="correctAnswerIndex === i">
+            {{ correctAnswerIndex === i ? '✔ Correct' : 'Set Correct' }}
+        </button>
+
+        <!-- Delete button -->
+        <button (click)="deleteAnswer(i)">🗑 Delete</button>
+    </li>
+</ul>
+
+<!-- Add new answer -->
+<button (click)="answers.push('New Answer'); answersChange.emit(answers)">
+    Add Answer
+</button>
