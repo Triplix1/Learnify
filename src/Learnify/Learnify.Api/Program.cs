@@ -18,7 +18,7 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Learnify API V1");
     });
 }
-app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseApiResponseMiddleware();
 
 app.UseCors("CorsPolicy");
 app.UseStaticFiles();

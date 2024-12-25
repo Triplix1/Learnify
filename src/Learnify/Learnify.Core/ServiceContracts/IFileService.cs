@@ -7,6 +7,6 @@ public interface IFileService
 {
     Task<FileStreamResponse> GetFileStreamById(int id, int userId, CancellationToken cancellationToken = default);
 
-    Task<ApiResponse<PrivateFileDataResponse>> CreateAsync(PrivateFileBlobCreateRequest privateFileBlobCreateRequest,
+    Task<PrivateFileDataResponse> CreateAsync(PrivateFileBlobCreateRequest privateFileBlobCreateRequest,
         int userId, CancellationToken cancellationToken = default);
 }

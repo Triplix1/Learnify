@@ -18,7 +18,7 @@ public class CourseController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<PagedList<CourseTitleResponse>>>> GetCourseTitlesAsync(
+    public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetCourseTitlesAsync(
         CancellationToken cancellationToken = default)
     {
         var result = await _courseService.GetAllCourseTitles(cancellationToken);
@@ -27,55 +27,55 @@ public class CourseController : BaseApiController
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ApiResponse<CourseResponse>>> GetCourseAsync(int id,
+    public async Task<ActionResult<CourseResponse>> GetCourseAsync(int id,
         CancellationToken cancellationToken = default)
     {
         var courseResponse = await _courseService.GetByIdAsync(id, cancellationToken);
 
-        return courseResponse;
+        return Ok(courseResponse);
     }
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<CourseResponse>>> CreateCourseAsync(
+    public async Task<ActionResult<CourseResponse>> CreateCourseAsync(
         [FromBody]CourseCreateRequest courseCreateRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
         var courseResponse = await _courseService.CreateAsync(courseCreateRequest, userId, cancellationToken);
 
-        return courseResponse;
+        return Ok(courseResponse);
     }
 
     [Authorize]
     [HttpPost("{id}")]
-    public async Task<ActionResult<ApiResponse<CourseResponse>>> PublishCourseAsync([FromRoute]int id,
+    public async Task<ActionResult<CourseResponse>> PublishCourseAsync([FromRoute]int id,
         [FromBody]bool publish, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
         var courseResponse = await _courseService.PublishAsync(id, publish, userId, cancellationToken);
 
-        return courseResponse;
+        return Ok(courseResponse);
     }
 
     [Authorize]
     [HttpPut]
-    public async Task<ActionResult<ApiResponse<CourseResponse>>> UpdateCourse(
+    public async Task<ActionResult<CourseResponse>> UpdateCourse(
         [FromBody]CourseUpdateRequest courseUpdateRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
         var courseResponse = await _courseService.UpdateAsync(courseUpdateRequest, userId, cancellationToken);
 
-        return courseResponse;
+        return Ok(courseResponse);
     }
 
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<ActionResult<ApiResponse>> DeleteAsync([FromRoute]int id,
+    public async Task<ActionResult> DeleteAsync([FromRoute]int id,
         CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var response = await _courseService.DeleteAsync(id, userId, cancellationToken);
+        await _courseService.DeleteAsync(id, userId, cancellationToken);
 
-        return response;
+        return Ok();
     }
 }

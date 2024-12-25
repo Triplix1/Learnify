@@ -40,21 +40,12 @@ public class IdentityService : IIdentityService
         _psqUnitOfWork = psqUnitOfWork;
     }
 
-    public async Task<ApiResponse<AuthResponse>> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest,
+    public async Task<AuthResponse> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest,
         CancellationToken cancellationToken = default)
     {
-        GoogleJsonWebSignature.Payload tokenPayload;
-        try
-        {
-            var googleToken = await _googleAuthManager.GetGoogleTokenAsync(googleAuthRequest, cancellationToken);
+        var googleToken = await _googleAuthManager.GetGoogleTokenAsync(googleAuthRequest, cancellationToken);
 
-            tokenPayload = await _googleAuthManager.VerifyGoogleTokenAsync(googleToken.IdToken, cancellationToken);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            return ApiResponse<AuthResponse>.Failure(e);
-        }
+        var tokenPayload = await _googleAuthManager.VerifyGoogleTokenAsync(googleToken.IdToken, cancellationToken);
 
 
         var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(tokenPayload.Email, cancellationToken);
@@ -76,7 +67,7 @@ public class IdentityService : IIdentityService
         return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }
 
-    public async Task<ApiResponse<AuthResponse>> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest,
+    public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest,
         CancellationToken cancellationToken = default)
     {
         var tokenData = _tokenManager.GetDataFromToken(refreshTokenRequest.Jwt);
@@ -84,7 +75,7 @@ public class IdentityService : IIdentityService
         if (tokenData.ValidTo > DateTime.UtcNow)
         {
             _logger.LogError("Token hasn't expired yet");
-            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Token hasn't expired yet"));
+            throw new RefreshTokenException("Token hasn't expired yet");
         }
 
         var email = tokenData.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
@@ -92,7 +83,7 @@ public class IdentityService : IIdentityService
         if (email is null)
         {
             _logger.LogError("Cannot find email in token principals");
-            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Cannot find email in token"));
+            throw new RefreshTokenException("Cannot find email in token");
         }
 
         var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(email, cancellationToken);
@@ -100,8 +91,8 @@ public class IdentityService : IIdentityService
         if (user is null)
         {
             _logger.LogError("Cannot find user with email: {email}", email);
-            return ApiResponse<AuthResponse>.Failure(
-                new RefreshTokenException($"Cannot find user with email: {email}"));
+            throw
+                new RefreshTokenException($"Cannot find user with email: {email}");
         }
 
         var refreshToken =
@@ -110,27 +101,27 @@ public class IdentityService : IIdentityService
         if (refreshToken is null)
         {
             _logger.LogError("Cannot find refresh token for specified jwt");
-            return ApiResponse<AuthResponse>.Failure(
-                new RefreshTokenException("Cannot find refresh token for specified jwt"));
+            throw
+                new RefreshTokenException("Cannot find refresh token for specified jwt");
         }
 
         if (refreshToken.Refresh != refreshTokenRequest.RefreshToken)
         {
             _logger.LogError("Invalid refresh token for specified jwt");
-            return ApiResponse<AuthResponse>.Failure(
-                new RefreshTokenException("Invalid refresh token for specified jwt"));
+            throw
+                new RefreshTokenException("Invalid refresh token for specified jwt");
         }
 
         if (refreshToken.Expire < DateTime.UtcNow)
         {
             _logger.LogError("Refresh token has been expired");
-            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Refresh token has been expired"));
+            throw new RefreshTokenException("Refresh token has been expired");
         }
 
         if (refreshToken.HasBeenUsed)
         {
             _logger.LogError("Refresh token has been used");
-            return ApiResponse<AuthResponse>.Failure(new RefreshTokenException("Refresh token has been used"));
+            throw new RefreshTokenException("Refresh token has been used");
         }
 
         refreshToken.HasBeenUsed = true;
@@ -139,7 +130,7 @@ public class IdentityService : IIdentityService
         return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }
 
-    public async Task<ApiResponse<AuthResponse>> RegisterAsync(RegisterRequest registerRequest,
+    public async Task<AuthResponse> RegisterAsync(RegisterRequest registerRequest,
         CancellationToken cancellationToken = default)
     {
         var userWithTheSameEmail =
@@ -149,7 +140,7 @@ public class IdentityService : IIdentityService
         {
             _logger.LogError("Cannot register user with email: {email}, because it already exists",
                 registerRequest.Email);
-            return ApiResponse<AuthResponse>.Failure(new ArgumentException("User with the same email already exists"));
+            throw new ArgumentException("User with the same email already exists");
         }
 
         var userWithTheSameUsername =
@@ -159,8 +150,7 @@ public class IdentityService : IIdentityService
         {
             _logger.LogError("Cannot register user with username: {username}, because it already exists",
                 registerRequest.Username);
-            return ApiResponse<AuthResponse>.Failure(
-                new ArgumentException("User with the same username already exists"));
+            throw new ArgumentException("User with the same username already exists");
         }
 
         using var hmac = new HMACSHA512();
@@ -200,7 +190,7 @@ public class IdentityService : IIdentityService
         return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }
 
-    public async Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest loginRequest,
+    public async Task<AuthResponse> LoginAsync(LoginRequest loginRequest,
         CancellationToken cancellationToken = default)
     {
         var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(loginRequest.Email, cancellationToken);
@@ -208,15 +198,15 @@ public class IdentityService : IIdentityService
         if (user is null)
         {
             _logger.LogError("Cannot find user with email: {email}", loginRequest.Email);
-            return ApiResponse<AuthResponse>.Failure(new AuthenticationException("Cannot find user with such email"));
+            throw new AuthenticationException("Cannot find user with such email");
         }
 
         if (user.PasswordSalt is null || user.PasswordHash is null)
         {
             _logger.LogError("Trying to login user with email: {email}, but it doesn't registered with password",
                 loginRequest.Email);
-            return ApiResponse<AuthResponse>.Failure(
-                new AuthenticationException("Your user doesn't registered with password type"));
+            throw
+                new AuthenticationException("Your user doesn't registered with password type");
         }
 
         using var hmac = new HMACSHA512(user.PasswordSalt);
@@ -226,25 +216,18 @@ public class IdentityService : IIdentityService
         if (computedHash.Where((t, i) => t != user.PasswordHash[i]).Any())
         {
             _logger.LogError("Login failed, invalid password for user: {email}", loginRequest.Email);
-            return ApiResponse<AuthResponse>.Failure(new AuthenticationException("Invalid Password"));
+            throw new AuthenticationException("Invalid Password");
         }
 
         return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }
 
-    private async Task<ApiResponse<AuthResponse>> ReturnNewAuthResponseAsync(User user,
+    private async Task<AuthResponse> ReturnNewAuthResponseAsync(User user,
         CancellationToken cancellationToken = default)
     {
         TokenResponse accessToken;
 
-        try
-        {
-            accessToken = _tokenManager.GenerateJwtToken(user);
-        }
-        catch (Exception e)
-        {
-            return ApiResponse<AuthResponse>.Failure(e);
-        }
+        accessToken = _tokenManager.GenerateJwtToken(user);
 
         var refreshTokenString = _tokenManager.GenerateRefreshToken();
 
@@ -265,6 +248,6 @@ public class IdentityService : IIdentityService
             Expires = accessToken.Expires
         };
 
-        return ApiResponse<AuthResponse>.Success(response);
+        return response;
     }
 }

@@ -11,29 +11,25 @@ namespace Learnify.Core.Services;
 public class ParagraphService : IParagraphService
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
-    private readonly IMongoUnitOfWork _mongoUnitOfWork;
-    private readonly ICourseManager _courseManager;
-    private readonly IParagraphManager _paragraphManager;
+    private readonly IUserValidatorManager _userValidatorManager;
     private readonly IMapper _mapper;
 
-    public ParagraphService(IPsqUnitOfWork psqUnitOfWork, ICourseManager courseManager,
-        IParagraphManager paragraphManager, IMapper mapper)
+    public ParagraphService(IPsqUnitOfWork psqUnitOfWork, IMapper mapper, IUserValidatorManager userValidatorManager)
     {
         _psqUnitOfWork = psqUnitOfWork;
-        _courseManager = courseManager;
-        _paragraphManager = paragraphManager;
         _mapper = mapper;
+        _userValidatorManager = userValidatorManager;
     }
 
-    public async Task<ApiResponse<ParagraphResponse>> CreateAsync(ParagraphCreateRequest paragraphCreateRequest,
+    public async Task<ParagraphResponse> CreateAsync(ParagraphCreateRequest paragraphCreateRequest,
         int userId, CancellationToken cancellationToken = default)
     {
         var validationResult =
-            await _courseManager.ValidateAuthorOfCourseAsync(paragraphCreateRequest.CourseId, userId,
+            await _userValidatorManager.ValidateAuthorOfCourseAsync(paragraphCreateRequest.CourseId, userId,
                 cancellationToken);
 
         if (validationResult is not null)
-            return ApiResponse<ParagraphResponse>.Failure(validationResult);
+            throw validationResult;
 
         var paragraph = _mapper.Map<Paragraph>(paragraphCreateRequest);
         paragraph.isPublished = false;
@@ -42,18 +38,18 @@ public class ParagraphService : IParagraphService
 
         var response = _mapper.Map<ParagraphResponse>(paragraph);
 
-        return ApiResponse<ParagraphResponse>.Success(response);
+        return response;
     }
 
-    public async Task<ApiResponse<ParagraphResponse>> UpdateAsync(ParagraphUpdateRequest paragraphUpdateRequest,
+    public async Task<ParagraphResponse> UpdateAsync(ParagraphUpdateRequest paragraphUpdateRequest,
         int userId, CancellationToken cancellationToken = default)
     {
         var validationResult =
-            await _paragraphManager.ValidateExistAndAuthorOfParagraphAsync(paragraphUpdateRequest.Id, userId,
+            await _userValidatorManager.ValidateAuthorOfParagraphAsync(paragraphUpdateRequest.Id, userId,
                 cancellationToken);
 
         if (validationResult is not null)
-            return ApiResponse<ParagraphResponse>.Failure(validationResult);
+            throw validationResult;
 
         var paragraph = _mapper.Map<Paragraph>(paragraphUpdateRequest);
 
@@ -61,23 +57,22 @@ public class ParagraphService : IParagraphService
 
         var response = _mapper.Map<ParagraphResponse>(paragraph);
 
-        return ApiResponse<ParagraphResponse>.Success(response);
+        return response;
     }
 
-    public async Task<ApiResponse<ParagraphResponse>> PublishAsync(int paragraphId, int userId,
+    public async Task<ParagraphResponse> PublishAsync(int paragraphId, int userId,
         CancellationToken cancellationToken = default)
     {
         var validationResult =
-            await _paragraphManager.ValidateExistAndAuthorOfParagraphAsync(paragraphId, userId, cancellationToken);
+            await _userValidatorManager.ValidateAuthorOfParagraphAsync(paragraphId, userId, cancellationToken);
 
         if (validationResult is not null)
-            return ApiResponse<ParagraphResponse>.Failure(validationResult);
+            throw validationResult;
 
         var paragraph = await _psqUnitOfWork.ParagraphRepository.GetByIdAsync(paragraphId, cancellationToken);
 
         if (paragraph is null)
-            return ApiResponse<ParagraphResponse>.Failure(
-                new KeyNotFoundException("Cannot find paragraph with specified id"));
+            throw new KeyNotFoundException("Cannot find paragraph with specified id");
 
         paragraph.isPublished = true;
 
@@ -85,27 +80,25 @@ public class ParagraphService : IParagraphService
 
         var response = _mapper.Map<ParagraphResponse>(paragraph);
 
-        return ApiResponse<ParagraphResponse>.Success(response);
+        return response;
     }
 
-    public async Task<ApiResponse> DeleteAsync(int id, int userId, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(int id, int userId, CancellationToken cancellationToken = default)
     {
         var paragraph = await _psqUnitOfWork.ParagraphRepository.GetByIdAsync(id, cancellationToken);
 
         if (paragraph is null)
-            return ApiResponse.Failure(new KeyNotFoundException("Cannot find paragraph with such id"));
+            throw new KeyNotFoundException("Cannot find paragraph with such id");
 
         var validationResult =
-            await _courseManager.ValidateAuthorOfCourseAsync(paragraph.CourseId, userId, cancellationToken);
+            await _userValidatorManager.ValidateAuthorOfCourseAsync(paragraph.CourseId, userId, cancellationToken);
 
         if (validationResult is not null)
-            return ApiResponse<ParagraphResponse>.Failure(validationResult);
+            throw validationResult;
 
         var deletionResult = await _psqUnitOfWork.ParagraphRepository.DeleteAsync(id, cancellationToken);
 
         if (!deletionResult)
-            return ApiResponse.Failure(new Exception("Cannot delete paragraph with such id"));
-
-        return ApiResponse.Success();
+            throw new Exception("Cannot delete paragraph with such id");
     }
 }

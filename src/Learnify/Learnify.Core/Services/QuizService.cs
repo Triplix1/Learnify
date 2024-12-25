@@ -18,7 +18,7 @@ public class QuizService: IQuizService
         _mapper = mapper;
     }
 
-    public async Task<ApiResponse<QuizQuestionUpdateResponse>> AddOrUpdateQuizAsync(QuizQuestionAddOrUpdateRequest request,
+    public async Task<QuizQuestionUpdateResponse> AddOrUpdateQuizAsync(QuizQuestionAddOrUpdateRequest request,
         CancellationToken cancellationToken = default)
     {
         QuizQuestion quizQuestion = _mapper.Map<QuizQuestion>(request);
@@ -30,18 +30,21 @@ public class QuizService: IQuizService
 
         if (quizQuestion is null)
         {
-            return ApiResponse<QuizQuestionUpdateResponse>.Failure(new Exception("Failed to add or update quiz"));
+            throw new Exception("Failed to add or update quiz");
         }
         
         var response = _mapper.Map<QuizQuestionUpdateResponse>(quizQuestion);
         
-        return ApiResponse<QuizQuestionUpdateResponse>.Success(response);
+        return response;
     }
 
-    public async Task<ApiResponse<bool>> DeleteQuizAsync(string quizId, string lessonId, CancellationToken cancellationToken = default)
+    public async Task DeleteQuizAsync(string quizId, string lessonId, CancellationToken cancellationToken = default)
     {
         var deletionResult = await _quizRepository.DeleteAsync(quizId, lessonId, cancellationToken);
 
-        return ApiResponse<bool>.Success(deletionResult);
+        if (!deletionResult)
+        {
+            throw new Exception("Failed to delete quiz");
+        }
     }
 }

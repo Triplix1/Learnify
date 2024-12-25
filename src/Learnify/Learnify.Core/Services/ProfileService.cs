@@ -35,44 +35,45 @@ public class ProfileService : IProfileService
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<ProfileResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ProfileResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var profile = await _psqUnitOfWork.UserRepository.GetByIdAsync(id, cancellationToken);
 
-        return ApiResponse<ProfileResponse>.Success(_mapper.Map<ProfileResponse>(profile));
+        var profileResponse = _mapper.Map<ProfileResponse>(profile);
+
+        return profileResponse;
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var user = await _psqUnitOfWork.UserRepository.GetByIdAsync(id, cancellationToken);
 
         if (user is null)
-            return ApiResponse.Failure(new KeyNotFoundException("Cannot find user with such id"));
+            throw new KeyNotFoundException("Cannot find user with such id");
 
-        using var transaction = TransactionScopeBuilder.CreateReadCommittedAsync();
+        using (var transaction = TransactionScopeBuilder.CreateReadCommittedAsync())
+        {
+            var deletionResult = await _psqUnitOfWork.UserRepository.DeleteAsync(user.Id, cancellationToken);
 
-        var deletionResult = await _psqUnitOfWork.UserRepository.DeleteAsync(user.Id, cancellationToken);
+            if (!deletionResult)
+                throw new KeyNotFoundException("Cannot find user with such id");
 
-        if (!deletionResult)
-            return ApiResponse.Failure(new KeyNotFoundException("Cannot find user with such id"));
+            if (user.ImageContainerName is not null && user.ImageBlobName is not null)
+                await _blobStorage.DeleteAsync(user.ImageContainerName, user.ImageBlobName, cancellationToken);
 
-        if (user.ImageContainerName is not null && user.ImageBlobName is not null)
-            await _blobStorage.DeleteAsync(user.ImageContainerName, user.ImageBlobName, cancellationToken);
-
-        transaction.Complete();
-
-        return ApiResponse.Success();
+            transaction.Complete();
+        }
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<ProfileResponse>> UpdateAsync(ProfileUpdateRequest profileUpdateRequest,
+    public async Task<ProfileResponse> UpdateAsync(ProfileUpdateRequest profileUpdateRequest,
         CancellationToken cancellationToken = default)
     {
         var origin = await _psqUnitOfWork.UserRepository.GetByIdAsync(profileUpdateRequest.Id, cancellationToken);
 
         if (origin is null)
-            return ApiResponse<ProfileResponse>.Failure(new KeyNotFoundException("Cannot find user with such id"));
+            throw new KeyNotFoundException("Cannot find user with such id");
 
         _mapper.Map(profileUpdateRequest, origin);
         using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
@@ -111,6 +112,8 @@ public class ProfileService : IProfileService
             ts.Complete();
         }
 
-        return ApiResponse<ProfileResponse>.Success(_mapper.Map<ProfileResponse>(origin));
+        var profileResponse = _mapper.Map<ProfileResponse>(origin);
+
+        return profileResponse;
     }
 }

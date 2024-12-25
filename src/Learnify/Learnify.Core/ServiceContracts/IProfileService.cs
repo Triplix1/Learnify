@@ -8,25 +8,10 @@ namespace Learnify.Core.ServiceContracts;
 /// </summary>
 public interface IProfileService
 {
-    /// <summary>
-    /// Gets profile by Id
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    Task<ApiResponse<ProfileResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<ProfileResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Deletes profile
-    /// </summary>
-    /// <param name="id">Profile id</param>
-    /// <returns></returns>
-    Task<ApiResponse> DeleteAsync(int id, CancellationToken cancellationToken = default);
+    Task DeleteAsync(int id, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Updates profile
-    /// </summary>
-    /// <param name="profileUpdateRequest"></param>
-    /// <returns></returns>
-    Task<ApiResponse<ProfileResponse>> UpdateAsync(ProfileUpdateRequest profileUpdateRequest,
+    Task<ProfileResponse> UpdateAsync(ProfileUpdateRequest profileUpdateRequest,
         CancellationToken cancellationToken = default);
 }

@@ -18,7 +18,7 @@ public class QuizController: BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<QuizQuestionUpdateResponse>>> AddOrUpdateQuizAsync(
+    public async Task<ActionResult<QuizQuestionUpdateResponse>> AddOrUpdateQuizAsync(
         QuizQuestionAddOrUpdateRequest request, CancellationToken cancellationToken = default)
     {
         var response = await _quizService.AddOrUpdateQuizAsync(request, cancellationToken);
@@ -28,11 +28,11 @@ public class QuizController: BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<bool>>> DeleteQuizAsync(string quizId, string lessonId,
+    public async Task<ActionResult> DeleteQuizAsync(string quizId, string lessonId,
         CancellationToken cancellationToken = default)
     {
-        var response = await _quizService.DeleteQuizAsync(quizId, lessonId, cancellationToken);
+        await _quizService.DeleteQuizAsync(quizId, lessonId, cancellationToken);
         
-        return Ok(response);
+        return Ok();
     }
 }

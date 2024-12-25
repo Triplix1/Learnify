@@ -79,14 +79,11 @@ public class CoreInstaller: IInstaller
         
         services.AddScoped<ITokenManager, TokenManager>();
         services.AddScoped<IGoogleAuthManager, GoogleAuthManager>();
-        services.AddScoped<ILessonManager, LessonManager>();
-        services.AddScoped<IEncryptionHelper, EncryptionHelper>();
         services.AddScoped<IBlobStorage, BlobStorage>();
         services.AddScoped<IRedisCacheManager, RedisCacheManager>();
-        services.AddScoped<IParagraphManager, ParagraphManager>();
-        services.AddScoped<ICourseManager, CourseManager>();
-        services.AddScoped<IPrivateFileManager, PrivateFileManager>();
+        services.AddScoped<PrivateFileService, PrivateFileService>();
         services.AddScoped<ISubtitlesManager, SubtitlesManager>();
+        services.AddScoped<IUserValidatorManager, UserValidatorManager>();
         
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IProfileService, ProfileService>();
@@ -95,6 +92,7 @@ public class CoreInstaller: IInstaller
         services.AddScoped<IParagraphService, ParagraphService>();
         services.AddScoped<ILessonService, LessonService>();
         services.AddScoped<IFileService, FileService>();
+        services.AddScoped<IPrivateFileService, PrivateFileService>();
 
         services.Configure<GoogleAuthOptions>(config.GetSection("GoogleAuthSettings"));
         services.Configure<JwtOptions>(config.GetSection("JwtSettings"));

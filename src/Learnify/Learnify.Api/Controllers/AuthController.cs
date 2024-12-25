@@ -32,7 +32,7 @@ public class AuthController : BaseApiController
     /// <returns>API response with authentication response.</returns>
     [HttpPost("register")]
     [SwaggerOperation(Summary = "Register a new user")]
-    public async Task<ActionResult<ApiResponse<AuthResponse>>> RegisterAsync(
+    public async Task<ActionResult<AuthResponse>> RegisterAsync(
         [Required] [FromBody]RegisterRequest registerRequest, CancellationToken cancellationToken = default)
     {
         var response = await _identityService.RegisterAsync(registerRequest, cancellationToken);
@@ -46,7 +46,7 @@ public class AuthController : BaseApiController
     /// <returns>API response with authentication response.</returns>
     [HttpPost("external/google")]
     [SwaggerOperation(Summary = "Login with Google")]
-    public async Task<ActionResult<ApiResponse<AuthResponse>>> LoginWithGoogleAsync(
+    public async Task<ActionResult<AuthResponse>> LoginWithGoogleAsync(
         [FromBody]GoogleAuthRequest googleAuthRequest, CancellationToken cancellationToken = default)
     {
         var result = await _identityService.LoginWithGoogleAsync(googleAuthRequest, cancellationToken);
@@ -60,7 +60,7 @@ public class AuthController : BaseApiController
     /// <returns>API response with authentication response.</returns>
     [HttpPost("login")]
     [SwaggerOperation(Summary = "Login a user")]
-    public async Task<ActionResult<ApiResponse<AuthResponse>>> LoginAsync([FromBody]LoginRequest loginRequest,
+    public async Task<ActionResult<AuthResponse>> LoginAsync([FromBody]LoginRequest loginRequest,
         CancellationToken cancellationToken = default)
     {
         var result = await _identityService.LoginAsync(loginRequest, cancellationToken);
@@ -74,7 +74,7 @@ public class AuthController : BaseApiController
     /// <returns>API response with authentication response.</returns>
     [HttpPost("refresh")]
     [SwaggerOperation(Summary = "Refresh authentication token")]
-    public async Task<ActionResult<ApiResponse<AuthResponse>>> RefreshTokenAsync(
+    public async Task<ActionResult<AuthResponse>> RefreshTokenAsync(
         [FromBody]RefreshTokenRequest refreshTokenRequest, CancellationToken cancellationToken = default)
     {
         var refreshedTokenResponse =

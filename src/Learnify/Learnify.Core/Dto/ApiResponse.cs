@@ -1,71 +1,18 @@
 ﻿namespace Learnify.Core.Dto;
 
-/// <summary>
-/// Response which will be returned from each endpoint
-/// </summary>
-/// <typeparam name="T"></typeparam>
-public class ApiResponse<T>: ApiResponse
+public class ApiResponse
 {
-    /// <summary>
-    /// Initializes a new instance of <see cref="ApiResponse{T}"/> 
-    /// </summary>
-    /// <param name="data">Data</param>
-    protected ApiResponse(T data)
+    public object Data { get; set; }
+    public string ErrorMessage { get; set; }
+    public string ErrorStackTrace { get; set; }
+    public bool IsSuccess { get; set; }
+
+    protected ApiResponse(object data)
     {
         Data = data;
     }
 
-    /// <summary>
-    /// Initializes a new instance of <see cref="ApiResponse{T}"/> 
-    /// </summary>
-    /// <param name="error">Error</param>
-    protected ApiResponse(Exception error): base(error)
-    {
-    }
-    
-    /// <summary>
-    /// Gets or sets value for Data
-    /// </summary>
-    public T? Data { get; set; }
-    
-    /// <summary>
-    /// Creates a new success instance
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public static ApiResponse<T> Success(T value)
-    {
-        return new ApiResponse<T>(value);
-    }
-    /// <summary>
-    /// Creates a new error instance
-    /// </summary>
-    /// <param name="error"></param>
-    /// <returns></returns>
-    public new static ApiResponse<T> Failure(Exception error)
-    {
-        return new ApiResponse<T>(error);
-    }
-}
-
-/// <summary>
-/// Base empty api response
-/// </summary>
-public class ApiResponse
-{
-    /// <summary>
-    /// Initializes a new instance of <see cref="ApiResponse"/> 
-    /// </summary>
-    protected ApiResponse()
-    {
-        IsSuccess = true;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="ApiResponse"/>
-    /// </summary>
-    /// <param name="error">Error</param>
-    protected ApiResponse(Exception error): this(error.Message, error.StackTrace)
+    protected ApiResponse(Exception error) : this(error.Message, error.StackTrace)
     {
     }
 
@@ -75,42 +22,17 @@ public class ApiResponse
         ErrorStackTrace = stackTrace;
         IsSuccess = false;
     }
-    
-    /// <summary>
-    /// Gets or sets value for Error
-    /// </summary>
-    public string ErrorMessage { get; set; }
-    public string ErrorStackTrace { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for IsSuccess
-    /// </summary>
-    public bool IsSuccess { get; set; }
-    
-    /// <summary>
-    /// Creates a new success instance
-    /// </summary>
-    /// <returns></returns>
-    public static ApiResponse Success()
+
+    public static ApiResponse Success(object value)
     {
-        return new ApiResponse();
+        return new ApiResponse(value);
     }
-    /// <summary>
-    /// Creates a new error instance
-    /// </summary>
-    /// <param name="error"></param>
-    /// <returns></returns>
+
     public static ApiResponse Failure(Exception error)
     {
         return new ApiResponse(error);
     }
-    
-    /// <summary>
-    /// Creates a new error instance
-    /// </summary>
-    /// <param name="errorMessage">Error message</param>
-    /// <param name="stackTrace">Error stackTrace</param>
-    /// <returns></returns>
+
     public static ApiResponse Failure(string errorMessage, string stackTrace)
     {
         return new ApiResponse(errorMessage, stackTrace);

@@ -5,14 +5,14 @@ namespace Learnify.Core.ServiceContracts;
 
 public interface IParagraphService
 {
-    Task<ApiResponse<ParagraphResponse>> CreateAsync(ParagraphCreateRequest paragraphCreateRequest, int userId,
+    Task<ParagraphResponse> CreateAsync(ParagraphCreateRequest paragraphCreateRequest, int userId,
         CancellationToken cancellationToken = default);
 
-    Task<ApiResponse<ParagraphResponse>> UpdateAsync(ParagraphUpdateRequest paragraphCreateRequest, int userId,
+    Task<ParagraphResponse> UpdateAsync(ParagraphUpdateRequest paragraphCreateRequest, int userId,
         CancellationToken cancellationToken = default);
 
-    Task<ApiResponse<ParagraphResponse>> PublishAsync(int paragraphId, int userId,
+    Task<ParagraphResponse> PublishAsync(int paragraphId, int userId,
         CancellationToken cancellationToken = default);
 
-    Task<ApiResponse> DeleteAsync(int id, int userId, CancellationToken cancellationToken = default);
+    Task DeleteAsync(int id, int userId, CancellationToken cancellationToken = default);
 }

@@ -31,7 +31,7 @@ public class MediaController : BaseApiController
     [Authorize]
     [HttpPost]
     [RequestSizeLimit((long)10 * 1024 * 1024 * 1024)]
-    public async Task<ActionResult<ApiResponse<PrivateFileDataResponse>>> CreateAsync(
+    public async Task<ActionResult<PrivateFileDataResponse>> CreateAsync(
         [FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest, CancellationToken cancellationToken = default)
     {
         var userId = HttpContext.User.GetUserId();

@@ -3,7 +3,6 @@ using Learnify.Contracts;
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
-using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Dto.Subtitles;
@@ -20,22 +19,24 @@ public class LessonService : ILessonService
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IMapper _mapper;
     private readonly ISubtitlesManager _subtitlesManager;
-    private readonly IPrivateFileManager _privateFileManager;
+    private readonly IPrivateFileService _iPrivateFileService;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IBlobStorage _blobStorage;
 
     public LessonService(IMongoUnitOfWork mongoUnitOfWork, IPsqUnitOfWork psqUnitOfWork, IMapper mapper,
-        ISubtitlesManager subtitlesManager, IPublishEndpoint publishEndpoint, IPrivateFileManager privateFileManager)
+        ISubtitlesManager subtitlesManager, IPublishEndpoint publishEndpoint, IPrivateFileService iPrivateFileService, IBlobStorage blobStorage)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
         _mapper = mapper;
         _subtitlesManager = subtitlesManager;
         _publishEndpoint = publishEndpoint;
-        _privateFileManager = privateFileManager;
+        _iPrivateFileService = iPrivateFileService;
+        _blobStorage = blobStorage;
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse> DeleteAsync(string id, int userId, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(string id, int userId, CancellationToken cancellationToken = default)
     {
         var attachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(id, cancellationToken);
         var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(id, cancellationToken);
@@ -56,37 +57,35 @@ public class LessonService : ILessonService
 
             ts.Complete();
         }
-        
-        return ApiResponse.Success();
     }
 
-    public async Task<ApiResponse<IEnumerable<LessonTitleResponse>>> GetByParagraphAsync(int paragraphId, int userId,
+    public async Task<IEnumerable<LessonTitleResponse>> GetByParagraphAsync(int paragraphId, int userId,
         bool includeDrafts = false, CancellationToken cancellationToken = default)
     {
         if (includeDrafts)
         {
             var authorId = await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(paragraphId, cancellationToken);
             if (userId != authorId)
-                return ApiResponse<IEnumerable<LessonTitleResponse>>.Failure(
-                    new Exception("You should be author of the course to be able see draft lessons"));
+                throw
+                    new Exception("You should be author of the course to be able see draft lessons");
         }
 
         var response =
             await _mongoUnitOfWork.Lessons.GetLessonTitlesForParagraphAsync(paragraphId, includeDrafts,
                 cancellationToken);
 
-        return ApiResponse<IEnumerable<LessonTitleResponse>>.Success(response);
+        return response;
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<LessonUpdateResponse>> GetForUpdateAsync(string id, int userId,
+    public async Task<LessonUpdateResponse> GetForUpdateAsync(string id, int userId,
         CancellationToken cancellationToken = default)
     {
         var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(id, cancellationToken);
 
         if (lesson is null)
-            return ApiResponse<LessonUpdateResponse>.Failure(
-                new KeyNotFoundException("Cannot find lesson with such Id"));
+            throw
+                new KeyNotFoundException("Cannot find lesson with such Id");
 
         var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(id, cancellationToken);
 
@@ -94,15 +93,15 @@ public class LessonService : ILessonService
             await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(currParagraphId, cancellationToken);
 
         if (actualAuthorId != userId)
-            return ApiResponse<LessonUpdateResponse>.Failure(
-                new Exception("You should be author of the course to be able to edit it"));
+            throw
+                new Exception("You should be author of the course to be able to edit it");
 
         var response = await GetUpdateResponseAsync(lesson, cancellationToken);
 
-        return ApiResponse<LessonUpdateResponse>.Success(response);
+        return response;
     }
 
-    public async Task<ApiResponse<LessonUpdateResponse>> AddOrUpdateAsync(
+    public async Task<LessonUpdateResponse> AddOrUpdateAsync(
         LessonAddOrUpdateRequest lessonAddOrUpdateRequest, int userId, CancellationToken cancellationToken = default)
     {
         if (lessonAddOrUpdateRequest.Id is null)
@@ -111,7 +110,7 @@ public class LessonService : ILessonService
         return await UpdateAsync(lessonAddOrUpdateRequest, userId, cancellationToken: cancellationToken);
     }
 
-    private async Task<ApiResponse<LessonUpdateResponse>> CreateAsync(LessonAddOrUpdateRequest lessonCreateRequest,
+    private async Task<LessonUpdateResponse> CreateAsync(LessonAddOrUpdateRequest lessonCreateRequest,
         int userId, bool draft = false, CancellationToken cancellationToken = default)
     {
         var authorId =
@@ -119,8 +118,7 @@ public class LessonService : ILessonService
                 cancellationToken);
 
         if (userId != authorId)
-            return ApiResponse<LessonUpdateResponse>.Failure(
-                new Exception("You should be author of the course to be able to edit it"));
+            throw new Exception("You should be author of the course to be able to edit it");
 
         var lesson = _mapper.Map<Lesson>(lessonCreateRequest);
         lesson.IsDraft = draft;
@@ -131,16 +129,16 @@ public class LessonService : ILessonService
                 lesson.Video.Subtitles = await AddNewVideoAsync(lessonCreateRequest.Video, cancellationToken);
 
             var createdLesson = await _mongoUnitOfWork.Lessons.CreateAsync(lesson, cancellationToken);
-            
+
             ts.Complete();
-            
+
             var response = await GetUpdateResponseAsync(createdLesson, cancellationToken);
 
-            return ApiResponse<LessonUpdateResponse>.Success(response);
+            return response;
         }
     }
 
-    private async Task<ApiResponse<LessonUpdateResponse>> UpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest,
+    private async Task<LessonUpdateResponse> UpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest,
         int userId, bool draft = false, CancellationToken cancellationToken = default)
     {
         var currParagraphId =
@@ -153,8 +151,7 @@ public class LessonService : ILessonService
                 cancellationToken);
 
         if (actualAuthorId != authorId || authorId != userId)
-            return ApiResponse<LessonUpdateResponse>.Failure(
-                new Exception("You should be author of the course to be able to edit it"));
+            throw new Exception("You should be author of the course to be able to edit it");
 
         var oldLesson =
             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
@@ -170,16 +167,18 @@ public class LessonService : ILessonService
             }
 
             var quizzesDiff =
-                oldLesson.Quizzes.Where(q => q.Media != null && !updatedLesson.Quizzes.All(up => up.Media?.FileId != q.Media.FileId)).Select(q => q.Media.FileId);
+                oldLesson.Quizzes
+                    .Where(q => q.Media != null && !updatedLesson.Quizzes.All(up => up.Media?.FileId != q.Media.FileId))
+                    .Select(q => q.Media.FileId);
 
-            await _privateFileManager.DeleteRangeAsync(quizzesDiff, cancellationToken);
-            
+            await _iPrivateFileService.DeleteRangeAsync(quizzesDiff, cancellationToken);
+
             if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
             {
                 if (oldLesson.Video is not null)
                 {
                     var subtitleIds = oldLesson.Video.Subtitles.Select(s => s.SubtitleId);
-                    await _privateFileManager.DeleteAsync(oldLesson.Video.Attachment.FileId, cancellationToken);
+                    await _iPrivateFileService.DeleteAsync(oldLesson.Video.Attachment.FileId, cancellationToken);
                     await _subtitlesManager.DeleteRangeAsync(subtitleIds, cancellationToken);
                 }
 
@@ -242,10 +241,10 @@ public class LessonService : ILessonService
 
         var response = await GetUpdateResponseAsync(updatedLesson, cancellationToken);
 
-        return ApiResponse<LessonUpdateResponse>.Success(response);
+        return response;
     }
 
-    public async Task<ApiResponse<LessonUpdateResponse>> SaveDraftAsync(
+    public async Task<LessonUpdateResponse> SaveDraftAsync(
         LessonAddOrUpdateRequest lessonAddOrUpdateRequest, int userId, CancellationToken cancellationToken = default)
     {
         if (lessonAddOrUpdateRequest.Id is null)
@@ -262,39 +261,59 @@ public class LessonService : ILessonService
         var originalLesson =
             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
 
-        if (originalLesson.IsDraft) 
+        if (originalLesson.IsDraft)
             return await UpdateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
 
         lessonAddOrUpdateRequest.Id = null;
 
         var draft = await CreateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
 
-        if (!draft.IsSuccess)
-            return draft;
-
-        originalLesson.EditedLessonId = draft.Data.Id;
+        originalLesson.EditedLessonId = draft.Id;
         originalLesson.IsDraft = false;
 
         await _mongoUnitOfWork.Lessons.UpdateAsync(originalLesson, cancellationToken);
 
         var response = await GetUpdateResponseAsync(originalLesson, cancellationToken);
 
-        return ApiResponse<LessonUpdateResponse>.Success(response);
+        return response;
     }
 
     /// <inheritdoc />
-    public async Task<ApiResponse<LessonResponse>> GetByIdAsync(string id, int userId,
+    public async Task<LessonResponse> GetByIdAsync(string id, int userId,
         CancellationToken cancellationToken = default)
     {
         var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(id, cancellationToken);
 
         if (lesson is null)
-            return ApiResponse<LessonResponse>.Failure(
-                new KeyNotFoundException("Cannot find lesson with such Id"));
+            throw new KeyNotFoundException("Cannot find lesson with such Id");
 
         var response = _mapper.Map<LessonResponse>(lesson);
 
-        return ApiResponse<LessonResponse>.Success(response);
+        return response;
+    }
+    
+    public async Task DeleteLessonsByParagraph(int paragraphId, CancellationToken cancellationToken = default)
+    {
+        var attachments =
+            await _mongoUnitOfWork.Lessons.GetAllAttachmentsForParagraphAsync(paragraphId, cancellationToken);
+
+        var attachmentFileIds = attachments.Select(a => a.FileId);
+
+        var fileDatas = await _psqUnitOfWork.PrivateFileRepository.GetByIdsAsync(attachmentFileIds, cancellationToken);
+
+        foreach (var fileData in fileDatas)
+            await _blobStorage.DeleteAsync(fileData.ContainerName, fileData.BlobName, cancellationToken);
+
+        await _mongoUnitOfWork.Lessons.DeleteForParagraphAsync(paragraphId, cancellationToken);
+    }
+
+    public async Task DeleteLessonsByParagraphs(IEnumerable<int> paragraphIds,
+        CancellationToken cancellationToken = default)
+    {
+        var attachments =
+            await _mongoUnitOfWork.Lessons.GetAllAttachmentsForParagraphsAsync(paragraphIds, cancellationToken);
+
+        await _mongoUnitOfWork.Lessons.DeleteForParagraphsAsync(paragraphIds, cancellationToken);
     }
 
     private async Task<IEnumerable<SubtitleReference>> AddNewVideoAsync(VideoAddOrUpdateRequest videoAddOrUpdateRequest,

@@ -1,24 +1,19 @@
 ﻿using AutoMapper;
-using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
-using Learnify.Core.Dto.Blob;
-using Learnify.Core.Dto.File;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.Transactions;
 
-namespace Learnify.Core.Managers;
+namespace Learnify.Core.Services;
 
-public class PrivateFileManager : IPrivateFileManager
+public class PrivateFileService : IPrivateFileService
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IBlobStorage _blobStorage;
-    private readonly IMapper _mapper;
 
-    public PrivateFileManager(IPsqUnitOfWork psqUnitOfWork, IBlobStorage blobStorage, IMapper mapper)
+    public PrivateFileService(IPsqUnitOfWork psqUnitOfWork, IBlobStorage blobStorage)
     {
         _psqUnitOfWork = psqUnitOfWork;
         _blobStorage = blobStorage;
-        _mapper = mapper;
     }
 
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)

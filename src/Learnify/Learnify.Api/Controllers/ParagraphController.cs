@@ -19,33 +19,33 @@ public class ParagraphController : BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<ParagraphResponse>>> CreateAsync(
+    public async Task<ActionResult<ParagraphResponse>> CreateAsync(
         ParagraphCreateRequest paragraphCreateRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
         var result = await _paragraphService.CreateAsync(paragraphCreateRequest, userId, cancellationToken);
 
-        return result;
+        return Ok(result);
     }
 
     [Authorize]
     [HttpPut]
-    public async Task<ActionResult<ApiResponse<ParagraphResponse>>> UpdateAsync(
+    public async Task<ActionResult<ParagraphResponse>> UpdateAsync(
         ParagraphUpdateRequest paragraphUpdateRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
         var result = await _paragraphService.UpdateAsync(paragraphUpdateRequest, userId, cancellationToken);
 
-        return result;
+        return Ok(result);
     }
 
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<ActionResult<ApiResponse>> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var result = await _paragraphService.DeleteAsync(id, userId, cancellationToken);
+        await _paragraphService.DeleteAsync(id, userId, cancellationToken);
 
-        return result;
+        return Ok();
     }
 }

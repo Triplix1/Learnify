@@ -59,7 +59,7 @@ public class FileService : IFileService
         return stream;
     }
 
-    public async Task<ApiResponse<PrivateFileDataResponse>> CreateAsync(
+    public async Task<PrivateFileDataResponse> CreateAsync(
         PrivateFileBlobCreateRequest privateFileBlobCreateRequest, int userId,
         CancellationToken cancellationToken = default)
     {
@@ -108,6 +108,6 @@ public class FileService : IFileService
 
         var response = _mapper.Map<PrivateFileDataResponse>(fileResponse);
 
-        return ApiResponse<PrivateFileDataResponse>.Success(response);
+        return response;
     }
 }
