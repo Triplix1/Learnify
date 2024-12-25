@@ -2,7 +2,6 @@
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto.Course.LessonDtos;
-using Learnify.Infrastructure.Data;
 using Learnify.Infrastructure.Data.Interfaces;
 using MongoDB.Driver;
 
@@ -12,19 +11,28 @@ namespace Learnify.Infrastructure.Repositories;
 public class LessonRepository : ILessonRepository
 {
     private readonly IMongoAppDbContext _mongoContext;
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
 
     /// <summary>
     /// Initializes a new instance of <see cref="LessonRepository"/>
     /// </summary>
     /// <param name="mongoContext"><see cref="IMongoAppDbContext"/></param>
     /// <param name="mapper"><see cref="IMapper"/></param>
-    public LessonRepository(IMongoAppDbContext mongoContext, IMapper mapper, ApplicationDbContext context)
+    public LessonRepository(IMongoAppDbContext mongoContext)
     {
         _mongoContext = mongoContext;
-        _mapper = mapper;
-        _context = context;
+    }
+
+    public async Task<string> GetLessonToUpdateIdForCurrentLessonAsync(string lessonId, CancellationToken cancellationToken = default)
+    {
+        var filter = Builders<Lesson>.Filter.Eq(x => x.Id, lessonId);
+        var projection = Builders<Lesson>.Projection.Include(x => x.IsDraft).Include(x => x.EditedLessonId);
+
+        var lesson = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        var lessonToUpdateId = lesson.IsDraft ? lesson.Id : lesson.EditedLessonId;
+        
+        return lessonToUpdateId;
     }
 
     /// <inheritdoc />
@@ -69,7 +77,7 @@ public class LessonRepository : ILessonRepository
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (lesson is null)
-            return Enumerable.Empty<Attachment>();
+            return [];
 
         var result = new List<Attachment>();
 

@@ -6,6 +6,8 @@ namespace Learnify.Core.Domain.RepositoryContracts;
 public interface ILessonRepository
 {
     Task<Lesson> GetLessonByIdAsync(string id, CancellationToken cancellationToken = default);
+    Task<string> GetLessonToUpdateIdForCurrentLessonAsync(string lessonId,
+        CancellationToken cancellationToken = default);
     Task<IEnumerable<LessonTitleResponse>> GetLessonTitlesForParagraphAsync(int paragraphId, bool includeDrafts, CancellationToken cancellationToken = default);
     Task<IEnumerable<Attachment>> GetAllAttachmentsForLessonAsync(string lessonId, CancellationToken cancellationToken = default);
     Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphAsync(int paragraphId, CancellationToken cancellationToken = default);

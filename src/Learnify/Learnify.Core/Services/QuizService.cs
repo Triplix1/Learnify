@@ -10,12 +10,14 @@ namespace Learnify.Core.Services;
 public class QuizService: IQuizService
 {
     private readonly IQuizRepository _quizRepository;
+    private readonly ILessonService _lessonService;
     private readonly IMapper _mapper;
 
-    public QuizService(IQuizRepository quizRepository, IMapper mapper)
+    public QuizService(IQuizRepository quizRepository, IMapper mapper, ILessonService lessonService)
     {
         _quizRepository = quizRepository;
         _mapper = mapper;
+        _lessonService = lessonService;
     }
 
     public async Task<QuizQuestionUpdateResponse> AddOrUpdateQuizAsync(QuizQuestionAddOrUpdateRequest request,

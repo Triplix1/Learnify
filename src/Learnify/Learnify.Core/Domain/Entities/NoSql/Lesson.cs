@@ -40,8 +40,6 @@ public class Lesson: BaseEntity
     /// </summary>
     public Video Video { get; set; }
 
-    /// <summary>
-    /// User has opportunity to create quizzes
-    /// </summary>
-    public IEnumerable<QuizQuestion> Quizzes { get; set; } = [];
+    public ICollection<string> QuizzesOrder { get; set; }
+    public ICollection<QuizQuestion> Quizzes { get; set; } = [];
 }

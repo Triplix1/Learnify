@@ -35,18 +35,20 @@ public class QuizRepository: IQuizRepository
         // Fetch the existing lesson from MongoDB
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
         var update = Builders<Lesson>.Update.Push(l => l.Quizzes, quiz);
+        
+        var project = Builders<Lesson>.Projection.Include(l => l.Quizzes);
 
         // Execute the update and return the updated document
         var options = new FindOneAndUpdateOptions<Lesson>
         {
-            Projection = Builders<Lesson>.Projection.Include(l => l.Quizzes), // Project only the Quizzes array
+            Projection = Builders<Lesson>.Projection.Slice(l => l.Quizzes, -1),
             ReturnDocument = ReturnDocument.After // Return the updated document
         };
 
         var updatedLesson = await _context.Lessons.FindOneAndUpdateAsync(filter, update, options, cancellationToken);
 
         // Extract the newly added quiz (or check the whole array if needed)
-        var addedQuiz = updatedLesson?.Quizzes?.FirstOrDefault(q => q.Id == quiz.Id);
+        var addedQuiz = updatedLesson?.Quizzes?.FirstOrDefault();
 
         return addedQuiz;
     }

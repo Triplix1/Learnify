@@ -6,6 +6,8 @@ namespace Learnify.Core.ServiceContracts;
 public interface ILessonService
 {
     Task DeleteAsync(string id, int userId, CancellationToken cancellationToken = default);
+    
+    Task<string> GetLessonToUpdateIdAsync(string lessonId, int userId, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<LessonTitleResponse>> GetByParagraphAsync(int paragraphId, int userId,
         bool includeDrafts = false, CancellationToken cancellationToken = default);
