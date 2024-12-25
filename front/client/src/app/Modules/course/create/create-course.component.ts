@@ -72,7 +72,7 @@ export class CreateCourseComponent extends BaseComponent {
 
   saveChanges() {
     this.spinner.show();
-    if (this.courseId === null) {
+    if (this.courseId === null || this.courseId === undefined) {
       const courseCreateRequest: CourseCreateRequest = {
         name: this.courseForm.controls["name"].value,
         price: +this.courseForm.controls["price"].value,
