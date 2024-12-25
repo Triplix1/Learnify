@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Learnify.Core.Attributes;
 using Learnify.Core.Dto;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +20,13 @@ public class ApiResponseMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
+        var endpoint = context.GetEndpoint();
+        if (endpoint?.Metadata?.GetMetadata<SkipApiResponseAttribute>() != null)
+        {
+            await _next(context);
+            return; // Skip ApiResponse wrapping for this endpoint
+        }
+        
         var originalResponseBodyStream = context.Response.Body;
 
         using (var responseBodyStream = new MemoryStream())
@@ -30,13 +38,6 @@ public class ApiResponseMiddleware
                 await _next(context);
 
                 context.Response.Body = originalResponseBodyStream;
-
-                // Skip wrapping if response is a file
-                if (IsFileResponse(context.Response))
-                {
-                    await responseBodyStream.CopyToAsync(originalResponseBodyStream);
-                    return;
-                }
 
                 if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
                 {
@@ -70,15 +71,6 @@ public class ApiResponseMiddleware
                 context.Response.Body = originalResponseBodyStream;
             }
         }
-    }
-
-    private bool IsFileResponse(HttpResponse response)
-    {
-        // Check for common file content types
-        return response.ContentType?.StartsWith("application/octet-stream") == true ||
-               response.ContentType?.StartsWith("application/pdf") == true ||
-               response.ContentType?.StartsWith("image/") == true ||
-               response.ContentType?.StartsWith("text/csv") == true;
     }
 
     private async Task<string> ReadStreamAsync(Stream stream)

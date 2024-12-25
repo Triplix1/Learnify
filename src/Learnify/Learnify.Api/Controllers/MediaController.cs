@@ -1,4 +1,5 @@
 ﻿using Learnify.Api.Controllers.Base;
+using Learnify.Core.Attributes;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Extensions;
@@ -18,6 +19,7 @@ public class MediaController : BaseApiController
         _fileService = fileService;
     }
 
+    [SkipApiResponse]
     [HttpGet("{fileId}")]
     public async Task<IActionResult> GetStreamForFileAsync(int fileId, CancellationToken cancellationToken = default)
     {
