@@ -43,7 +43,7 @@ public class CourseRepository : ICourseRepository
     public async Task<Course> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var course = await _context.Courses.FindAsync(key);
+        var course = await _context.Courses.FindAsync([key], cancellationToken);
 
         if (course is null)
             return null;
@@ -68,7 +68,7 @@ public class CourseRepository : ICourseRepository
     public async Task<Course> UpdateAsync(Course entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var course = await _context.Courses.FindAsync(entity.Id);
+        var course = await _context.Courses.FindAsync([entity.Id], cancellationToken);
 
         if (course is null)
             return null;
@@ -86,7 +86,7 @@ public class CourseRepository : ICourseRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var course = await _context.Courses.FindAsync(id);
+        var course = await _context.Courses.FindAsync([id], cancellationToken);
 
         if (course is null)
             return false;
@@ -101,7 +101,7 @@ public class CourseRepository : ICourseRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var course = await _context.Courses.FindAsync(courseId);
+        var course = await _context.Courses.FindAsync([courseId], cancellationToken);
 
         if (course is null)
             return null;

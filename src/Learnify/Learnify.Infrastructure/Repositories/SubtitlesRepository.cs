@@ -22,7 +22,7 @@ public class SubtitlesRepository : ISubtitlesRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var subtitle = await _context.Subtitles.FindAsync(id);
+        var subtitle = await _context.Subtitles.FindAsync([id], cancellationToken);
 
         return subtitle;
     }
@@ -59,7 +59,7 @@ public class SubtitlesRepository : ISubtitlesRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var subtitle = await _context.Subtitles.FindAsync(subtitlesUpdateRequest.Id);
+        var subtitle = await _context.Subtitles.FindAsync([subtitlesUpdateRequest.Id], cancellationToken);
 
         if (subtitle is null)
             return null;
@@ -76,7 +76,7 @@ public class SubtitlesRepository : ISubtitlesRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
         
-        var subtitle = await _context.Subtitles.FindAsync(id);
+        var subtitle = await _context.Subtitles.FindAsync([id], cancellationToken);
 
         if (subtitle is null)
             return false;

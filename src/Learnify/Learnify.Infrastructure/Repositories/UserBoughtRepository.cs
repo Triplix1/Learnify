@@ -18,7 +18,7 @@ public class UserBoughtRepository : IUserBoughtRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var userBought = await _context.UserBoughts.FindAsync(userId, courseId);
+        var userBought = await _context.UserBoughts.FindAsync([userId, courseId], cancellationToken);
 
         return userBought is not null;
     }
@@ -36,7 +36,7 @@ public class UserBoughtRepository : IUserBoughtRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var userBought = await _context.UserBoughts.FindAsync(userId, courseId);
+        var userBought = await _context.UserBoughts.FindAsync([userId, courseId], cancellationToken);
 
         if (userBought is null)
             return false;

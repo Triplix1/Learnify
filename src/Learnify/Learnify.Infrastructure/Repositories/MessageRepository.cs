@@ -21,7 +21,7 @@ public class MessageRepository : IMessageRepository
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await _context.Messages.FindAsync(messageId);
+            return await _context.Messages.FindAsync([messageId], cancellationToken);
         }
 
         var messages = _context.Messages.AsQueryable();
@@ -55,7 +55,7 @@ public class MessageRepository : IMessageRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var message = await _context.Messages.FindAsync(messageId);
+        var message = await _context.Messages.FindAsync([messageId], cancellationToken);
 
         if (message is null)
             return false;

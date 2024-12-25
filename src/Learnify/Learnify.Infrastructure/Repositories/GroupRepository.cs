@@ -21,7 +21,7 @@ public class GroupRepository : IGroupRepository
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await _context.Groups.FindAsync(name);
+            return await _context.Groups.FindAsync([name], cancellationToken);
         }
 
 

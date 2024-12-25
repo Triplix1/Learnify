@@ -49,7 +49,7 @@ public class ParagraphRepository : IParagraphRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var paragraph = await _context.Paragraphs.FindAsync(key);
+        var paragraph = await _context.Paragraphs.FindAsync([key], cancellationToken);
 
         if (paragraph is null)
             throw new KeyNotFoundException("Cannot find paragraph with such Id");
@@ -71,7 +71,7 @@ public class ParagraphRepository : IParagraphRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var paragraph = await _context.Paragraphs.FindAsync(entity.Id);
+        var paragraph = await _context.Paragraphs.FindAsync([entity.Id], cancellationToken);
 
         if (paragraph is null)
             throw new KeyNotFoundException("Cannot find course with such Id");
@@ -89,7 +89,7 @@ public class ParagraphRepository : IParagraphRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
         
-        var paragraph = await _context.Paragraphs.FindAsync(id);
+        var paragraph = await _context.Paragraphs.FindAsync([id], cancellationToken);
 
         if (paragraph is null)
             return false;

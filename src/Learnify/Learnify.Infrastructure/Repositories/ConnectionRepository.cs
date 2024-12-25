@@ -16,7 +16,7 @@ public class ConnectionRepository : IConnectionRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
         
-        var connection = await _context.Connections.FindAsync(connectionId);
+        var connection = await _context.Connections.FindAsync([connectionId], cancellationToken);
 
         if (connection is null)
             return false;

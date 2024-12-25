@@ -47,7 +47,7 @@ public abstract class BasePsqRepository<T, TKey> : IBasePsqRepository<T, TKey> w
     {
         cancellationToken.ThrowIfCancellationRequested();
         
-        return await Context.Set<T>().FindAsync(key);
+        return await Context.Set<T>().FindAsync([key], cancellationToken);
     }
 
     /// <inheritdoc />
@@ -77,7 +77,7 @@ public abstract class BasePsqRepository<T, TKey> : IBasePsqRepository<T, TKey> w
     {
         cancellationToken.ThrowIfCancellationRequested();
         
-        var entity = await Context.Set<T>().FindAsync(id);
+        var entity = await Context.Set<T>().FindAsync([id], cancellationToken);
 
         if (entity is null)
         {

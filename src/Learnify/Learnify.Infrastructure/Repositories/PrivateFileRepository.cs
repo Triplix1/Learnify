@@ -22,7 +22,7 @@ public class PrivateFileRepository : IPrivateFileRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var fileData = await _context.FileDatas.FindAsync(id);
+        var fileData = await _context.FileDatas.FindAsync([id], cancellationToken);
 
         if (fileData is null)
             return null;
@@ -64,7 +64,7 @@ public class PrivateFileRepository : IPrivateFileRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var fileData = await _context.FileDatas.FindAsync(id);
+        var fileData = await _context.FileDatas.FindAsync([id], cancellationToken);
 
         if (fileData is null)
             return false;
