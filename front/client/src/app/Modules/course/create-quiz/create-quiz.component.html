@@ -1,0 +1,17 @@
+<cdk-accordion>
+    <app-create-single-quiz></app-create-single-quiz>
+    <app-accordion-item *ngFor="let quiz in quizzes; let index = index"
+                        [index]="index">
+        <ng-component class=".accordion-header">
+            Question {{index + 1}}
+        </ng-component>
+        <ng-component class=".accordion-body">
+            <div class="flex">
+                {{quiz.Question}}
+            </div>
+            <div *ngIf="quiz.media">
+                <app-media [media]="quiz.media"></app-media>
+            </div>
+        </ng-component>
+    </app-accordion-item>
+</cdk-accordion>

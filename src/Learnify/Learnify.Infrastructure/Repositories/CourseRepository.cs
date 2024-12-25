@@ -15,7 +15,6 @@ namespace Learnify.Infrastructure.Repositories;
 public class CourseRepository : ICourseRepository
 {
     private readonly ApplicationDbContext _context;
-    private readonly ILessonRepository _lessonRepository;
     private readonly IMapper _mapper;
 
     /// <summary>
@@ -24,11 +23,10 @@ public class CourseRepository : ICourseRepository
     /// <param name="context"><see cref="ApplicationDbContext"/></param>
     /// <param name="mapper"><see cref="IMapper"/></param>
     /// <param name="lessonRepository"><see cref="ILessonRepository"/></param>
-    public CourseRepository(ApplicationDbContext context, IMapper mapper, ILessonRepository lessonRepository)
+    public CourseRepository(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
-        _lessonRepository = lessonRepository;
     }
 
     /// <inheritdoc />

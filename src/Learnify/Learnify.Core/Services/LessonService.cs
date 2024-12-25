@@ -262,7 +262,8 @@ public class LessonService : ILessonService
         var originalLesson =
             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
 
-        if (originalLesson.IsDraft) return await UpdateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
+        if (originalLesson.IsDraft) 
+            return await UpdateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
 
         lessonAddOrUpdateRequest.Id = null;
 

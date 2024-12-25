@@ -26,6 +26,9 @@ import { AccordionArrowComponent } from './components/accordion-arrow/accordion-
 import { AccordionItemComponent } from './components/accordion-item/accordion-item.component';
 import { AccordionHeaderComponent } from './components/accordion-header/accordion-header.component';
 import { AccordionBodyComponent } from './components/accordion-body/accordion-body.component';
+import { MediaPipe } from './pipes/media.pipe';
+import { MediaComponent } from './components/media/media.component';
+import { ImageComponent } from './components/image/image.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +50,9 @@ import { AccordionBodyComponent } from './components/accordion-body/accordion-bo
     AccordionItemComponent,
     AccordionHeaderComponent,
     AccordionBodyComponent,
+    MediaPipe,
+    MediaComponent,
+    ImageComponent,
   ],
   imports: [
     CommonModule,
@@ -88,10 +94,10 @@ import { AccordionBodyComponent } from './components/accordion-body/accordion-bo
     ContextMenuComponent,
     VideoPlayerComponent,
     FileUploaderComponent,
-    AccordionArrowComponent,
     AccordionItemComponent,
-    AccordionHeaderComponent,
-    AccordionBodyComponent,
+    AccordionArrowComponent,
+    MediaPipe,
+    MediaComponent,
   ]
 })
 export class SharedModule { }

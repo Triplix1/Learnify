@@ -7,6 +7,7 @@ import { PrivateFileDataResponse } from 'src/app/Models/File/PrivateFileDataResp
 import { environment } from 'src/environments/environment';
 import { objectToFormData } from '../helpers/formDataHelper';
 import { AuthService } from './auth.service';
+import { MediaType } from 'src/app/Models/enums/MediaType';
 
 @Injectable({
   providedIn: 'root'
@@ -41,4 +42,14 @@ export class MediaService {
       }),
     });
   }
+
+  getMediaType(contentType: string): MediaType {
+    if (contentType.startsWith('image/')) {
+      return MediaType.Image;
+    } else if (contentType.startsWith('video/')) {
+      return MediaType.Video;
+    }
+    return MediaType.Unknown;
+  }
+
 }

@@ -16,6 +16,6 @@
                           (fileUploaded)="handleFileInput($event, null)"></app-file-uploader>
 
        <div>
-              <app-create-quiz></app-create-quiz>
+              <app-create-quiz [quizzes]="lessonResponse?.quizzes"></app-create-quiz>
        </div>
 </div>

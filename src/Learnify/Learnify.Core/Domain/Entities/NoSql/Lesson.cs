@@ -39,9 +39,9 @@ public class Lesson: BaseEntity
     /// Gets or sets value for Video
     /// </summary>
     public Video Video { get; set; }
-    
+
     /// <summary>
     /// User has opportunity to create quizzes
     /// </summary>
-    public IEnumerable<QuizQuestion> Quizzes { get; set; }
+    public IEnumerable<QuizQuestion> Quizzes { get; set; } = [];
 }

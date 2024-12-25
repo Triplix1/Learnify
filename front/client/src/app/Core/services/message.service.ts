@@ -79,12 +79,12 @@ export class MessageService {
     }
   }
 
-  async sendMessage(messageCreateRequest: MessageCreateRequest) {
+  sendMessage(messageCreateRequest: MessageCreateRequest) {
     return this.hubConnection?.invoke('SendMessage', messageCreateRequest)
       .catch(error => console.log(error));
   }
 
-  async deleteMessage(id: number) {
+  deleteMessage(id: number) {
     return this.hubConnection?.invoke('DeleteMessage', { id })
       .catch(error => console.log(error));
   }

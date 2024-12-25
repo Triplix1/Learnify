@@ -4,7 +4,7 @@
                controls
                class="w-full"
                [autoplay]="false"
-               [src]="videoUrl"
+               [src]="fileId | media | async"
                (loadedmetadata)="onVideoLoad()"
                (error)="onVideoError($event)">
             Your browser does not support the video tag.

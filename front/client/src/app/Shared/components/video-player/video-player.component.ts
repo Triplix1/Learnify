@@ -10,20 +10,8 @@ import { BaseComponent } from 'src/app/Models/BaseComponent';
 })
 export class VideoPlayerComponent extends BaseComponent {
   @Input({ required: true }) fileId: number;
-  videoUrl?: string;
   loading: boolean = true;
   error: string = '';
-  constructor(private mediaService: MediaService) {
-    super();
-  }
-
-  public ngOnInit() {
-    this.getFilmUrl();
-  }
-
-  public ngOnChanges() {
-    this.getFilmUrl();
-  }
 
   onVideoLoad(): void {
     this.loading = false;
@@ -31,13 +19,5 @@ export class VideoPlayerComponent extends BaseComponent {
 
   onVideoError(event: ErrorEvent): void {
     this.error = 'Error loading video: ' + event.message;
-  }
-
-  private getFilmUrl() {
-    if (!this.fileId) {
-      return;
-    }
-
-    this.mediaService.getFileUrl(this.fileId).pipe(takeUntil(this.destroySubject)).subscribe(url => this.videoUrl = url);
   }
 }

@@ -9,6 +9,7 @@ import { CourseCartComponent } from './course-cart/course-cart.component';
 import { CreateQuizComponent } from './create-quiz/create-quiz.component';
 import { LessonTitleComponent } from './lesson-title/lesson-title.component';
 import { CreateSingleQuizComponent } from './create-single-quiz/create-single-quiz.component';
+import { CreateQuizOptionComponent } from './create-quiz-option/create-quiz-option.component';
 
 
 
@@ -21,6 +22,7 @@ import { CreateSingleQuizComponent } from './create-single-quiz/create-single-qu
     CreateQuizComponent,
     LessonTitleComponent,
     CreateSingleQuizComponent,
+    CreateQuizOptionComponent,
   ],
   imports: [
     CommonModule,

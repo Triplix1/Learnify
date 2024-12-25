@@ -32,9 +32,4 @@ public class LessonAddOrUpdateRequest
     /// Gets or sets value for Video
     /// </summary>
     public VideoAddOrUpdateRequest Video { get; set; }
-
-    /// <summary>
-    /// User has opportunity to create quizzes
-    /// </summary>
-    public IEnumerable<QuizQuestionAddOrUpdateRequest> Quizzes { get; set; }
 }

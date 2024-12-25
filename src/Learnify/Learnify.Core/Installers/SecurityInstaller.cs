@@ -23,20 +23,16 @@ public class SecurityInstaller: IInstaller
                     ValidateIssuer = false,
                     ValidateAudience = false,
                 };
-                
+
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
                     {
                         var accessToken = context.Request.Query["access_token"];
 
-                        // If the request is for our hub...
-                        var path = context.HttpContext.Request.Path;
                         if (!string.IsNullOrEmpty(accessToken))
-                        {
-                            // Read the token out of the query string
                             context.Token = accessToken;
-                        }
+
                         return Task.CompletedTask;
                     }
                 };
@@ -49,10 +45,10 @@ public class SecurityInstaller: IInstaller
                 options.AddPolicy("CorsPolicy", policy =>
                 {
                     policy
-                        // .WithOrigins(config.GetSection("AllowedOrigins").Get<string>()?.Split(';') ?? new string[] { })
-                        .AllowAnyOrigin()
+                        .WithOrigins(config.GetSection("AllowedOrigins").Get<string>()?.Split(';') ?? new string[] { })
                         .AllowAnyHeader()
-                        .AllowAnyMethod();
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
             });
     }

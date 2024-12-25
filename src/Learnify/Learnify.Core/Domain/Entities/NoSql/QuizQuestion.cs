@@ -1,10 +1,20 @@
-﻿namespace Learnify.Core.Domain.Entities.NoSql;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace Learnify.Core.Domain.Entities.NoSql;
 
 /// <summary>
 /// QuizQuestion
 /// </summary>
 public class QuizQuestion
 {
+    /// <summary>
+    /// Id
+    /// </summary>
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; }
+
     /// <summary>
     /// Gets or sets value for Media
     /// </summary>
