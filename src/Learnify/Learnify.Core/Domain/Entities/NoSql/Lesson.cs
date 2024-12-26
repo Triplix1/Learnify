@@ -40,6 +40,6 @@ public class Lesson: BaseEntity
     /// </summary>
     public Video Video { get; set; }
 
-    public ICollection<string> QuizzesOrder { get; set; }
+    public ICollection<string> QuizzesOrder { get; set; } = [];
     public ICollection<QuizQuestion> Quizzes { get; set; } = [];
 }

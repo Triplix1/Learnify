@@ -93,6 +93,7 @@ public class CoreInstaller: IInstaller
         services.AddScoped<ILessonService, LessonService>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IPrivateFileService, PrivateFileService>();
+        services.AddScoped<IQuizService, QuizService>();
 
         services.Configure<GoogleAuthOptions>(config.GetSection("GoogleAuthSettings"));
         services.Configure<JwtOptions>(config.GetSection("JwtSettings"));

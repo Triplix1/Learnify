@@ -1,13 +1,14 @@
 ﻿using Learnify.Api.Controllers.Base;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course.QuizQuestion;
+using Learnify.Core.Extensions;
 using Learnify.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Learnify.Api.Controllers;
 
-public class QuizController: BaseApiController
+public class QuizController : BaseApiController
 {
     private readonly IQuizService _quizService;
 
@@ -21,18 +22,22 @@ public class QuizController: BaseApiController
     public async Task<ActionResult<QuizQuestionUpdateResponse>> AddOrUpdateQuizAsync(
         QuizQuestionAddOrUpdateRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await _quizService.AddOrUpdateQuizAsync(request, cancellationToken);
+        var userId = User.GetUserId();
+
+        var response = await _quizService.AddOrUpdateQuizAsync(request, userId, cancellationToken);
 
         return Ok(response);
     }
 
     [Authorize]
-    [HttpPost]
-    public async Task<ActionResult> DeleteQuizAsync(string quizId, string lessonId,
+    [HttpPost("{lessonId}/{quizId}")]
+    public async Task<ActionResult> DeleteQuizAsync(string lessonId, string quizId,
         CancellationToken cancellationToken = default)
     {
-        await _quizService.DeleteQuizAsync(quizId, lessonId, cancellationToken);
-        
+        var userId = User.GetUserId();
+
+        await _quizService.DeleteQuizAsync(quizId, lessonId, userId, cancellationToken);
+
         return Ok();
     }
 }

@@ -5,7 +5,7 @@ using MongoDB.Driver;
 
 namespace Learnify.Infrastructure.Repositories;
 
-public class QuizRepository: IQuizRepository
+public class QuizRepository : IQuizRepository
 {
     private readonly IMongoAppDbContext _context;
 
@@ -14,7 +14,8 @@ public class QuizRepository: IQuizRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<QuizQuestion>> GetQuizzesByLessonIdAsync(string lessonId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<QuizQuestion>> GetQuizzesByLessonIdAsync(string lessonId,
+        CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
 
@@ -28,15 +29,13 @@ public class QuizRepository: IQuizRepository
 
         return lessonWithQuizzes?.Quizzes;
     }
-    
+
     public async Task<QuizQuestion> CreateAsync(QuizQuestion quiz, string lessonId,
         CancellationToken cancellationToken = default)
     {
         // Fetch the existing lesson from MongoDB
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
         var update = Builders<Lesson>.Update.Push(l => l.Quizzes, quiz);
-        
-        var project = Builders<Lesson>.Projection.Include(l => l.Quizzes);
 
         // Execute the update and return the updated document
         var options = new FindOneAndUpdateOptions<Lesson>

@@ -192,13 +192,6 @@ public class LessonService : ILessonService
                 updatedLesson.EditedLessonId = null;
             }
 
-            var quizzesDiff =
-                oldLesson.Quizzes
-                    .Where(q => q.Media != null && !updatedLesson.Quizzes.All(up => up.Media?.FileId != q.Media.FileId))
-                    .Select(q => q.Media.FileId);
-
-            await _iPrivateFileService.DeleteRangeAsync(quizzesDiff, cancellationToken);
-
             if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
             {
                 if (oldLesson.Video is not null)
