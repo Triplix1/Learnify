@@ -74,10 +74,7 @@ public class CourseService : ICourseService
     public async Task<CourseResponse> PublishAsync(int id, bool publish, int userId,
         CancellationToken cancellationToken = default)
     {
-        var validationResult = await _userValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
-
-        if (validationResult is not null)
-            throw validationResult;
+        await _userValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
 
         var course = await _psqUnitOfWork.CourseRepository.PublishAsync(id, publish, cancellationToken);
 
@@ -108,10 +105,7 @@ public class CourseService : ICourseService
         if (originalCourse is null)
             throw new KeyNotFoundException("Cannot find course with such id");
         
-        var validationResult = await _userValidatorManager.ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId, cancellationToken);
-
-        if (validationResult is not null)
-            throw validationResult;
+        await _userValidatorManager.ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId, cancellationToken);
 
         var course = _mapper.Map(courseUpdateRequest, originalCourse);
 
@@ -127,10 +121,7 @@ public class CourseService : ICourseService
 
     public async Task DeleteAsync(int id, int userId, CancellationToken cancellationToken = default)
     {
-        var validationResult = await _userValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
-
-        if (validationResult is not null)
-            throw validationResult;
+        await _userValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
 
         var result = await _psqUnitOfWork.CourseRepository.DeleteAsync(id, cancellationToken);
 

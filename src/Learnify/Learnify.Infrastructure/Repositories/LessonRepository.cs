@@ -22,16 +22,17 @@ public class LessonRepository : ILessonRepository
         _mongoContext = mongoContext;
     }
 
-    public async Task<string> GetLessonToUpdateIdForCurrentLessonAsync(string lessonId, CancellationToken cancellationToken = default)
+    public async Task<string> GetLessonToUpdateIdForCurrentLessonAsync(string lessonId,
+        CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(x => x.Id, lessonId);
         var projection = Builders<Lesson>.Projection.Include(x => x.IsDraft).Include(x => x.EditedLessonId);
 
         var lesson = await _mongoContext.Lessons.Find(filter).Project<Lesson>(projection)
             .FirstOrDefaultAsync(cancellationToken);
-        
+
         var lessonToUpdateId = lesson.IsDraft ? lesson.Id : lesson.EditedLessonId;
-        
+
         return lessonToUpdateId;
     }
 

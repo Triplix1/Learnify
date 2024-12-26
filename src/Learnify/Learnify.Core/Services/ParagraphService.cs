@@ -24,12 +24,8 @@ public class ParagraphService : IParagraphService
     public async Task<ParagraphResponse> CreateAsync(ParagraphCreateRequest paragraphCreateRequest,
         int userId, CancellationToken cancellationToken = default)
     {
-        var validationResult =
-            await _userValidatorManager.ValidateAuthorOfCourseAsync(paragraphCreateRequest.CourseId, userId,
+        await _userValidatorManager.ValidateAuthorOfCourseAsync(paragraphCreateRequest.CourseId, userId,
                 cancellationToken);
-
-        if (validationResult is not null)
-            throw validationResult;
 
         var paragraph = _mapper.Map<Paragraph>(paragraphCreateRequest);
         paragraph.isPublished = false;
@@ -49,12 +45,8 @@ public class ParagraphService : IParagraphService
         if(originalParagraph is null)
             throw new KeyNotFoundException("cannot find paragraph with such id");
         
-        var validationResult =
-            await _userValidatorManager.ValidateAuthorOfParagraphAsync(paragraphUpdateRequest.Id, userId,
+        await _userValidatorManager.ValidateAuthorOfParagraphAsync(paragraphUpdateRequest.Id, userId,
                 cancellationToken);
-
-        if (validationResult is not null)
-            throw validationResult;
 
         var paragraph = _mapper.Map(paragraphUpdateRequest, originalParagraph);
 
@@ -68,11 +60,7 @@ public class ParagraphService : IParagraphService
     public async Task<ParagraphResponse> PublishAsync(int paragraphId, int userId,
         CancellationToken cancellationToken = default)
     {
-        var validationResult =
-            await _userValidatorManager.ValidateAuthorOfParagraphAsync(paragraphId, userId, cancellationToken);
-
-        if (validationResult is not null)
-            throw validationResult;
+        await _userValidatorManager.ValidateAuthorOfParagraphAsync(paragraphId, userId, cancellationToken);
 
         var paragraph = await _psqUnitOfWork.ParagraphRepository.GetByIdAsync(paragraphId, cancellationToken: cancellationToken);
 
@@ -95,11 +83,7 @@ public class ParagraphService : IParagraphService
         if (paragraph is null)
             throw new KeyNotFoundException("Cannot find paragraph with such id");
 
-        var validationResult =
-            await _userValidatorManager.ValidateAuthorOfCourseAsync(paragraph.CourseId, userId, cancellationToken);
-
-        if (validationResult is not null)
-            throw validationResult;
+        await _userValidatorManager.ValidateAuthorOfCourseAsync(paragraph.CourseId, userId, cancellationToken);
 
         var deletionResult = await _psqUnitOfWork.ParagraphRepository.DeleteAsync(id, cancellationToken);
 

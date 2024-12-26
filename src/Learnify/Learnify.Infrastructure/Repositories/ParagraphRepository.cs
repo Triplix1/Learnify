@@ -44,10 +44,11 @@ public class ParagraphRepository : IParagraphRepository
     }
 
     /// <inheritdoc />
-    public async Task<Paragraph> GetByIdAsync(int key, IEnumerable<string> stringToInclude = null, CancellationToken cancellationToken = default)
+    public async Task<Paragraph> GetByIdAsync(int key, IEnumerable<string> stringToInclude = null,
+        CancellationToken cancellationToken = default)
     {
         var query = IncludeParamsHelper.IncludeStrings(stringToInclude, _context.Paragraphs);
-        
+
         var paragraph = await query.FirstOrDefaultAsync(x => x.Id == key, cancellationToken);
 
         if (paragraph is null)
@@ -98,9 +99,10 @@ public class ParagraphRepository : IParagraphRepository
     /// <inheritdoc />
     public async Task<int?> GetAuthorIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var course = await _context.Paragraphs.Include(p => p.Course)
-            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken: cancellationToken);
+        var authorId = await _context.Paragraphs.Include(p => p.Course).Where(p => p.Id == id)
+            .Select(p => p.Course.AuthorId)
+            .SingleOrDefaultAsync(cancellationToken);
 
-        return course?.Course.AuthorId;
+        return authorId;
     }
 }

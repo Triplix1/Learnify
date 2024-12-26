@@ -15,16 +15,19 @@ namespace Learnify.Core.Services;
 
 public class LessonService : ILessonService
 {
-    private readonly IMongoUnitOfWork _mongoUnitOfWork;
-    private readonly IPsqUnitOfWork _psqUnitOfWork;
-    private readonly IMapper _mapper;
     private readonly ISubtitlesManager _subtitlesManager;
     private readonly IPrivateFileService _iPrivateFileService;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly IBlobStorage _blobStorage;
+    private readonly IUserValidatorManager _userValidatorManager;
+
+    private readonly IMongoUnitOfWork _mongoUnitOfWork;
+    private readonly IPsqUnitOfWork _psqUnitOfWork;
+    private readonly IMapper _mapper;
 
     public LessonService(IMongoUnitOfWork mongoUnitOfWork, IPsqUnitOfWork psqUnitOfWork, IMapper mapper,
-        ISubtitlesManager subtitlesManager, IPublishEndpoint publishEndpoint, IPrivateFileService iPrivateFileService, IBlobStorage blobStorage)
+        ISubtitlesManager subtitlesManager, IPublishEndpoint publishEndpoint, IPrivateFileService iPrivateFileService,
+        IBlobStorage blobStorage, IUserValidatorManager userValidatorManager)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
@@ -33,6 +36,7 @@ public class LessonService : ILessonService
         _publishEndpoint = publishEndpoint;
         _iPrivateFileService = iPrivateFileService;
         _blobStorage = blobStorage;
+        _userValidatorManager = userValidatorManager;
     }
 
     /// <inheritdoc />
@@ -59,12 +63,13 @@ public class LessonService : ILessonService
         }
     }
 
-    public async Task<string> GetLessonToUpdateIdAsync(string lessonId, int userId, CancellationToken cancellationToken = default)
+    public async Task<string> GetLessonToUpdateIdAsync(string lessonId, int userId,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(lessonId))
         {
             var createdLesson = await CreateAsync(new LessonAddOrUpdateRequest(), userId, true, cancellationToken);
-            
+
             return createdLesson.Id;
         }
 
@@ -73,18 +78,18 @@ public class LessonService : ILessonService
 
         if (!string.IsNullOrWhiteSpace(lessonToUpdateId))
             return lessonToUpdateId;
-        
+
         var originalLesson =
             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonId, cancellationToken);
-        
-        if(originalLesson is null)
+
+        if (originalLesson is null)
             throw new KeyNotFoundException("Cannot find lesson with such id");
 
         var originalLessonId = originalLesson.Id;
 
         originalLesson.Id = default;
         originalLesson.IsDraft = true;
-        
+
         var draft = await _mongoUnitOfWork.Lessons.CreateAsync(originalLesson, cancellationToken);
 
         originalLesson.Id = originalLessonId;
@@ -92,7 +97,7 @@ public class LessonService : ILessonService
         originalLesson.IsDraft = false;
 
         await _mongoUnitOfWork.Lessons.UpdateAsync(originalLesson, cancellationToken);
-        
+
         return draft.Id;
     }
 
@@ -126,7 +131,7 @@ public class LessonService : ILessonService
 
         var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(id, cancellationToken);
 
-        await ValidateAuthorAsync(currParagraphId, userId, cancellationToken: cancellationToken);
+        await _userValidatorManager.ValidateAuthorOfParagraphAsync(currParagraphId, userId, cancellationToken: cancellationToken);
 
         var response = await GetUpdateResponseAsync(lesson, cancellationToken);
 
@@ -145,7 +150,7 @@ public class LessonService : ILessonService
     private async Task<LessonUpdateResponse> CreateAsync(LessonAddOrUpdateRequest lessonCreateRequest,
         int userId, bool draft = false, CancellationToken cancellationToken = default)
     {
-        await ValidateAuthorAsync(lessonCreateRequest.ParagraphId, userId, cancellationToken: cancellationToken);
+        await _userValidatorManager.ValidateAuthorOfParagraphAsync(lessonCreateRequest.ParagraphId, userId, cancellationToken: cancellationToken);
 
         var lesson = _mapper.Map<Lesson>(lessonCreateRequest);
         lesson.IsDraft = draft;
@@ -171,8 +176,8 @@ public class LessonService : ILessonService
         var currParagraphId =
             await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
 
-        await ValidateAuthorAsync(currParagraphId, userId, cancellationToken: cancellationToken);
-        await ValidateAuthorAsync(lessonAddOrUpdateRequest.ParagraphId, userId, cancellationToken: cancellationToken);
+        await _userValidatorManager.ValidateAuthorOfParagraphAsync(currParagraphId, userId, cancellationToken: cancellationToken);
+        await _userValidatorManager.ValidateAuthorOfParagraphAsync(lessonAddOrUpdateRequest.ParagraphId, userId, cancellationToken: cancellationToken);
 
         var oldLesson =
             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
@@ -268,35 +273,13 @@ public class LessonService : ILessonService
     public async Task<LessonUpdateResponse> SaveDraftAsync(
         LessonAddOrUpdateRequest lessonAddOrUpdateRequest, int userId, CancellationToken cancellationToken = default)
     {
-        if (lessonAddOrUpdateRequest.Id is null)
-            return await CreateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
+        var lessonUpdateId = await GetLessonToUpdateIdAsync(lessonAddOrUpdateRequest.Id, userId, cancellationToken);
 
-        if (lessonAddOrUpdateRequest.EditedLessonId is not null)
-        {
-            lessonAddOrUpdateRequest.Id = lessonAddOrUpdateRequest.EditedLessonId;
-            lessonAddOrUpdateRequest.EditedLessonId = null;
+        lessonAddOrUpdateRequest.Id = lessonUpdateId;
 
-            return await UpdateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
-        }
+        var updatedLesson = await UpdateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
 
-        var originalLesson =
-            await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
-
-        if (originalLesson.IsDraft)
-            return await UpdateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
-
-        lessonAddOrUpdateRequest.Id = null;
-
-        var draft = await CreateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
-
-        originalLesson.EditedLessonId = draft.Id;
-        originalLesson.IsDraft = false;
-
-        await _mongoUnitOfWork.Lessons.UpdateAsync(originalLesson, cancellationToken);
-
-        var response = await GetUpdateResponseAsync(originalLesson, cancellationToken);
-
-        return response;
+        return updatedLesson;
     }
 
     /// <inheritdoc />
@@ -312,7 +295,7 @@ public class LessonService : ILessonService
 
         return response;
     }
-    
+
     public async Task DeleteLessonsByParagraph(int paragraphId, CancellationToken cancellationToken = default)
     {
         var attachments =
@@ -395,15 +378,5 @@ public class LessonService : ILessonService
         var subtitleResponses = _mapper.Map<IEnumerable<SubtitlesResponse>>(subtitles);
 
         return subtitleResponses;
-    }
-
-    private async Task ValidateAuthorAsync(int paragraphId, int userId, CancellationToken cancellationToken = default)
-    {
-        var authorId =
-            await _psqUnitOfWork.ParagraphRepository.GetAuthorIdAsync(paragraphId,
-                cancellationToken);
-
-        if (userId != authorId)
-            throw new Exception("You should be author of the course to be able to edit it");
     }
 }
