@@ -8,6 +8,7 @@ import { QuizQuestionUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQue
   styleUrls: ['./create-quiz.component.scss']
 })
 export class CreateQuizComponent {
+  @Input({ required: true }) lessonId: string;
   @Input({ required: true }) quizzes: QuizQuestionUpdateResponse[] = [];
 
 

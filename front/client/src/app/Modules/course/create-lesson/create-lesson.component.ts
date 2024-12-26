@@ -54,7 +54,7 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
     this.possibleToCreateNewLessonValue = true;
 
     if (!this.currentLessonEditing.id) {
-      this.lessonService.saveDraft({ id: null, editedLessonId: null, paragraphId: this.currentLessonEditing.paragraphId, quizzes: [], title: null, video: null }).pipe(take(1))
+      this.lessonService.saveDraft({ id: null, editedLessonId: null, paragraphId: this.currentLessonEditing.paragraphId, title: null, video: null }).pipe(take(1))
         .subscribe(response => {
           this.lessonResponse = this.lessonResponse;
           this.currentLessonEditing.id = this.lessonResponse.id;
@@ -75,7 +75,7 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
     }
   }
 
-  handleFileInput(fileUploadedEvent: Observable<ApiResponseWithData<PrivateFileDataResponse>>, quizIndex: number | null) {
+  handleFileInput(fileUploadedEvent: Observable<ApiResponseWithData<PrivateFileDataResponse>>) {
     this.possibleToCreateNewLessonValue = false;
 
     fileUploadedEvent.pipe(
@@ -88,16 +88,6 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
         };
 
         const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
-
-        if (quizIndex === null) {
-          lessonAddOrUpdateRequest.video = {
-            primaryLanguage: this.lessonForm.controls['language'].value ?? lessonAddOrUpdateRequest.video.primaryLanguage,
-            attachment: attachment,
-            subtitles: []
-          }
-        }
-        else
-          lessonAddOrUpdateRequest.quizzes[quizIndex].media = attachment;
 
         return this.lessonService.saveDraft(lessonAddOrUpdateRequest);
       })
@@ -162,7 +152,6 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
       lessonAddOrUpdateRequest = {
         editedLessonId: this.lessonResponse.editedLessonId,
         id: this.lessonResponse.id,
-        quizzes: this.lessonResponse.quizzes,
         paragraphId: this.lessonResponse.paragraphId,
         video: video,
         title: this.lessonForm.controls['title'].value
@@ -173,7 +162,6 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
         editedLessonId: null,
         paragraphId: this.currentLessonEditing.paragraphId,
         id: this.currentLessonEditing.id,
-        quizzes: null,
         title: null,
         video: null
       }

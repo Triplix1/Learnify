@@ -7,5 +7,4 @@ export interface LessonAddOrUpdateRequest {
     title: string;
     editedLessonId: string;
     video: VideoAddOrUpdateRequest;
-    quizzes: QuizQuestionAddOrUpdateRequest[];
 }

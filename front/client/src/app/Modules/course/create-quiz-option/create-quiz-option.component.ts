@@ -11,7 +11,6 @@ export class CreateQuizOptionComponent {
   @Output() correctAnswerIndexChange = new EventEmitter<number>(); // Emit correct index changes
   @Output() answersChange = new EventEmitter<string[]>(); // Emit updated answers
 
-
   editAnswer(index: number, updatedText: string) {
     this.answers[index] = updatedText;
     this.answersChange.emit(this.answers); // Notify parent of changes

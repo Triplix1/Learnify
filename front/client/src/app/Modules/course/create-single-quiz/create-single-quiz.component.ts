@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { QuizQuestionResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionResponse';
 
 @Component({
   selector: 'app-create-single-quiz',
@@ -6,5 +7,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./create-single-quiz.component.scss']
 })
 export class CreateSingleQuizComponent {
+  @Input({ required: true }) lessonId: string;
+  @Input({ required: true }) quiz: QuizQuestionResponse;
+
 
 }

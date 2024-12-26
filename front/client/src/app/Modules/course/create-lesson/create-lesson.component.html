@@ -13,9 +13,10 @@
        </div>
 
        <app-file-uploader [courseId]="courseId"
-                          (fileUploaded)="handleFileInput($event, null)"></app-file-uploader>
+                          (fileUploaded)="handleFileInput($event)"></app-file-uploader>
 
        <div>
-              <app-create-quiz [quizzes]="lessonResponse?.quizzes"></app-create-quiz>
+              <app-create-quiz [quizzes]="lessonResponse?.quizzes"
+                               [lessonId]="lessonResponse.id"></app-create-quiz>
        </div>
 </div>
