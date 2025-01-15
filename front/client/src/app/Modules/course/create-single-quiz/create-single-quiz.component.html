@@ -11,4 +11,6 @@
 <div *ngIf="quiz.media">
     <app-media [media]="quiz.media"></app-media>
 </div>
-<app-create-quiz-option></app-create-quiz-option>
+<app-create-quiz-answers [lessonId]="lessonId"
+                         [quizId]="quiz.quizId"
+                         [answersResponse]="quiz.answers"></app-create-quiz-answers>

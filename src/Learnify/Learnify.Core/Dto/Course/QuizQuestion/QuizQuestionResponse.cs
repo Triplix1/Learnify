@@ -1,21 +1,11 @@
 ﻿using Learnify.Core.Dto.Attachment;
+using Learnify.Core.Dto.Course.QuizQuestion.Answers;
 
 namespace Learnify.Core.Dto.Course.QuizQuestion;
 
 public class QuizQuestionResponse
 {
-    /// <summary>
-    /// Gets or sets value for Media
-    /// </summary>
+    public string QuizId { get; set; }
     public AttachmentResponse? Media { get; set; }
-    
-    /// <summary>
-    /// Question
-    /// </summary>
-    public string Question { get; set; }
-    
-    /// <summary>
-    /// Options
-    /// </summary>
-    public IEnumerable<string> Options { get; set; }
+    public AnswersResponse Answers { get; set; }
 }

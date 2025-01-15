@@ -10,6 +10,7 @@ import { CreateQuizComponent } from './create-quiz/create-quiz.component';
 import { LessonTitleComponent } from './lesson-title/lesson-title.component';
 import { CreateSingleQuizComponent } from './create-single-quiz/create-single-quiz.component';
 import { CreateQuizOptionComponent } from './create-quiz-option/create-quiz-option.component';
+import { CreateQuizAnswersComponent } from './create-quiz-answers/create-quiz-answers.component';
 
 
 
@@ -23,6 +24,7 @@ import { CreateQuizOptionComponent } from './create-quiz-option/create-quiz-opti
     LessonTitleComponent,
     CreateSingleQuizComponent,
     CreateQuizOptionComponent,
+    CreateQuizAnswersComponent,
   ],
   imports: [
     CommonModule,

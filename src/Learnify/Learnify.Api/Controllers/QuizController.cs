@@ -30,7 +30,7 @@ public class QuizController : BaseApiController
     }
 
     [Authorize]
-    [HttpPost("{lessonId}/{quizId}")]
+    [HttpDelete("{lessonId}/{quizId}")]
     public async Task<ActionResult> DeleteQuizAsync(string lessonId, string quizId,
         CancellationToken cancellationToken = default)
     {

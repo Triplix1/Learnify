@@ -1,0 +1,29 @@
+<ul>
+    <li *ngFor="let answer of answersResponse.options; let i = index"
+        class="answer-item">
+        <!-- Input for editing -->
+        <app-create-quiz-option [answer]="answer"
+                                [isCorrect]="answersResponse.correctAnswer === i"></app-create-quiz-option>
+
+        <!-- Set correct answer button -->
+        <button (click)="setCorrectAnswer(i)"
+                [class.correct]="answersResponse.correctAnswer === i">
+            <mat-icon *ngIf="answersResponse.correctAnswer === i"
+                      class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                      fontIcon="check">
+            </mat-icon>
+        </button>
+
+        <!-- Delete button -->
+        <button (click)="deleteAnswer(i)">
+            <mat-icon class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                      fontIcon="delete">
+            </mat-icon>
+        </button>
+    </li>
+</ul>
+
+<!-- Add new answer -->
+<app-button (click)="addAnswer()">
+    Add Answer
+</app-button>

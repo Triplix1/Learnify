@@ -8,6 +8,7 @@ using Learnify.Core.Dto.Course;
 using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Dto.Course.QuizQuestion;
+using Learnify.Core.Dto.Course.QuizQuestion.Answers;
 using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Messages;
@@ -57,6 +58,11 @@ public class MappingProfiles: Profile
         CreateMap<QuizQuestion, QuizQuestionResponse>();
         CreateMap<QuizQuestionAddOrUpdateRequest, QuizQuestion>();
         CreateMap<QuizQuestion, QuizQuestionUpdateResponse>();
+        
+        // Answers
+        CreateMap<Answers, AnswersResponse>();
+        CreateMap<Answers, AnswersUpdateResponse>();
+        CreateMap<AnswerAddOrUpdateRequest, Answers>();
         
         // Subtitles
         CreateMap<SubtitlesCreateRequest, Subtitle>();
