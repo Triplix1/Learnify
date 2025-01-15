@@ -14,9 +14,10 @@ export class CreateQuizComponent implements OnInit {
 
 
   ngOnInit(): void {
-    if (this.quizzes.length === 0) {
-      this.quizzes.push();
-    }
+    // if (!this.quizzes)
   }
 
+  addQuiz(): void {
+    this.quizzes.push({ answers: { correctAnswer: 0, options: [""] }, media: null, question: "", quizId: null });
+  }
 }

@@ -70,7 +70,8 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['currentLessonEditing'].currentValue !== changes['currentLessonEditing'].previousValue) {
+    const currentLessonEditing = changes['currentLessonEditing'];
+    if (currentLessonEditing && currentLessonEditing.currentValue !== currentLessonEditing.previousValue) {
       this.initializeComponent();
     }
   }

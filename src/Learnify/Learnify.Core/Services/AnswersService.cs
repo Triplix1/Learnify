@@ -2,7 +2,6 @@
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto.Course.QuizQuestion.Answers;
-using Learnify.Core.Managers;
 using Learnify.Core.ServiceContracts;
 
 namespace Learnify.Core.Services;
@@ -10,15 +9,12 @@ namespace Learnify.Core.Services;
 public class AnswersService : IAnswersService
 {
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
-    private readonly UserValidatorManager _userValidatorManager;
     private readonly ILessonService _lessonService;
     private readonly IMapper _mapper;
 
-    public AnswersService(IMongoUnitOfWork mongoUnitOfWork, UserValidatorManager userValidatorManager, IMapper mapper,
-        ILessonService lessonService)
+    public AnswersService(IMongoUnitOfWork mongoUnitOfWork, IMapper mapper, ILessonService lessonService)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
-        _userValidatorManager = userValidatorManager;
         _mapper = mapper;
         _lessonService = lessonService;
     }

@@ -7,11 +7,13 @@
                     [attr.aria-controls]="'accordion-body-' + index"
                     (opened)="opened()">
 
+
     <app-accordion-header [accordionItem]="accordionItem">
         <ng-content select=".accordion-header"></ng-content>
     </app-accordion-header>
 
-    <app-accordion-body>
+    <app-accordion-body [index]="index"
+                        [accordionItem]="accordionItem">
         <ng-content select=".accordion-body"></ng-content>
     </app-accordion-body>
 

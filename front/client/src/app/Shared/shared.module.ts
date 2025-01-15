@@ -29,6 +29,7 @@ import { AccordionBodyComponent } from './components/accordion-body/accordion-bo
 import { MediaPipe } from './pipes/media.pipe';
 import { MediaComponent } from './components/media/media.component';
 import { ImageComponent } from './components/image/image.component';
+import { TruncatePipe } from './pipes/truncate.pipe';
 
 @NgModule({
   declarations: [
@@ -53,6 +54,7 @@ import { ImageComponent } from './components/image/image.component';
     MediaPipe,
     MediaComponent,
     ImageComponent,
+    TruncatePipe,
   ],
   imports: [
     CommonModule,
@@ -97,6 +99,7 @@ import { ImageComponent } from './components/image/image.component';
     AccordionItemComponent,
     AccordionArrowComponent,
     MediaPipe,
+    TruncatePipe,
     MediaComponent,
   ]
 })

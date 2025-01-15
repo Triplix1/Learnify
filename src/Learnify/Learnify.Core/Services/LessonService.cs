@@ -72,6 +72,8 @@ public class LessonService : ILessonService
 
             return createdLesson.Id;
         }
+        
+        await _userValidatorManager.ValidateAuthorOfLessonAsync(lessonId, userId, cancellationToken);
 
         var lessonToUpdateId =
             await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(lessonId, cancellationToken);

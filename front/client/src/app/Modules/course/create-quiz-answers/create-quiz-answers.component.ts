@@ -32,10 +32,12 @@ export class CreateQuizAnswersComponent implements OnInit {
 
   updateAnser(answer: string, index: number) {
     this.answersResponse.options[index] = answer;
+    this.save();
   }
 
   setCorrectAnswer(index: number) {
     this.answersResponse.correctAnswer = index;
+    this.save();
   }
 
   deleteAnswer(index: number) {
@@ -44,9 +46,10 @@ export class CreateQuizAnswersComponent implements OnInit {
     if (this.answersResponse.correctAnswer === index) {
       this.answersResponse.correctAnswer = this.answersResponse.options.length - 1;
     }
+    this.save();
   }
 
   save() {
-    this.answersService.updateAnwers(this.answersUpdateRequest).;
+    this.answersService.updateAnwers(this.answersUpdateRequest).subscribe(response => this.answersResponse = response.data);
   }
 }
