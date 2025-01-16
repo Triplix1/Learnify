@@ -5,7 +5,8 @@
                     [attr.id]="'accordion-header-' + index"
                     [attr.aria-expanded]="accordionItem.expanded"
                     [attr.aria-controls]="'accordion-body-' + index"
-                    (opened)="opened()">
+                    (opened)="opened()"
+                    (closed)="closed()">
 
 
     <app-accordion-header [accordionItem]="accordionItem">

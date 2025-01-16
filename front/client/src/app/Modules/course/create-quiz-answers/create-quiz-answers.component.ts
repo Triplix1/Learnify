@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { AnswersService } from 'src/app/Core/services/answers.service';
 import { AnswerAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswerAddOrUpdateRequest';
 import { AnswersUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswersUpdateResponse';
@@ -8,7 +8,7 @@ import { AnswersUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQuestion
   templateUrl: './create-quiz-answers.component.html',
   styleUrls: ['./create-quiz-answers.component.scss']
 })
-export class CreateQuizAnswersComponent implements OnInit {
+export class CreateQuizAnswersComponent implements OnChanges {
   @Input({ required: true }) lessonId: string;
   @Input({ required: true }) quizId: string;
   @Input({ required: true }) answersResponse: AnswersUpdateResponse;
@@ -17,7 +17,13 @@ export class CreateQuizAnswersComponent implements OnInit {
 
   constructor(private readonly answersService: AnswersService) { }
 
-  ngOnInit(): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    const answersResponse = changes['answersResponse'].currentValue;
+    if (!answersResponse) {
+      this.answersResponse = { correctAnswer: 0, options: [''] }
+      this.save();
+    }
+
     this.answersUpdateRequest = {
       correctAnswer: this.answersResponse.correctAnswer,
       options: this.answersResponse.options,

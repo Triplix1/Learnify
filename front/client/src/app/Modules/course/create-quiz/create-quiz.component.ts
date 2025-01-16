@@ -1,6 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { QuizQuestionResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionResponse';
 import { QuizQuestionUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionUpdateResponse';
 
 @Component({
@@ -14,7 +12,9 @@ export class CreateQuizComponent implements OnInit {
 
 
   ngOnInit(): void {
-    // if (!this.quizzes)
+    if (!this.quizzes) {
+      this.quizzes = [];
+    }
   }
 
   addQuiz(): void {

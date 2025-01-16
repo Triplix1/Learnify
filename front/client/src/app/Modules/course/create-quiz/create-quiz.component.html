@@ -1,17 +1,9 @@
-<div>
-    <cdk-accordion>
+<div class="w-100">
+    <cdk-accordion [multi]="true">
         <ng-container *ngFor="let quiz of quizzes; let index = index">
-            <div class="bg-slate-800 border-none rounded-md p-2">
-                <app-accordion-item [index]="index">
-                    <div class="accordion-header">
-                        {{quiz.question | truncate:25}}
-                    </div>
-                    <div class="accordion-body pt-3">
-                        <app-create-single-quiz [quiz]="quiz"
-                                                [lessonId]="lessonId"></app-create-single-quiz>
-                    </div>
-                </app-accordion-item>
-            </div>
+            <app-create-single-quiz [lessonId]="lessonId"
+                                    [quiz]="quiz"
+                                    [index]="index"></app-create-single-quiz>
         </ng-container>
     </cdk-accordion>
 

@@ -1,3 +1,4 @@
+import { CdkAccordionItem } from '@angular/cdk/accordion';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { debounceTime } from 'rxjs';
@@ -13,10 +14,13 @@ import { QuizQuestionUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQue
 export class CreateSingleQuizComponent implements OnInit {
   @Input({ required: true }) lessonId: string;
   @Input({ required: true }) quiz: QuizQuestionUpdateResponse;
+  @Input({ required: true }) index: number;
 
   quizUpdateRequest: QuizQuestionAddOrUpdateRequest;
   initialState: QuizQuestionAddOrUpdateRequest;
   quizForm: FormGroup = new FormGroup({});
+  editingMode: boolean = false;
+  expanded: boolean = false;
 
   constructor(private readonly fb: FormBuilder, private readonly quizService: QuizService) { }
 
@@ -29,6 +33,9 @@ export class CreateSingleQuizComponent implements OnInit {
     })
 
     this.initialState = { ...this.quizUpdateRequest };
+
+    if (!this.quiz.question)
+      this.editingMode = true;
   }
 
   initializeForm(quiz: QuizQuestionUpdateResponse) {
@@ -48,9 +55,14 @@ export class CreateSingleQuizComponent implements OnInit {
     }
   }
 
-  saveForm() {
-    this.quizUpdateRequest.question = this.quizForm.value;
+  saveForm(final: boolean = false) {
+    this.quizUpdateRequest.question = this.quizForm.get('question').value;
     this.save(this.quizUpdateRequest);
+
+    if (final) {
+      this.initialState = { ...this.quiz, lessonId: this.lessonId };
+      this.editingMode = false;
+    }
   }
 
   save(quizQuestionAddOrUpdateRequest: QuizQuestionAddOrUpdateRequest) {
@@ -59,5 +71,16 @@ export class CreateSingleQuizComponent implements OnInit {
 
   cancel() {
     this.save(this.initialState);
+    this.editingMode = false;
+    this.initializeForm(this.quiz);
   }
+
+  changeExpanded(opened: boolean) {
+    this.expanded = opened;
+  }
+
+  editingToggle() {
+    this.editingMode = true;
+  }
+
 }
