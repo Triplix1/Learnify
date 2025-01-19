@@ -85,7 +85,7 @@ public class LessonRepository : ILessonRepository
         if (lesson.Video is not null)
             result.Add(lesson.Video.Attachment);
 
-        result.AddRange(lesson.Quizzes.Select(q => q.Media));
+        result.AddRange(lesson.Quizzes.Where(q => q.Media is not null).Select(q => q.Media));
 
         return result;
     }

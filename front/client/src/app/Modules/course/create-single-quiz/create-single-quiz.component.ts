@@ -1,5 +1,5 @@
 import { CdkAccordionItem } from '@angular/cdk/accordion';
-import { Component, Input, OnInit } from '@angular/core';
+import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { debounceTime } from 'rxjs';
 import { QuizService } from 'src/app/Core/services/quiz.service';
@@ -36,6 +36,10 @@ export class CreateSingleQuizComponent implements OnInit {
 
     if (!this.quiz.question)
       this.editingMode = true;
+
+    this.quizForm = new FormGroup({});
+    this.editingMode = false;
+    this.expanded = false;
   }
 
   initializeForm(quiz: QuizQuestionUpdateResponse) {
@@ -49,14 +53,14 @@ export class CreateSingleQuizComponent implements OnInit {
     this.initializeForm(quiz);
     this.quizUpdateRequest = {
       lessonId: this.lessonId,
-      quizId: this.quiz.quizId,
+      quizId: this.quiz.id,
       question: quiz.question,
       media: quiz.media,
     }
   }
 
   saveForm(final: boolean = false) {
-    this.quizUpdateRequest.question = this.quizForm.get('question').value;
+    this.quizUpdateRequest.question = this.quizForm.controls['question'].value;
     this.save(this.quizUpdateRequest);
 
     if (final) {
@@ -66,7 +70,10 @@ export class CreateSingleQuizComponent implements OnInit {
   }
 
   save(quizQuestionAddOrUpdateRequest: QuizQuestionAddOrUpdateRequest) {
-    this.quizService.addOrUpdate(quizQuestionAddOrUpdateRequest).subscribe(response => this.handleUpdate(response.data));
+    this.quizService.addOrUpdate(quizQuestionAddOrUpdateRequest).subscribe(response => {
+      this.handleUpdate(response.data);
+      console.log(response.data);
+    });
   }
 
   cancel() {

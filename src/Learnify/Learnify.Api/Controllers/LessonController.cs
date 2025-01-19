@@ -71,7 +71,7 @@ public class LessonController : BaseApiController
 
         var response = await _lessonService.SaveDraftAsync(lessonAddOrUpdateRequest, userId, cancellationToken);
 
-        return response;
+        return Ok(response);
     }
 
     [Authorize]

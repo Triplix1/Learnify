@@ -20,7 +20,7 @@ using Learnify.Core.Specification.Filters;
 
 namespace Learnify.Core.MappingProfile;
 
-public class MappingProfiles: Profile
+public class MappingProfiles : Profile
 {
     public MappingProfiles()
     {
@@ -56,14 +56,15 @@ public class MappingProfiles: Profile
 
         // QuizQuestion
         CreateMap<QuizQuestion, QuizQuestionResponse>();
-        CreateMap<QuizQuestionAddOrUpdateRequest, QuizQuestion>();
+        CreateMap<QuizQuestionAddOrUpdateRequest, QuizQuestion>()
+            .ForMember(q => q.Id, q => q.MapFrom(s => s.QuizId));
         CreateMap<QuizQuestion, QuizQuestionUpdateResponse>();
-        
+
         // Answers
         CreateMap<Answers, AnswersResponse>();
         CreateMap<Answers, AnswersUpdateResponse>();
         CreateMap<AnswerAddOrUpdateRequest, Answers>();
-        
+
         // Subtitles
         CreateMap<SubtitlesCreateRequest, Subtitle>();
         CreateMap<Subtitle, SubtitlesResponse>();
@@ -73,11 +74,11 @@ public class MappingProfiles: Profile
 
         // FileData
         CreateMap<PrivateFileData, PrivateFileDataResponse>();
-        
+
         //Video
         CreateMap<VideoAddOrUpdateRequest, Video>();
-        CreateMap<Video, VideoResponse>(); 
-        
+        CreateMap<Video, VideoResponse>();
+
         //Message
         CreateMap<Message, MessageResponse>()
             .ForMember(m => m.SenderName, m => m.MapFrom(message => message.Sender.Name));

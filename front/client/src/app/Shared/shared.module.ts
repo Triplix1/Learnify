@@ -30,6 +30,7 @@ import { MediaPipe } from './pipes/media.pipe';
 import { MediaComponent } from './components/media/media.component';
 import { ImageComponent } from './components/image/image.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
+import { NestedOptionComponent } from './components/nested-option/nested-option.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +56,7 @@ import { TruncatePipe } from './pipes/truncate.pipe';
     MediaComponent,
     ImageComponent,
     TruncatePipe,
+    NestedOptionComponent,
   ],
   imports: [
     CommonModule,
@@ -101,6 +103,7 @@ import { TruncatePipe } from './pipes/truncate.pipe';
     MediaPipe,
     TruncatePipe,
     MediaComponent,
+    NestedOptionComponent,
   ]
 })
 export class SharedModule { }

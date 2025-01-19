@@ -68,9 +68,7 @@ public class LessonService : ILessonService
     {
         if (string.IsNullOrWhiteSpace(lessonId))
         {
-            var createdLesson = await CreateAsync(new LessonAddOrUpdateRequest(), userId, true, cancellationToken);
-
-            return createdLesson.Id;
+            throw new Exception("You trying to update lesson that doesn't exist");
         }
         
         await _userValidatorManager.ValidateAuthorOfLessonAsync(lessonId, userId, cancellationToken);
@@ -185,6 +183,8 @@ public class LessonService : ILessonService
             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
         var updatedLesson = _mapper.Map<Lesson>(lessonAddOrUpdateRequest);
         updatedLesson.IsDraft = draft;
+        updatedLesson.Quizzes = oldLesson.Quizzes;
+        updatedLesson.QuizzesOrder = oldLesson.QuizzesOrder;
 
         using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
         {
@@ -268,9 +268,16 @@ public class LessonService : ILessonService
     public async Task<LessonUpdateResponse> SaveDraftAsync(
         LessonAddOrUpdateRequest lessonAddOrUpdateRequest, int userId, CancellationToken cancellationToken = default)
     {
-        var lessonUpdateId = await GetLessonToUpdateIdAsync(lessonAddOrUpdateRequest.Id, userId, cancellationToken);
-
-        lessonAddOrUpdateRequest.Id = lessonUpdateId;
+        if (lessonAddOrUpdateRequest.Id is null)
+        {
+            var createdLesson = await CreateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
+            
+            lessonAddOrUpdateRequest.Id = createdLesson.Id;
+        }
+        else
+        {
+            lessonAddOrUpdateRequest.Id = await GetLessonToUpdateIdAsync(lessonAddOrUpdateRequest.Id, userId, cancellationToken);
+        }
 
         var updatedLesson = await UpdateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
 

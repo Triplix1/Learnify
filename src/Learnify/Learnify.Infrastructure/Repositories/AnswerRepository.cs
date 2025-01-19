@@ -1,6 +1,7 @@
 ﻿using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Infrastructure.Data.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Learnify.Infrastructure.Repositories;
@@ -47,14 +48,16 @@ public class AnswerRepository: IAnswerRepository
     public async Task<Answers> AddOrUpdateAnswerAsync(string lessonId, string quizId, Answers answers, CancellationToken cancellationToken = default)
     {
         // Filter to match the specific lesson by ID
-        var filter = Builders<Lesson>.Filter.Eq(lesson => lesson.Id, lessonId);
+        var filter = Builders<Lesson>.Filter.And(
+            Builders<Lesson>.Filter.Eq(lesson => lesson.Id, lessonId),
+            Builders<Lesson>.Filter.ElemMatch(lesson => lesson.Quizzes, quiz => quiz.Id == quizId)
+        );
 
         // Update definition to replace the Answers entity of the matched quiz
         var update = Builders<Lesson>.Update.Set(
-            "Quizzes.$[quiz].Answers", answers
+            lesson => lesson.Quizzes[0].Answers, answers
         );
 
-        // Configure array filters to match the specific quiz ID
         var options = new FindOneAndUpdateOptions<Lesson>
         {
             Projection = Builders<Lesson>.Projection.ElemMatch(l => l.Quizzes, q => q.Id == quizId),
@@ -68,7 +71,7 @@ public class AnswerRepository: IAnswerRepository
         {
             throw new Exception("Cannot find lesson with such id");
         }
-        
+    
         if (updatedLesson.Quizzes == null || updatedLesson.Quizzes.Count == 0)
         {
             throw new Exception("Cannot find quiz with such id");

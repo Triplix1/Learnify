@@ -21,7 +21,6 @@ export class CreateQuizAnswersComponent implements OnChanges {
     const answersResponse = changes['answersResponse'].currentValue;
     if (!answersResponse) {
       this.answersResponse = { correctAnswer: 0, options: [''] }
-      this.save();
     }
 
     this.answersUpdateRequest = {
@@ -57,5 +56,9 @@ export class CreateQuizAnswersComponent implements OnChanges {
 
   save() {
     this.answersService.updateAnwers(this.answersUpdateRequest).subscribe(response => this.answersResponse = response.data);
+  }
+
+  isCurrentAnswerCorrect(index: number) {
+    return this.answersResponse.correctAnswer === index;
   }
 }

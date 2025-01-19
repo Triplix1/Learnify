@@ -23,7 +23,7 @@ export class LessonService {
   }
 
   getLessonForUpdateById(id: string): Observable<ApiResponseWithData<LessonUpdateResponse>> {
-    return this.httpClient.get<ApiResponseWithData<LessonUpdateResponse>>(this.baseProfileUrl + "/" + id);
+    return this.httpClient.get<ApiResponseWithData<LessonUpdateResponse>>(this.baseProfileUrl + "/for-update/" + id);
   }
 
   getLessonTitlesForParagraph(paragraphId: number, includeDrafts: boolean): Observable<ApiResponseWithData<LessonTitleResponse[]>> {

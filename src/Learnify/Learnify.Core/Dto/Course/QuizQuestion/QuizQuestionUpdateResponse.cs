@@ -5,7 +5,7 @@ namespace Learnify.Core.Dto.Course.QuizQuestion;
 
 public class QuizQuestionUpdateResponse
 {
-    public string QuizId { get; set; }
+    public string Id { get; set; }
     public AttachmentResponse? Media { get; set; }
     public string Question { get; set; }
     public AnswersUpdateResponse Answers { get; set; }

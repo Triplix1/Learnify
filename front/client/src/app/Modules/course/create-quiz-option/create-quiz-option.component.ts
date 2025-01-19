@@ -25,7 +25,7 @@ export class CreateQuizOptionComponent implements OnInit {
 
   editAnswer() {
     if (this.answerForm.valid)
-      this.answerChange.emit(this.answerForm.value); // Notify parent of changes
+      this.answerChange.emit(this.answerForm.controls['answer'].value); // Notify parent of changes
   }
 
   deleteAnswer() {

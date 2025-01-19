@@ -56,8 +56,7 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
     if (!this.currentLessonEditing.id) {
       this.lessonService.saveDraft({ id: null, editedLessonId: null, paragraphId: this.currentLessonEditing.paragraphId, title: null, video: null }).pipe(take(1))
         .subscribe(response => {
-          this.lessonResponse = this.lessonResponse;
-          this.currentLessonEditing.id = this.lessonResponse.id;
+          this.handleLessonUpdate(response.data);
         })
     }
     else {

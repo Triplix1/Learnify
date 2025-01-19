@@ -16,7 +16,8 @@
     </div>
 </div>
 
-<div class="stepper-navigation">
+<div *ngIf="!disableButtons"
+     class="stepper-navigation">
     <button (click)="previous()"
             [disabled]="currentStepIndex === 0">Back</button>
     <button (click)="next()"

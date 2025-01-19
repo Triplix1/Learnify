@@ -1,16 +1,30 @@
-<div class="flex items-center gap-4 mb-4 p-2 border rounded-md shadow-sm bg-white">
+<app-nested-option classList="w-full flex justify-between items-center">
     <!-- Input for the answer text -->
-    <app-text-input [formControl]="$any(answerForm.controls['answer'])"
-                    placeholder="Title"
-                    label="Title"
-                    (changedInput)="editAnswer()"></app-text-input>
+
+    <div class="flex">
+        <button class="mr-2"
+                [disabled]="isCorrect"
+                (click)="setCorrectAnswer() ">
+            <mat-icon class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                      [classList]="isCorrect ? 'text-green-800' : 'text-logo'"
+                      fontIcon="check">
+            </mat-icon>
+        </button>
+
+        <app-text-input [formControl]="$any(answerForm.controls['answer'])"
+                        [hiddenError]="true"
+                        [hiddenLabel]="true"
+                        placeholder="Title"
+                        label="Title"
+                        (changedInput)="editAnswer()"></app-text-input>
+    </div>
 
     <!-- Delete button -->
-    <button class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none transition-colors"
+    <button class="flex items-center justify-center"
             (click)="deleteAnswer()"
             aria-label="Delete answer">
         <mat-icon class="mr-1 text-buttonAccept hover:opacity-50 transition"
                   fontIcon="delete">
         </mat-icon>
     </button>
-</div>
+</app-nested-option>

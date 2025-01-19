@@ -1,6 +1,7 @@
 ﻿using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Infrastructure.Data.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Learnify.Infrastructure.Repositories;
@@ -33,6 +34,7 @@ public class QuizRepository : IQuizRepository
     public async Task<QuizQuestion> CreateAsync(QuizQuestion quiz, string lessonId,
         CancellationToken cancellationToken = default)
     {
+        quiz.Id = ObjectId.GenerateNewId().ToString();
         // Fetch the existing lesson from MongoDB
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
         var update = Builders<Lesson>.Update.Push(l => l.Quizzes, quiz);
@@ -56,9 +58,10 @@ public class QuizRepository : IQuizRepository
         CancellationToken cancellationToken = default)
     {
         // Fetch the existing lesson from MongoDB
-        var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
+        var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId) &
+                     Builders<Lesson>.Filter.ElemMatch(l => l.Quizzes, q => q.Id == quiz.Id);;
 
-        var update = Builders<Lesson>.Update.Set("Quizzes.$[quiz]", quiz);
+        var update = Builders<Lesson>.Update.Set(l => l.Quizzes[0], quiz);
 
         var options = new FindOneAndUpdateOptions<Lesson>
         {

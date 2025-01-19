@@ -233,7 +233,7 @@ public class IdentityService : IIdentityService
 
         var refreshToken = new RefreshToken()
         {
-            Expire = DateTime.UtcNow.AddHours(3),
+            Expire = DateTime.UtcNow.AddDays(1),
             Jwt = accessToken.Token,
             Refresh = refreshTokenString,
             HasBeenUsed = false
