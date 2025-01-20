@@ -18,6 +18,6 @@ export class CreateQuizComponent implements OnInit {
   }
 
   addQuiz(): void {
-    this.quizzes.push({ answers: { correctAnswer: 0, options: [""] }, media: null, question: "", id: null });
+    this.quizzes.push({ answers: { correctAnswer: 0, options: [""] }, media: null, question: "New question", id: null });
   }
 }

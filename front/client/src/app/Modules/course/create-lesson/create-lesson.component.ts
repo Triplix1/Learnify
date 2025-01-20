@@ -88,6 +88,7 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
         };
 
         const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
+        lessonAddOrUpdateRequest.video = { attachment: attachment, primaryLanguage: Language.English.toString(), subtitles: [Language.English] };
 
         return this.lessonService.saveDraft(lessonAddOrUpdateRequest);
       })
@@ -119,6 +120,11 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
     })
   }
 
+  dropVideo() {
+    this.lessonResponse.video = null;
+    this.saveDraft();
+  }
+
   saveDraft() {
     const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
     this.possibleToCreateNewLessonValue = false;
@@ -133,6 +139,20 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
         this.handleLessonUpdate(response.data);
         this.possibleToCreateNewLessonValue = true;
       });
+  }
+
+  save() {
+    const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
+    this.possibleToCreateNewLessonValue = false;
+
+    this.lessonService.createOrUpdateLesson(lessonAddOrUpdateRequest).subscribe(response => {
+      this.handleLessonUpdate(response.data);
+      this.possibleToCreateNewLessonValue = true;
+    });
+  }
+
+  cancel() {
+
   }
 
   private prepareLessonToUpdateDto(): LessonAddOrUpdateRequest {

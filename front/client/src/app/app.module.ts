@@ -8,10 +8,8 @@ import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform
 import { HTTP_INTERCEPTORS, provideHttpClient } from '@angular/common/http';
 import { RefreshInterceptor } from './Core/interceptors/refresh.interceptor';
 import { ErrorHandlerInterceptor } from './Core/interceptors/error-handler.interceptor';
-import { MainProfileComponent } from './Modules/profile/main-profile/main-profile.component';
 import { ProfileModule } from './Modules/profile/profile.module';
 import { CourseModule } from './Modules/course/course.module';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { MessageModule } from './Modules/message/message.module';
 
 @NgModule({

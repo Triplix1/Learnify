@@ -8,15 +8,33 @@
                               (changedInput)="saveDraft()"></app-text-input>
        </div>
 
-       <div *ngIf="lessonResponse?.video?.attachment">
+       <div *ngIf="lessonResponse?.video?.attachment; else mediaNotExists"
+            class="flex flex-col items-center justify-center">
               <app-video-player [fileId]="lessonResponse.video.attachment.fileId"></app-video-player>
+              <app-button (buttonClick)="dropVideo()">Drop File</app-button>
        </div>
 
-       <app-file-uploader [courseId]="courseId"
-                          (fileUploaded)="handleFileInput($event)"></app-file-uploader>
+       <ng-template #mediaNotExists>
+              <div class="flex justify-center items-center w-full mt-2">
+                     <app-file-uploader class="w-72 h-32"
+                                        [courseId]="courseId"
+                                        (fileUploaded)="handleFileInput($event)"></app-file-uploader>
+              </div>
+       </ng-template>
 
        <div>
               <app-create-quiz [quizzes]="lessonResponse?.quizzes"
                                [lessonId]="lessonResponse?.id"></app-create-quiz>
+       </div>
+
+       <div *ngIf="lessonResponse.isDraft"
+            class="w-full">
+              <div class="mx-auto w-4/5 my-2 h-[2px] bg-slate-800"></div>
+
+              <div class="flex items-center justify-center mt-2">
+                     <app-button (buttonClick)="save()">Save</app-button>
+                     <app-button (buttonClick)="cancel()">Cancel</app-button>
+              </div>
+
        </div>
 </div>

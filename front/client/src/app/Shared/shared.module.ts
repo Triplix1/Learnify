@@ -31,6 +31,7 @@ import { MediaComponent } from './components/media/media.component';
 import { ImageComponent } from './components/image/image.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
 import { NestedOptionComponent } from './components/nested-option/nested-option.component';
+import { DragDropDirective } from './directives/drag-drop.directive';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import { NestedOptionComponent } from './components/nested-option/nested-option.
     ImageComponent,
     TruncatePipe,
     NestedOptionComponent,
+    DragDropDirective,
   ],
   imports: [
     CommonModule,
@@ -104,6 +106,7 @@ import { NestedOptionComponent } from './components/nested-option/nested-option.
     TruncatePipe,
     MediaComponent,
     NestedOptionComponent,
+    DragDropDirective,
   ]
 })
 export class SharedModule { }

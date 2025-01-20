@@ -123,15 +123,15 @@ public class LessonService : ILessonService
     public async Task<LessonUpdateResponse> GetForUpdateAsync(string id, int userId,
         CancellationToken cancellationToken = default)
     {
-        var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(id, cancellationToken);
+        await _userValidatorManager.ValidateAuthorOfLessonAsync(id, userId, cancellationToken);
+
+        var editedLessonId = await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(id, cancellationToken);
+        
+        var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(editedLessonId, cancellationToken);
 
         if (lesson is null)
             throw
                 new KeyNotFoundException("Cannot find lesson with such Id");
-
-        var currParagraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(id, cancellationToken);
-
-        await _userValidatorManager.ValidateAuthorOfParagraphAsync(currParagraphId, userId, cancellationToken: cancellationToken);
 
         var response = await GetUpdateResponseAsync(lesson, cancellationToken);
 
@@ -330,7 +330,7 @@ public class LessonService : ILessonService
         var subtitlesCreateRequest = videoAddOrUpdateRequest.Subtitles.Select(s => new Subtitle
         {
             Language = s
-        });
+        }).ToArray();
         var subtitles =
             await _psqUnitOfWork.SubtitlesRepository.CreateRangeAsync(subtitlesCreateRequest, cancellationToken);
 

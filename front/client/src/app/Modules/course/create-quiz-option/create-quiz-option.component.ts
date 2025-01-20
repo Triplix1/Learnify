@@ -14,6 +14,7 @@ export class CreateQuizOptionComponent implements OnInit {
   @Output() answerDeleted = new EventEmitter(); // Emit updated answers
 
   answerForm: FormGroup = new FormGroup({});
+  initialValue: string;
 
   constructor(private readonly fb: FormBuilder) { }
 
@@ -21,11 +22,16 @@ export class CreateQuizOptionComponent implements OnInit {
     this.answerForm = this.fb.group({
       answer: [this.answer ?? '', [Validators.required]],
     });
+    this.initialValue = this.answer;
   }
 
   editAnswer() {
     if (this.answerForm.valid)
       this.answerChange.emit(this.answerForm.controls['answer'].value); // Notify parent of changes
+  }
+
+  dropChanges() {
+    this.answerForm.controls['answer'].setValue(this.initialValue);
   }
 
   deleteAnswer() {

@@ -67,8 +67,8 @@ public class MappingProfiles : Profile
 
         // Subtitles
         CreateMap<SubtitlesCreateRequest, Subtitle>();
-        CreateMap<Subtitle, SubtitlesResponse>();
-        CreateMap<SubtitlesResponse, SubtitleInfo>();
+        CreateMap<Subtitle, SubtitleInfo>();
+        CreateMap<Subtitle, SubtitleReference>();
         CreateMap<SubtitlesResponse, SubtitleReference>()
             .ForMember(s => s.SubtitleId, s => s.MapFrom(sr => sr.Id));
 
@@ -76,8 +76,10 @@ public class MappingProfiles : Profile
         CreateMap<PrivateFileData, PrivateFileDataResponse>();
 
         //Video
-        CreateMap<VideoAddOrUpdateRequest, Video>();
-        CreateMap<Video, VideoResponse>();
+        CreateMap<VideoAddOrUpdateRequest, Video>()
+            .ForMember(v => v.Subtitles, s => s.Ignore());
+        CreateMap<Video, VideoResponse>()
+            .ForMember(v => v.Subtitles, s => s.Ignore());
 
         //Message
         CreateMap<Message, MessageResponse>()

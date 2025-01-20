@@ -32,12 +32,16 @@ export class CreateSingleQuizComponent implements OnInit {
         this.saveForm();
     })
 
+    if (this.quiz.id === null) {
+      this.save(this.quizUpdateRequest);
+    }
+
     this.initialState = { ...this.quizUpdateRequest };
 
-    if (!this.quiz.question)
+    if (this.quiz.question === "New question")
       this.editingMode = true;
 
-    this.quizForm = new FormGroup({});
+    this.initializeForm(this.quiz);
     this.editingMode = false;
     this.expanded = false;
   }

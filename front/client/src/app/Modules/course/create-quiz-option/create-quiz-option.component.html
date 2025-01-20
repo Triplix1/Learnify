@@ -16,12 +16,29 @@
             </ng-template>
         </button>
 
-        <app-text-input [formControl]="$any(answerForm.controls['answer'])"
-                        [hiddenError]="true"
-                        [hiddenLabel]="true"
-                        placeholder="Title"
-                        label="Title"
-                        (changedInput)="editAnswer()"></app-text-input>
+        <div class="relative">
+            <app-text-input [formControl]="$any(answerForm.controls['answer'])"
+                            [hiddenError]="true"
+                            [hiddenLabel]="true"
+                            placeholder="Title"
+                            label="Title"></app-text-input>
+            <div *ngIf="$any(answerForm.controls['answer'].value) !== initialValue "
+                 (click)="$event.stopPropagation()"
+                 class="flex justify-quizForm mr-1.5 absolute right-0 top-1.5">
+                <mat-icon *ngIf="$any(answerForm.controls['answer'].value) !== '' "
+                          class="mr-2 text-navlink hover:opacity-50 transition"
+                          fontIcon="check"
+                          (click)="editAnswer(); $event.stopPropagation()">
+
+                </mat-icon>
+                <mat-icon class="mr-2 text-navlink hover:opacity-50 transition"
+                          fontIcon="close"
+                          (click)="dropChanges(); $event.stopPropagation()">
+                </mat-icon>
+            </div>
+
+        </div>
+
     </div>
 
     <!-- Delete button -->

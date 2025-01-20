@@ -55,12 +55,12 @@ public class AnswerRepository: IAnswerRepository
 
         // Update definition to replace the Answers entity of the matched quiz
         var update = Builders<Lesson>.Update.Set(
-            lesson => lesson.Quizzes[0].Answers, answers
+            nameof(Lesson.Quizzes) + ".$." + nameof(QuizQuestion.Answers), answers
         );
 
         var options = new FindOneAndUpdateOptions<Lesson>
         {
-            Projection = Builders<Lesson>.Projection.ElemMatch(l => l.Quizzes, q => q.Id == quizId),
+            Projection = Builders<Lesson>.Projection.ElemMatch(l => l.Quizzes, q => q.Id == quizId).Include(q => q.Quizzes),
             ReturnDocument = ReturnDocument.After
         };
 

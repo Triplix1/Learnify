@@ -22,31 +22,34 @@ export class FileUploaderComponent extends BaseComponent {
     super();
   }
 
-  handleFileInput(imageInput: any, quizIndex: number | null) {
-    if (imageInput) {
-      console.log('File selected:', imageInput);  // Check if the file is correctly selected
+  handleFileInput(imageInputFiles: FileList) {
 
-      const fileCreateRequest: PrivateFileBlobCreateRequest = {
-        content: imageInput,
-        contentType: imageInput.type,
-        courseId: this.courseId
-      };
+    for (let i = 0; i < imageInputFiles.length; i++) {
+      if (imageInputFiles[i]) {
+        console.log('File selected:', imageInputFiles[i]);  // Check if the file is correctly selected
 
-      var fileUploadObservable = this.mediaService.create(fileCreateRequest).pipe(
-        tap((event: any) => {
-          console.log("tap");
-          console.log(event);
-          console.log(event.type);
-          if (event.type === HttpEventType.UploadProgress && event.total) {
-            this.uploadProgress = Math.round((100 * event.loaded) / event.total); // Update progress bar
-          }
-        }),
-        filter(event => event.type === HttpEventType.Response),
-        map(response => response.body),
-        takeUntil(this.destroySubject)
-      );
+        const fileCreateRequest: PrivateFileBlobCreateRequest = {
+          content: imageInputFiles[i],
+          contentType: imageInputFiles[i].type,
+          courseId: this.courseId
+        };
 
-      this.fileUploaded.emit(fileUploadObservable);
+        var fileUploadObservable = this.mediaService.create(fileCreateRequest).pipe(
+          tap((event: any) => {
+            console.log("tap");
+            console.log(event);
+            console.log(event.type);
+            if (event.type === HttpEventType.UploadProgress && event.total) {
+              this.uploadProgress = Math.round((100 * event.loaded) / event.total); // Update progress bar
+            }
+          }),
+          filter(event => event.type === HttpEventType.Response),
+          map(response => response.body),
+          takeUntil(this.destroySubject)
+        );
+
+        this.fileUploaded.emit(fileUploadObservable);
+      }
     }
   }
 }
