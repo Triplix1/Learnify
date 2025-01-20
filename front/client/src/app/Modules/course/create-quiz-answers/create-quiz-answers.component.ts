@@ -13,8 +13,6 @@ export class CreateQuizAnswersComponent implements OnChanges {
   @Input({ required: true }) quizId: string;
   @Input({ required: true }) answersResponse: AnswersUpdateResponse;
 
-  answersUpdateRequest: AnswerAddOrUpdateRequest;
-
   constructor(private readonly answersService: AnswersService) { }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -22,17 +20,10 @@ export class CreateQuizAnswersComponent implements OnChanges {
     if (!answersResponse) {
       this.answersResponse = { correctAnswer: 0, options: [''] }
     }
-
-    this.answersUpdateRequest = {
-      correctAnswer: this.answersResponse.correctAnswer,
-      options: this.answersResponse.options,
-      lessonId: this.lessonId,
-      quizId: this.quizId
-    }
   }
 
   addAnswer() {
-    this.answersUpdateRequest.options.push('New answer');
+    this.answersResponse.options.push('New answer');
   }
 
   updateAnser(answer: string, index: number) {
@@ -55,7 +46,14 @@ export class CreateQuizAnswersComponent implements OnChanges {
   }
 
   save() {
-    this.answersService.updateAnwers(this.answersUpdateRequest).subscribe(response => this.answersResponse = response.data);
+    const answersUpdateRequest: AnswerAddOrUpdateRequest = {
+      correctAnswer: this.answersResponse.correctAnswer,
+      options: this.answersResponse.options,
+      lessonId: this.lessonId,
+      quizId: this.quizId
+    }
+
+    this.answersService.updateAnwers(answersUpdateRequest).subscribe(response => this.answersResponse = response.data);
   }
 
   isCurrentAnswerCorrect(index: number) {

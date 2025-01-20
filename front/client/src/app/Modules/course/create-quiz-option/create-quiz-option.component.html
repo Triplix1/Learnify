@@ -2,13 +2,18 @@
     <!-- Input for the answer text -->
 
     <div class="flex">
-        <button class="mr-2"
+        <button class="flex justify-center items-center mr-2"
                 [disabled]="isCorrect"
                 (click)="setCorrectAnswer() ">
-            <mat-icon class="mr-1 text-buttonAccept hover:opacity-50 transition"
-                      [classList]="isCorrect ? 'text-green-800' : 'text-logo'"
-                      fontIcon="check">
+            <mat-icon *ngIf="isCorrect; else notCorrectRadio"
+                      class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                      fontIcon="radio_button_checked">
             </mat-icon>
+            <ng-template #notCorrectRadio>
+                <mat-icon class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                          fontIcon="radio_button_unchecked">
+                </mat-icon>
+            </ng-template>
         </button>
 
         <app-text-input [formControl]="$any(answerForm.controls['answer'])"
