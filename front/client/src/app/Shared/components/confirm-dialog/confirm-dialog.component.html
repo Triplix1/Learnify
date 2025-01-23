@@ -1,0 +1,13 @@
+<h1 mat-dialog-title>Confirmation</h1>
+<div mat-dialog-content>
+    <p>{{data.title}}</p>
+</div>
+<div class="flex w-full justify-center items-center"
+     mat-dialog-actions>
+    <div class="flex w-full justify-between px-5 items-center">
+        <app-button classList="rounded-lg"
+                    (click)="onAccept()">Yes</app-button>
+        <app-button classList="bg-dropdown hover:bg-dropdown hover:opacity-60 transition-opacity rounded-lg"
+                    (click)="onDecline()">No</app-button>
+    </div>
+</div>

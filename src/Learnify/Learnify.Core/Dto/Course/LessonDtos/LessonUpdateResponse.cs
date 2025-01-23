@@ -32,6 +32,11 @@ public class LessonUpdateResponse
     /// <summary>
     /// Gets or sets value for Title
     /// </summary>
+    public string OriginalLessonId { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value for Title
+    /// </summary>
     public bool IsDraft { get; set; }
     
     /// <summary>

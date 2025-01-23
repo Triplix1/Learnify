@@ -50,6 +50,7 @@ public class MappingProfiles : Profile
         CreateMap<Lesson, LessonResponse>();
         CreateMap<Lesson, LessonUpdateResponse>();
         CreateMap<Lesson, LessonTitleResponse>();
+        CreateMap<Lesson, Lesson>();
 
         // Attachment
         CreateMap<Attachment, AttachmentResponse>().ReverseMap();

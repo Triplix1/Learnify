@@ -7,6 +7,7 @@ export interface LessonUpdateResponse {
     paragraphId: number;
     title: string;
     editedLessonId: string;
+    originalLessonId: string;
     isDraft: boolean;
     video: VideoResponse;
     quizzes: QuizQuestionUpdateResponse[];

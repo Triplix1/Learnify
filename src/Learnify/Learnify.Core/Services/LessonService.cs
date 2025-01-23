@@ -42,25 +42,98 @@ public class LessonService : ILessonService
     /// <inheritdoc />
     public async Task DeleteAsync(string id, int userId, CancellationToken cancellationToken = default)
     {
-        var attachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(id, cancellationToken);
+        await _userValidatorManager.ValidateAuthorOfLessonAsync(id, userId, cancellationToken);
+
+        var lessonToUpdateId =
+            await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(id, cancellationToken);
+
+        var fullDelete = lessonToUpdateId != null && lessonToUpdateId != id;
+
+        await DeleteLessonsAndAttachmentsAsync(id, fullDelete, cancellationToken);
+    }
+
+    private async Task DeleteLessonsAndAttachmentsAsync(string id, bool totalDelete = false,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == null)
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
         var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(id, cancellationToken);
 
-        var attachmentFileIds = attachments.Select(a => a.FileId);
+        var lessonToDelete = await GetLessonToDeleteResponse(lesson, cancellationToken);
+
+        var relatedLessonId = lessonToDelete.EditedLessonId ?? lessonToDelete.OriginalLessonId;
 
         using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
         {
-            await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(attachmentFileIds, cancellationToken);
-
-            if (lesson.Video != null)
+            if (relatedLessonId != null)
             {
-                var subtitleIds = lesson.Video.Subtitles.Select(s => s.SubtitleId);
-                await _subtitlesManager.DeleteRangeAsync(subtitleIds, cancellationToken);
+                var relatedLesson =
+                    await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(relatedLessonId, cancellationToken);
+
+                var relatedLessonToDelete = await GetLessonToDeleteResponse(relatedLesson, cancellationToken);
+
+                if (totalDelete)
+                {
+                    lessonToDelete.Subtitles =
+                        lessonToDelete.Subtitles.Concat(relatedLessonToDelete.Subtitles).Distinct();
+                    lessonToDelete.Attachments =
+                        lessonToDelete.Attachments.Concat(relatedLessonToDelete.Attachments).Distinct();
+                }
+                else
+                {
+                    lessonToDelete.Subtitles = lessonToDelete.Subtitles.Except(relatedLessonToDelete.Subtitles);
+                    lessonToDelete.Attachments = lessonToDelete.Attachments.Except(relatedLessonToDelete.Attachments);
+
+                    if (relatedLessonId == lessonToDelete.EditedLessonId)
+                    {
+                        relatedLesson.IsDraft = false;
+                        relatedLesson.OriginalLessonId = null;
+                    }
+                    else
+                    {
+                        relatedLesson.EditedLessonId = null;
+                    }
+
+                    await _mongoUnitOfWork.Lessons.UpdateAsync(relatedLesson, cancellationToken);
+                }
             }
+
+            await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(lessonToDelete.Attachments, cancellationToken);
+
+            await _subtitlesManager.DeleteRangeAsync(lessonToDelete.Subtitles, cancellationToken);
 
             await _mongoUnitOfWork.Lessons.DeleteAsync(id, cancellationToken);
 
+            if (totalDelete && relatedLessonId != null)
+                await _mongoUnitOfWork.Lessons.DeleteAsync(relatedLessonId, cancellationToken);
+
             ts.Complete();
         }
+    }
+
+    private async Task<LessonToDeleteResponse> GetLessonToDeleteResponse(Lesson lesson,
+        CancellationToken cancellationToken = default)
+    {
+        var attachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(lesson.Id, cancellationToken);
+
+        var attachmentFileIds = attachments.Select(a => a.FileId);
+
+        var subtitleIds = lesson.Video?.Subtitles.Select(s => s.SubtitleId) ?? [];
+
+        var result = new LessonToDeleteResponse
+        {
+            Id = lesson.Id,
+            EditedLessonId = lesson.EditedLessonId,
+            OriginalLessonId = lesson.OriginalLessonId,
+            IsDraft = lesson.IsDraft,
+            Attachments = attachmentFileIds,
+            Subtitles = subtitleIds,
+        };
+
+        return result;
     }
 
     public async Task<string> GetLessonToUpdateIdAsync(string lessonId, int userId,
@@ -70,7 +143,7 @@ public class LessonService : ILessonService
         {
             throw new Exception("You trying to update lesson that doesn't exist");
         }
-        
+
         await _userValidatorManager.ValidateAuthorOfLessonAsync(lessonId, userId, cancellationToken);
 
         var lessonToUpdateId =
@@ -85,16 +158,15 @@ public class LessonService : ILessonService
         if (originalLesson is null)
             throw new KeyNotFoundException("Cannot find lesson with such id");
 
-        var originalLessonId = originalLesson.Id;
+        var draft = _mapper.Map<Lesson>(originalLesson);
+        draft.Id = default;
+        draft.IsDraft = true;
+        draft.OriginalLessonId = lessonId;
 
-        originalLesson.Id = default;
-        originalLesson.IsDraft = true;
+        draft = await _mongoUnitOfWork.Lessons.CreateAsync(draft, cancellationToken);
 
-        var draft = await _mongoUnitOfWork.Lessons.CreateAsync(originalLesson, cancellationToken);
-
-        originalLesson.Id = originalLessonId;
+        originalLesson.Id = lessonId;
         originalLesson.EditedLessonId = draft.Id;
-        originalLesson.IsDraft = false;
 
         await _mongoUnitOfWork.Lessons.UpdateAsync(originalLesson, cancellationToken);
 
@@ -125,9 +197,10 @@ public class LessonService : ILessonService
     {
         await _userValidatorManager.ValidateAuthorOfLessonAsync(id, userId, cancellationToken);
 
-        var editedLessonId = await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(id, cancellationToken);
-        
-        var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(editedLessonId, cancellationToken);
+        var editedLessonId =
+            await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(id, cancellationToken);
+
+        var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(editedLessonId ?? id, cancellationToken);
 
         if (lesson is null)
             throw
@@ -150,7 +223,8 @@ public class LessonService : ILessonService
     private async Task<LessonUpdateResponse> CreateAsync(LessonAddOrUpdateRequest lessonCreateRequest,
         int userId, bool draft = false, CancellationToken cancellationToken = default)
     {
-        await _userValidatorManager.ValidateAuthorOfParagraphAsync(lessonCreateRequest.ParagraphId, userId, cancellationToken: cancellationToken);
+        await _userValidatorManager.ValidateAuthorOfParagraphAsync(lessonCreateRequest.ParagraphId, userId,
+            cancellationToken: cancellationToken);
 
         var lesson = _mapper.Map<Lesson>(lessonCreateRequest);
         lesson.IsDraft = draft;
@@ -173,25 +247,32 @@ public class LessonService : ILessonService
     private async Task<LessonUpdateResponse> UpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest,
         int userId, bool draft = false, CancellationToken cancellationToken = default)
     {
-        var currParagraphId =
-            await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
-
-        await _userValidatorManager.ValidateAuthorOfParagraphAsync(currParagraphId, userId, cancellationToken: cancellationToken);
-        await _userValidatorManager.ValidateAuthorOfParagraphAsync(lessonAddOrUpdateRequest.ParagraphId, userId, cancellationToken: cancellationToken);
+        await _userValidatorManager.ValidateAuthorOfLessonAsync(lessonAddOrUpdateRequest.Id, userId,
+            cancellationToken: cancellationToken);
 
         var oldLesson =
             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
-        var updatedLesson = _mapper.Map<Lesson>(lessonAddOrUpdateRequest);
+        var updatedLesson = _mapper.Map<Lesson>(oldLesson);
+        updatedLesson = _mapper.Map(lessonAddOrUpdateRequest, updatedLesson);
         updatedLesson.IsDraft = draft;
         updatedLesson.Quizzes = oldLesson.Quizzes;
         updatedLesson.QuizzesOrder = oldLesson.QuizzesOrder;
 
         using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
         {
-            if (!draft && oldLesson.EditedLessonId is not null)
+            if (!draft)
             {
-                await _mongoUnitOfWork.Lessons.DeleteAsync(oldLesson.EditedLessonId, cancellationToken);
-                updatedLesson.EditedLessonId = null;
+                if (oldLesson.EditedLessonId is not null)
+                {
+                    await DeleteLessonsAndAttachmentsAsync(oldLesson.EditedLessonId, cancellationToken: cancellationToken);
+                    updatedLesson.EditedLessonId = null;
+                }
+
+                if (oldLesson.OriginalLessonId is not null)
+                {
+                    await DeleteLessonsAndAttachmentsAsync(oldLesson.OriginalLessonId, cancellationToken: cancellationToken);
+                    updatedLesson.OriginalLessonId = null;
+                }
             }
 
             if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
@@ -271,12 +352,13 @@ public class LessonService : ILessonService
         if (lessonAddOrUpdateRequest.Id is null)
         {
             var createdLesson = await CreateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);
-            
+
             lessonAddOrUpdateRequest.Id = createdLesson.Id;
         }
         else
         {
-            lessonAddOrUpdateRequest.Id = await GetLessonToUpdateIdAsync(lessonAddOrUpdateRequest.Id, userId, cancellationToken);
+            lessonAddOrUpdateRequest.Id =
+                await GetLessonToUpdateIdAsync(lessonAddOrUpdateRequest.Id, userId, cancellationToken);
         }
 
         var updatedLesson = await UpdateAsync(lessonAddOrUpdateRequest, userId, true, cancellationToken);

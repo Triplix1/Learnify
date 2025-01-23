@@ -32,6 +32,7 @@ import { ImageComponent } from './components/image/image.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
 import { NestedOptionComponent } from './components/nested-option/nested-option.component';
 import { DragDropDirective } from './directives/drag-drop.directive';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import { DragDropDirective } from './directives/drag-drop.directive';
     TruncatePipe,
     NestedOptionComponent,
     DragDropDirective,
+    ConfirmDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -107,6 +109,7 @@ import { DragDropDirective } from './directives/drag-drop.directive';
     MediaComponent,
     NestedOptionComponent,
     DragDropDirective,
+    ConfirmDialogComponent,
   ]
 })
 export class SharedModule { }

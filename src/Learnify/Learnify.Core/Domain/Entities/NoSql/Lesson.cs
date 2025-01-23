@@ -24,6 +24,11 @@ public class Lesson: BaseEntity
     /// Gets or sets value for Title
     /// </summary>
     public string Title { get; set; }
+
+    /// <summary>
+    /// Gets or sets value for OriginalLessonId
+    /// </summary>
+    public string OriginalLessonId { get; set; }
     
     /// <summary>
     /// Gets or sets value for Title

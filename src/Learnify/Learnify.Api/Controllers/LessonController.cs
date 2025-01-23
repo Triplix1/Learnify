@@ -75,13 +75,6 @@ public class LessonController : BaseApiController
     }
 
     [Authorize]
-    [HttpDelete("draft/{id}")]
-    public async Task DeleteDraftAsync(string id, CancellationToken cancellationToken = default)
-    {
-        
-    }
-
-    [Authorize]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAsync(string id, CancellationToken cancellationToken = default)
     {

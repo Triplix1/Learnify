@@ -57,6 +57,11 @@ public class LessonRepository : ILessonRepository
             var includeDraftsFilter = Builders<Lesson>.Filter.Where(l => !l.IsDraft);
             filter = Builders<Lesson>.Filter.And(filter, includeDraftsFilter);
         }
+        else
+        {
+            var takeDraftVersion = Builders<Lesson>.Filter.Where(l => l.EditedLessonId == null);
+            filter = Builders<Lesson>.Filter.And(filter, takeDraftVersion);
+        }
 
         var projection =
             Builders<Lesson>.Projection.Expression(l => new LessonTitleResponse { Id = l.Id, Title = l.Title });
@@ -135,6 +140,30 @@ public class LessonRepository : ILessonRepository
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         return result.ParagraphId;
+    }
+
+    public async Task<LessonToDeleteResponse> GetLessonToDelete(string lessonId, CancellationToken cancellationToken = default)
+    {
+        var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
+
+        var projection = Builders<Lesson>.Projection.Expression(l => new LessonToDeleteResponse()
+        {
+            Id = l.Id,
+            EditedLessonId = l.EditedLessonId,
+            OriginalLessonId = l.OriginalLessonId,
+            IsDraft = l.IsDraft,
+            Subtitles = l.Video != null && l.Video.Subtitles != null
+                ? l.Video.Subtitles.Select(s => s.SubtitleId)
+                : new int [] {},
+            Attachments = (l.Video != null && l.Video.Attachment != null
+                    ? new[] { l.Video.Attachment.FileId }
+                    : new int [] {})
+                .Concat(l.Quizzes != null 
+                    ? l.Quizzes.Select(q => q.Media.FileId) 
+                    : new int [] {})
+        });
+        
+        return await _mongoContext.Lessons.Find(filter).Project(projection).FirstOrDefaultAsync(cancellationToken: cancellationToken);
     }
 
     /// <inheritdoc />

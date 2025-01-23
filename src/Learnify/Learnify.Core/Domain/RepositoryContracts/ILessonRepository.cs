@@ -13,6 +13,7 @@ public interface ILessonRepository
     Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphAsync(int paragraphId, CancellationToken cancellationToken = default);
     Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphsAsync(IEnumerable<int> paragraphId, CancellationToken cancellationToken = default);
     Task<int> GetParagraphIdForLessonAsync(string lessonId, CancellationToken cancellationToken = default);
+    Task<LessonToDeleteResponse> GetLessonToDelete(string lessonId, CancellationToken cancellationToken = default);
 
     Task<Lesson> CreateAsync(Lesson lessonCreateRequest, CancellationToken cancellationToken = default);
     Task<Lesson> UpdateAsync(Lesson lessonUpdateRequest, CancellationToken cancellationToken = default);

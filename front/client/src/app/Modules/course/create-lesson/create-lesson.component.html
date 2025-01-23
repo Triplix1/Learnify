@@ -27,13 +27,15 @@
                                [lessonId]="lessonResponse?.id"></app-create-quiz>
        </div>
 
-       <div *ngIf="lessonResponse.isDraft"
+       <div *ngIf="lessonResponse && lessonResponse.isDraft"
             class="w-full">
-              <div class="mx-auto w-4/5 my-2 h-[2px] bg-slate-800"></div>
+              <div class="mx-auto w-11/12 my-2 h-[2px] bg-slate-800"></div>
 
               <div class="flex items-center justify-center mt-2">
-                     <app-button (buttonClick)="save()">Save</app-button>
-                     <app-button (buttonClick)="cancel()">Cancel</app-button>
+                     <app-button class="mr-3"
+                                 (buttonClick)="save()">Save</app-button>
+                     <app-button classList="bg-dropdown hover:bg-dropdown hover:opacity-60 transition-opacity"
+                                 (buttonClick)="cancel()">Cancel</app-button>
               </div>
 
        </div>

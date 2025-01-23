@@ -1,6 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Observable, switchMap, take, takeUntil } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { Observable, of, switchMap, take, takeUntil } from 'rxjs';
 import { LessonService } from 'src/app/Core/services/lesson.service';
 import { MediaService } from 'src/app/Core/services/media.service';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
@@ -14,6 +15,7 @@ import { VideoAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/Video/Vide
 import { Language } from 'src/app/Models/enums/Language';
 import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlobCreateRequest';
 import { PrivateFileDataResponse } from 'src/app/Models/File/PrivateFileDataResponse';
+import { ConfirmDialogComponent } from 'src/app/Shared/components/confirm-dialog/confirm-dialog.component';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -28,11 +30,12 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
   @Output() possibleToCreateNewLessonChange = new EventEmitter<boolean>();
   @Output() onUpdate: EventEmitter<LessonTitleResponse> = new EventEmitter<LessonTitleResponse>(null);
 
+  initialLessonId: string;
   lessonResponse: LessonUpdateResponse;
   lessonUpdatedTitleResponse: LessonTitleResponse;
   lessonForm: FormGroup = new FormGroup({});
 
-  constructor(private readonly lessonService: LessonService, private readonly mediaService: MediaService, private readonly fb: FormBuilder) {
+  constructor(private readonly lessonService: LessonService, private readonly fb: FormBuilder, private readonly dialog: MatDialog) {
     super();
   }
 
@@ -46,7 +49,6 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
   }
 
   initializeComponent() {
-
     this.initializeForm();
 
     this.lessonResponse = null;
@@ -63,7 +65,6 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
       this.lessonService.getLessonForUpdateById(this.currentLessonEditing.id).pipe(take(1))
         .subscribe(response => {
           this.handleLessonUpdate(response.data);
-          this.lessonForm.markAsUntouched();
         });
     }
   }
@@ -142,16 +143,50 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
   }
 
   save() {
-    const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
-    this.possibleToCreateNewLessonValue = false;
 
-    this.lessonService.createOrUpdateLesson(lessonAddOrUpdateRequest).subscribe(response => {
-      this.handleLessonUpdate(response.data);
-      this.possibleToCreateNewLessonValue = true;
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '450px',
+      data: {
+        title: "Are you sure you whant save your changes?"
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
+        this.possibleToCreateNewLessonValue = false;
+
+        this.lessonService.createOrUpdateLesson(lessonAddOrUpdateRequest).pipe(take(1)).subscribe(response => {
+          this.handleLessonUpdate(response.data);
+          this.possibleToCreateNewLessonValue = true;
+        });
+      }
     });
   }
 
   cancel() {
+    
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '450px',
+      data: {
+        title: "Are you sure you whant to cancel all changes that were done?"
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.lessonService.deleteLesson(this.lessonResponse.id).pipe(take(1), switchMap(r => {
+          if (this.initialLessonId)
+            return this.lessonService.getLessonForUpdateById(this.initialLessonId)
+          return of(null)
+        }
+        )).subscribe(response => {
+          if (response)
+            this.handleLessonUpdate(response.data);
+        });
+      }
+    });
 
   }
 
@@ -200,5 +235,8 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
       this.lessonForm.controls['language'].setValue(Language[lessonResponse.video.primaryLanguage as keyof typeof Language]);
 
     this.lessonService.$lessonAddedOrUpdated.next(this.lessonResponse);
+    this.lessonForm.markAsUntouched();
+
+    this.initialLessonId = lessonResponse.isDraft ? lessonResponse.originalLessonId : lessonResponse.id;
   }
 }
