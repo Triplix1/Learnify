@@ -1,21 +1,16 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { map, Observable, switchMap, take, takeUntil } from 'rxjs';
+import { Observable, take, takeUntil } from 'rxjs';
 import { CourseService } from 'src/app/Core/services/course.service';
-import { LessonService } from 'src/app/Core/services/lesson.service';
-import { MediaService } from 'src/app/Core/services/media.service';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
-import { AttachmentResponse } from 'src/app/Models/Attachment/AttachmentResponse';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
 import { CourseCreateRequest } from 'src/app/Models/Course/CourseCreateRequest';
 import { CourseResponse } from 'src/app/Models/Course/CourseResponse';
 import { CourseUpdateRequest } from 'src/app/Models/Course/CourseUpdateRequest';
-import { LessonAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonAddOrUpdateRequest';
+import { CourseUpdateResponse } from 'src/app/Models/Course/CourseUpdateResponse';
 import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
-import { LessonUpdateResponse } from 'src/app/Models/Course/Lesson/LessonUpdateResponse';
-import { VideoAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/Video/VideoAddOrUpdateRequest';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
 import { CropperParams } from 'src/app/Models/CropperParams';
 import { Language } from 'src/app/Models/enums/Language';
@@ -23,7 +18,6 @@ import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlo
 import { PrivateFileDataResponse } from 'src/app/Models/File/PrivateFileDataResponse';
 import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
 import { SelectorOption } from 'src/app/Models/SelectorOption';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-create-course',
@@ -34,7 +28,7 @@ export class CreateCourseComponent extends BaseComponent {
   @Input() courseId: number = null;
 
   editingMode: boolean = false;
-  courseResponse: CourseResponse = null;
+  courseResponse: CourseUpdateResponse = null;
   paragraphs: ParagraphResponse[] = [];
   courseForm: FormGroup = new FormGroup({});
   selectorOptions: SelectorOption[] = Object.keys(Language)
@@ -87,7 +81,8 @@ export class CreateCourseComponent extends BaseComponent {
       const courseCreateRequest: CourseCreateRequest = {
         name: this.courseForm.controls["name"].value,
         price: +this.courseForm.controls["price"].value,
-        primaryLanguage: this.courseForm.controls["language"].value as Language
+        primaryLanguage: this.courseForm.controls["language"].value as Language,
+        description: this.courseForm.controls["description"].value
       }
 
       this.courseService.createCourse(courseCreateRequest).pipe(take(1)).subscribe(
@@ -101,6 +96,7 @@ export class CreateCourseComponent extends BaseComponent {
       const courseUpdateRequest: CourseUpdateRequest = {
         id: this.courseId,
         name: this.courseForm.controls["name"].value,
+        description: this.courseForm.controls["description"].value,
         price: +this.courseForm.controls["price"].value,
         primaryLanguage: this.courseForm.controls["language"].value as Language
       }
@@ -211,6 +207,7 @@ export class CreateCourseComponent extends BaseComponent {
   private initializeForm() {
     this.courseForm = this.fb.group({
       name: [this.courseResponse?.name ?? '', [Validators.required]],
+      description: [this.courseResponse?.description ?? '', [Validators.required]],
       price: [this.courseResponse?.price ?? '', [Validators.required, Validators.pattern('^\d+$')]],
       language: this.courseResponse?.primaryLanguage ? Language[this.courseResponse.primaryLanguage as keyof typeof Language] : Language.English,
     });

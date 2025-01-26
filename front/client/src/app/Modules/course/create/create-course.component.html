@@ -29,6 +29,12 @@
                                       [options]="selectorOptions"></app-selector>
                     </div>
 
+                    <div class="mb-4">
+                        <app-textarea [formControl]="$any(courseForm.controls['description'])"
+                                      label="Description"
+                                      placeholder="This cource was developed to..."></app-textarea>
+                    </div>
+
                     <div *ngIf="courseForm.dirty"
                          class="flex justify-end mr-4">
                         <div class=" flex">

@@ -33,6 +33,7 @@ import { TruncatePipe } from './pipes/truncate.pipe';
 import { NestedOptionComponent } from './components/nested-option/nested-option.component';
 import { DragDropDirective } from './directives/drag-drop.directive';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { TextareaComponent } from './components/textarea/textarea.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
     NestedOptionComponent,
     DragDropDirective,
     ConfirmDialogComponent,
+    TextareaComponent,
   ],
   imports: [
     CommonModule,
@@ -111,6 +113,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
     NestedOptionComponent,
     DragDropDirective,
     ConfirmDialogComponent,
+    TextareaComponent,
   ]
 })
 export class SharedModule { }
