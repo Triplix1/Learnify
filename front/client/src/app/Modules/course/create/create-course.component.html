@@ -7,26 +7,26 @@
 
             <app-step label="Course"
                       [completed]="courseId !== null && courseId !== undefined">
-                <div class="bg-gray-900 p-4 rounded-lg mb-2.5">
-                    <div>
-                        <div class="grid w-full grid-cols-2 gap-4 mb-3">
-                            <app-text-input [formControl]="$any(courseForm.controls['name'])"
-                                            placeholder="Name"
-                                            label="Name"
-                                            [hiddenLabel]="true"></app-text-input>
+                <div class="bg-gray-900 p-4 rounded-lg mb-3">
+                    <div class="mb-1">
+                        <div class="text-textInput flex ml-4">Step 1 - General info</div>
+                    </div>
 
-                            <app-text-input placeholder="Price"
-                                            [formControl]="$any(courseForm.controls['price'])"
-                                            label="Price"
-                                            [hiddenLabel]="true"></app-text-input>
+                    <div class="grid w-full grid-cols-2 gap-4 mb-3">
+                        <app-text-input [formControl]="$any(courseForm.controls['name'])"
+                                        placeholder="Name"
+                                        label="Name"></app-text-input>
 
-                        </div>
+                        <app-text-input placeholder="Price"
+                                        [formControl]="$any(courseForm.controls['price'])"
+                                        label="Price"></app-text-input>
 
-                        <div class="grid grid-cols-3 gap-4 mb-4">
-                            <div></div>
-                            <app-selector [formControl]="$any(courseForm.controls['language'])"
-                                          [options]="selectorOptions"></app-selector>
-                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div></div>
+                        <app-selector [formControl]="$any(courseForm.controls['language'])"
+                                      [options]="selectorOptions"></app-selector>
                     </div>
 
                     <div *ngIf="courseForm.dirty"
@@ -47,21 +47,79 @@
                             </app-button>
                         </div>
                     </div>
+
+                </div>
+
+                <div *ngIf="courseResponse.id"
+                     class="bg-gray-900 p-4 rounded-lg mb-3">
+                    <div class="mb-1">
+                        <div class="text-textInput ml-4">Step 2 - Main photo</div>
+
+                        <div class="w-full">
+                            <div class="w-full flex justify-center h-fit">
+                                <div class="w-72 min-h-32">
+                                    <app-image-uploader *ngIf="!courseResponse.photo; else photoPresented"
+                                                        [uploadMethod]="uploadPhotoFacade"
+                                                        [cropperParams]="cropperParams"
+                                                        accept="image/*"
+                                                        (fileUploaded)="photoUpdated($event)"></app-image-uploader>
+
+                                    <ng-template #photoPresented>
+                                        <div class="flex flex-col justify-center items-center">
+                                            <app-media [showClose]="true"
+                                                       (closed)="photoUnsetted()"
+                                                       [fileId]="courseResponse.photo.id"
+                                                       [contentType]="courseResponse.photo.contentType"></app-media>
+                                        </div>
+
+
+                                    </ng-template>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="courseResponse?.photo || courseResponse.video"
+                     class="bg-gray-900 p-4 rounded-lg mb-3">
+                    <div class="mb-1">
+                        <div class="text-textInput ml-4">Step 3 - Small intro</div>
+
+                        <div class="w-full">
+                            <div class="w-full flex justify-center h-fit">
+                                <div class="w-72 min-h-32">
+                                    <app-file-uploader *ngIf="!courseResponse.video; else videoPresented"
+                                                       class="w-72 min-h-32"
+                                                       [uploadMethod]="uploadVideoFacade"
+                                                       accept="video/mp4,video/x-m4v,video/*,.mkv"
+                                                       (fileUploaded)="videoUpdated($event)"></app-file-uploader>
+
+                                    <ng-template #videoPresented>
+                                        <app-media [showClose]="true"
+                                                   (closed)="videoUnsetted()"
+                                                   [fileId]="courseResponse.video.id"
+                                                   [contentType]="courseResponse.video.contentType"></app-media>
+                                    </ng-template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div *ngIf="!editingMode"
                      class="flex justify-center w-full">
-                    <app-button *ngIf="courseResponse === null || courseResponse === undefined || !courseResponse.isPublished; else unpublish"
+                    <app-button *ngIf="courseResponse && photoSetted && videoSetted && !courseResponse.isPublished"
                                 [disabled]="courseResponse === null || courseResponse === undefined"
                                 (buttonClick)="publish(true)">
                         Publish
                     </app-button>
 
-                    <ng-template #unpublish>
-                        <app-button (buttonClick)="publish(false)">
-                            Unpublish
-                        </app-button>
-                    </ng-template>
+                    <app-button *ngIf="courseResponse.isPublished"
+                                (buttonClick)="publish(false)">
+                        Unpublish
+                    </app-button>
                 </div>
             </app-step>
 

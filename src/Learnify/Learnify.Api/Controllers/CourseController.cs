@@ -1,6 +1,7 @@
 ﻿using Learnify.Api.Controllers.Base;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
+using Learnify.Core.Dto.File;
 using Learnify.Core.Extensions;
 using Learnify.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
@@ -37,7 +38,7 @@ public class CourseController : BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<CourseResponse>> CreateCourseAsync(
+    public async Task<ActionResult<CourseUpdateResponse>> CreateCourseAsync(
         [FromBody]CourseCreateRequest courseCreateRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
@@ -48,13 +49,37 @@ public class CourseController : BaseApiController
 
     [Authorize]
     [HttpPost("{id}")]
-    public async Task<ActionResult<CourseResponse>> PublishCourseAsync([FromRoute]int id,
+    public async Task<ActionResult<CourseUpdateResponse>> PublishCourseAsync([FromRoute]int id,
         [FromBody]bool publish, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
         var courseResponse = await _courseService.PublishAsync(id, publish, userId, cancellationToken);
 
         return Ok(courseResponse);
+    }
+
+    [RequestSizeLimit((long)10 * 1024 * 1024 * 1024)]
+    [HttpPost("photo")]
+    public async Task<ActionResult<PrivateFileDataResponse>> SaveCoursePhotoAsync(
+        [FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest, CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserId();
+        var response =
+            await _courseService.UpdatePhotoAsync(userId, fileBlobCreateRequest, cancellationToken: cancellationToken);
+        
+        return Ok(response);
+    }
+    
+    [RequestSizeLimit((long)10 * 1024 * 1024 * 1024)]
+    [HttpPost("video")]
+    public async Task<ActionResult<PrivateFileDataResponse>> SaveCourseVideoAsync(
+        [FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest, CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserId();
+        var response =
+            await _courseService.UpdateVideoAsync(userId, fileBlobCreateRequest, cancellationToken: cancellationToken);
+        
+        return Ok(response);
     }
 
     [Authorize]

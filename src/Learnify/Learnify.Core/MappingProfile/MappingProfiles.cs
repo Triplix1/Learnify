@@ -38,6 +38,8 @@ public class MappingProfiles : Profile
         CreateMap<Course, CourseTitleResponse>();
         CreateMap<Course, CourseResponse>()
             .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));
+        CreateMap<Course, CourseUpdateResponse>()
+            .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));
         CreateMap<CourseParams, EfFilter<Course>>();
 
         // Paragraph

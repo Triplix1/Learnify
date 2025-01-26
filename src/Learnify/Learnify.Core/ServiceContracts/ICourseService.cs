@@ -1,5 +1,7 @@
 ﻿using Learnify.Core.Dto;
+using Learnify.Core.Dto.Attachment;
 using Learnify.Core.Dto.Course;
+using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Params;
 
 namespace Learnify.Core.ServiceContracts;
@@ -16,14 +18,19 @@ public interface ICourseService
 
     Task<CourseResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    Task<CourseResponse> PublishAsync(int id, bool publish, int userId,
+    Task<CourseUpdateResponse> CreateAsync(CourseCreateRequest courseCreateRequest, int userId,
         CancellationToken cancellationToken = default);
 
-    Task<CourseResponse> CreateAsync(CourseCreateRequest courseCreateRequest, int userId,
+    Task<PrivateFileDataResponse> UpdatePhotoAsync(int userId,
+        PrivateFileBlobCreateRequest fileCreateRequest, CancellationToken cancellationToken = default);
+    Task<PrivateFileDataResponse> UpdateVideoAsync(int userId,
+        PrivateFileBlobCreateRequest fileCreateRequest, CancellationToken cancellationToken = default);
+    Task<CourseUpdateResponse> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int userId,
         CancellationToken cancellationToken = default);
-
-    Task<CourseResponse> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int userId,
+    Task<CourseUpdateResponse> PublishAsync(int id, bool publish, int userId,
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(int id, int userId, CancellationToken cancellationToken = default);
+    Task<bool> DeletePhotoAsync(int courseId, int userId, CancellationToken cancellationToken = default);
+    Task<bool> DeleteVideoAsync(int courseId, int userId, CancellationToken cancellationToken = default);
 }

@@ -31,53 +31,16 @@ public class CourseRepository : ICourseRepository
         return course;
     }
 
-    public async Task<Course> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default)
+    public async Task<int?> GetVideoIdAsync(int courseId, CancellationToken cancellationToken = default)
     {
-        var course = await _context.Courses.FindAsync([key], cancellationToken);
-
-        if (course is null)
-            return null;
-
-        course.IsPublished = publish;
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return course;
+        return await _context.Courses.Where(c => c.Id == courseId).Select(s => s.VideoId)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task<Course> CreateAsync(Course courseCreateRequest, CancellationToken cancellationToken = default)
+    public async Task<int?> GetPhotoIdAsync(int courseId, CancellationToken cancellationToken = default)
     {
-        await _context.Courses.AddAsync(courseCreateRequest, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return courseCreateRequest;
-    }
-
-    public async Task<Course> UpdateAsync(Course entity, CancellationToken cancellationToken = default)
-    {
-        var course = await _context.Courses.FindAsync([entity.Id], cancellationToken);
-
-        if (course is null)
-            return null;
-
-        _mapper.Map(entity, course);
-
-        _context.Courses.Update(course);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return course;
-    }
-
-    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var course = await _context.Courses.FindAsync([id], cancellationToken);
-
-        if (course is null)
-            return false;
-
-        _context.Courses.Remove(course);
-        await _context.SaveChangesAsync(cancellationToken);
-        return true;
+        return await _context.Courses.Where(c => c.Id == courseId).Select(s => s.PhotoId)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
     }
 
     public async Task<int?> GetAuthorIdAsync(int courseId, CancellationToken cancellationToken = default)
@@ -113,5 +76,70 @@ public class CourseRepository : ICourseRepository
             await PagedList<Course>.CreateAsync(query, filter.PageNumber, filter.PageSize, cancellationToken);
 
         return pagedList;
+    }
+
+    public async Task<Course> CreateAsync(Course courseCreateRequest, CancellationToken cancellationToken = default)
+    {
+        await _context.Courses.AddAsync(courseCreateRequest, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return courseCreateRequest;
+    }
+
+    public async Task<Course> UpdateAsync(Course entity, CancellationToken cancellationToken = default)
+    {
+        var course = await _context.Courses.FindAsync([entity.Id], cancellationToken);
+
+        if (course is null)
+            return null;
+
+        _mapper.Map(entity, course);
+
+        _context.Courses.Update(course);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return course;
+    }
+
+    public async Task<bool> UpdatePhotoAsync(int courseId, int? photoId, CancellationToken cancellationToken = default)
+    {
+       var updatedCount = await _context.Courses.Where(c => c.Id == courseId)
+            .ExecuteUpdateAsync(c => c.SetProperty(cp => cp.PhotoId, photoId), cancellationToken: cancellationToken);
+
+        return updatedCount > 0;
+    }
+
+    public async Task<bool> UpdateVideoAsync(int courseId, int? photoId, CancellationToken cancellationToken = default)
+    {
+        var updatedCount = await _context.Courses.Where(c => c.Id == courseId)
+            .ExecuteUpdateAsync(c => c.SetProperty(cp => cp.VideoId, photoId), cancellationToken: cancellationToken);
+
+        return updatedCount > 0;
+    }
+
+    public async Task<Course> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default)
+    {
+        var course = await _context.Courses.FindAsync([key], cancellationToken);
+
+        if (course is null)
+            return null;
+
+        course.IsPublished = publish;
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return course;
+    }
+
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var course = await _context.Courses.FindAsync([id], cancellationToken);
+
+        if (course is null)
+            return false;
+
+        _context.Courses.Remove(course);
+        await _context.SaveChangesAsync(cancellationToken);
+        return true;
     }
 }

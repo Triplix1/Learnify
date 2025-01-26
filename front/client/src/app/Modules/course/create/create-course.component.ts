@@ -1,7 +1,7 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { map, Observable, switchMap, take } from 'rxjs';
+import { map, Observable, switchMap, take, takeUntil } from 'rxjs';
 import { CourseService } from 'src/app/Core/services/course.service';
 import { LessonService } from 'src/app/Core/services/lesson.service';
 import { MediaService } from 'src/app/Core/services/media.service';
@@ -17,6 +17,7 @@ import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleRes
 import { LessonUpdateResponse } from 'src/app/Models/Course/Lesson/LessonUpdateResponse';
 import { VideoAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/Video/VideoAddOrUpdateRequest';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
+import { CropperParams } from 'src/app/Models/CropperParams';
 import { Language } from 'src/app/Models/enums/Language';
 import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlobCreateRequest';
 import { PrivateFileDataResponse } from 'src/app/Models/File/PrivateFileDataResponse';
@@ -46,6 +47,16 @@ export class CreateCourseComponent extends BaseComponent {
 
   currentLessonEditing: LessonStepAddOrUpdateRequest;
   possibleToCreateNewLesson: boolean = true;
+
+  photoSetted: boolean;
+  videoSetted: boolean;
+
+  cropperParams: CropperParams = {
+    isCircle: false,
+    minHeight: 180,
+    minWidth: 320,
+    isConstantAspectRatio: true
+  };
 
   constructor(private readonly fb: FormBuilder,
     private readonly courseService: CourseService,
@@ -134,6 +145,40 @@ export class CreateCourseComponent extends BaseComponent {
     }
   }
 
+  uploadPhotoFacade = (privateFileBlobCreateRequest: PrivateFileBlobCreateRequest): Observable<Object> => {
+    privateFileBlobCreateRequest.courseId = this.courseResponse.id;
+
+    return this.courseService.updatePhoto(privateFileBlobCreateRequest);
+  }
+
+  photoUpdated(observe: Observable<ApiResponseWithData<PrivateFileDataResponse>>) {
+    observe.pipe(takeUntil(this.destroySubject)).subscribe(s => {
+      this.courseResponse.photo = s.data;
+      this.handleCourseUpdate(this.courseResponse);
+    })
+  }
+
+  photoUnsetted() {
+    this.courseResponse.photo = null;
+  }
+
+  uploadVideoFacade = (privateFileBlobCreateRequest: PrivateFileBlobCreateRequest): Observable<Object> => {
+    privateFileBlobCreateRequest.courseId = this.courseResponse.id;
+
+    return this.courseService.updateVideo(privateFileBlobCreateRequest);
+  }
+
+  videoUnsetted() {
+    this.courseResponse.video = null;
+  }
+
+  videoUpdated(observe: Observable<ApiResponseWithData<PrivateFileDataResponse>>) {
+    observe.pipe(takeUntil(this.destroySubject)).subscribe(s => {
+      this.courseResponse.video = s.data;
+      this.handleCourseUpdate(this.courseResponse);
+    })
+  }
+
   lessonAddOrUpdateRequest(lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest) {
     if (!this.possibleToCreateNewLesson) {
       var confirmed = confirm('You will lost your unloaded changes');
@@ -153,6 +198,9 @@ export class CreateCourseComponent extends BaseComponent {
     this.courseResponse = courseResponse;
     this.editingMode = courseResponse.isPublished;
     this.paragraphs = courseResponse.paragraphs;
+
+    this.photoSetted = courseResponse.photo !== null && courseResponse.photo !== undefined;
+    this.videoSetted = courseResponse.video !== null && courseResponse.video !== undefined;
 
     if (this.paragraphs.length === 0)
       this.paragraphs = [null];

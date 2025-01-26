@@ -13,7 +13,7 @@ import { TextInputComponent } from './components/text-input/text-input.component
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DropdownComponent } from './components/dropdown/dropdown.component';
 import { ImageUploaderComponent } from './components/image-uploader/image-uploader.component';
-import { ImageCropperComponent } from './components/image-cropper/image-cropper.component';
+import { ImageCropperDialogComponent } from './components/image-cropper-dialog/image-cropper-dialog.component';
 import { SelectorComponent } from './components/selector/selector.component';
 import { ButtonComponent } from './components/button/button.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -42,7 +42,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
     TextInputComponent,
     DropdownComponent,
     ImageUploaderComponent,
-    ImageCropperComponent,
+    ImageCropperDialogComponent,
     SelectorComponent,
     ButtonComponent,
     StepperComponent,
@@ -93,6 +93,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
     FormsModule,
     ReactiveFormsModule,
     DropdownComponent,
+    ImageCropperDialogComponent,
     ImageUploaderComponent,
     SelectorComponent,
     ButtonComponent,

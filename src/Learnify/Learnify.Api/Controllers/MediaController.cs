@@ -34,11 +34,11 @@ public class MediaController : BaseApiController
     [HttpPost]
     [RequestSizeLimit((long)10 * 1024 * 1024 * 1024)]
     public async Task<ActionResult<PrivateFileDataResponse>> CreateAsync(
-        [FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest, CancellationToken cancellationToken = default)
+        [FromForm]PrivateFileBlobCreateRequest fileBlobCreateRequest, bool isPublic = false, CancellationToken cancellationToken = default)
     {
         var userId = HttpContext.User.GetUserId();
 
-        var fileResponse = await _fileService.CreateAsync(fileBlobCreateRequest, userId, cancellationToken);
+        var fileResponse = await _fileService.CreateAsync(fileBlobCreateRequest, isPublic, userId, cancellationToken);
 
         return Ok(fileResponse);
     }

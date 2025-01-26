@@ -35,7 +35,7 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
   lessonUpdatedTitleResponse: LessonTitleResponse;
   lessonForm: FormGroup = new FormGroup({});
 
-  constructor(private readonly lessonService: LessonService, private readonly fb: FormBuilder, private readonly dialog: MatDialog) {
+  constructor(private readonly lessonService: LessonService, private readonly fb: FormBuilder, private readonly dialog: MatDialog, private readonly mediaService: MediaService) {
     super();
   }
 
@@ -74,6 +74,12 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
     if (currentLessonEditing && currentLessonEditing.currentValue !== currentLessonEditing.previousValue) {
       this.initializeComponent();
     }
+  }
+
+  uploadContentFacade = (privateFileBlobCreateRequest: PrivateFileBlobCreateRequest): Observable<object> => {
+    privateFileBlobCreateRequest.courseId = this.courseId;
+
+    return this.mediaService.create(privateFileBlobCreateRequest);
   }
 
   handleFileInput(fileUploadedEvent: Observable<ApiResponseWithData<PrivateFileDataResponse>>) {
@@ -165,7 +171,7 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
   }
 
   cancel() {
-    
+
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '450px',

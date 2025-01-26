@@ -60,10 +60,10 @@ public class FileService : IFileService
     }
 
     public async Task<PrivateFileDataResponse> CreateAsync(
-        PrivateFileBlobCreateRequest privateFileBlobCreateRequest, int userId,
+        PrivateFileBlobCreateRequest privateFileBlobCreateRequest, bool isPublic, int userId,
         CancellationToken cancellationToken = default)
     {
-        if (privateFileBlobCreateRequest.CourseId.HasValue)
+        if (privateFileBlobCreateRequest.CourseId.HasValue && !isPublic)
         {
             var courseAuthorId =
                 await _psqUnitOfWork.CourseRepository.GetAuthorIdAsync(privateFileBlobCreateRequest.CourseId.Value,

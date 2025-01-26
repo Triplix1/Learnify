@@ -1,6 +1,12 @@
-<div [ngSwitch]="mediaType">
+<div class="relative inline-block"
+     [ngSwitch]="mediaType">
     <app-video-player *ngSwitchCase="MediaType.Video"
-                      [fileId]="media.fileId"></app-video-player>
+                      [fileId]="fileId"></app-video-player>
     <app-image *ngSwitchCase="MediaType.Image"
-               [fileId]="media.fileId"></app-image>
+               [fileId]="fileId"></app-image>
+    <mat-icon *ngIf="showClose"
+              (click)="onClosed()"
+              class="absolute top-1 right-1 text-textInput opacity-20 hover:opacity-50 transition"
+              fontIcon="close">
+    </mat-icon>
 </div>

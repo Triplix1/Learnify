@@ -1,4 +1,5 @@
-<div class="cropper-container">
+<div class="cropper-container"
+     [ngClass]="{ 'circle-cropper': data.cropperParams.isCircle }">
     <div class="h-[90%]">
         <img id="image"
              [src]="sanitizedUrl">

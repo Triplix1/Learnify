@@ -2,23 +2,25 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import Cropper from 'cropperjs';
+import { CropperParams } from 'src/app/Models/CropperParams';
 
 @Component({
-  selector: 'app-image-cropper',
-  templateUrl: './image-cropper.component.html',
-  styleUrls: ['./image-cropper.component.scss']
+  selector: 'app-image-cropper-dialog',
+  templateUrl: './image-cropper-dialog.component.html',
+  styleUrls: ['./image-cropper-dialog.component.scss']
 })
-export class ImageCropperComponent implements OnInit {
+export class ImageCropperDialogComponent implements OnInit {
   cropper!: Cropper;
   sanitizedUrl: SafeUrl;
   constructor(
-    public dialogRef: MatDialogRef<ImageCropperComponent>,
-    @Inject(MAT_DIALOG_DATA) public image: string,
+    public dialogRef: MatDialogRef<ImageCropperDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { image: string, cropperParams: CropperParams },
     private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit(): void {
-    this.sanitizedUrl = this.sanitizer.bypassSecurityTrustUrl(this.image);
+    this.sanitizedUrl = this.sanitizer.bypassSecurityTrustUrl(this.data.image);
+    console.log("Hello from cropper!")
   }
 
   ngAfterViewInit() {
@@ -28,13 +30,13 @@ export class ImageCropperComponent implements OnInit {
   initCropper() {
     const image = document.getElementById('image') as HTMLImageElement;
     this.cropper = new Cropper(image, {
-      aspectRatio: 1,
+      aspectRatio: this.data.cropperParams.isConstantAspectRatio ? this.data.cropperParams.minWidth / this.data.cropperParams.minHeight : NaN,
       viewMode: 1,
       guides: false,
-      minContainerWidth: 400,  // Set minimum container width
-      minContainerHeight: 400, // Set minimum container height
-      minCropBoxWidth: 200,    // Set minimum crop box width
-      minCropBoxHeight: 200    // Set minimum crop box height
+      minContainerWidth: this.data.cropperParams.minWidth > 400 ? this.data.cropperParams.minWidth : 400,  // Set minimum container width
+      minContainerHeight: this.data.cropperParams.minHeight > 400 ? this.data.cropperParams.minHeight : 400, // Set minimum container height
+      minCropBoxWidth: this.data.cropperParams.minWidth,    // Set minimum crop box width
+      minCropBoxHeight: this.data.cropperParams.minHeight    // Set minimum crop box height
     });
   }
 
@@ -66,13 +68,15 @@ export class ImageCropperComponent implements OnInit {
   //returning an url or null if no image
 
   crop() {
-    const croppedCanvas = this.cropper.getCroppedCanvas();
-    const roundedCanvas = this.getRoundedCanvas(croppedCanvas);
+    let croppedCanvas = this.cropper.getCroppedCanvas();
+
+    if (this.data.cropperParams.isCircle)
+      croppedCanvas = this.getRoundedCanvas(croppedCanvas);
 
     let roundedImage = document.createElement('img');
 
     if (roundedImage) {
-      this.dialogRef.close(roundedCanvas.toDataURL());
+      this.dialogRef.close(croppedCanvas.toDataURL());
     } else {
       return this.dialogRef.close(null);
     }
