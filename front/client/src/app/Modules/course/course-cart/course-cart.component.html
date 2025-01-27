@@ -1,22 +1,22 @@
-<div class="relative w-full h-64 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-300"
+<div class="relative w-full h-[180px] rounded-lg shadow-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-300"
      (click)="navigateToCourse()"
      (mouseenter)="onMouseEnter()"
      (mouseleave)="onMouseLeave()">
 
-    <!-- Conditionally show image or description based on hover state -->
-    <div class="w-full h-full bg-cover bg-center transition duration-300"
-         [ngStyle]="{'background-image': 'url(https://images.unsplash.com/photo-1719339837887-cfa3987bc322?q=80&w=1795&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)'}">
-    </div>
+  <!-- Conditionally show image or description based on hover state -->
+  <div class="w-full h-full bg-cover bg-center transition duration-300"
+       [ngStyle]="{
+    'background-image': (courseTitleResponse.photo.id | media | async) ? 'url(' + (courseTitleResponse.photo.id | media | async) + ')' : 'none'
+  }">
+  </div>
 
-    <!-- Opacity transition applied here -->
-    <div class="absolute inset-0 bg-gray-700 flex items-center justify-center text-white transition-opacity duration-300"
-         [ngClass]="isHovered ? 'opacity-70' : 'opacity-0'">
+  <!-- Opacity transition applied here -->
+  <div class="absolute inset-0 bg-gray-700 flex items-center justify-center text-white transition-opacity duration-300"
+       [ngClass]="isHovered ? 'opacity-70' : 'opacity-0'">
 
-        <div class="text-center">
-            <h3 class="text-2xl font-semibold">{{ courseTitleResponse.title }}</h3>
-            <p class="mt-2 text-sm">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Natus corrupti nostrum
-                impedit itaque saepe obcaecati ut sint exercitationem cupiditate sunt, fugiat tempora pariatur optio
-                quas eius. Quae delectus possimus ad.</p>
-        </div>
+    <div class="text-center">
+      <h3 class="text-2xl font-semibold">{{ courseTitleResponse.title }}</h3>
+      <p class="mt-2 text-sm">{{courseTitleResponse.description | truncate: 180}}</p>
     </div>
+  </div>
 </div>

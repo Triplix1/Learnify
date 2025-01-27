@@ -39,7 +39,7 @@ public abstract class BasePsqRepository<T, TKey> : IBasePsqRepository<T, TKey> w
         if (efFilter.Specification is not null)
             result = result.Where(efFilter.Specification.GetExpression());
 
-        return await PagedList<T>.CreateAsync(result, efFilter.PageNumber, efFilter.PageSize, cancellationToken);
+        return await PagedList<T>.CreateAsync(result, efFilter.PagedListParams.PageNumber, efFilter.PagedListParams.PageSize, cancellationToken);
     }
 
     /// <inheritdoc />

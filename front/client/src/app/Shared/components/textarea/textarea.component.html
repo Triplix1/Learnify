@@ -3,13 +3,20 @@
            [for]="label"
            [ngClass]="control.dirty && control.invalid ? 'text-error' : ''"
            class="block mb-2 ml-2 text-sm font-medium text-primar">{{label}}</label>
-    <textarea [id]="label"
+    <textarea matInput
+              cdkTextareaAutosize
               [formControl]="control"
-              class="border-[2px] bg-input text-sm rounded-lg text-black font-medium w-full py-[6px] px-2 {{ control.dirty && control.errors && control.errors['hasError'] ? 'border-error focus:border-error text-error placeholder-error' : 'border-gray-500 focus:border-gray-400 placeholder-textInput' }} {{classList}}"
+              [ngClass]="{
+             'border-error focus:border-error text-error placeholder-error':
+               control.dirty && control.errors && control.errors['hasError'],
+             'border-gray-500 focus:border-gray-400 placeholder-textInput':
+               !(control.dirty && control.errors && control.errors['hasError']),
+               classList: classList
+           }"
+              class="border-[2px] bg-input text-sm rounded-lg text-black font-medium w-full py-[6px] px-2 box-border"
               [placeholder]="placeholder"
-              [rows]="rows"
-              [cols]="cols">
-    </textarea>
+              [cdkAutosizeMinRows]="minRows"
+              [cdkAutosizeMaxRows]="maxRows"></textarea>
     <div *ngIf="!hiddenError">
         <div class="mt-1 text-error text-sm font-medium"
              *ngIf="control.dirty && control.hasError('required')">

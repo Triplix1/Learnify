@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CreateCourseComponent } from './create/create-course.component';
+import { CreateCourseComponent } from './managing/create/create-course.component';
 import { CourseRoutingModule } from './course-routing.module';
 import { SharedModule } from 'src/app/Shared/shared.module';
-import { CreateParagraphComponent } from './create-paragraph/create-paragraph.component';
-import { CreateLessonComponent } from './create-lesson/create-lesson.component';
+import { CreateParagraphComponent } from './managing/create-paragraph/create-paragraph.component';
+import { CreateLessonComponent } from './managing/create-lesson/create-lesson.component';
 import { CourseCartComponent } from './course-cart/course-cart.component';
-import { CreateQuizComponent } from './create-quiz/create-quiz.component';
-import { LessonTitleComponent } from './lesson-title/lesson-title.component';
-import { CreateSingleQuizComponent } from './create-single-quiz/create-single-quiz.component';
-import { CreateQuizOptionComponent } from './create-quiz-option/create-quiz-option.component';
-import { CreateQuizAnswersComponent } from './create-quiz-answers/create-quiz-answers.component';
+import { CreateQuizComponent } from './managing/create-quiz/create-quiz.component';
+import { LessonTitleComponent } from './managing/lesson-title/lesson-title.component';
+import { CreateSingleQuizComponent } from './managing/create-single-quiz/create-single-quiz.component';
+import { CreateQuizOptionComponent } from './managing/create-quiz-option/create-quiz-option.component';
+import { CreateQuizAnswersComponent } from './managing/create-quiz-answers/create-quiz-answers.component';
 
 
 

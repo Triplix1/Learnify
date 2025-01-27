@@ -8,7 +8,7 @@ public class CourseCreateRequest
 
     public decimal Price { get; set; }
 
-    public decimal Description { get; set; }
+    public string Description { get; set; }
 
     public Language PrimaryLanguage { get; set; }
 }

@@ -2,6 +2,7 @@
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
 using Learnify.Core.Dto.File;
+using Learnify.Core.Dto.Params;
 using Learnify.Core.Extensions;
 using Learnify.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
@@ -19,10 +20,20 @@ public class CourseController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetCourseTitlesAsync(
+    public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetCourseTitlesAsync([FromQuery]CourseParams courseParams,
         CancellationToken cancellationToken = default)
     {
-        var result = await _courseService.GetAllCourseTitles(cancellationToken);
+        var result = await _courseService.GetAllCourseTitles(courseParams, cancellationToken);
+
+        return Ok(result);
+    }
+    
+    [HttpGet("my-courses")]
+    public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetMyCourseTitlesAsync([FromQuery]CourseParams courseParams,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserId();
+        var result = await _courseService.GetMyCourseTitles(userId, courseParams, cancellationToken);
 
         return Ok(result);
     }

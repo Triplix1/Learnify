@@ -1,0 +1,7 @@
+﻿namespace Learnify.Core.Dto;
+
+public class PagedListParams
+{
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+}

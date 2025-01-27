@@ -10,8 +10,8 @@ public class AndSpecification<T>: Specification<T>
 
     public AndSpecification(Specification<T> left, Specification<T> right)
     {
-        this._left = left ?? throw new ArgumentNullException(nameof (left));
-        this._right = right ?? throw new ArgumentNullException(nameof (right));
+        this._left = left ?? new TrueSpecification<T>();
+        this._right = right ?? new TrueSpecification<T>();
     }
 
     public override Expression<Func<T, bool>> GetExpression()

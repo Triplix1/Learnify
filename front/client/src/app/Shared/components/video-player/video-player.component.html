@@ -1,6 +1,6 @@
 <video *ngIf="this.fileId"
        controls
-       class="w-full"
+       class="w-full {{classList}}"
        [autoplay]="false"
        [src]="fileId | media | async"
        (loadedmetadata)="onVideoLoad()"

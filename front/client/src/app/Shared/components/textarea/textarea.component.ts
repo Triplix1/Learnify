@@ -13,7 +13,8 @@ export class TextareaComponent implements ControlValueAccessor, OnInit {
   @Input() hiddenError: boolean = false;
   @Input() classList = '';
   @Input() placeholder = '';
-  @Input() rows: number = 4;
+  @Input() minRows: number = 4;
+  @Input() maxRows: number = 1000000;
   @Input() cols: number = 20;
   @Output() changedTextarea: EventEmitter<any> = new EventEmitter<any>();
   oldValue: any;

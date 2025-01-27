@@ -1,0 +1,8 @@
+<div *ngIf="courseTitles"
+     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 justify-items-center content-center">
+    <app-course-cart *ngFor="let courseTitle of courseTitles.items"
+                     class="w-full"
+                     [courseTitleResponse]="courseTitle"
+                     (onClick)="navigateToCourseEditing(courseTitle.id)">
+    </app-course-cart>
+</div>

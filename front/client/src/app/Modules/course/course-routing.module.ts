@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CreateCourseComponent } from './create/create-course.component';
+import { CreateCourseComponent } from './managing/create/create-course.component';
 import { authGuard } from 'src/app/Core/guards/auth.guard';
 
 

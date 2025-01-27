@@ -38,7 +38,7 @@ public class ParagraphRepository : IParagraphRepository
             query = query.Where(filter.Specification.GetExpression());
 
         var pagedList =
-            await PagedList<Paragraph>.CreateAsync(query, filter.PageNumber, filter.PageSize, cancellationToken);
+            await PagedList<Paragraph>.CreateAsync(query, filter.PagedListParams.PageNumber, filter.PagedListParams.PageSize, cancellationToken);
 
         return pagedList;
     }

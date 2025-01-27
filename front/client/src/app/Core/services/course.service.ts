@@ -10,6 +10,10 @@ import { PagedList } from 'src/app/Models/PagedList';
 import { environment } from 'src/environments/environment';
 import { objectToFormData } from '../helpers/formDataHelper';
 import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlobCreateRequest';
+import { CourseParams } from 'src/app/Models/Params/Course/CourseParams';
+import { objectToQueryParams } from '../helpers/queryParamsHelper';
+import { PagedParamsService } from './paged-params.service';
+import { OrderParamsService } from './order-params.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,10 +21,21 @@ import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlo
 export class CourseService {
   baseCourseUrl: string = environment.baseApiUrl + "/course";
 
-  constructor(private readonly httpClient: HttpClient) { }
+  constructor(private readonly httpClient: HttpClient, private readonly pagedParamsService: PagedParamsService, private readonly orderParamsService: OrderParamsService) { }
 
-  getCourseTitles(): Observable<ApiResponseWithData<PagedList<CourseTitleResponse>>> {
-    return this.httpClient.get<ApiResponseWithData<PagedList<CourseTitleResponse>>>(this.baseCourseUrl);
+  getCourseTitles(courseParams: CourseParams): Observable<ApiResponseWithData<PagedList<CourseTitleResponse>>> {
+    // const params = this.getHttpParamsFromCourseParams(courseParams);
+    const params = objectToQueryParams(courseParams);
+
+    return this.httpClient.get<ApiResponseWithData<PagedList<CourseTitleResponse>>>(this.baseCourseUrl, { params: params });
+  }
+
+  getMyCourseTitles(courseParams: CourseParams): Observable<ApiResponseWithData<PagedList<CourseTitleResponse>>> {
+    // const params = this.getHttpParamsFromCourseParams(courseParams);
+    const params = objectToQueryParams(courseParams);
+
+    return this.httpClient.get<ApiResponseWithData<PagedList<CourseTitleResponse>>>(this.baseCourseUrl + '/my-courses', { params: params });
+
   }
 
   getForUpdate(id: number): Observable<ApiResponseWithData<CourseResponse>> {
@@ -69,4 +84,23 @@ export class CourseService {
   deleteCourse(id: number): Observable<ApiResponse> {
     return this.httpClient.delete<ApiResponse>(this.baseCourseUrl + "/" + id);
   }
+
+  private getHttpParamsFromCourseParams(courseParams: CourseParams): HttpParams {
+    let params = new HttpParams();
+
+    if (courseParams.pagedListParams)
+      params = this.pagedParamsService.includePaginationHeaders(courseParams.pagedListParams, params);
+
+    if (courseParams.orderByParams)
+      params = this.orderParamsService.includeOrderHeaders(courseParams.orderByParams, params);
+
+    if (courseParams.authorId)
+      params = params.append('authorId', courseParams.authorId);
+
+    if (courseParams.search)
+      params = params.append('search', courseParams.search);
+
+    return params
+  }
+
 }

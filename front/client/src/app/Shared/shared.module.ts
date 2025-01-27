@@ -34,6 +34,7 @@ import { NestedOptionComponent } from './components/nested-option/nested-option.
 import { DragDropDirective } from './directives/drag-drop.directive';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { TextareaComponent } from './components/textarea/textarea.component';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 @NgModule({
   declarations: [

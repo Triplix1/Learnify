@@ -1,7 +1,8 @@
-﻿namespace Learnify.Core.Specification.Filters.Contracts;
+﻿using Learnify.Core.Dto;
+
+namespace Learnify.Core.Specification.Filters.Contracts;
 
 public interface IPaginationFilter
 {
-    public int PageNumber { get; set; }
-    public int PageSize { get; set; }
+    PagedListParams PagedListParams { get; set; }
 }

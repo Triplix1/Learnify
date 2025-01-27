@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq.Expressions;
+using AutoMapper;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
@@ -31,19 +32,18 @@ public class CourseService : ICourseService
         _privateFileService = privateFileService;
     }
 
-    public async Task<PagedList<CourseTitleResponse>> GetAllCourseTitles(
+    public async Task<PagedList<CourseTitleResponse>> GetAllCourseTitles(CourseParams courseParams,
         CancellationToken cancellationToken = default)
     {
-        var filter = new EfFilter<Course>
-        {
-            PageNumber = 1,
-            PageSize = 5,
-            OrderByParams = new OrderByParams()
-            {
-                Asc = false,
-                OrderBy = nameof(Course.CreatedAt)
-            }
-        };
+        var filter = _mapper.Map<EfFilter<Course>>(courseParams);
+        
+        if (courseParams.Search is not null)
+            filter.Specification &= new SearchCourseSpecification(courseParams.Search);
+        
+        if (courseParams.AuthorId is not null)
+            filter.Specification &= new CourseAuthorSpecification(courseParams.AuthorId.Value);
+
+        filter.Includes = [c => c.Photo];
 
         var courses = await _psqUnitOfWork.CourseRepository.GetFilteredAsync(filter, cancellationToken);
 
@@ -53,6 +53,15 @@ public class CourseService : ICourseService
             courses.CurrentPage, courses.PageSize);
 
         return courseTitles;
+    }
+
+    public async Task<PagedList<CourseTitleResponse>> GetMyCourseTitles(int userId, CourseParams courseParams,
+        CancellationToken cancellationToken = default)
+    {
+        if(userId != courseParams.AuthorId)
+            throw new Exception("You have not access to this courses");
+
+        return await GetAllCourseTitles(courseParams, cancellationToken);
     }
 
     public async Task<IEnumerable<CourseResponse>> GetFilteredAsync(CourseParams courseParams,

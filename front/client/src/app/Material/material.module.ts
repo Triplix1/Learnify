@@ -14,6 +14,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 @NgModule({
   declarations: [],
@@ -34,6 +35,7 @@ import { CdkAccordionModule } from '@angular/cdk/accordion';
     MatInputModule,
     MatDialogModule,
     CdkAccordionModule,
+    TextFieldModule,
   ],
   exports: [
     ReactiveFormsModule,
@@ -51,6 +53,7 @@ import { CdkAccordionModule } from '@angular/cdk/accordion';
     MatInputModule,
     MatDialogModule,
     CdkAccordionModule,
+    TextFieldModule,
   ]
 })
 export class MaterialModule { }

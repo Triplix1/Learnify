@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { CourseTitleResponse } from 'src/app/Models/Course/CourseTitleResponse';
 
@@ -8,7 +8,8 @@ import { CourseTitleResponse } from 'src/app/Models/Course/CourseTitleResponse';
   styleUrls: ['./course-cart.component.scss']
 })
 export class CourseCartComponent {
-  @Input() courseTitleResponse: CourseTitleResponse;
+  @Input({ required: true }) courseTitleResponse: CourseTitleResponse;
+  @Output() onClick: EventEmitter<null> = new EventEmitter();
   isHovered = false;
 
   constructor(private router: Router) { }
@@ -24,6 +25,6 @@ export class CourseCartComponent {
   }
 
   navigateToCourse() {
-    this.router.navigate([`/course/managing/${this.courseTitleResponse.id}`]);
+    this.onClick.emit();
   }
 }

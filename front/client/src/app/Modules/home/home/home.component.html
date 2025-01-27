@@ -1,6 +1,6 @@
 <div *ngIf="courseTitles"
-     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-   <app-course-cart *ngFor="let courseTitle of courseTitles.items"
-                    [courseTitleResponse]="courseTitle">
-   </app-course-cart>
+     class="mx-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4">
+  <app-course-cart *ngFor="let courseTitle of courseTitles.items"
+                   [courseTitleResponse]="courseTitle">
+  </app-course-cart>
 </div>

@@ -58,6 +58,8 @@ public class CourseRepository : ICourseRepository
     {
         var query = _context.Courses.AsQueryable();
 
+        IncludeParamsHelper.IncludeFields(filter.Includes, query);
+        
         if (filter.Includes is not null)
             query = filter.Includes.Aggregate(query, (current, include) => current.Include(include));
 
@@ -73,7 +75,7 @@ public class CourseRepository : ICourseRepository
         }
 
         var pagedList =
-            await PagedList<Course>.CreateAsync(query, filter.PageNumber, filter.PageSize, cancellationToken);
+            await PagedList<Course>.CreateAsync(query, filter.PagedListParams.PageNumber, filter.PagedListParams.PageSize, cancellationToken);
 
         return pagedList;
     }

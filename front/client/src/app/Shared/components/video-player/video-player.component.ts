@@ -10,6 +10,7 @@ import { BaseComponent } from 'src/app/Models/BaseComponent';
 })
 export class VideoPlayerComponent extends BaseComponent {
   @Input({ required: true }) fileId: number;
+  @Input() classList: string;
   loading: boolean = true;
   error: string = '';
 

@@ -10,8 +10,8 @@ public class OrSpecification<T>: Specification<T>
 
     public OrSpecification(Specification<T> left, Specification<T> right)
     {
-        _left = left ?? throw new ArgumentNullException(nameof (left));
-        _right = right ?? throw new ArgumentNullException(nameof (right));
+        _left = left ?? new TrueSpecification<T>();
+        _right = right ?? new TrueSpecification<T>();
     }
 
     public override Expression<Func<T, bool>> GetExpression()

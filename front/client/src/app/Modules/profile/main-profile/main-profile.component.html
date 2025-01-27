@@ -1,16 +1,16 @@
 <div class="container">
     <mat-tab-group>
-        <!-- <mat-tab label="Налаштуйте ваш профіль">
+        <mat-tab label="Налаштуйте ваш профіль">
             <div class="mt-4">
-                <app-image-uploader [file]="profileData?.imageUrl"
-                                    (imageChanged)="imagechanged($event)"></app-image-uploader>
+                <!-- <app-image-uploader [file]="profileData?.imageUrl"
+                                    (imageChanged)="imagechanged($event)"></app-image-uploader> -->
             </div>
         </mat-tab>
         <mat-tab [disabled]="false"
                  label="Ваші курси">
             <div class="mt-4">
-                <app-image-uploader></app-image-uploader>
+                <app-my-courses [userId]="profileData.id"></app-my-courses>
             </div>
-        </mat-tab> -->
+        </mat-tab>
     </mat-tab-group>
 </div>

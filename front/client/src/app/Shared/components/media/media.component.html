@@ -1,8 +1,10 @@
 <div class="relative inline-block"
      [ngSwitch]="mediaType">
-    <app-video-player *ngSwitchCase="MediaType.Video"
+    <app-video-player [classList]=classList
+                      *ngSwitchCase="MediaType.Video"
                       [fileId]="fileId"></app-video-player>
-    <app-image *ngSwitchCase="MediaType.Image"
+    <app-image [classList]="classList"
+               *ngSwitchCase="MediaType.Image"
                [fileId]="fileId"></app-image>
     <mat-icon *ngIf="showClose"
               (click)="onClosed()"

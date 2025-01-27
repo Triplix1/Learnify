@@ -12,6 +12,7 @@ import { MediaType } from 'src/app/Models/enums/MediaType';
 export class MediaComponent {
   @Input({ required: true }) fileId: number;
   @Input({ required: true }) contentType: string;
+  @Input() classList: string;
   @Input() showClose: boolean = false;
   @Output() closed: EventEmitter<null> = new EventEmitter();
   MediaType = MediaType;

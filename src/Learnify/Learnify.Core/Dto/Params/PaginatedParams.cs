@@ -3,7 +3,7 @@ using Learnify.Core.Specification.Filters.Contracts;
 
 namespace Learnify.Core.Dto.Params;
 
-public class PaginatedParams: IPaginationFilter
+public class PaginatedParams
 {
     private const int MaxPageSize = 50;
     private int _pageSize = 10;
