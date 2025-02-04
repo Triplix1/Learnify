@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using Azure.Storage.Blobs;
 using FluentValidation;
+using Learnify.Core.Dto.Payment;
 using Learnify.Core.Installer;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.Managers;
@@ -9,6 +10,7 @@ using Learnify.Core.Options;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Services;
 using MassTransit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,6 +79,8 @@ public class CoreInstaller: IInstaller
             });
         });
         
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        
         services.AddScoped<ITokenManager, TokenManager>();
         services.AddScoped<IGoogleAuthManager, GoogleAuthManager>();
         services.AddScoped<IBlobStorage, BlobStorage>();
@@ -90,6 +94,8 @@ public class CoreInstaller: IInstaller
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<IParagraphService, ParagraphService>();
+        services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IUserBoughtService, UserBoughtService>();
         services.AddScoped<ILessonService, LessonService>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IPrivateFileService, PrivateFileService>();
@@ -100,6 +106,7 @@ public class CoreInstaller: IInstaller
         services.Configure<JwtOptions>(config.GetSection("JwtSettings"));
         services.Configure<MailOptions>(config.GetSection("MailConfig"));
         services.Configure<EncryptionOptions>(config.GetSection("EncryptionOptions"));
+        services.Configure<StripeOptions>(config.GetSection("StripeOptions"));
         services.AddSingleton(x => new BlobServiceClient(config["BlobStorageSettings:ConnectionString"]));
     }
 }

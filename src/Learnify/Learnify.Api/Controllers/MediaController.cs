@@ -20,6 +20,7 @@ public class MediaController : BaseApiController
     }
 
     [SkipApiResponse]
+    [Authorize]
     [HttpGet("{fileId}")]
     public async Task<IActionResult> GetStreamForFileAsync(int fileId, CancellationToken cancellationToken = default)
     {
@@ -29,6 +30,16 @@ public class MediaController : BaseApiController
 
         return File(fileStreamResponse.Stream, fileStreamResponse.ContentType, true);
     }
+    
+    // [HttpGet("video/{fileId}")]
+    // public async Task<ActionResult<UrlResponse>> GetProtectedVideoFile(int fileId, CancellationToken cancellationToken = default)
+    // {
+    //     var userId = HttpContext.User.GetUserId();
+    //
+    //     var url = await _fileService.GetHlsManifestUrl(fileId, userId, cancellationToken);
+    //
+    //     return Ok(url);
+    // }
 
     [Authorize]
     [HttpPost]

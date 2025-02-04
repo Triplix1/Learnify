@@ -29,4 +29,8 @@ export class HomeComponent extends BaseComponent implements OnInit {
 
     this.courseService.getCourseTitles(this.courseParams).pipe(take(1), takeUntil(this.destroySubject)).subscribe(r => this.courseTitles = r.data);
   }
+
+  navigateToMainCoursePage(id: number) {
+    this.router.navigate([`/course/main-info/${id}`]);
+  }
 }

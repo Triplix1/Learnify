@@ -8,11 +8,11 @@ public static class ClaimsPrincipalExtentions
     {
         var userIdString = claimsPrincipal.FindFirst("id")?.Value;
         int userId;
-        
+
         if (userIdString is not null)
             userId = int.Parse(userIdString);
         else
-            throw new ApplicationException("User is not authorized");
+            return -1;
         
         return userId;
     }

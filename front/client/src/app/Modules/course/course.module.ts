@@ -11,6 +11,9 @@ import { LessonTitleComponent } from './managing/lesson-title/lesson-title.compo
 import { CreateSingleQuizComponent } from './managing/create-single-quiz/create-single-quiz.component';
 import { CreateQuizOptionComponent } from './managing/create-quiz-option/create-quiz-option.component';
 import { CreateQuizAnswersComponent } from './managing/create-quiz-answers/create-quiz-answers.component';
+import { MainCoursePageComponent } from './representation/main-course-page/main-course-page.component';
+import { PaymentSuccessComponent } from './payment-success/payment-success.component';
+import { PaymentCancelledComponent } from './payment-cancelled/payment-cancelled.component';
 
 
 
@@ -25,6 +28,9 @@ import { CreateQuizAnswersComponent } from './managing/create-quiz-answers/creat
     CreateSingleQuizComponent,
     CreateQuizOptionComponent,
     CreateQuizAnswersComponent,
+    MainCoursePageComponent,
+    PaymentSuccessComponent,
+    PaymentCancelledComponent,
   ],
   imports: [
     CommonModule,

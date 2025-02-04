@@ -1,0 +1,54 @@
+<div class="container text-textInput py-8">
+    <div class="header p-2">
+        <h1 class="ml-4">{{courseMainInfo.name}}</h1>
+    </div>
+
+    <div class="content">
+        <div class="flex justify-center">
+            <app-media classList="rounded-sm max-h-96 max-w-full"
+                       [fileId]="courseMainInfo.video.id"
+                       [contentType]="courseMainInfo.video.contentType"></app-media>
+
+        </div>
+
+        <div class="mt-4">
+
+            <div class="p-1 flex content-center ">
+                <h2 class="ml-5">Description</h2>
+            </div>
+
+            <div class=" p-1">
+                {{courseMainInfo.description}}
+            </div>
+
+            <div class="mt-4 p-1 flex content-center">
+                <h2 class="ml-5">Course topics</h2>
+            </div>
+
+            <div class="p-1">
+                <ul class="ml-6">
+                    <li class="my-1"
+                        *ngFor="let courseParagraph of courseMainInfo.paragraphs">• {{courseParagraph.name}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 flex flex-col justify-center items-center">
+        <div *ngIf="!courseMainInfo.userHasBoughtThisCourse; else userHasBoughtThisCourse"
+             class="w-fit flex flex-col justify-center items-center h-fit p-10 bg-navigation opacity-80 rounded-md">
+            <div>Price: {{courseMainInfo.price}}$</div>
+
+            <app-button class="mt-3"
+                        (buttonClick)="completePayment()">Buy!</app-button>
+
+        </div>
+        <ng-template #userHasBoughtThisCourse>
+            <div class="w-fit flex flex-col justify-center items-center h-fit p-8 bg-navigation opacity-80 rounded-md">
+                <app-button (buttonClick)="goToTheCourse()">GoToTheCourse</app-button>
+
+            </div>
+
+        </ng-template>
+    </div>
+</div>

@@ -14,6 +14,7 @@ import { CourseParams } from 'src/app/Models/Params/Course/CourseParams';
 import { objectToQueryParams } from '../helpers/queryParamsHelper';
 import { PagedParamsService } from './paged-params.service';
 import { OrderParamsService } from './order-params.service';
+import { CourseMainInfo } from 'src/app/Models/Course/CourseMainInfo';
 
 @Injectable({
   providedIn: 'root'
@@ -35,11 +36,14 @@ export class CourseService {
     const params = objectToQueryParams(courseParams);
 
     return this.httpClient.get<ApiResponseWithData<PagedList<CourseTitleResponse>>>(this.baseCourseUrl + '/my-courses', { params: params });
-
   }
 
   getForUpdate(id: number): Observable<ApiResponseWithData<CourseResponse>> {
     return this.httpClient.get<ApiResponseWithData<CourseResponse>>(this.baseCourseUrl + "/" + id);
+  }
+
+  getMainInfo(id: number): Observable<ApiResponseWithData<CourseMainInfo>> {
+    return this.httpClient.get<ApiResponseWithData<CourseMainInfo>>(this.baseCourseUrl + "/main-info/" + id);
   }
 
   createCourse(courseCreateRequest: CourseCreateRequest): Observable<ApiResponseWithData<CourseResponse>> {

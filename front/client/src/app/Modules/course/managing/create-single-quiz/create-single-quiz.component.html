@@ -1,0 +1,65 @@
+<!-- <div class="bg-gray-800 p-2 rounded mb-2">
+    <cdk-accordion class="example-accordion">
+        <cdk-accordion-item #accordionItem="cdkAccordionItem">
+        </cdk-accordion-item>
+    </cdk-accordion>
+</div> -->
+
+<div class="w-full bg-slate-800 border-none rounded-md p-2 my-2">
+    <app-accordion-item [index]="index"
+                        (itemOpened)="changeExpanded($event)">
+        <div class="accordion-header flex items-center relative w-100">
+
+            <div class="w-full"
+                 *ngIf="editingMode; else nonEditing">
+                <div class="w-full"
+                     (click)="$event.stopPropagation()">
+                    <app-text-input [hiddenError]="true"
+                                    classList="w-full"
+                                    [formControl]="$any(quizForm.controls['question'])"
+                                    label="Question"
+                                    placeholder="Question"
+                                    [hiddenLabel]="true"
+                                    (changedInput)="saveForm()"></app-text-input>
+                </div>
+                <div *ngIf="$any(quizForm.controls['question'].value) !== '' "
+                     (click)="$event.stopPropagation()"
+                     class="flex justify-quizForm mr-1.5 absolute right-0 top-1.5">
+                    <mat-icon class="mr-2 text-navlink hover:opacity-50 transition"
+                              fontIcon="check"
+                              (click)="saveForm(true); $event.stopPropagation()">
+
+                    </mat-icon>
+                    <mat-icon class="mr-2 text-navlink hover:opacity-50 transition"
+                              fontIcon="close"
+                              (click)="cancel(); $event.stopPropagation()">
+                    </mat-icon>
+                </div>
+            </div>
+            <ng-template #nonEditing>
+                <div class="w-full flex justify-between items-center">
+                    <div *ngIf="expanded; else notExpanded"
+                         class="text-navlink">{{quiz.question}}</div>
+                    <ng-template #notExpanded>
+                        <div class="text-navlink">{{quiz.question | truncate:25}}</div>
+                    </ng-template>
+                    <div class="flex">
+                        <mat-icon class="mr-2 text-buttonAccept hover:opacity-50 transition"
+                                  fontIcon="edit"
+                                  (click)="editingToggle(); $event.stopPropagation()">
+                        </mat-icon>
+                    </div>
+                </div>
+            </ng-template>
+        </div>
+        <div class="accordion-body pt-3">
+            <div *ngIf="quiz.media">
+                <app-media [fileId]="quiz.media.fileId"
+                           [contentType]="quiz.media.contentType"></app-media>
+            </div>
+            <app-create-quiz-answers [lessonId]="lessonId"
+                                     [quizId]="quiz.id"
+                                     [answersResponse]="quiz.answers"></app-create-quiz-answers>
+        </div>
+    </app-accordion-item>
+</div>

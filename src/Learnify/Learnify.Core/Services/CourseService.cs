@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
@@ -74,6 +73,21 @@ public class CourseService : ICourseService
 
         var courses = await _psqUnitOfWork.CourseRepository.GetFilteredAsync(filter, cancellationToken);
         return _mapper.Map<IEnumerable<CourseResponse>>(courses);
+    }
+
+    public async Task<CourseMainInfoResponse> GetMainInfoResponseAsync(int courseId, int userId,
+        CancellationToken cancellationToken = default)
+    {
+        var includes = new[] { nameof(Course.Paragraphs), nameof(Course.Video) };
+
+        var course = await _psqUnitOfWork.CourseRepository.GetByIdAsync(courseId, includes, cancellationToken);
+
+        var response = _mapper.Map<CourseMainInfoResponse>(course);
+
+        response.UserHasBoughtThisCourse =
+            await _psqUnitOfWork.UserBoughtRepository.UserBoughtExistsAsync(userId, courseId, cancellationToken);
+
+        return response;
     }
 
     public async Task<CourseResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default)
@@ -251,7 +265,7 @@ public class CourseService : ICourseService
         bool result;
 
         var videoId =
-            await _psqUnitOfWork.CourseRepository.GetPhotoIdAsync(courseId, cancellationToken: cancellationToken);
+            await _psqUnitOfWork.CourseRepository.GetVideoIdAsync(courseId, cancellationToken: cancellationToken);
 
         if (!videoId.HasValue)
             return true;

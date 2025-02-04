@@ -1,13 +1,12 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
+import { map, Observable, switchMap } from 'rxjs';
 import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlobCreateRequest';
-import { PrivateFileDataResponse } from 'src/app/Models/File/PrivateFileDataResponse';
 import { environment } from 'src/environments/environment';
 import { objectToFormData } from '../helpers/formDataHelper';
 import { AuthService } from './auth.service';
-import { MediaType } from 'src/app/Models/enums/MediaType';
+import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
+import { UrlResponse } from 'src/app/Models/File/UrlResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +27,29 @@ export class MediaService {
         return fileUrl
       })
     )
+  }
+
+  // getFileUrl(fileId: number): Observable<string> {
+  //   return this.authService.tokenData$.pipe(
+  //     switchMap(tokenData => {
+  //       let fileUrl = this.baseUrl + "/" + fileId;
+
+  //       const headers = new HttpHeaders({
+  //         Authorization: `Bearer ${tokenData.token}` // Отримання токена
+  //       });
+
+  //       return this.httpClient.get(fileUrl, {
+  //         headers: headers,
+  //         responseType: 'blob'
+  //       }).pipe(map(blob => {
+  //         return URL.createObjectURL(blob);
+  //       }));
+  //     })
+  //   )
+  // }
+
+  getVideoUrl(fileId: number): Observable<ApiResponseWithData<UrlResponse>> {
+    return this.httpClient.get<ApiResponseWithData<UrlResponse>>(this.baseUrl + "/video/" + fileId);
   }
 
   create(fileCreateRequest: PrivateFileBlobCreateRequest): Observable<Object> {

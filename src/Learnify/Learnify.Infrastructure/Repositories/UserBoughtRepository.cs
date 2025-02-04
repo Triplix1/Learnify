@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Learnify.Core.Domain.Entities.Sql;
+﻿using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Infrastructure.Data;
 

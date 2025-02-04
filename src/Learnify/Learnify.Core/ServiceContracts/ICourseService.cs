@@ -12,13 +12,12 @@ namespace Learnify.Core.ServiceContracts;
 public interface ICourseService
 {
     Task<PagedList<CourseTitleResponse>> GetAllCourseTitles(CourseParams courseParams, CancellationToken cancellationToken = default);
-
     Task<PagedList<CourseTitleResponse>> GetMyCourseTitles(int userId, CourseParams courseParams,
         CancellationToken cancellationToken = default);
-
     Task<IEnumerable<CourseResponse>> GetFilteredAsync(CourseParams courseParams,
         CancellationToken cancellationToken = default);
-
+    Task<CourseMainInfoResponse> GetMainInfoResponseAsync(int courseId, int userId,
+        CancellationToken cancellationToken = default);
     Task<CourseResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     Task<CourseUpdateResponse> CreateAsync(CourseCreateRequest courseCreateRequest, int userId,

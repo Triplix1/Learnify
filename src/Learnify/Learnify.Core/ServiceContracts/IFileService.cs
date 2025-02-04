@@ -7,6 +7,8 @@ public interface IFileService
 {
     Task<FileStreamResponse> GetFileStreamById(int id, int userId, CancellationToken cancellationToken = default);
 
+    Task<UrlResponse> GetHlsManifestUrl(int id, int userId, CancellationToken cancellationToken = default);
+
     Task<PrivateFileDataResponse> CreateAsync(PrivateFileBlobCreateRequest privateFileBlobCreateRequest,
         bool isPublic, int userId, CancellationToken cancellationToken = default);
 }

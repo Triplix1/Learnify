@@ -37,6 +37,16 @@ public class CourseController : BaseApiController
 
         return Ok(result);
     }
+    
+    [HttpGet("main-info/{id}")]
+    public async Task<ActionResult<PagedList<CourseMainInfoResponse>>> GetMainCourseInfoAsync([FromRoute]int id,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserId();
+        var result = await _courseService.GetMainInfoResponseAsync(id, userId, cancellationToken);
+
+        return Ok(result);
+    }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<CourseResponse>> GetCourseAsync(int id,

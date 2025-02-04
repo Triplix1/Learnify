@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Azure.Storage.Blobs;
+using Azure.Storage.Sas;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
@@ -109,5 +111,38 @@ public class FileService : IFileService
         var response = _mapper.Map<PrivateFileDataResponse>(fileResponse);
 
         return response;
+    }
+    
+    public async Task<UrlResponse> GetHlsManifestUrl(int id, int userId,
+        CancellationToken cancellationToken = default)
+    {
+        var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(id, cancellationToken);
+
+        if (file is null)
+            throw new KeyNotFoundException("Cannot find file with such id");
+
+        if (file.CourseId.HasValue)
+        {
+            var courseAuthorId =
+                await _psqUnitOfWork.CourseRepository.GetAuthorIdAsync(file.CourseId.Value, cancellationToken);
+
+            if (courseAuthorId is null)
+                ApiResponse.Failure(new KeyNotFoundException("cannot find course with such id"));
+
+            //Author should have access without buying the course
+            if (courseAuthorId != userId)
+            {
+                var userHasBoughtThisCourse =
+                    await _psqUnitOfWork.UserBoughtRepository.UserBoughtExistsAsync(userId, file.CourseId.Value,
+                        cancellationToken);
+
+                if (!userHasBoughtThisCourse)
+                    throw new Exception("User has not access for this file");
+            }
+        }
+
+        var url = await _blobStorage.GetHlsManifestUrl(file.ContainerName, file.BlobName, cancellationToken);
+
+        return new UrlResponse() { Url = url };
     }
 }

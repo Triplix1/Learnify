@@ -13,4 +13,7 @@ public interface IBlobStorage
 
     Task<FileStreamResponse> GetBlobStreamAsync(string containerName, string blobName,
         CancellationToken cancellationToken = default);
+
+    Task<string> GetHlsManifestUrl(string containerName, string blobName,
+        CancellationToken cancellationToken = default);
 }

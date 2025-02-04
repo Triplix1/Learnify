@@ -1,6 +1,7 @@
 <div *ngIf="courseTitles"
      class="mx-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4">
   <app-course-cart *ngFor="let courseTitle of courseTitles.items"
-                   [courseTitleResponse]="courseTitle">
+                   [courseTitleResponse]="courseTitle"
+                   (onClick)="navigateToMainCoursePage(courseTitle.id)">
   </app-course-cart>
 </div>

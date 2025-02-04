@@ -44,27 +44,5 @@ export class RefreshInterceptor implements HttpInterceptor {
         return next.handle(clonedReq);
       }))
     );
-
-    // return next.handle(clonedReq).pipe(
-    //   catchError((error: HttpErrorResponse) => {
-    //     if (error.status === 401 && accessToken !== null && accessToken !== undefined) {
-    //       return this.authService.refreshToken().pipe(
-    //         switchMap((newToken: ApiResponse<AuthResponse>) => {
-    //           const retryReq = req.clone({
-    //             headers: req.headers.set('Authorization', `Bearer ${newToken.data.token}`)
-    //           });
-    //           return next.handle(retryReq);
-    //         }),
-    //         catchError((err) => {
-    //           this.authService.logout();
-    //           return throwError(err);
-    //         })
-    //       );
-    //     } else {
-    //       return throwError(error);
-    //     }
-    //   })
-    // );
-
   }
 }

@@ -2,6 +2,7 @@
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
+using Learnify.Core.Dto.Course;
 using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,18 @@ public class CourseRepository : ICourseRepository
 
         var course = await query.FirstOrDefaultAsync(c => c.Id == key, cancellationToken: cancellationToken);
 
+        return course;
+    }
+
+    public async Task<CoursePaymentResponse> GetCoursePaymentDataAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var course = await _context.Courses.Select(c => new CoursePaymentResponse()
+        {
+            Id = c.Id,
+            Name = c.Name,
+            Price = c.Price
+        }).FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+        
         return course;
     }
 

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { takeUntil } from 'rxjs';
 import { MediaService } from 'src/app/Core/services/media.service';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
@@ -13,6 +13,18 @@ export class VideoPlayerComponent extends BaseComponent {
   @Input() classList: string;
   loading: boolean = true;
   error: string = '';
+  videoUrl: string;
+
+  constructor(private readonly mediaService: MediaService) {
+    super();
+  }
+
+  // ngOnInit(): void {
+  //   this.mediaService.getVideoUrl(this.fileId)
+  //     .subscribe(resp => {
+  //       this.videoUrl = resp.data.url;
+  //     });
+  // }
 
   onVideoLoad(): void {
     this.loading = false;

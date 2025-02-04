@@ -112,6 +112,23 @@ public class BlobStorage : IBlobStorage
 
         return response;
     }
+    
+    public async Task<string> GetHlsManifestUrl(string containerName, string blobName, CancellationToken cancellationToken = default)
+    {
+        var blobClient = await GetBlobClientInternalAsync(containerName, blobName.Replace(".mp4", "/manifest.m3u8"), cancellationToken);
+    
+        var sasBuilder = new BlobSasBuilder
+        {
+            BlobContainerName = containerName,
+            BlobName = blobClient.Name,
+            Resource = "b",
+            ExpiresOn = DateTime.UtcNow.AddMinutes(10) // Link expires in 10 minutes
+        };
+        sasBuilder.SetPermissions(BlobSasPermissions.Read);
+    
+        var sasUrl = blobClient.GenerateSasUri(sasBuilder).Query;
+        return sasUrl;
+    }
 
     private async Task<BlobClient> GetBlobClientInternalAsync(string containerName, string blobName,
         CancellationToken cancellationToken = default)
