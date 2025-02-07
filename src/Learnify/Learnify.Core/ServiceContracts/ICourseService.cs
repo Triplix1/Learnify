@@ -18,6 +18,8 @@ public interface ICourseService
         CancellationToken cancellationToken = default);
     Task<CourseMainInfoResponse> GetMainInfoResponseAsync(int courseId, int userId,
         CancellationToken cancellationToken = default);
+    Task<CourseStudyResponse> GetCourseStudyResponseAsync(int courseId, int userId,
+        CancellationToken cancellationToken = default);
     Task<CourseResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     Task<CourseUpdateResponse> CreateAsync(CourseCreateRequest courseCreateRequest, int userId,

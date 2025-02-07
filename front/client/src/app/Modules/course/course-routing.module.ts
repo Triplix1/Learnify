@@ -5,6 +5,7 @@ import { authGuard } from 'src/app/Core/guards/auth.guard';
 import { MainCoursePageComponent } from './representation/main-course-page/main-course-page.component';
 import { PaymentSuccessComponent } from './payment-success/payment-success.component';
 import { PaymentCancelledComponent } from './payment-cancelled/payment-cancelled.component';
+import { CourseStudyPageComponent } from './course-study/course-study-page/course-study-page.component';
 
 
 const routes: Routes = [
@@ -15,6 +16,12 @@ const routes: Routes = [
         { path: 'managing/:courseId', component: CreateCourseComponent, canActivate: [authGuard] },
         { path: 'managing', component: CreateCourseComponent, canActivate: [authGuard] },
         { path: 'main-info/:courseId', component: MainCoursePageComponent },
+        {
+          path: 'study/:courseId', component: CourseStudyPageComponent, children:
+            [
+              { path: ':lessonId', component: CourseStudyPageComponent }
+            ]
+        },
         { path: 'payment-success/:courseId', component: PaymentSuccessComponent },
         { path: 'payment-cancelled/:courseId', component: PaymentCancelledComponent },
       ]

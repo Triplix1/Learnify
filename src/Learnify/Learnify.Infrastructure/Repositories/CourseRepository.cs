@@ -3,6 +3,7 @@ using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
+using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,16 @@ public class CourseRepository : ICourseRepository
         }).FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         
         return course;
+    }
+
+    public async Task<CourseStudyResponse> GetCourseStudyResponseAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var query = _mapper.ProjectTo<CourseStudyResponse>(_context.Courses.Include(c => c.Paragraphs));
+
+        var response = await 
+            query.FirstOrDefaultAsync(c => c.Id == id, cancellationToken: cancellationToken);
+        
+        return response;
     }
 
     public async Task<int?> GetVideoIdAsync(int courseId, CancellationToken cancellationToken = default)

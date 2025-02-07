@@ -56,6 +56,16 @@ public class CourseController : BaseApiController
 
         return Ok(courseResponse);
     }
+    
+    [Authorize]
+    [HttpGet("study/{id}")]
+    public async Task<ActionResult<CourseStudyResponse>> GetCourseToStudyAsync([FromRoute]int id, CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserId();
+        var courseResponse = await _courseService.GetCourseStudyResponseAsync(id, userId, cancellationToken);
+
+        return Ok(courseResponse);
+    }
 
     [Authorize]
     [HttpPost]

@@ -15,6 +15,7 @@ import { objectToQueryParams } from '../helpers/queryParamsHelper';
 import { PagedParamsService } from './paged-params.service';
 import { OrderParamsService } from './order-params.service';
 import { CourseMainInfo } from 'src/app/Models/Course/CourseMainInfo';
+import { CourseStudyResponse } from 'src/app/Models/Course/CourseStudyResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,10 @@ export class CourseService {
 
   getForUpdate(id: number): Observable<ApiResponseWithData<CourseResponse>> {
     return this.httpClient.get<ApiResponseWithData<CourseResponse>>(this.baseCourseUrl + "/" + id);
+  }
+
+  getStudyResponse(id: number): Observable<ApiResponseWithData<CourseStudyResponse>> {
+    return this.httpClient.get<ApiResponseWithData<CourseStudyResponse>>(this.baseCourseUrl + '/study/' + id);
   }
 
   getMainInfo(id: number): Observable<ApiResponseWithData<CourseMainInfo>> {

@@ -14,6 +14,7 @@ public interface ICourseRepository
     Task<PagedList<Course>> GetFilteredAsync(EfFilter<Course> filter, CancellationToken cancellationToken = default);
     Task<Course> GetByIdAsync(int key, IEnumerable<string> includes = null, CancellationToken cancellationToken = default);
     Task<CoursePaymentResponse> GetCoursePaymentDataAsync(int id, CancellationToken cancellationToken = default);
+    Task<CourseStudyResponse> GetCourseStudyResponseAsync(int id, CancellationToken cancellationToken = default);
     Task<int?> GetAuthorIdAsync(int courseId, CancellationToken cancellationToken = default);
     Task<int?> GetPhotoIdAsync(int courseId, CancellationToken cancellationToken = default);
     Task<int?> GetVideoIdAsync(int courseId, CancellationToken cancellationToken = default);

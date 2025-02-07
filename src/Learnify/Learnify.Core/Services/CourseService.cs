@@ -90,6 +90,19 @@ public class CourseService : ICourseService
         return response;
     }
 
+    public async Task<CourseStudyResponse> GetCourseStudyResponseAsync(int courseId, int userId, CancellationToken cancellationToken = default)
+    {
+        var userBoughtExistsAsync =
+            await _psqUnitOfWork.UserBoughtRepository.UserBoughtExistsAsync(userId, courseId, cancellationToken);
+
+        if (!userBoughtExistsAsync)
+        {
+            throw new UnauthorizedAccessException("You don't have to access this course");
+        }
+
+        return await _psqUnitOfWork.CourseRepository.GetCourseStudyResponseAsync(courseId, cancellationToken);
+    }
+
     public async Task<CourseResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var includes = new[] { nameof(Course.Paragraphs), nameof(Course.Video), nameof(Course.Photo) };

@@ -36,6 +36,7 @@ public class MappingProfiles : Profile
         CreateMap<CourseCreateRequest, Course>();
         CreateMap<CourseUpdateRequest, Course>();
         CreateMap<Course, CourseTitleResponse>();
+        CreateMap<Course, CourseStudyResponse>();
         CreateMap<Course, CourseMainInfoResponse>()
             .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));;
         CreateMap<Course, CourseResponse>()

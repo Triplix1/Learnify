@@ -96,6 +96,9 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --buttonCancelHover: 190 190 190;
         --text: 40 40 40;
         --messageUsername: 70 70 70;
+        --sidebarMainItem: 35 35 35;
+        --sidebarLowerItem: 40 40 40;
+        --sidebarLowerSelectedItem: 37 37 37;
     }
 
     .dark {
@@ -115,6 +118,9 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --buttonCancelHover: 213 213 213;
         --text: 180 180 180;
         --messageUsername: 210 210 210;
+        --sidebarMainItem: 35 35 35;
+        --sidebarLowerItem: 40 40 40;
+        --sidebarLowerSelectedItem: 37 37 37;
     }
 
     .login-form {
