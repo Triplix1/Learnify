@@ -1,0 +1,38 @@
+<div class="flex relative w-full">
+
+  <div *ngIf="isSidebarVisible"
+       class="w-64 bg-sidebarMainItem min-h-screen ease-in-out flex-shrink-0 relative">
+
+    <button class="absolute top-4 -right-[34px] bg-logo text-white px-2 py-1 rounded-r"
+            (click)="toggleSidebar()">
+      {{ isSidebarVisible ? '<' : '>'
+         }}
+         </button>
+
+        <div *ngFor="let section of sections; let paragraphIndex = index">
+          <div class="w-full bg-sidebarMainItem font-bold py-3 px-4 text-textInput cursor-pointer"
+               (click)="openParagraph(paragraphIndex)">
+            {{ section.title }}
+          </div>
+          <div *ngIf="section.expanded">
+            <div class="text-textInput bg-sidebarLowerItem"
+                 *ngFor="let item of section.items; let lessonIndex = index">
+              <button [ngClass]="{ 'bg-sidebarLowerSelectedItem': itemSelected.lessonIndex === lessonIndex && itemSelected.paragraphIndex === paragraphIndex }"
+                      class="w-full flex items-center justify-start px-4 py-3"
+                      (click)="selectLesson(paragraphIndex, lessonIndex)">
+                <p class="mb-0 text-sm">{{ item }}</p>
+              </button>
+            </div>
+          </div>
+        </div>
+  </div>
+
+  <button *ngIf="!isSidebarVisible"
+          class="absolute top-4 left-0 bg-logo text-white px-2 py-1 rounded-r"
+          (click)="toggleSidebar()">
+    >
+  </button>
+  <div class="flex-1 p-4 transition-all duration-300">
+    <app-course-study-lesson [lessonId]="lessonId"></app-course-study-lesson>
+  </div>
+</div>
