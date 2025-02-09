@@ -16,12 +16,8 @@ const routes: Routes = [
         { path: 'managing/:courseId', component: CreateCourseComponent, canActivate: [authGuard] },
         { path: 'managing', component: CreateCourseComponent, canActivate: [authGuard] },
         { path: 'main-info/:courseId', component: MainCoursePageComponent },
-        {
-          path: 'study/:courseId', component: CourseStudyPageComponent, children:
-            [
-              { path: ':lessonId', component: CourseStudyPageComponent }
-            ]
-        },
+        { path: 'study/:courseId', component: CourseStudyPageComponent },
+        { path: 'study/:courseId/:lessonId', component: CourseStudyPageComponent },
         { path: 'payment-success/:courseId', component: PaymentSuccessComponent },
         { path: 'payment-cancelled/:courseId', component: PaymentCancelledComponent },
       ]

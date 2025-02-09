@@ -6,70 +6,36 @@ using Course = Learnify.Core.Domain.Entities.Sql.Course;
 
 namespace Learnify.Infrastructure.Data;
 
-/// <inheritdoc />
 public class ApplicationDbContext: DbContext
 {
-    /// <inheritdoc />
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
     {
     }
     
-    /// <summary>
-    /// RefreshTokens Db Set
-    /// </summary>
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     
-    /// <summary>
-    /// Users Db Set
-    /// </summary>
     public DbSet<User> Users { get; set; }
     
-    /// <summary>
-    /// CourseRatings Db Set
-    /// </summary>
     public DbSet<CourseRating> CourseRatings { get; set; }
     
-    /// <summary>
-    /// Courses DbSet
-    /// </summary>
     public DbSet<Course> Courses { get; set; }
     
-    /// <summary>
-    /// Courses DbSet
-    /// </summary>
     public DbSet<Paragraph> Paragraphs { get; set; }
     
-    /// <summary>
-    /// Courses DbSet
-    /// </summary>
     public DbSet<PrivateFileData> FileDatas { get; set; }
     
-    /// <summary>
-    /// Subtitles DbSet
-    /// </summary>
     public DbSet<Subtitle> Subtitles { get; set; }
     
-    /// <summary>
-    /// UserBoughts DbSet
-    /// </summary>
     public DbSet<UserBought> UserBoughts { get; set; }
     
-    /// <summary>
-    /// Groups DbSet
-    /// </summary>
     public DbSet<Group> Groups { get; set; }
     
-    /// <summary>
-    /// Groups DbSet
-    /// </summary>
     public DbSet<Message> Messages { get; set; }
     
-    /// <summary>
-    /// Groups DbSet
-    /// </summary>
     public DbSet<Connection> Connections { get; set; }
     
-    /// <inheritdoc />
+    public DbSet<UserQuizAnswer> UserQuizAnswers { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -78,9 +44,10 @@ public class ApplicationDbContext: DbContext
         builder.Entity<User>().HasIndex(u => u.Email);
         builder.Entity<CourseRating>().HasIndex(r => r.CourseId);
         builder.Entity<UserBought>().HasKey(ub => new { ub.UserId, ub.CourseId });
+        builder.Entity<UserQuizAnswer>().HasKey(ub => new { ub.UserId, ub.LessonId, ub.QuizId });
+        builder.Entity<UserQuizAnswer>().HasIndex(ub => new { ub.UserId, ub.LessonId });
     }
 
-    /// <inheritdoc />
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {
         var entities = ChangeTracker.Entries()

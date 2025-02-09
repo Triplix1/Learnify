@@ -9,24 +9,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
 
-/// <inheritdoc />
 public class ParagraphRepository : IParagraphRepository
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    /// <summary>
-    /// Initializes 
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="mapper"></param>
     public ParagraphRepository(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
     }
 
-    /// <inheritdoc />
     public async Task<PagedList<Paragraph>> GetFilteredAsync(EfFilter<Paragraph> filter,
         CancellationToken cancellationToken = default)
     {
@@ -43,7 +36,6 @@ public class ParagraphRepository : IParagraphRepository
         return pagedList;
     }
 
-    /// <inheritdoc />
     public async Task<Paragraph> GetByIdAsync(int key, IEnumerable<string> stringToInclude = null,
         CancellationToken cancellationToken = default)
     {
@@ -57,7 +49,11 @@ public class ParagraphRepository : IParagraphRepository
         return paragraph;
     }
 
-    /// <inheritdoc />
+    public async Task<int?> GetCourseIdAsync(int paragraphId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Paragraphs.Where(x => x.Id == paragraphId).Select(x => x.CourseId).FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<Paragraph> CreateAsync(Paragraph entity, CancellationToken cancellationToken = default)
     {
         await _context.Paragraphs.AddAsync(entity, cancellationToken);
@@ -66,7 +62,6 @@ public class ParagraphRepository : IParagraphRepository
         return entity;
     }
 
-    /// <inheritdoc />
     public async Task<Paragraph> UpdateAsync(Paragraph entity, CancellationToken cancellationToken = default)
     {
         var paragraph = await _context.Paragraphs.FindAsync([entity.Id], cancellationToken);
@@ -82,7 +77,6 @@ public class ParagraphRepository : IParagraphRepository
         return paragraph;
     }
 
-    /// <inheritdoc />
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var paragraph = await _context.Paragraphs.FindAsync([id], cancellationToken);
@@ -96,7 +90,6 @@ public class ParagraphRepository : IParagraphRepository
         return true;
     }
 
-    /// <inheritdoc />
     public async Task<int?> GetAuthorIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var authorId = await _context.Paragraphs.Include(p => p.Course).Where(p => p.Id == id)

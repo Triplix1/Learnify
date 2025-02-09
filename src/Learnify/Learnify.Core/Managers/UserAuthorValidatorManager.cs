@@ -3,12 +3,12 @@ using Learnify.Core.ManagerContracts;
 
 namespace Learnify.Core.Managers;
 
-public class UserValidatorManager : IUserValidatorManager
+public class UserAuthorValidatorManager : IUserAuthorValidatorManager
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
 
-    public UserValidatorManager(IPsqUnitOfWork psqUnitOfWork, IMongoUnitOfWork mongoUnitOfWork)
+    public UserAuthorValidatorManager(IPsqUnitOfWork psqUnitOfWork, IMongoUnitOfWork mongoUnitOfWork)
     {
         _psqUnitOfWork = psqUnitOfWork;
         _mongoUnitOfWork = mongoUnitOfWork;

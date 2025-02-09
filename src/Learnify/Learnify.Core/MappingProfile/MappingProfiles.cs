@@ -9,6 +9,7 @@ using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Dto.Course.QuizQuestion;
 using Learnify.Core.Dto.Course.QuizQuestion.Answers;
+using Learnify.Core.Dto.Course.QuizQuestion.QuizAnswer;
 using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Messages;
@@ -65,6 +66,10 @@ public class MappingProfiles : Profile
         CreateMap<QuizQuestionAddOrUpdateRequest, QuizQuestion>()
             .ForMember(q => q.Id, q => q.MapFrom(s => s.QuizId));
         CreateMap<QuizQuestion, QuizQuestionUpdateResponse>();
+        
+        //UserQuizAnswer
+        CreateMap<UserQuizAnswer, UserQuizAnswerResponse>();
+        CreateMap<UserQuizAnswerCreateRequest, UserQuizAnswer>();
 
         // Answers
         CreateMap<Answers, AnswersResponse>();

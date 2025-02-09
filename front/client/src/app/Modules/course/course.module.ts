@@ -16,6 +16,8 @@ import { PaymentSuccessComponent } from './payment-success/payment-success.compo
 import { PaymentCancelledComponent } from './payment-cancelled/payment-cancelled.component';
 import { CourseStudyPageComponent } from './course-study/course-study-page/course-study-page.component';
 import { CourseStudyLessonComponent } from './course-study/course-study-lesson/course-study-lesson.component';
+import { QuizzesComponent } from './course-study/quizzes/quizzes.component';
+import { SingleQuizComponent } from './course-study/single-quiz/single-quiz.component';
 
 
 
@@ -35,6 +37,8 @@ import { CourseStudyLessonComponent } from './course-study/course-study-lesson/c
     PaymentCancelledComponent,
     CourseStudyPageComponent,
     CourseStudyLessonComponent,
+    QuizzesComponent,
+    SingleQuizComponent,
   ],
   imports: [
     CommonModule,

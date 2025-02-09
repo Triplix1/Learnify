@@ -1,0 +1,14 @@
+::ng-deep .mat-tab-group .mat-tab-labels {
+    display: flex;
+    justify-content: space-between;
+}
+
+::ng-deep .mat-tab-group .mat-tab-label {
+    flex: 1 1 50%;
+    max-width: 50%;
+    text-align: center;
+}
+
+::ng-deep .mat-tab-body-wrapper {
+    width: 100%;
+}

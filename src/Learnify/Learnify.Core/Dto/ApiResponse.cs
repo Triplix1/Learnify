@@ -10,6 +10,7 @@ public class ApiResponse
     protected ApiResponse(object data)
     {
         Data = data;
+        IsSuccess = true;
     }
 
     protected ApiResponse(Exception error) : this(error.Message, error.StackTrace)

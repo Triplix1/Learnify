@@ -1,0 +1,25 @@
+<div class="bg-quizSection rounded-lg p-2 mt-2">
+    <div class="text-textInput">{{quizItem.question}}</div>
+    <app-nested-option *ngFor="let answer of quizItem.answers.options; let index = index"
+                       classList="w-full flex justify-start items-center my-2 w-full mr-2 bg-quizAnswerSection 
+                       {{index == quizItem.userAnswer?.answerIndex && quizItem.userAnswer?.isCorrect !== undefined && quizItem.userAnswer.isCorrect !== null ? (quizItem.userAnswer.isCorrect ? 'bg-quizCorrectAnswerSection' : 'bg-quizWrongAnswerSection') : ''}}">
+        <button *ngIf="quizItem.userAnswer.isCorrect !== true"
+                class="flex justify-center items-center mr-2 "
+                [disabled]="quizItem.userAnswer?.answerIndex !== null && quizItem.userAnswer?.answerIndex !== undefined && quizItem.userAnswer.answerIndex === index"
+                (click)="setCorrectAnswer(index) ">
+            <mat-icon *ngIf="quizItem.userAnswer?.answerIndex !== null && quizItem.userAnswer?.answerIndex !== undefined && quizItem.userAnswer.answerIndex === index; else notCorrectRadio"
+                      class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                      fontIcon="radio_button_checked">
+            </mat-icon>
+            <ng-template #notCorrectRadio>
+                <mat-icon class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                          fontIcon="radio_button_unchecked">
+                </mat-icon>
+            </ng-template>
+        </button>
+        <div class="ml-2">
+            {{answer}}
+        </div>
+
+    </app-nested-option>
+</div>

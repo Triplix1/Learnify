@@ -1,0 +1,14 @@
+<div>
+    <app-single-quiz class="mt-2"
+                     *ngFor="let quizItem of quizzes; let index = index"
+                     [(quizItem)]="quizzes[index]"></app-single-quiz>
+    <div *ngIf="allAnswersSpecified"
+         class="flex mt-3 justify-center">
+        <div *ngIf="allAnswersAreCorrect; else notAllAnswersAreCorrect">
+            <div class="text-textInput">Congrats, You've succesfully learned it!</div>
+        </div>
+        <ng-template #notAllAnswersAreCorrect>
+            <app-button (buttonClick)="checkAnswers()">Check</app-button>
+        </ng-template>
+    </div>
+</div>

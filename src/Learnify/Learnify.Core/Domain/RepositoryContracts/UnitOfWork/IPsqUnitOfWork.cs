@@ -19,4 +19,6 @@ public interface IPsqUnitOfWork
     ISubtitlesRepository SubtitlesRepository { get; }
 
     IQuizRepository QuizRepository { get; }
+
+    IUserQuizAnswerRepository UserQuizAnswerRepository { get; }
 }

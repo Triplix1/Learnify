@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { map, Observable, of, pipe, take, takeUntil, tap } from 'rxjs';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { delay, map, Observable, of, pipe, take, takeUntil, tap } from 'rxjs';
 import { CourseService } from 'src/app/Core/services/course.service';
 import { LessonService } from 'src/app/Core/services/lesson.service';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
@@ -43,16 +44,22 @@ export class CourseStudyPageComponent extends BaseComponent implements OnInit {
     { title: 'Назва розділу', expanded: false, items: ['Назва пункту', 'Назва пункту', 'Назва пункту'] },
   ];
 
-  constructor(private readonly courseService: CourseService, private readonly lessonService: LessonService, private readonly router: Router) {
+  constructor(private readonly courseService: CourseService,
+    private readonly lessonService: LessonService,
+    private readonly router: Router,
+    private readonly spinnerService: NgxSpinnerService) {
     super();
   }
 
   ngOnInit(): void {
+    console.log(this.lessonId);
+    this.spinnerService.show('sidebarSpinner');
     this.courseService.getStudyResponse(this.courseId).pipe(takeUntil(this.destroySubject), take(1)).subscribe(
       response => {
         this.isSectionsLoaded = true;
         this.courseStudyResponse = response.data;
         this.mapResponseList(response.data.paragraphs);
+        this.spinnerService.hide('sidebarSpinner');
       }
     );
   }
@@ -89,8 +96,10 @@ export class CourseStudyPageComponent extends BaseComponent implements OnInit {
 
   loadlessonTitlesObservable(paragraphIndex: number): Observable<LessonTitleResponse[]> {
     if (!this.lessonTitles.has(paragraphIndex) && this.isSectionsLoaded) {
+      this.spinnerService.show("sidebarLessonLoader");
       return this.lessonService.getLessonTitlesForParagraph(this.courseStudyResponse.paragraphs[paragraphIndex].id, false).pipe(takeUntil(this.destroySubject), take(1), tap(
         response => {
+          this.spinnerService.hide("sidebarLessonLoader");
           this.lessonTitles.set(paragraphIndex, response.data);
           this.sections[paragraphIndex].items = response.data.map(x => x.title);
           if (response.data.length == 0) {
@@ -115,10 +124,10 @@ export class CourseStudyPageComponent extends BaseComponent implements OnInit {
       });
     }
     if (this.sections.length > 0) {
+      this.sections[0].expanded = true;
       this.loadlessonTitlesObservable(0).subscribe(
         _ => {
           this.selectLesson(0, 0);
-          this.sections[0].expanded = true;
         }
       );
     }

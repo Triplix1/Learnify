@@ -32,6 +32,6 @@ export class MainCoursePageComponent extends BaseComponent implements OnInit {
   }
 
   goToTheCourse() {
-    this.router.navigate([`/course/${this.courseId}`]);
+    this.router.navigate([`/course/study/${this.courseId}`]);
   }
 }

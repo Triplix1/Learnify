@@ -1,1 +1,37 @@
-<p>course-study-lesson works!</p>
+<div class="relative w-full h-full p-8 flex justify-center">
+    <ngx-spinner [fullScreen]="false"
+                 name="lessonLoading"
+                 type='ball-clip-rotate'>
+    </ngx-spinner>
+
+    <div *ngIf="lesson"
+         class="container">
+        <div class="mx-2 pl-1 mb-5">
+            <h2 class="text-textInput">{{lesson.title}}</h2>
+        </div>
+        <div class="relative m-3 w-full flex justify-center ">
+            <app-media classList="rounded-lg video right-8"
+                       [fileId]="lesson.video.attachment.fileId"
+                       [contentType]="lesson.video.attachment.contentType"></app-media>
+        </div>
+        <div class="lesson-content flex justify-start">
+            <mat-tab-group class="w-full">
+                <mat-tab label="Text">
+                    <div class="mt-4">
+                        <!-- <app-image-uploader [file]="profileData?.imageUrl"
+                                            (imageChanged)="imagechanged($event)"></app-image-uploader> -->
+                    </div>
+                </mat-tab>
+                <mat-tab *ngIf="lesson.quizzes && lesson.quizzes.length > 0"
+                         [disabled]="false"
+                         label="Quizzes">
+                    <div class="mt-4">
+                        <app-quizzes [lessonId]="lessonId"
+                                     [quizzes]="lesson.quizzes"></app-quizzes>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+
+        </div>
+    </div>
+</div>

@@ -9,22 +9,48 @@
          }}
          </button>
 
-        <div *ngFor="let section of sections; let paragraphIndex = index">
-          <div class="w-full bg-sidebarMainItem font-bold py-3 px-4 text-textInput cursor-pointer"
-               (click)="openParagraph(paragraphIndex)">
-            {{ section.title }}
-          </div>
-          <div *ngIf="section.expanded">
-            <div class="text-textInput bg-sidebarLowerItem"
-                 *ngFor="let item of section.items; let lessonIndex = index">
-              <button [ngClass]="{ 'bg-sidebarLowerSelectedItem': itemSelected.lessonIndex === lessonIndex && itemSelected.paragraphIndex === paragraphIndex }"
-                      class="w-full flex items-center justify-start px-4 py-3"
-                      (click)="selectLesson(paragraphIndex, lessonIndex)">
-                <p class="mb-0 text-sm">{{ item }}</p>
-              </button>
+        <div *ngIf="isSectionsLoaded; else sidebarLoader">
+          <div *ngFor="let section of sections; let paragraphIndex = index">
+            <div class="w-full bg-sidebarMainItem font-bold py-3 px-4 text-textInput cursor-pointer"
+                 (click)="openParagraph(paragraphIndex)">
+              {{ section.title }}
+            </div>
+            <div *ngIf="section.expanded">
+
+              <div *ngIf="section.items.length != 0; else sidebarLessonLoader">
+                <div class="text-textInput bg-sidebarLowerItem"
+                     *ngFor="let item of section.items; let lessonIndex = index">
+                  <button [ngClass]="{ 'bg-sidebarLowerSelectedItem': itemSelected.lessonIndex === lessonIndex && itemSelected.paragraphIndex === paragraphIndex }"
+                          class="w-full flex items-center justify-start px-4 py-3"
+                          (click)="selectLesson(paragraphIndex, lessonIndex)">
+                    <p class="mb-0 text-sm">{{ item }}</p>
+                  </button>
+                </div>
+              </div>
+
+              <ng-template #sidebarLessonLoader>
+                <div class="bg-sidebarLowerItem h-16 w-full flex items-center justify-center relative">
+                  <ngx-spinner class="w-full h-16 font"
+                               size="medium"
+                               [fullScreen]="false"
+                               name="sidebarLessonLoader"
+                               type='ball-clip-rotate'>
+                  </ngx-spinner>
+                </div>
+              </ng-template>
+
             </div>
           </div>
         </div>
+        <ng-template #sidebarLoader>
+          <div class="h-full w-full flex items-center justify-center">
+            <ngx-spinner class="w-full"
+                         [fullScreen]="false"
+                         name="sidebarSpinner"
+                         type='ball-clip-rotate'>
+            </ngx-spinner>
+          </div>
+        </ng-template>
   </div>
 
   <button *ngIf="!isSidebarVisible"

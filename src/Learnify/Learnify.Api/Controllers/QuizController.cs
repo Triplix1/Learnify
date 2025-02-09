@@ -1,6 +1,7 @@
 ﻿using Learnify.Api.Controllers.Base;
-using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course.QuizQuestion;
+using Learnify.Core.Dto.Course.QuizQuestion.Answers;
+using Learnify.Core.Dto.Course.QuizQuestion.QuizAnswer;
 using Learnify.Core.Extensions;
 using Learnify.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
@@ -39,5 +40,17 @@ public class QuizController : BaseApiController
         await _quizService.DeleteQuizAsync(quizId, lessonId, userId, cancellationToken);
 
         return Ok();
+    }
+
+    [Authorize]
+    [HttpPost("check")]
+    public async Task<ActionResult<IEnumerable<UserQuizAnswerResponse>>> CheckAnswers([FromBody]AnswersValidateRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserId();
+
+        var response = await _quizService.CheckAnswersAsync(request, userId, cancellationToken);
+
+        return Ok(response);
     }
 }

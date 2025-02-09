@@ -1,6 +1,6 @@
 ﻿namespace Learnify.Core.ManagerContracts;
 
-public interface IUserValidatorManager
+public interface IUserAuthorValidatorManager
 {
     Task ValidateAuthorOfCourseAsync(int courseId, int userId,
         CancellationToken cancellationToken = default);

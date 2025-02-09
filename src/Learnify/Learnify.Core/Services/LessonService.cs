@@ -4,6 +4,7 @@ using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto.Course.LessonDtos;
+using Learnify.Core.Dto.Course.QuizQuestion.Answers;
 using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Dto.Subtitles;
 using Learnify.Core.ManagerContracts;
@@ -19,15 +20,20 @@ public class LessonService : ILessonService
     private readonly IPrivateFileService _iPrivateFileService;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly IBlobStorage _blobStorage;
-    private readonly IUserValidatorManager _userValidatorManager;
+    private readonly IUserAuthorValidatorManager _iUserAuthorValidatorManager;
 
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IMapper _mapper;
 
-    public LessonService(IMongoUnitOfWork mongoUnitOfWork, IPsqUnitOfWork psqUnitOfWork, IMapper mapper,
-        ISubtitlesManager subtitlesManager, IPublishEndpoint publishEndpoint, IPrivateFileService iPrivateFileService,
-        IBlobStorage blobStorage, IUserValidatorManager userValidatorManager)
+    public LessonService(IMongoUnitOfWork mongoUnitOfWork,
+        IPsqUnitOfWork psqUnitOfWork,
+        IMapper mapper,
+        ISubtitlesManager subtitlesManager,
+        IPublishEndpoint publishEndpoint,
+        IPrivateFileService iPrivateFileService,
+        IBlobStorage blobStorage,
+        IUserAuthorValidatorManager iUserAuthorValidatorManager)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
@@ -36,13 +42,13 @@ public class LessonService : ILessonService
         _publishEndpoint = publishEndpoint;
         _iPrivateFileService = iPrivateFileService;
         _blobStorage = blobStorage;
-        _userValidatorManager = userValidatorManager;
+        _iUserAuthorValidatorManager = iUserAuthorValidatorManager;
     }
 
     /// <inheritdoc />
     public async Task DeleteAsync(string id, int userId, CancellationToken cancellationToken = default)
     {
-        await _userValidatorManager.ValidateAuthorOfLessonAsync(id, userId, cancellationToken);
+        await _iUserAuthorValidatorManager.ValidateAuthorOfLessonAsync(id, userId, cancellationToken);
 
         var lessonToUpdateId =
             await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(id, cancellationToken);
@@ -144,7 +150,7 @@ public class LessonService : ILessonService
             throw new Exception("You trying to update lesson that doesn't exist");
         }
 
-        await _userValidatorManager.ValidateAuthorOfLessonAsync(lessonId, userId, cancellationToken);
+        await _iUserAuthorValidatorManager.ValidateAuthorOfLessonAsync(lessonId, userId, cancellationToken);
 
         var lessonToUpdateId =
             await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(lessonId, cancellationToken);
@@ -195,7 +201,7 @@ public class LessonService : ILessonService
     public async Task<LessonUpdateResponse> GetForUpdateAsync(string id, int userId,
         CancellationToken cancellationToken = default)
     {
-        await _userValidatorManager.ValidateAuthorOfLessonAsync(id, userId, cancellationToken);
+        await _iUserAuthorValidatorManager.ValidateAuthorOfLessonAsync(id, userId, cancellationToken);
 
         var editedLessonId =
             await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(id, cancellationToken);
@@ -223,7 +229,7 @@ public class LessonService : ILessonService
     private async Task<LessonUpdateResponse> CreateAsync(LessonAddOrUpdateRequest lessonCreateRequest,
         int userId, bool draft = false, CancellationToken cancellationToken = default)
     {
-        await _userValidatorManager.ValidateAuthorOfParagraphAsync(lessonCreateRequest.ParagraphId, userId,
+        await _iUserAuthorValidatorManager.ValidateAuthorOfParagraphAsync(lessonCreateRequest.ParagraphId, userId,
             cancellationToken: cancellationToken);
 
         var lesson = _mapper.Map<Lesson>(lessonCreateRequest);
@@ -247,7 +253,7 @@ public class LessonService : ILessonService
     private async Task<LessonUpdateResponse> UpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest,
         int userId, bool draft = false, CancellationToken cancellationToken = default)
     {
-        await _userValidatorManager.ValidateAuthorOfLessonAsync(lessonAddOrUpdateRequest.Id, userId,
+        await _iUserAuthorValidatorManager.ValidateAuthorOfLessonAsync(lessonAddOrUpdateRequest.Id, userId,
             cancellationToken: cancellationToken);
 
         var oldLesson =
@@ -376,6 +382,24 @@ public class LessonService : ILessonService
             throw new KeyNotFoundException("Cannot find lesson with such Id");
 
         var response = _mapper.Map<LessonResponse>(lesson);
+
+        var userAnswers = await 
+            _psqUnitOfWork.UserQuizAnswerRepository.GetUserQuizAnswersForLessonAsync(userId, response.Id,
+                cancellationToken);
+
+        foreach (var quiz in response.Quizzes)
+        {
+            var quizAnswer = userAnswers.SingleOrDefault(x => x.QuizId == quiz.Id);
+
+            if (quizAnswer != null)
+            {
+                quiz.UserAnswer = new UserLessonQuizAnswerResponse()
+                {
+                    AnswerIndex = quizAnswer.AnswerIndex,
+                    IsCorrect = quizAnswer.IsCorrect,
+                };
+            }
+        }
 
         return response;
     }

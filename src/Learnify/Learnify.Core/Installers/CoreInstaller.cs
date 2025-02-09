@@ -87,7 +87,8 @@ public class CoreInstaller: IInstaller
         services.AddScoped<IRedisCacheManager, RedisCacheManager>();
         services.AddScoped<PrivateFileService, PrivateFileService>();
         services.AddScoped<ISubtitlesManager, SubtitlesManager>();
-        services.AddScoped<IUserValidatorManager, UserValidatorManager>();
+        services.AddScoped<IUserAuthorValidatorManager, UserAuthorValidatorManager>();
+        services.AddScoped<IUserBoughtValidatorManager, UserBoughtValidatorManager>();
         
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IProfileService, ProfileService>();

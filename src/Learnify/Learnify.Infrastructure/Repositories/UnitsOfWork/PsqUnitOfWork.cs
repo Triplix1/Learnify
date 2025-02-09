@@ -7,8 +7,15 @@ namespace Learnify.Infrastructure.Repositories.UnitsOfWork;
 public class PsqUnitOfWork: IPsqUnitOfWork
 {
     public PsqUnitOfWork(IUserRepository userRepository,
-        IRefreshTokenRepository refreshTokenRepository, ICourseRepository courseRepository,
-        ICourseRatingsRepository courseRatingsRepository, IParagraphRepository paragraphRepository, IPrivateFileRepository privateFileRepository, IUserBoughtRepository userBoughtRepository, ISubtitlesRepository subtitlesRepository, IQuizRepository quizRepository)
+        IRefreshTokenRepository refreshTokenRepository,
+        ICourseRepository courseRepository,
+        ICourseRatingsRepository courseRatingsRepository,
+        IParagraphRepository paragraphRepository,
+        IPrivateFileRepository privateFileRepository,
+        IUserBoughtRepository userBoughtRepository,
+        ISubtitlesRepository subtitlesRepository,
+        IQuizRepository quizRepository,
+        IUserQuizAnswerRepository userQuizAnswerRepository)
     {
         UserRepository = userRepository;
         RefreshTokenRepository = refreshTokenRepository;
@@ -19,6 +26,7 @@ public class PsqUnitOfWork: IPsqUnitOfWork
         UserBoughtRepository = userBoughtRepository;
         SubtitlesRepository = subtitlesRepository;
         QuizRepository = quizRepository;
+        UserQuizAnswerRepository = userQuizAnswerRepository;
     }
 
     public IParagraphRepository ParagraphRepository { get; }
@@ -30,6 +38,8 @@ public class PsqUnitOfWork: IPsqUnitOfWork
     public ISubtitlesRepository SubtitlesRepository { get; }
 
     public IQuizRepository QuizRepository { get; }
+
+    public IUserQuizAnswerRepository UserQuizAnswerRepository { get; }
 
     public IUserRepository UserRepository { get; }
 

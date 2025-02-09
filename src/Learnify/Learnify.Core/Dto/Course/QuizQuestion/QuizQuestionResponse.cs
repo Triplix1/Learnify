@@ -9,4 +9,5 @@ public class QuizQuestionResponse
     public string Question { get; set; }
     public AttachmentResponse? Media { get; set; }
     public AnswersResponse Answers { get; set; }
+    public UserLessonQuizAnswerResponse UserAnswer { get; set; }
 }
