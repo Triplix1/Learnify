@@ -1,7 +1,9 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { take, takeUntil } from 'rxjs';
+import { map, take, takeUntil } from 'rxjs';
+import { convertBlobToText } from 'src/app/Core/helpers/fileHelper';
 import { LessonService } from 'src/app/Core/services/lesson.service';
+import { MediaService } from 'src/app/Core/services/media.service';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
 import { LessonResponse } from 'src/app/Models/Course/Lesson/LessonResponse';
 
@@ -13,8 +15,10 @@ import { LessonResponse } from 'src/app/Models/Course/Lesson/LessonResponse';
 export class CourseStudyLessonComponent extends BaseComponent implements OnChanges {
   @Input({ required: true }) lessonId: string;
   lesson: LessonResponse;
+  transcriptions: Map<number, string> = new Map<number, string>();
+  currentTranscription: number;
 
-  constructor(private readonly lessonService: LessonService, private readonly spinnerService: NgxSpinnerService) {
+  constructor(private readonly lessonService: LessonService, private readonly mediaService: MediaService, private readonly spinnerService: NgxSpinnerService) {
     super();
   }
 
@@ -26,8 +30,32 @@ export class CourseStudyLessonComponent extends BaseComponent implements OnChang
         response => {
           this.spinnerService.hide("lessonLoading");
           this.lesson = response.data;
+          this.loadTranscription(this.lesson.video.subtitles.find(x => x.language === this.lesson.video.primaryLanguage).transcriptionFileId)
         }
       )
     }
+  }
+
+  loadTranscription(transcriptionFileId: number): string {
+    this.currentTranscription = transcriptionFileId;
+
+    if (transcriptionFileId !== null && transcriptionFileId !== undefined) {
+      if (this.transcriptions.has(transcriptionFileId)) {
+        return this.transcriptions.get(transcriptionFileId);
+      }
+
+      this.mediaService.getFileStream(transcriptionFileId).pipe(response =>
+        response.pipe(map(blob => convertBlobToText(blob)))
+      ).subscribe(
+        response => {
+          response.then(c => this.transcriptions.set(transcriptionFileId, c))
+        });
+    }
+
+    return '';
+  }
+
+  get transcription() {
+    return this.transcriptions.get(this.currentTranscription);
   }
 }

@@ -40,13 +40,30 @@ public class PrivateFileRepository : IPrivateFileRepository
         return fileDatas;
     }
 
-    public async Task<PrivateFileData> CreateFileAsync(PrivateFileData privateFileDataCreateRequest,
+    public async Task<PrivateFileData> CreateFileAsync(PrivateFileCreateRequest privateFileDataCreateRequest,
         CancellationToken cancellationToken = default)
     {
-        await _context.FileDatas.AddAsync(privateFileDataCreateRequest, cancellationToken);
+        var privateFileData = _mapper.Map<PrivateFileData>(privateFileDataCreateRequest);
+        
+        await _context.FileDatas.AddAsync(privateFileData, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return privateFileDataCreateRequest;
+        return privateFileData;
+    }
+
+    public async Task<PrivateFileData> UpdateFileAsync(PrivateFileData file, CancellationToken cancellationToken = default)
+    {
+        var privateFile = await _context.FileDatas.FindAsync([file.Id], cancellationToken);
+
+        if(privateFile == null)
+            throw new KeyNotFoundException();
+        
+        _mapper.Map(file, privateFile);
+        
+        _context.Update(file);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return file;
     }
 
     public async Task<IEnumerable<PrivateFileData>> CreateFilesAsync(

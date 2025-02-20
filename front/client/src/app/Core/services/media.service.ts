@@ -29,6 +29,29 @@ export class MediaService {
     )
   }
 
+  getFileStream(fileId: number): Observable<Blob> {
+    const token = localStorage.getItem('authToken');  // Retrieve stored token
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+
+    return this.authService.tokenData$.pipe(
+      switchMap(tokenData => {
+        let fileUrl = this.baseUrl + "/" + fileId;
+
+        if (tokenData)
+          fileUrl += "?access_token=" + tokenData.token;
+
+        return this.httpClient.get(fileUrl,
+          {
+            responseType: 'blob'  // Get response as Blob to handle both text & binary
+          })
+      })
+    )
+  }
+
   // getFileUrl(fileId: number): Observable<string> {
   //   return this.authService.tokenData$.pipe(
   //     switchMap(tokenData => {

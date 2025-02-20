@@ -10,14 +10,15 @@
             <h2 class="text-textInput">{{lesson.title}}</h2>
         </div>
         <div class="relative m-3 w-full flex justify-center ">
-            <app-media classList="rounded-lg video right-8"
-                       [fileId]="lesson.video.attachment.fileId"
-                       [contentType]="lesson.video.attachment.contentType"></app-media>
+            <app-video-player classList="rounded-lg video right-8"
+                              [fileId]="lesson.video.attachment.fileId"
+                              [availableSubtitles]="lesson.video.subtitles"></app-video-player>
         </div>
         <div class="lesson-content flex justify-start">
             <mat-tab-group class="w-full">
                 <mat-tab label="Text">
                     <div class="mt-4">
+                        {{transcription}}
                         <!-- <app-image-uploader [file]="profileData?.imageUrl"
                                             (imageChanged)="imagechanged($event)"></app-image-uploader> -->
                     </div>

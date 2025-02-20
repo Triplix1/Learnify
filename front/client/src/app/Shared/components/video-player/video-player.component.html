@@ -1,9 +1,26 @@
-<video *ngIf="this.fileId"
+<div>
+    <label for="subtitleSelector">Select Subtitle:</label>
+    <select id="subtitleSelector"
+            (change)="onSubtitleChange($event)">
+        <option *ngFor="let subtitle of availableSubtitles"
+                [value]="subtitle.subtitleFileId">
+            {{ subtitle.language }}
+        </option>
+    </select>
+</div>
+
+<video #videoPlayer
+       *ngIf="this.fileId"
        controls
        class="w-full {{classList}}"
        [autoplay]="false"
        [src]="fileId | media | async"
        (loadedmetadata)="onVideoLoad()"
        (error)="onVideoError($event)">
-    Your browser does not support the video tag.
+    <track *ngIf="availableSubtitles[0]"
+           label="English"
+           kind="subtitles"
+           srclang="en"
+           [src]="availableSubtitles[0].subtitleFileId | media | async"
+           default />
 </video>

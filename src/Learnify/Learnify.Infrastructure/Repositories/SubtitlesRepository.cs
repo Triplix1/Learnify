@@ -3,6 +3,7 @@ using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto.Subtitles;
 using Learnify.Infrastructure.Data;
+using Learnify.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
@@ -18,20 +19,24 @@ public class SubtitlesRepository : ISubtitlesRepository
         _mapper = mapper;
     }
 
-    public async Task<Subtitle> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Subtitle> GetByIdAsync(int id, IEnumerable<string> stringsToInclude, CancellationToken cancellationToken = default)
     {
-        var subtitle = await _context.Subtitles.FindAsync([id], cancellationToken);
+        var query = _context.Subtitles.AsQueryable();
+        
+        if (stringsToInclude.Any())
+            query = IncludeParamsHelper.IncludeStrings(stringsToInclude, query);
 
-        return subtitle;
+        return await query.FirstOrDefaultAsync(x => id == x.Id, cancellationToken: cancellationToken);
     }
 
-    public async Task<IEnumerable<Subtitle>> GetByIdsAsync(IEnumerable<int> ids,
-        CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Subtitle>> GetByIdsAsync(IEnumerable<int> ids, IEnumerable<string> stringsToInclude, CancellationToken cancellationToken = default)
     {
-        var subtitles = await _context.Subtitles.Where(s => ids.Contains(s.Id))
-            .ToArrayAsync(cancellationToken: cancellationToken);
+        var query = _context.Subtitles.AsQueryable();
+        
+        if (stringsToInclude.Any())
+            query = IncludeParamsHelper.IncludeStrings(stringsToInclude, query);
 
-        return subtitles;
+        return await query.Where(s => ids.Contains(s.Id)).ToArrayAsync(cancellationToken);
     }
 
     public async Task<Subtitle> CreateAsync(Subtitle subtitlesCreateRequest,

@@ -78,7 +78,7 @@ public class FileService : IFileService
                 ApiResponse.Failure(new UnauthorizedAccessException("You have not permissions to edit this course"));
         }
 
-        var privateFile = new PrivateFileData()
+        var privateFile = new PrivateFileCreateRequest()
         {
             CourseId = privateFileBlobCreateRequest.CourseId,
             ContentType = privateFileBlobCreateRequest.ContentType
@@ -100,14 +100,16 @@ public class FileService : IFileService
             ContentType = privateFileBlobCreateRequest.ContentType
         };
 
-        using var ts = TransactionScopeBuilder.CreateReadCommittedAsync();
+        PrivateFileData fileResponse;
+        using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
+        {
+            fileResponse = await _psqUnitOfWork.PrivateFileRepository.CreateFileAsync(privateFile, cancellationToken);
 
-        var fileResponse = await _psqUnitOfWork.PrivateFileRepository.CreateFileAsync(privateFile, cancellationToken);
+            await _blobStorage.UploadAsync(blobDto, cancellationToken: cancellationToken);
 
-        await _blobStorage.UploadAsync(blobDto, cancellationToken: cancellationToken);
-
-        ts.Complete();
-
+            ts.Complete();
+        }
+        
         var response = _mapper.Map<PrivateFileDataResponse>(fileResponse);
 
         return response;

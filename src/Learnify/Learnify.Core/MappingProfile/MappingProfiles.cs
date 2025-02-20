@@ -2,7 +2,6 @@
 using Learnify.Contracts;
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.Entities.Sql;
-using Learnify.Core.Dto;
 using Learnify.Core.Dto.Attachment;
 using Learnify.Core.Dto.Course;
 using Learnify.Core.Dto.Course.LessonDtos;
@@ -79,12 +78,16 @@ public class MappingProfiles : Profile
         // Subtitles
         CreateMap<SubtitlesCreateRequest, Subtitle>();
         CreateMap<Subtitle, SubtitleInfo>();
-        CreateMap<Subtitle, SubtitleReference>();
+        CreateMap<Subtitle, SubtitlesResponse>();
+        CreateMap<Subtitle, SubtitleReference>()
+            .ForMember(s => s.SubtitleId, s => s.MapFrom(sb => sb.Id));
         CreateMap<SubtitlesResponse, SubtitleReference>()
             .ForMember(s => s.SubtitleId, s => s.MapFrom(sr => sr.Id));
 
         // FileData
         CreateMap<PrivateFileData, PrivateFileDataResponse>();
+        CreateMap<GeneratedResponseUpdateRequest, PrivateFileCreateRequest>();
+        CreateMap<PrivateFileCreateRequest, PrivateFileData>();
 
         //Video
         CreateMap<VideoAddOrUpdateRequest, Video>()

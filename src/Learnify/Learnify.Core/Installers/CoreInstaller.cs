@@ -2,6 +2,8 @@
 using System.Text.Json.Serialization;
 using Azure.Storage.Blobs;
 using FluentValidation;
+using Learnify.Contracts;
+using Learnify.Core.Consumers;
 using Learnify.Core.Dto.Payment;
 using Learnify.Core.Installer;
 using Learnify.Core.ManagerContracts;
@@ -61,6 +63,7 @@ public class CoreInstaller: IInstaller
         {
             x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("MainService", false));
 
+            x.AddConsumer<SubtitlesGeneratedResponseConsumer>();
             x.UsingRabbitMq((context, cfg) =>
             {
                 cfg.UseMessageRetry(r =>
