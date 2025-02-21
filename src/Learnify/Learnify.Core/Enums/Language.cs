@@ -6,5 +6,5 @@ public enum Language
     Ukrainian,
     Spanish,
     Italian,
-    Franch
+    French
 }

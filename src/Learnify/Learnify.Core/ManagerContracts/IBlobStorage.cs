@@ -1,5 +1,6 @@
 ﻿using Learnify.Core.Dto.Blob;
 using Learnify.Core.Dto.File;
+using Learnify.Core.Dto.Params;
 
 namespace Learnify.Core.ManagerContracts;
 
@@ -11,7 +12,7 @@ public interface IBlobStorage
     Task<bool> DeleteAsync(string containerName, string blobId, CancellationToken cancellationToken = default);
     Task<string> GetFileUrlAsync(string containerName, string blobId, CancellationToken cancellationToken = default);
 
-    Task<FileStreamResponse> GetBlobStreamAsync(string containerName, string blobName,
+    Task<FileStreamResponse> GetBlobStreamAsync(GetBlobParams getBlobParams,
         CancellationToken cancellationToken = default);
 
     Task<string> GetHlsManifestUrl(string containerName, string blobName,

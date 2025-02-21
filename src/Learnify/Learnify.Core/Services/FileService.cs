@@ -6,6 +6,7 @@ using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Blob;
 using Learnify.Core.Dto.File;
+using Learnify.Core.Dto.Params;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Transactions;
@@ -56,9 +57,31 @@ public class FileService : IFileService
             }
         }
 
-        var stream = await _blobStorage.GetBlobStreamAsync(file.ContainerName, file.BlobName, cancellationToken);
+        var blobParams = new GetBlobParams()
+        {
+            ContainerName = file.ContainerName,
+            BlobName = file.BlobName,
+            ContentType = MapContentType(file.ContentType),
+        };
+        
+        var stream = await _blobStorage.GetBlobStreamAsync(blobParams, cancellationToken);
 
         return stream;
+    }
+
+    private string MapContentType(string contentType)
+    {
+        if (contentType.StartsWith("image/") || contentType.StartsWith("video/"))
+        {
+            return "application/octet-stream";
+        }
+
+        if (contentType.StartsWith("application/x-subrip"))
+        {
+            return "text/plain";
+        }
+        
+        return contentType;
     }
 
     public async Task<PrivateFileDataResponse> CreateAsync(

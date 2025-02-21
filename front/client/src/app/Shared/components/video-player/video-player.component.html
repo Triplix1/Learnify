@@ -1,26 +1,14 @@
-<div>
-    <label for="subtitleSelector">Select Subtitle:</label>
-    <select id="subtitleSelector"
-            (change)="onSubtitleChange($event)">
-        <option *ngFor="let subtitle of availableSubtitles"
-                [value]="subtitle.subtitleFileId">
-            {{ subtitle.language }}
-        </option>
-    </select>
-</div>
-
-<video #videoPlayer
-       *ngIf="this.fileId"
+<video class="w-full {{classList}}"
+       id="singleVideo"
+       preload="auto"
        controls
-       class="w-full {{classList}}"
-       [autoplay]="false"
-       [src]="fileId | media | async"
-       (loadedmetadata)="onVideoLoad()"
-       (error)="onVideoError($event)">
-    <track *ngIf="availableSubtitles[0]"
-           label="English"
+       crossorigin>
+    <source [src]="fileId | media | async"
+            type="video/mp4">
+
+    <track *ngFor="let subtitles of availableSubtitles; let index = index"
+           [label]="subtitles.language"
            kind="subtitles"
-           srclang="en"
-           [src]="availableSubtitles[0].subtitleFileId | media | async"
-           default />
+           [srclang]="getSrclang(subtitles.language)"
+           [src]="availableSubtitles[0].subtitleFileId | media | async " />
 </video>

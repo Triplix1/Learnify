@@ -3,6 +3,7 @@ using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using Learnify.Core.Dto.Blob;
 using Learnify.Core.Dto.File;
+using Learnify.Core.Dto.Params;
 using Learnify.Core.ManagerContracts;
 
 namespace Learnify.Core.Managers;
@@ -92,22 +93,20 @@ public class BlobStorage : IBlobStorage
         return url;
     }
 
-    public async Task<FileStreamResponse> GetBlobStreamAsync(string containerName, string blobName,
+    public async Task<FileStreamResponse> GetBlobStreamAsync(GetBlobParams getBlobParams,
         CancellationToken cancellationToken = default)
     {
-        var blobClient = await GetBlobClientInternalAsync(containerName, blobName, cancellationToken);
+        var blobClient = await GetBlobClientInternalAsync(getBlobParams.ContainerName, getBlobParams.BlobName, cancellationToken);
 
         if (!await blobClient.ExistsAsync(cancellationToken))
-            throw new FileNotFoundException($"Blob with name:{blobName} does not exist in container:{containerName}.");
-
-        var blobProperties = await blobClient.GetPropertiesAsync(cancellationToken: cancellationToken);
+            throw new FileNotFoundException($"Blob with name:{getBlobParams.BlobName} does not exist in container:{getBlobParams.ContainerName}.");
 
         var blobStream = await blobClient.OpenReadAsync(cancellationToken: cancellationToken);
 
         var response = new FileStreamResponse()
         {
             Stream = blobStream,
-            ContentType = blobProperties.Value.ContentType
+            ContentType = getBlobParams.ContentType
         };
 
         return response;

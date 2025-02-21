@@ -1,0 +1,39 @@
+﻿import whisper
+
+from Helpers.timeFormatter import format_time
+
+def format_time_vtt(seconds):
+    """Formats time in VTT format (hh:mm:ss.sss)"""
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = seconds % 60
+    return f"{hours:02}:{minutes:02}:{secs:06.3f}".replace(",", ".")
+
+def generate_subtitles(audio_path, primary_language):
+    """Generates original subtitles using Whisper AI."""
+
+    lang_map = {"English": "en", "Spanish": "es", "French": "fr", "German": "de"}
+    primary_language = lang_map.get(primary_language, primary_language)  # Default to input if already in ISO format
+
+    model = whisper.load_model("base")
+    result = model.transcribe(audio_path, language=primary_language)
+
+    txt_path = audio_path.replace(".wav", f"_{primary_language}.txt")
+    vtt_path = audio_path.replace(".wav", f"_{primary_language}.vtt")
+
+    segments = result["segments"]
+    with open(vtt_path, "w", encoding="utf-8") as vtt_file:
+        vtt_file.write("WEBVTT\n\n")  # VTT header
+
+        for segment in segments:
+            start = format_time_vtt(segment["start"])
+            end = format_time_vtt(segment["end"])
+            text = segment["text"]
+
+            vtt_file.write(f"{start} --> {end}\n")
+            vtt_file.write(f"{text}\n\n")
+
+    with open(txt_path, "w", encoding="utf-8") as txt_file:
+        txt_file.write(result["text"])
+
+    return vtt_path, txt_path, segments

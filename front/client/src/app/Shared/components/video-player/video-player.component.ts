@@ -72,4 +72,18 @@ export class VideoPlayerComponent extends BaseComponent {
     const selectedFileId = +(event.target as HTMLSelectElement).value;
     this.loadSubtitles(selectedFileId);
   }
+
+  getSrclang(language: string) {
+    language = language.toLowerCase();
+
+    const langMap: any = {
+      "english": "en",
+      "ukrainian": "uk",
+      "spanish": "es",
+      "italian": "it",
+      "french": "fr"
+    };
+
+    return langMap[language] || null; // Returns null if the language is not found
+  }
 }

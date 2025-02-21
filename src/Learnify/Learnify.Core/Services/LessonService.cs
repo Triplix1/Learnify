@@ -333,10 +333,14 @@ public class LessonService : ILessonService
                     .Attachment
                     .FileId, cancellationToken);
 
-                updatedLesson.Video.Subtitles = await _subtitlesManager.CreateAsync(file.BlobName, file.ContainerName,
-                    lessonAddOrUpdateRequest.Video.Subtitles.Where(l =>
-                        !oldLesson.Video.Subtitles.Select(s => s.Language).Contains(l)),
-                    lessonAddOrUpdateRequest.Video.PrimaryLanguage, courseId, cancellationToken);
+                var newSubtitles = lessonAddOrUpdateRequest.Video.Subtitles.Where(l =>
+                    !oldLesson.Video.Subtitles.Select(s => s.Language).Contains(l)).ToArray();
+                if (newSubtitles.Length > 0)
+                {
+                    updatedLesson.Video.Subtitles = await _subtitlesManager.CreateAsync(file.BlobName,
+                        file.ContainerName, newSubtitles,
+                        lessonAddOrUpdateRequest.Video.PrimaryLanguage, courseId, cancellationToken);
+                }
             }
 
             updatedLesson = await _mongoUnitOfWork.Lessons.UpdateAsync(updatedLesson, cancellationToken);

@@ -8,9 +8,16 @@
                               (changedInput)="saveDraft()"></app-text-input>
        </div>
 
+       <div class="mx-auto w-11/12 my-2 h-[2px] bg-slate-800"></div>
+
+       <div>
+
+       </div>
        <div *ngIf="lessonResponse?.video?.attachment; else mediaNotExists"
             class="flex flex-col items-center justify-center">
-              <app-video-player [fileId]="lessonResponse.video.attachment.fileId"></app-video-player>
+              <app-video-player classList="my-3 rounded-lg"
+                                [fileId]="lessonResponse.video.attachment.fileId"
+                                [availableSubtitles]="lessonResponse.video.subtitles"></app-video-player>
               <app-button (buttonClick)="dropVideo()">Drop File</app-button>
        </div>
 
@@ -22,6 +29,8 @@
                                         (fileUploaded)="handleFileInput($event)"></app-file-uploader>
               </div>
        </ng-template>
+
+       <div class="mx-auto w-11/12 my-2 h-[2px] bg-slate-800"></div>
 
        <div>
               <app-create-quiz [quizzes]="lessonResponse?.quizzes"

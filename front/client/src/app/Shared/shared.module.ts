@@ -34,7 +34,12 @@ import { NestedOptionComponent } from './components/nested-option/nested-option.
 import { DragDropDirective } from './directives/drag-drop.directive';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { TextareaComponent } from './components/textarea/textarea.component';
-import { TextFieldModule } from '@angular/cdk/text-field';
+import { VgCoreModule } from '@videogular/ngx-videogular/core';
+import { VgControlsModule } from '@videogular/ngx-videogular/controls';
+import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
+import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
+import { FilePathPipe } from './pipes/file-path.pipe';
+import { SelectLanguageComponent } from './components/select-language/select-language.component';
 
 @NgModule({
   declarations: [
@@ -64,6 +69,8 @@ import { TextFieldModule } from '@angular/cdk/text-field';
     DragDropDirective,
     ConfirmDialogComponent,
     TextareaComponent,
+    FilePathPipe,
+    SelectLanguageComponent,
   ],
   imports: [
     CommonModule,
@@ -79,7 +86,11 @@ import { TextFieldModule } from '@angular/cdk/text-field';
     ReactiveFormsModule,
     NgxSpinnerModule.forRoot({
       type: 'ball-clip-rotate'
-    })
+    }),
+    VgCoreModule,
+    VgControlsModule,
+    VgOverlayPlayModule,
+    VgBufferingModule,
   ],
   exports: [
     CommonModule,
@@ -115,6 +126,12 @@ import { TextFieldModule } from '@angular/cdk/text-field';
     DragDropDirective,
     ConfirmDialogComponent,
     TextareaComponent,
+    VgCoreModule,
+    VgControlsModule,
+    VgOverlayPlayModule,
+    VgBufferingModule,
+    FilePathPipe,
+    SelectLanguageComponent,
   ]
 })
 export class SharedModule { }

@@ -41,6 +41,15 @@ public class MediaController : BaseApiController
     //     return Ok(url);
     // }
 
+    public async Task<IActionResult> GetFileAsync(int fileId, CancellationToken cancellationToken = default)
+    {
+        var userId = HttpContext.User.GetUserId();
+
+        var fileStreamResponse = await _fileService.GetFileStreamById(fileId, userId, cancellationToken);
+
+        return File(fileStreamResponse.Stream, fileStreamResponse.ContentType, true);
+    }
+
     [Authorize]
     [HttpPost]
     [RequestSizeLimit((long)10 * 1024 * 1024 * 1024)]
