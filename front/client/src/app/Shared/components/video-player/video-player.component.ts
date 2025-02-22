@@ -57,8 +57,8 @@ export class VideoPlayerComponent extends BaseComponent {
         // Create and append new track
         const track = document.createElement('track');
         track.kind = 'subtitles';
-        track.label = this.availableSubtitles.find(sub => sub.subtitleFileId === fileId)?.language || 'Subtitle';
-        track.srclang = this.availableSubtitles.find(sub => sub.subtitleFileId === fileId)?.language || 'en';
+        track.label = this.availableSubtitles.find(sub => sub.subtitleFileId === fileId)?.language.toString() || 'Subtitle';
+        track.srclang = this.availableSubtitles.find(sub => sub.subtitleFileId === fileId)?.language.toString() || 'en';
         track.src = subtitleBlobUrl;
         track.default = true;
 

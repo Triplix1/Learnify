@@ -3,6 +3,5 @@ import { Language } from "src/app/Models/enums/Language";
 
 export interface VideoAddOrUpdateRequest {
     attachment: AttachmentResponse;
-    primaryLanguage: string;
     subtitles: Language[];
 }

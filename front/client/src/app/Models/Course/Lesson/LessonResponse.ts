@@ -1,3 +1,4 @@
+import { Language } from "../../enums/Language";
 import { QuizQuestionResponse } from "./QuizQuestion/QuizQuestionResponse";
 import { VideoResponse } from "./Video/VideoResponse";
 
@@ -6,5 +7,6 @@ export interface LessonResponse {
     paragraphId: number;
     title: string;
     video: VideoResponse;
+    primaryLanguage: Language;
     quizzes: QuizQuestionResponse[];
 }

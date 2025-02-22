@@ -1,34 +1,14 @@
 ﻿using Learnify.Core.Dto.Course.Video;
+using Learnify.Core.Enums;
 
 namespace Learnify.Core.Dto.Course.LessonDtos;
 
-/// <summary>
-/// LessonAddOrUpdateRequest
-/// </summary>
 public class LessonAddOrUpdateRequest
 {
-    /// <summary>
-    /// Gets or sets value for Id
-    /// </summary>
     public string Id { get; set; }
-
-    /// <summary>
-    /// Gets or sets value for ParagraphId
-    /// </summary>
     public int ParagraphId { get; set; }
-
-    /// <summary>
-    /// Gets or sets value for Title
-    /// </summary>
     public string Title { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for Title
-    /// </summary>
     public string EditedLessonId { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for Video
-    /// </summary>
+    public Language PrimaryLanguage { get; set; }
     public VideoAddOrUpdateRequest Video { get; set; }
 }

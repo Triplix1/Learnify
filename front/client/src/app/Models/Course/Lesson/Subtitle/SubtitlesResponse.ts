@@ -4,5 +4,5 @@ export interface SubtitlesResponse {
     id: number;
     subtitleFileId: number | null;
     transcriptionFileId: number | null;
-    language: string;
+    language: Language;
 }

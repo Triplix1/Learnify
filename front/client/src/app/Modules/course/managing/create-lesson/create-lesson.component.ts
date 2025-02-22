@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable, of, switchMap, take, takeUntil } from 'rxjs';
+import { convertStringToLanguage } from 'src/app/Core/helpers/lessonHelper';
 import { LessonService } from 'src/app/Core/services/lesson.service';
 import { MediaService } from 'src/app/Core/services/media.service';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
@@ -23,7 +24,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './create-lesson.component.html',
   styleUrls: ['./create-lesson.component.scss']
 })
-export class CreateLessonComponent extends BaseComponent implements OnInit, OnChanges {
+export class CreateLessonComponent extends BaseComponent implements OnChanges {
   @Input({ required: true }) currentLessonEditing: LessonStepAddOrUpdateRequest;
   @Input({ required: true }) courseId: number;
   @Input({ required: true }) possibleToCreateNewLesson: boolean = true;
@@ -44,19 +45,32 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
     this.possibleToCreateNewLessonChange.emit(possibleToCreateNewLesson);
   }
 
-  ngOnInit(): void {
-    this.initializeComponent()
+  ngOnChanges(changes: SimpleChanges): void {
+    const currentLessonEditing = changes['currentLessonEditing'];
+    if (currentLessonEditing && currentLessonEditing.currentValue !== currentLessonEditing.previousValue) {
+      this.initializeComponent();
+    }
   }
 
   initializeComponent() {
     this.initializeForm();
+
+    this.lessonForm.controls['language'].valueChanges.pipe(takeUntil(this.destroySubject))
+      .subscribe(r => {
+        if (r != this.lessonResponse?.primaryLanguage) {
+          const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
+          lessonAddOrUpdateRequest.primaryLanguage = this.lessonForm.controls['language'].value ?? lessonAddOrUpdateRequest.primaryLanguage;
+
+          this.saveDraft(lessonAddOrUpdateRequest)
+        }
+      });
 
     this.lessonResponse = null;
     this.lessonUpdatedTitleResponse = null;
     this.possibleToCreateNewLessonValue = true;
 
     if (!this.currentLessonEditing.id) {
-      this.lessonService.saveDraft({ id: null, editedLessonId: null, paragraphId: this.currentLessonEditing.paragraphId, title: null, video: null }).pipe(take(1))
+      this.lessonService.saveDraft({ id: null, editedLessonId: null, primaryLanguage: this.lessonForm.controls["language"].value, paragraphId: this.currentLessonEditing.paragraphId, title: null, video: null }).pipe(take(1))
         .subscribe(response => {
           this.handleLessonUpdate(response.data);
         })
@@ -69,17 +83,17 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    const currentLessonEditing = changes['currentLessonEditing'];
-    if (currentLessonEditing && currentLessonEditing.currentValue !== currentLessonEditing.previousValue) {
-      this.initializeComponent();
-    }
-  }
-
   uploadContentFacade = (privateFileBlobCreateRequest: PrivateFileBlobCreateRequest): Observable<object> => {
     privateFileBlobCreateRequest.courseId = this.courseId;
 
     return this.mediaService.create(privateFileBlobCreateRequest);
+  }
+
+  handleUpdateOfTitle() {
+    const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
+    lessonAddOrUpdateRequest.title = this.lessonForm.controls['title'].value ?? lessonAddOrUpdateRequest.title;
+
+    this.saveDraft(lessonAddOrUpdateRequest)
   }
 
   handleFileInput(fileUploadedEvent: Observable<ApiResponseWithData<PrivateFileDataResponse>>) {
@@ -95,7 +109,7 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
         };
 
         const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
-        lessonAddOrUpdateRequest.video = { attachment: attachment, primaryLanguage: Language.English.toString(), subtitles: [Language.English] };
+        lessonAddOrUpdateRequest.video = { attachment: attachment, subtitles: [lessonAddOrUpdateRequest.primaryLanguage] };
 
         return this.lessonService.saveDraft(lessonAddOrUpdateRequest);
       })
@@ -106,20 +120,6 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
       });
   }
 
-
-  // lessonAddOrUpdateRequest(lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest) {
-  //   this.currentLessonEditing = lessonStepAddOrUpdateRequest;
-  //   this.lessonResponse = null;
-
-  //   if (lessonStepAddOrUpdateRequest.id) {
-  //     this.lessonService.getLessonForUpdateById(lessonStepAddOrUpdateRequest.id).pipe(take(1)).subscribe(response => {
-  //       this.handleLessonUpdate(response.data)
-  //     });
-  //   }
-
-  //   this.initializeForm();
-  // }
-
   initializeForm() {
     this.lessonForm = this.fb.group({
       title: ['', Validators.required],
@@ -128,18 +128,14 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
   }
 
   dropVideo() {
-    this.lessonResponse.video = null;
-    this.saveDraft();
+    const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
+
+    lessonAddOrUpdateRequest.video = null;
+    this.saveDraft(lessonAddOrUpdateRequest);
   }
 
-  saveDraft() {
-    const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
+  saveDraft(lessonAddOrUpdateRequest: LessonAddOrUpdateRequest) {
     this.possibleToCreateNewLessonValue = false;
-
-    lessonAddOrUpdateRequest.title = this.lessonForm.controls['title'].value ?? lessonAddOrUpdateRequest.title;
-
-    if (lessonAddOrUpdateRequest.video)
-      lessonAddOrUpdateRequest.video.primaryLanguage = this.lessonForm.controls['language'].value ?? lessonAddOrUpdateRequest.video.primaryLanguage;
 
     this.lessonService.saveDraft(lessonAddOrUpdateRequest).pipe(take(1))
       .subscribe(response => {
@@ -171,8 +167,6 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
   }
 
   cancel() {
-
-
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '450px',
       data: {
@@ -205,8 +199,7 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
       if (this.lessonResponse.video) {
         video = {
           attachment: this.lessonResponse.video.attachment,
-          primaryLanguage: this.lessonResponse.video.primaryLanguage,
-          subtitles: this.lessonResponse.video.subtitles.map(s => Language[s.language as keyof typeof Language])
+          subtitles: this.lessonResponse.video.subtitles.map(s => s.language)
         }
       }
 
@@ -214,6 +207,7 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
         editedLessonId: this.lessonResponse.editedLessonId,
         id: this.lessonResponse.id,
         paragraphId: this.lessonResponse.paragraphId,
+        primaryLanguage: this.lessonForm.controls['language'].value ?? this.lessonResponse.primaryLanguage,
         video: video,
         title: this.lessonForm.controls['title'].value
       }
@@ -222,6 +216,7 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
       lessonAddOrUpdateRequest = {
         editedLessonId: null,
         paragraphId: this.currentLessonEditing.paragraphId,
+        primaryLanguage: this.lessonForm.controls['language'].value,
         id: this.currentLessonEditing.id,
         title: null,
         video: null
@@ -237,12 +232,25 @@ export class CreateLessonComponent extends BaseComponent implements OnInit, OnCh
     this.lessonUpdatedTitleResponse = { id: lessonResponse.id, title: lessonResponse.title }
     this.lessonForm.controls['title'].setValue(lessonResponse.title);
 
-    if (lessonResponse.video)
-      this.lessonForm.controls['language'].setValue(Language[lessonResponse.video.primaryLanguage as keyof typeof Language]);
+    this.lessonForm.controls['language'].setValue(lessonResponse.primaryLanguage);
 
     this.lessonService.$lessonAddedOrUpdated.next(this.lessonResponse);
     this.lessonForm.markAsUntouched();
 
     this.initialLessonId = lessonResponse.isDraft ? lessonResponse.originalLessonId : lessonResponse.id;
+  }
+
+  updateSelectedLanguages(languages: Language[]) {
+    const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
+    lessonAddOrUpdateRequest.video.subtitles = languages;
+
+    this.saveDraft(lessonAddOrUpdateRequest)
+  }
+
+  get subtitlesLanguages(): Language[] {
+    return this.lessonResponse?.video?.subtitles.map(s => s.language) ?? []
+  }
+  get constantLanguages(): Language[] {
+    return [this.lessonResponse?.primaryLanguage];
   }
 }

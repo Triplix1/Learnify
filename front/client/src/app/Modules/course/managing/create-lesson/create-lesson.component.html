@@ -5,14 +5,25 @@
               <app-text-input [formControl]="$any(lessonForm.controls['title'])"
                               placeholder="Title"
                               label="Title"
-                              (changedInput)="saveDraft()"></app-text-input>
+                              (changedInput)="handleUpdateOfTitle()"></app-text-input>
        </div>
 
        <div class="mx-auto w-11/12 my-2 h-[2px] bg-slate-800"></div>
 
-       <div>
-
+       <div class="flex justify-center items-center">
+              <app-select-language [formControl]="$any(lessonForm.controls['language'])"></app-select-language>
        </div>
+
+       <div *ngIf="lessonResponse.video">
+              <div class="mx-auto w-11/12 my-2 h-[2px] bg-slate-800"></div>
+              <div class="flex justify-center">
+                     <app-select-languages-list [languagesList]="subtitlesLanguages"
+                                                [constantlySelectedLanguages]="constantLanguages"
+                                                (languagesListChange)="updateSelectedLanguages($event)"></app-select-languages-list>
+              </div>
+       </div>
+       <div class="mx-auto w-11/12 my-2 h-[2px] bg-slate-800"></div>
+
        <div *ngIf="lessonResponse?.video?.attachment; else mediaNotExists"
             class="flex flex-col items-center justify-center">
               <app-video-player classList="my-3 rounded-lg"
@@ -24,7 +35,7 @@
        <ng-template #mediaNotExists>
               <div class="flex justify-center items-center w-full mt-2">
                      <app-file-uploader class="w-72 h-32"
-                                        accept="video/mp4,video/x-m4v,video/*,.mkv"
+                                        accept="video/mp4"
                                         [uploadMethod]="uploadContentFacade"
                                         (fileUploaded)="handleFileInput($event)"></app-file-uploader>
               </div>

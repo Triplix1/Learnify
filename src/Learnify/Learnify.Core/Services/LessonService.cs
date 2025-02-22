@@ -7,6 +7,7 @@ using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.QuizQuestion.Answers;
 using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Dto.Subtitles;
+using Learnify.Core.Enums;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Transactions;
@@ -45,103 +46,37 @@ public class LessonService : ILessonService
         _userAuthorValidatorManager = userAuthorValidatorManager;
     }
 
-    /// <inheritdoc />
-    public async Task DeleteAsync(string id, int userId, CancellationToken cancellationToken = default)
-    {
-        await _userAuthorValidatorManager.ValidateAuthorOfLessonAsync(id, userId, cancellationToken);
-
-        var lessonToUpdateId =
-            await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(id, cancellationToken);
-
-        var fullDelete = lessonToUpdateId != null && lessonToUpdateId != id;
-
-        await SafelyDeleteLessonsAndAttachmentsAsync(id, fullDelete, cancellationToken);
-    }
-
-    private async Task SafelyDeleteLessonsAndAttachmentsAsync(string id, bool totalDelete = false,
+    public async Task<LessonResponse> GetByIdAsync(string id, int userId,
         CancellationToken cancellationToken = default)
     {
-        if (id == null)
-        {
-            throw new ArgumentNullException(nameof(id));
-        }
-
         var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(id, cancellationToken);
 
-        var lessonToDelete = await GetLessonToDeleteResponse(lesson, cancellationToken);
+        if (lesson is null)
+            throw new KeyNotFoundException("Cannot find lesson with such Id");
 
-        var relatedLessonId = lessonToDelete.EditedLessonId ?? lessonToDelete.OriginalLessonId;
+        var response = _mapper.Map<LessonResponse>(lesson);
 
-        using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
+        response.Video.Subtitles = await GetSubtitlesForLessonAsync(lesson, cancellationToken);
+
+        var userAnswers = await
+            _psqUnitOfWork.UserQuizAnswerRepository.GetUserQuizAnswersForLessonAsync(userId, response.Id,
+                cancellationToken);
+
+        foreach (var quiz in response.Quizzes)
         {
-            if (relatedLessonId != null)
+            var quizAnswer = userAnswers.SingleOrDefault(x => x.QuizId == quiz.Id);
+
+            if (quizAnswer != null)
             {
-                var relatedLesson =
-                    await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(relatedLessonId, cancellationToken);
-
-                var relatedLessonToDelete = await GetLessonToDeleteResponse(relatedLesson, cancellationToken);
-
-                if (totalDelete)
+                quiz.UserAnswer = new UserLessonQuizAnswerResponse()
                 {
-                    lessonToDelete.Subtitles =
-                        lessonToDelete.Subtitles.Concat(relatedLessonToDelete.Subtitles).Distinct();
-                    lessonToDelete.Attachments =
-                        lessonToDelete.Attachments.Concat(relatedLessonToDelete.Attachments).Distinct();
-                }
-                else
-                {
-                    lessonToDelete.Subtitles = lessonToDelete.Subtitles.Except(relatedLessonToDelete.Subtitles);
-                    lessonToDelete.Attachments = lessonToDelete.Attachments.Except(relatedLessonToDelete.Attachments);
-
-                    if (relatedLessonId == lessonToDelete.EditedLessonId)
-                    {
-                        relatedLesson.IsDraft = false;
-                        relatedLesson.OriginalLessonId = null;
-                    }
-                    else
-                    {
-                        relatedLesson.EditedLessonId = null;
-                    }
-
-                    await _mongoUnitOfWork.Lessons.UpdateAsync(relatedLesson, cancellationToken);
-                }
+                    AnswerIndex = quizAnswer.AnswerIndex,
+                    IsCorrect = quizAnswer.IsCorrect,
+                };
             }
-
-            await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(lessonToDelete.Attachments, cancellationToken);
-
-            await _subtitlesManager.DeleteRangeAsync(lessonToDelete.Subtitles, cancellationToken);
-
-            await _mongoUnitOfWork.Lessons.DeleteAsync(id, cancellationToken);
-
-            if (totalDelete && relatedLessonId != null)
-                await _mongoUnitOfWork.Lessons.DeleteAsync(relatedLessonId, cancellationToken);
-
-            await _mongoUnitOfWork.Lessons.DeleteAsync(lesson.Id, cancellationToken: cancellationToken);
-
-            ts.Complete();
         }
-    }
 
-    private async Task<LessonToDeleteResponse> GetLessonToDeleteResponse(Lesson lesson,
-        CancellationToken cancellationToken = default)
-    {
-        var attachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(lesson.Id, cancellationToken);
-
-        var attachmentFileIds = attachments.Select(a => a.FileId);
-
-        var subtitleIds = lesson.Video?.Subtitles.Select(s => s.SubtitleId) ?? [];
-
-        var result = new LessonToDeleteResponse
-        {
-            Id = lesson.Id,
-            EditedLessonId = lesson.EditedLessonId,
-            OriginalLessonId = lesson.OriginalLessonId,
-            IsDraft = lesson.IsDraft,
-            Attachments = attachmentFileIds,
-            Subtitles = subtitleIds,
-        };
-
-        return result;
+        return response;
     }
 
     public async Task<string> GetLessonToUpdateIdAsync(string lessonId, int userId,
@@ -228,130 +163,6 @@ public class LessonService : ILessonService
         return await UpdateAsync(lessonAddOrUpdateRequest, userId, cancellationToken: cancellationToken);
     }
 
-    private async Task<LessonUpdateResponse> CreateAsync(LessonAddOrUpdateRequest lessonCreateRequest,
-        int userId, bool draft = false, CancellationToken cancellationToken = default)
-    {
-        await _userAuthorValidatorManager.ValidateAuthorOfParagraphAsync(lessonCreateRequest.ParagraphId, userId,
-            cancellationToken: cancellationToken);
-
-        var lesson = _mapper.Map<Lesson>(lessonCreateRequest);
-        lesson.IsDraft = draft;
-
-        using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
-        {
-            if (lessonCreateRequest.Video is not null)
-            {
-                var courseId = await _psqUnitOfWork.ParagraphRepository.GetCourseIdAsync(lessonCreateRequest.ParagraphId, cancellationToken);
-
-                if(courseId is null)
-                    throw new KeyNotFoundException("Cannot find course for provided lesson");
-
-                lesson.Video.Subtitles = await AddNewVideoAsync(courseId.Value, lessonCreateRequest.Video, cancellationToken);
-            }
-
-            var createdLesson = await _mongoUnitOfWork.Lessons.CreateAsync(lesson, cancellationToken);
-
-            ts.Complete();
-
-            var response = await GetUpdateResponseAsync(createdLesson, cancellationToken);
-
-            return response;
-        }
-    }
-
-    private async Task<LessonUpdateResponse> UpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest,
-        int userId, bool draft = false, CancellationToken cancellationToken = default)
-    {
-        await _userAuthorValidatorManager.ValidateAuthorOfLessonAsync(lessonAddOrUpdateRequest.Id, userId,
-            cancellationToken: cancellationToken);
-
-        var oldLesson =
-            await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
-
-        var updatedLesson = _mapper.Map<Lesson>(oldLesson);
-
-        if (lessonAddOrUpdateRequest.Video is not null && (lessonAddOrUpdateRequest.Video.Subtitles == null ||
-                                                           !lessonAddOrUpdateRequest.Video.Subtitles.Any()))
-        {
-            lessonAddOrUpdateRequest.Video.Subtitles = [lessonAddOrUpdateRequest.Video.PrimaryLanguage];
-        }
-
-        updatedLesson = _mapper.Map(lessonAddOrUpdateRequest, updatedLesson);
-        updatedLesson.IsDraft = draft;
-        
-        var courseId = await GetCourseIdAsync(oldLesson.Id, cancellationToken);
-
-        using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
-        {
-            if (!draft)
-            {
-                if (updatedLesson.EditedLessonId is not null)
-                {
-                    await SafelyDeleteLessonsAndAttachmentsAsync(updatedLesson.EditedLessonId, cancellationToken: cancellationToken);
-                    updatedLesson.EditedLessonId = null;
-                }
-
-                if (updatedLesson.OriginalLessonId is not null)
-                {
-                    await SafelyDeleteLessonsAndAttachmentsAsync(updatedLesson.OriginalLessonId, cancellationToken: cancellationToken);
-                    updatedLesson.OriginalLessonId = null;
-                }
-            }
-
-            if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
-            {
-                if (oldLesson.Video is not null)
-                {
-                    if (oldLesson.OriginalLessonId is not null && draft)
-                    {
-                        var originalLesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(oldLesson.OriginalLessonId, cancellationToken);
-                        
-                        var subtitlesDiff =
-                            oldLesson.Video.Subtitles.Except(originalLesson.Video.Subtitles);
-
-                        var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
-
-                        await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
-                    }
-                }
-
-                if (lessonAddOrUpdateRequest.Video?.Attachment?.FileId != null)
-                    updatedLesson.Video.Subtitles =
-                        await AddNewVideoAsync(courseId, lessonAddOrUpdateRequest.Video, cancellationToken);
-            }
-            else if (lessonAddOrUpdateRequest.Video is not null && oldLesson.Video is not null)
-            {
-                var subtitlesDiff =
-                    oldLesson.Video.Subtitles.Where(s =>
-                        !lessonAddOrUpdateRequest.Video.Subtitles.Contains(s.Language));
-
-                var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
-
-                await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
-
-                var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(lessonAddOrUpdateRequest.Video
-                    .Attachment
-                    .FileId, cancellationToken);
-
-                var newSubtitles = lessonAddOrUpdateRequest.Video.Subtitles.Where(l =>
-                    !oldLesson.Video.Subtitles.Select(s => s.Language).Contains(l)).ToArray();
-                if (newSubtitles.Length > 0)
-                {
-                    updatedLesson.Video.Subtitles = await _subtitlesManager.CreateAsync(file.BlobName,
-                        file.ContainerName, newSubtitles,
-                        lessonAddOrUpdateRequest.Video.PrimaryLanguage, courseId, cancellationToken);
-                }
-            }
-
-            updatedLesson = await _mongoUnitOfWork.Lessons.UpdateAsync(updatedLesson, cancellationToken);
-            ts.Complete();
-        }
-
-        var response = await GetUpdateResponseAsync(updatedLesson, cancellationToken);
-
-        return response;
-    }
-
     public async Task<LessonUpdateResponse> SaveDraftAsync(
         LessonAddOrUpdateRequest lessonAddOrUpdateRequest, int userId, CancellationToken cancellationToken = default)
     {
@@ -372,38 +183,16 @@ public class LessonService : ILessonService
         return updatedLesson;
     }
 
-    /// <inheritdoc />
-    public async Task<LessonResponse> GetByIdAsync(string id, int userId,
-        CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(string id, int userId, CancellationToken cancellationToken = default)
     {
-        var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(id, cancellationToken);
+        await _userAuthorValidatorManager.ValidateAuthorOfLessonAsync(id, userId, cancellationToken);
 
-        if (lesson is null)
-            throw new KeyNotFoundException("Cannot find lesson with such Id");
+        var lessonToUpdateId =
+            await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(id, cancellationToken);
 
-        var response = _mapper.Map<LessonResponse>(lesson);
-        
-        response.Video.Subtitles = await GetSubtitlesForLessonAsync(lesson,cancellationToken);
+        var fullDelete = lessonToUpdateId != null && lessonToUpdateId != id;
 
-        var userAnswers = await 
-            _psqUnitOfWork.UserQuizAnswerRepository.GetUserQuizAnswersForLessonAsync(userId, response.Id,
-                cancellationToken);
-
-        foreach (var quiz in response.Quizzes)
-        {
-            var quizAnswer = userAnswers.SingleOrDefault(x => x.QuizId == quiz.Id);
-
-            if (quizAnswer != null)
-            {
-                quiz.UserAnswer = new UserLessonQuizAnswerResponse()
-                {
-                    AnswerIndex = quizAnswer.AnswerIndex,
-                    IsCorrect = quizAnswer.IsCorrect,
-                };
-            }
-        }
-
-        return response;
+        await SafelyDeleteLessonsAndAttachmentsAsync(id, fullDelete, cancellationToken);
     }
 
     public async Task DeleteLessonsByParagraph(int paragraphId, CancellationToken cancellationToken = default)
@@ -428,24 +217,6 @@ public class LessonService : ILessonService
             await _mongoUnitOfWork.Lessons.GetAllAttachmentsForParagraphsAsync(paragraphIds, cancellationToken);
 
         await _mongoUnitOfWork.Lessons.DeleteForParagraphsAsync(paragraphIds, cancellationToken);
-    }
-
-    private async Task<IEnumerable<SubtitleReference>> AddNewVideoAsync(int? courseId, VideoAddOrUpdateRequest videoAddOrUpdateRequest,
-        CancellationToken cancellationToken = default)
-    {
-        var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(videoAddOrUpdateRequest.Attachment
-            .FileId, cancellationToken);
-        
-        return await _subtitlesManager.CreateAsync(file.BlobName, file.ContainerName, videoAddOrUpdateRequest.Subtitles, videoAddOrUpdateRequest.PrimaryLanguage, courseId, cancellationToken);
-    }
-
-    private async Task<LessonResponse> GetResponseAsync(Lesson lesson, CancellationToken cancellationToken = default)
-    {
-        var lessonResponse = _mapper.Map<LessonResponse>(lesson);
-
-        lessonResponse.Video.Subtitles = await GetSubtitlesForLessonAsync(lesson, cancellationToken);
-
-        return lessonResponse;
     }
 
     private async Task<LessonUpdateResponse> GetUpdateResponseAsync(Lesson lesson,
@@ -474,10 +245,243 @@ public class LessonService : ILessonService
     {
         var paragraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(lessonId, cancellationToken);
         var courseId = await _psqUnitOfWork.ParagraphRepository.GetCourseIdAsync(paragraphId, cancellationToken);
-        
-        if(courseId is null)
+
+        if (courseId is null)
             throw new KeyNotFoundException("Cannot find course for lesson with id " + lessonId);
-        
+
         return courseId.Value;
+    }
+
+    private async Task<IEnumerable<SubtitleReference>> AddNewVideoAsync(int? courseId, Language primaryLanguage,
+        VideoAddOrUpdateRequest videoAddOrUpdateRequest,
+        CancellationToken cancellationToken = default)
+    {
+        var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(videoAddOrUpdateRequest.Attachment
+            .FileId, cancellationToken);
+
+        return await _subtitlesManager.CreateAsync(file.BlobName, file.ContainerName, videoAddOrUpdateRequest.Subtitles,
+            primaryLanguage, courseId, cancellationToken);
+    }
+
+    private async Task<LessonUpdateResponse> CreateAsync(LessonAddOrUpdateRequest lessonCreateRequest,
+        int userId, bool draft = false, CancellationToken cancellationToken = default)
+    {
+        await _userAuthorValidatorManager.ValidateAuthorOfParagraphAsync(lessonCreateRequest.ParagraphId, userId,
+            cancellationToken: cancellationToken);
+
+        var lesson = _mapper.Map<Lesson>(lessonCreateRequest);
+        lesson.IsDraft = draft;
+
+        using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
+        {
+            if (lessonCreateRequest.Video is not null)
+            {
+                var courseId =
+                    await _psqUnitOfWork.ParagraphRepository.GetCourseIdAsync(lessonCreateRequest.ParagraphId,
+                        cancellationToken);
+
+                if (courseId is null)
+                    throw new KeyNotFoundException("Cannot find course for provided lesson");
+
+                lesson.Video.Subtitles = await AddNewVideoAsync(courseId.Value, lessonCreateRequest.PrimaryLanguage,
+                    lessonCreateRequest.Video, cancellationToken);
+            }
+
+            var createdLesson = await _mongoUnitOfWork.Lessons.CreateAsync(lesson, cancellationToken);
+
+            ts.Complete();
+
+            var response = await GetUpdateResponseAsync(createdLesson, cancellationToken);
+
+            return response;
+        }
+    }
+
+    private async Task<LessonUpdateResponse> UpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest,
+        int userId, bool draft = false, CancellationToken cancellationToken = default)
+    {
+        await _userAuthorValidatorManager.ValidateAuthorOfLessonAsync(lessonAddOrUpdateRequest.Id, userId,
+            cancellationToken: cancellationToken);
+
+        var oldLesson =
+            await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
+
+        var updatedLesson = _mapper.Map<Lesson>(oldLesson);
+
+        if (lessonAddOrUpdateRequest.Video is not null && (lessonAddOrUpdateRequest.Video.Subtitles == null ||
+                                                           !lessonAddOrUpdateRequest.Video.Subtitles.Any()))
+        {
+            lessonAddOrUpdateRequest.Video.Subtitles = [lessonAddOrUpdateRequest.PrimaryLanguage];
+        }
+
+        updatedLesson = _mapper.Map(lessonAddOrUpdateRequest, updatedLesson);
+        updatedLesson.IsDraft = draft;
+
+        var courseId = await GetCourseIdAsync(oldLesson.Id, cancellationToken);
+
+        using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
+        {
+            if (!draft)
+            {
+                if (updatedLesson.EditedLessonId is not null)
+                {
+                    await SafelyDeleteLessonsAndAttachmentsAsync(updatedLesson.EditedLessonId,
+                        cancellationToken: cancellationToken);
+                    updatedLesson.EditedLessonId = null;
+                }
+
+                if (updatedLesson.OriginalLessonId is not null)
+                {
+                    await SafelyDeleteLessonsAndAttachmentsAsync(updatedLesson.OriginalLessonId,
+                        cancellationToken: cancellationToken);
+                    updatedLesson.OriginalLessonId = null;
+                }
+            }
+
+            if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
+            {
+                if (oldLesson.Video is not null)
+                {
+                    if (oldLesson.OriginalLessonId is not null && draft)
+                    {
+                        var originalLesson =
+                            await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(oldLesson.OriginalLessonId,
+                                cancellationToken);
+
+                        var subtitlesDiff =
+                            oldLesson.Video.Subtitles.Except(originalLesson.Video.Subtitles);
+
+                        var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
+
+                        await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
+                    }
+                }
+
+                if (lessonAddOrUpdateRequest.Video?.Attachment?.FileId != null)
+                    updatedLesson.Video.Subtitles =
+                        await AddNewVideoAsync(courseId, lessonAddOrUpdateRequest.PrimaryLanguage,
+                            lessonAddOrUpdateRequest.Video, cancellationToken);
+            }
+            else if (lessonAddOrUpdateRequest.Video?.Attachment is not null && oldLesson.Video?.Attachment is not null)
+            {
+                var primaryLanguageEquals =
+                    oldLesson.PrimaryLanguage == lessonAddOrUpdateRequest.PrimaryLanguage;
+
+                var subtitlesDiff =
+                    oldLesson.Video.Subtitles.Where(s =>
+                        !primaryLanguageEquals || !lessonAddOrUpdateRequest.Video.Subtitles.Contains(s.Language));
+
+                var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
+
+                await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
+
+                var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(lessonAddOrUpdateRequest.Video
+                    .Attachment
+                    .FileId, cancellationToken);
+
+                var newSubtitles = lessonAddOrUpdateRequest.Video.Subtitles.Where(l =>
+                    !primaryLanguageEquals || !oldLesson.Video.Subtitles.Select(s => s.Language).Contains(l)).ToArray();
+
+                if (newSubtitles.Length > 0)
+                {
+                    updatedLesson.Video.Subtitles = await _subtitlesManager.CreateAsync(file.BlobName,
+                        file.ContainerName, newSubtitles,
+                        lessonAddOrUpdateRequest.PrimaryLanguage, courseId, cancellationToken);
+                }
+            }
+
+            updatedLesson = await _mongoUnitOfWork.Lessons.UpdateAsync(updatedLesson, cancellationToken);
+            ts.Complete();
+        }
+
+        var response = await GetUpdateResponseAsync(updatedLesson, cancellationToken);
+
+        return response;
+    }
+
+    private async Task SafelyDeleteLessonsAndAttachmentsAsync(string id, bool totalDelete = false,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == null)
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        var lesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(id, cancellationToken);
+
+        var lessonToDelete = await GetLessonToDeleteResponse(lesson, cancellationToken);
+
+        var relatedLessonId = lessonToDelete.EditedLessonId ?? lessonToDelete.OriginalLessonId;
+
+        using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
+        {
+            if (relatedLessonId != null)
+            {
+                var relatedLesson =
+                    await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(relatedLessonId, cancellationToken);
+
+                var relatedLessonToDelete = await GetLessonToDeleteResponse(relatedLesson, cancellationToken);
+
+                if (totalDelete)
+                {
+                    lessonToDelete.Subtitles =
+                        lessonToDelete.Subtitles.Concat(relatedLessonToDelete.Subtitles).Distinct();
+                    lessonToDelete.Attachments =
+                        lessonToDelete.Attachments.Concat(relatedLessonToDelete.Attachments).Distinct();
+                }
+                else
+                {
+                    lessonToDelete.Subtitles = lessonToDelete.Subtitles.Except(relatedLessonToDelete.Subtitles);
+                    lessonToDelete.Attachments = lessonToDelete.Attachments.Except(relatedLessonToDelete.Attachments);
+
+                    if (relatedLessonId == lessonToDelete.EditedLessonId)
+                    {
+                        relatedLesson.IsDraft = false;
+                        relatedLesson.OriginalLessonId = null;
+                    }
+                    else
+                    {
+                        relatedLesson.EditedLessonId = null;
+                    }
+
+                    await _mongoUnitOfWork.Lessons.UpdateAsync(relatedLesson, cancellationToken);
+                }
+            }
+
+            await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(lessonToDelete.Attachments, cancellationToken);
+
+            await _subtitlesManager.DeleteRangeAsync(lessonToDelete.Subtitles, cancellationToken);
+
+            await _mongoUnitOfWork.Lessons.DeleteAsync(id, cancellationToken);
+
+            if (totalDelete && relatedLessonId != null)
+                await _mongoUnitOfWork.Lessons.DeleteAsync(relatedLessonId, cancellationToken);
+
+            await _mongoUnitOfWork.Lessons.DeleteAsync(lesson.Id, cancellationToken: cancellationToken);
+
+            ts.Complete();
+        }
+    }
+
+    private async Task<LessonToDeleteResponse> GetLessonToDeleteResponse(Lesson lesson,
+        CancellationToken cancellationToken = default)
+    {
+        var attachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(lesson.Id, cancellationToken);
+
+        var attachmentFileIds = attachments.Select(a => a.FileId);
+
+        var subtitleIds = lesson.Video?.Subtitles.Select(s => s.SubtitleId) ?? [];
+
+        var result = new LessonToDeleteResponse
+        {
+            Id = lesson.Id,
+            EditedLessonId = lesson.EditedLessonId,
+            OriginalLessonId = lesson.OriginalLessonId,
+            IsDraft = lesson.IsDraft,
+            Attachments = attachmentFileIds,
+            Subtitles = subtitleIds,
+        };
+
+        return result;
     }
 }

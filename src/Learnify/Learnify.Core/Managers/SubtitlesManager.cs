@@ -194,7 +194,7 @@ public class SubtitlesManager : ISubtitlesManager
 
                 result = await _psqUnitOfWork.SubtitlesRepository.DeleteRangeAsync(ids, cancellationToken);
 
-                foreach (var file in files)
+                foreach (var file in files.Where(f => f.ContainerName != null && f.BlobName != null))
                     await _blobStorage.DeleteAsync(file.ContainerName, file.BlobName, cancellationToken);
 
                 ts.Complete();

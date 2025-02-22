@@ -3,6 +3,7 @@ using Learnify.Contracts;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto.File;
+using Learnify.Core.ManagerContracts;
 using Learnify.Core.Transactions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -13,15 +14,18 @@ public class SubtitlesGeneratedResponseConsumer: IConsumer<SubtitlesGeneratedRes
 {
     private readonly ILogger<SubtitlesGeneratedResponseConsumer> _logger;
     private readonly IPsqUnitOfWork _psqUnitOfWork;
+    private readonly IBlobStorage _blobStorage;
     private readonly IMapper _mapper;
 
     public SubtitlesGeneratedResponseConsumer(ILogger<SubtitlesGeneratedResponseConsumer> logger,
         IPsqUnitOfWork psqUnitOfWork,
-        IMapper mapper)
+        IMapper mapper,
+        IBlobStorage blobStorage)
     {
         _logger = logger;
         _psqUnitOfWork = psqUnitOfWork;
         _mapper = mapper;
+        _blobStorage = blobStorage;
     }
 
     public async Task Consume(ConsumeContext<SubtitlesGeneratedResponse> context)
@@ -35,6 +39,8 @@ public class SubtitlesGeneratedResponseConsumer: IConsumer<SubtitlesGeneratedRes
         if (subtitle == null)
         {
             _logger.LogInformation("Seems like subtitle with specified id were deleted");
+            await _blobStorage.DeleteAsync(message.SubtitleFileInfo.ContainerName, message.SubtitleFileInfo.BlobName);
+            await _blobStorage.DeleteAsync(message.TranscriptionFileInfo.ContainerName, message.TranscriptionFileInfo.BlobName);
             return;
         }
         

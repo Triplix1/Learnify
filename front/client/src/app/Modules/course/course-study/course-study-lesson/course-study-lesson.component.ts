@@ -30,7 +30,7 @@ export class CourseStudyLessonComponent extends BaseComponent implements OnChang
         response => {
           this.spinnerService.hide("lessonLoading");
           this.lesson = response.data;
-          this.loadTranscription(this.lesson.video.subtitles.find(x => x.language === this.lesson.video.primaryLanguage).transcriptionFileId)
+          this.loadTranscription(this.lesson.video.subtitles.find(x => x.language === this.lesson.primaryLanguage).transcriptionFileId)
         }
       )
     }

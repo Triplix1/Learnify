@@ -1,0 +1,23 @@
+<div class="flex">
+    <div *ngFor="let option of selectorOptions">
+        <button class="flex justify-center items-center mr-2"
+                (click)="updateListLaguages(option.value)"
+                [disabled]="constantlySelectedLanguages.includes(option.value)">
+            <div [ngClass]="{'opacity-50': constantlySelectedLanguages.includes(option.value)}">
+                <mat-icon *ngIf="languagesList.includes(option.value); else notSelected"
+                          class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                          fontIcon="check_circle">
+                </mat-icon>
+                <ng-template #notSelected>
+                    <mat-icon class="mr-1 text-buttonAccept hover:opacity-50 transition"
+                              fontIcon="radio_button_unchecked">
+                    </mat-icon>
+                </ng-template>
+
+
+            </div>
+            <div class="ml-2 text-textInput">{{option.label}}</div>
+
+        </button>
+    </div>
+</div>

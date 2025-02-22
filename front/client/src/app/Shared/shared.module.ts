@@ -40,6 +40,7 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
 import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
 import { FilePathPipe } from './pipes/file-path.pipe';
 import { SelectLanguageComponent } from './components/select-language/select-language.component';
+import { SelectLanguagesListComponent } from './components/select-languages-list/select-languages-list.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { SelectLanguageComponent } from './components/select-language/select-lan
     TextareaComponent,
     FilePathPipe,
     SelectLanguageComponent,
+    SelectLanguagesListComponent,
   ],
   imports: [
     CommonModule,
@@ -132,6 +134,7 @@ import { SelectLanguageComponent } from './components/select-language/select-lan
     VgBufferingModule,
     FilePathPipe,
     SelectLanguageComponent,
+    SelectLanguagesListComponent,
   ]
 })
 export class SharedModule { }

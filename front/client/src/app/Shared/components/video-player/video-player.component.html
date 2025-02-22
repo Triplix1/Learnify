@@ -3,12 +3,12 @@
        preload="auto"
        controls
        crossorigin>
-    <source [src]="fileId | media | async"
-            type="video/mp4">
+        <source [src]="fileId | media | async"
+                type="video/mp4">
 
-    <track *ngFor="let subtitles of availableSubtitles; let index = index"
-           [label]="subtitles.language"
-           kind="subtitles"
-           [srclang]="getSrclang(subtitles.language)"
-           [src]="availableSubtitles[0].subtitleFileId | media | async " />
+        <track *ngFor="let subtitles of availableSubtitles; let index = index"
+               [label]="subtitles.language"
+               kind="subtitles"
+               [srclang]="getSrclang(subtitles.language.toString())"
+               [src]="availableSubtitles[0].subtitleFileId | media | async " />
 </video>
