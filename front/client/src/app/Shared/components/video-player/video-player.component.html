@@ -10,5 +10,5 @@
                [label]="subtitles.language"
                kind="subtitles"
                [srclang]="getSrclang(subtitles.language.toString())"
-               [src]="availableSubtitles[0].subtitleFileId | media | async " />
+               [src]="subtitles.subtitleFileId | media | async " />
 </video>

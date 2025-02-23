@@ -83,7 +83,10 @@ public class MappingProfiles : Profile
             .ForMember(s => s.SubtitleId, s => s.MapFrom(sb => sb.Id));
         CreateMap<SubtitlesResponse, SubtitleReference>()
             .ForMember(s => s.SubtitleId, s => s.MapFrom(sr => sr.Id));
-
+        CreateMap<Subtitle, TranslateFileDataRequest>()
+            .ForMember(f => f.FileId, f => f.MapFrom(sr => sr.SubtitleFileId))
+            .ForMember(f => f.Language, f => f.MapFrom(sr => sr.Language.ToString()));
+        
         // FileData
         CreateMap<PrivateFileData, PrivateFileDataResponse>();
         CreateMap<GeneratedResponseUpdateRequest, PrivateFileCreateRequest>();

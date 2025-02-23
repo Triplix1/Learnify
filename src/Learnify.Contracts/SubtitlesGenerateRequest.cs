@@ -2,8 +2,8 @@
 
 public class SubtitlesGenerateRequest
 {
+    public string LessonId { get; set; }
     public string VideoContainerName { get; set; }
     public string VideoBlobName { get; set; }
-    public string PrimaryLanguage { get; set; }
-    public IEnumerable<SubtitleInfo> SubtitleInfo { get; set; }
+    public SubtitleInfo SubtitleInfo { get; set; }
 }

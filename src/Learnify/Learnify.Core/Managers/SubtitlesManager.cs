@@ -4,7 +4,6 @@ using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto.Subtitles;
-using Learnify.Core.Enums;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.Transactions;
 using MassTransit;
@@ -36,33 +35,50 @@ public class SubtitlesManager : ISubtitlesManager
         return response;
     }
 
-    public async Task<SubtitlesResponse> CreateAsync(SubtitlesCreateRequest subtitlesCreateRequest,
+    public async Task<SubtitlesResponse> CreateAsync(
+        int? courseId,
+        SubtitlesCreateRequest subtitlesCreateRequest,
         CancellationToken cancellationToken = default)
     {
-        var subtitle = _mapper.Map<Subtitle>(subtitlesCreateRequest);
+        var subtitles = await CreateSubtitlesAsync(courseId, [subtitlesCreateRequest], cancellationToken);
 
-        subtitle = await _psqUnitOfWork.SubtitlesRepository.CreateAsync(subtitle, cancellationToken);
-
-        var response = _mapper.Map<SubtitlesResponse>(subtitle);
-
-        return response;
+        return _mapper.Map<SubtitlesResponse>(subtitles.SingleOrDefault());
     }
 
-    public async Task<IEnumerable<SubtitleReference>> CreateAsync(string fileBlobName, string containerName, IEnumerable<Language> subtitlesLanguages, Language primaryLanguage, int? courseId,
+    public async Task<IEnumerable<SubtitlesResponse>> CreateSubtitlesAsync(
+        int? courseId,
+        IEnumerable<SubtitlesCreateRequest> subtitlesCreateRequests,
         CancellationToken cancellationToken = default)
     {
-        var subtitlesCreateRequest = subtitlesLanguages.Select(s => new Subtitle
+        var subtitles = _mapper.Map<IEnumerable<Subtitle>>(subtitlesCreateRequests);
+
+        foreach (var subtitle in subtitles)
+        {
+            subtitle.SubtitleFile = new PrivateFileData
+            {
+                CourseId = courseId
+            };
+        }
+
+        subtitles = await _psqUnitOfWork.SubtitlesRepository.CreateRangeAsync(subtitles, cancellationToken);
+
+        var response = _mapper.Map<IEnumerable<SubtitlesResponse>>(subtitles);
+
+        return response;
+
+    }
+
+    public async Task<IEnumerable<SubtitleReference>> CreateAndGenerateAsync(
+        SubtitlesCreateAndGenerateRequest subtitlesCreateAndGenerateRequest,
+        CancellationToken cancellationToken = default)
+    {
+        var subtitlesCreateRequest = subtitlesCreateAndGenerateRequest.SubtitlesLanguages.Select(s => new Subtitle
         {
             Language = s,
-            TranscriptionFile = new PrivateFileData
-            {
-                CourseId = courseId
-            },
             SubtitleFile = new PrivateFileData
             {
-                CourseId = courseId
+                CourseId = subtitlesCreateAndGenerateRequest.CourseId
             }
-
         }).ToArray();
 
         var subtitles =
@@ -70,12 +86,15 @@ public class SubtitlesManager : ISubtitlesManager
 
         var subtitlesInfo = _mapper.Map<IEnumerable<SubtitleInfo>>(subtitles);
 
+        var primaryLanguageSubtitle =
+            subtitlesInfo.Single(s => s.Language == subtitlesCreateAndGenerateRequest.PrimaryLanguage.ToString());
+
         var subtitlesGenerateRequest = new SubtitlesGenerateRequest
         {
-            VideoBlobName = fileBlobName,
-            VideoContainerName = containerName,
-            SubtitleInfo = subtitlesInfo,
-            PrimaryLanguage = primaryLanguage.ToString()
+            VideoBlobName = subtitlesCreateAndGenerateRequest.VideoBlobName,
+            VideoContainerName = subtitlesCreateAndGenerateRequest.VideoContainerName,
+            SubtitleInfo = primaryLanguageSubtitle,
+            LessonId = subtitlesCreateAndGenerateRequest.LessonId
         };
 
         await _publishEndpoint.Publish(subtitlesGenerateRequest, cancellationToken);
@@ -85,6 +104,40 @@ public class SubtitlesManager : ISubtitlesManager
         return result;
     }
 
+    public async Task RequestSubtitlesTranslationAsync(int baseSubtitleId, IEnumerable<int> targetSubtitlesId,
+        CancellationToken cancellationToken = default)
+    {
+        var subtitles = await _psqUnitOfWork.SubtitlesRepository.GetByIdsAsync(
+            targetSubtitlesId.Concat([baseSubtitleId]), [nameof(Subtitle.SubtitleFile)],
+            cancellationToken: cancellationToken);
+
+        var mainSubtitle = subtitles.SingleOrDefault(s => s.Id == baseSubtitleId);
+
+        if (mainSubtitle == null)
+        {
+            throw new KeyNotFoundException("Subtitle not found");
+        }
+
+        if (mainSubtitle.SubtitleFile?.BlobName == null ||
+            mainSubtitle.SubtitleFile?.ContainerName == null)
+        {
+            throw new KeyNotFoundException("Subtitle file not found");
+        }
+
+        subtitles = subtitles.Where(s => s.Id != baseSubtitleId).ToArray();
+
+        var translateRequests = _mapper.Map<IEnumerable<TranslateFileDataRequest>>(subtitles);
+
+        var subtitlesTranslateRequest = new TranslateRequest
+        {
+            MainFileBlobName = mainSubtitle.SubtitleFile.BlobName,
+            MainFileContainerName = mainSubtitle.SubtitleFile.ContainerName,
+            MainLanguage = mainSubtitle.Language.ToString(),
+            TranslateRequests = translateRequests,
+        };
+
+        await _publishEndpoint.Publish(subtitlesTranslateRequest, cancellationToken);
+    }
 
     public async Task<SubtitlesResponse> UpdateAsync(SubtitlesUpdateRequest subtitlesUpdateRequest,
         CancellationToken cancellationToken = default)
@@ -100,7 +153,8 @@ public class SubtitlesManager : ISubtitlesManager
         if (subtitles.SubtitleFileId.HasValue && subtitles.SubtitleFileId != subtitlesUpdateRequest.FileId)
         {
             var oldFile =
-                await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.SubtitleFileId.Value, cancellationToken);
+                await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.SubtitleFileId.Value,
+                    cancellationToken);
 
             using var ts = TransactionScopeBuilder.CreateRepeatableReadAsync();
 
@@ -116,11 +170,12 @@ public class SubtitlesManager : ISubtitlesManager
         {
             subtitle = await _psqUnitOfWork.SubtitlesRepository.UpdateAsync(subtitle, cancellationToken);
         }
-        
+
         if (subtitles.SubtitleFileId.HasValue && subtitles.SubtitleFileId != subtitlesUpdateRequest.FileId)
         {
             var oldFile =
-                await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.SubtitleFileId.Value, cancellationToken);
+                await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.SubtitleFileId.Value,
+                    cancellationToken);
 
             using var ts = TransactionScopeBuilder.CreateRepeatableReadAsync();
 
@@ -155,7 +210,8 @@ public class SubtitlesManager : ISubtitlesManager
         if (subtitles.SubtitleFileId.HasValue)
         {
             var oldFile =
-                await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.SubtitleFileId.Value, cancellationToken);
+                await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(subtitles.SubtitleFileId.Value,
+                    cancellationToken);
 
 
             await _psqUnitOfWork.PrivateFileRepository.DeleteAsync(oldFile.Id, cancellationToken);
@@ -176,7 +232,8 @@ public class SubtitlesManager : ISubtitlesManager
 
     public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
-        var subtitles = await _psqUnitOfWork.SubtitlesRepository.GetByIdsAsync(ids, [], cancellationToken: cancellationToken);
+        var subtitles =
+            await _psqUnitOfWork.SubtitlesRepository.GetByIdsAsync(ids, [], cancellationToken: cancellationToken);
 
         if (subtitles is null)
             return false;

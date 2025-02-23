@@ -12,6 +12,7 @@ using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Transactions;
 using MassTransit;
+using MongoDB.Bson;
 
 namespace Learnify.Core.Services;
 
@@ -45,6 +46,8 @@ public class LessonService : ILessonService
         _blobStorage = blobStorage;
         _userAuthorValidatorManager = userAuthorValidatorManager;
     }
+
+    #region DQL
 
     public async Task<LessonResponse> GetByIdAsync(string id, int userId,
         CancellationToken cancellationToken = default)
@@ -154,6 +157,10 @@ public class LessonService : ILessonService
         return response;
     }
 
+    #endregion
+
+    #region DML
+
     public async Task<LessonUpdateResponse> AddOrUpdateAsync(
         LessonAddOrUpdateRequest lessonAddOrUpdateRequest, int userId, CancellationToken cancellationToken = default)
     {
@@ -219,6 +226,10 @@ public class LessonService : ILessonService
         await _mongoUnitOfWork.Lessons.DeleteForParagraphsAsync(paragraphIds, cancellationToken);
     }
 
+    #endregion
+
+    #region Private
+
     private async Task<LessonUpdateResponse> GetUpdateResponseAsync(Lesson lesson,
         CancellationToken cancellationToken = default)
     {
@@ -252,15 +263,25 @@ public class LessonService : ILessonService
         return courseId.Value;
     }
 
-    private async Task<IEnumerable<SubtitleReference>> AddNewVideoAsync(int? courseId, Language primaryLanguage,
+    private async Task<IEnumerable<SubtitleReference>> AddNewVideoAsync(int? courseId, string lessonId,
+        Language primaryLanguage,
         VideoAddOrUpdateRequest videoAddOrUpdateRequest,
         CancellationToken cancellationToken = default)
     {
         var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(videoAddOrUpdateRequest.Attachment
             .FileId, cancellationToken);
 
-        return await _subtitlesManager.CreateAsync(file.BlobName, file.ContainerName, videoAddOrUpdateRequest.Subtitles,
-            primaryLanguage, courseId, cancellationToken);
+        var subtitlesCreateAndGenerateRequest = new SubtitlesCreateAndGenerateRequest()
+        {
+            VideoBlobName = file.BlobName,
+            VideoContainerName = file.ContainerName,
+            CourseId = courseId,
+            LessonId = lessonId,
+            PrimaryLanguage = primaryLanguage,
+            SubtitlesLanguages = videoAddOrUpdateRequest.Subtitles
+        };
+
+        return await _subtitlesManager.CreateAndGenerateAsync(subtitlesCreateAndGenerateRequest, cancellationToken);
     }
 
     private async Task<LessonUpdateResponse> CreateAsync(LessonAddOrUpdateRequest lessonCreateRequest,
@@ -274,6 +295,8 @@ public class LessonService : ILessonService
 
         using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
         {
+            lesson.Id = ObjectId.GenerateNewId().ToString();
+
             if (lessonCreateRequest.Video is not null)
             {
                 var courseId =
@@ -283,7 +306,8 @@ public class LessonService : ILessonService
                 if (courseId is null)
                     throw new KeyNotFoundException("Cannot find course for provided lesson");
 
-                lesson.Video.Subtitles = await AddNewVideoAsync(courseId.Value, lessonCreateRequest.PrimaryLanguage,
+                lesson.Video.Subtitles = await AddNewVideoAsync(courseId.Value, lesson.Id,
+                    lessonCreateRequest.PrimaryLanguage,
                     lessonCreateRequest.Video, cancellationToken);
             }
 
@@ -359,7 +383,7 @@ public class LessonService : ILessonService
 
                 if (lessonAddOrUpdateRequest.Video?.Attachment?.FileId != null)
                     updatedLesson.Video.Subtitles =
-                        await AddNewVideoAsync(courseId, lessonAddOrUpdateRequest.PrimaryLanguage,
+                        await AddNewVideoAsync(courseId, updatedLesson.Id, lessonAddOrUpdateRequest.PrimaryLanguage,
                             lessonAddOrUpdateRequest.Video, cancellationToken);
             }
             else if (lessonAddOrUpdateRequest.Video?.Attachment is not null && oldLesson.Video?.Attachment is not null)
@@ -373,20 +397,69 @@ public class LessonService : ILessonService
 
                 var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
 
-                await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
+                if (subtitlesDiffIds.Any())
+                {
+                    await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
+                    updatedLesson.Video.Subtitles =
+                        updatedLesson.Video.Subtitles.Where(s => !subtitlesDiffIds.Contains(s.SubtitleId));
+                }
 
                 var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(lessonAddOrUpdateRequest.Video
                     .Attachment
                     .FileId, cancellationToken);
 
-                var newSubtitles = lessonAddOrUpdateRequest.Video.Subtitles.Where(l =>
+                var newSubtitlesLanguages = lessonAddOrUpdateRequest.Video.Subtitles.Where(l =>
                     !primaryLanguageEquals || !oldLesson.Video.Subtitles.Select(s => s.Language).Contains(l)).ToArray();
 
-                if (newSubtitles.Length > 0)
+                if (newSubtitlesLanguages.Length > 0)
                 {
-                    updatedLesson.Video.Subtitles = await _subtitlesManager.CreateAsync(file.BlobName,
-                        file.ContainerName, newSubtitles,
-                        lessonAddOrUpdateRequest.PrimaryLanguage, courseId, cancellationToken);
+                    if (!primaryLanguageEquals)
+                    {
+                        var subtitlesCreateAndGenerateRequest = new SubtitlesCreateAndGenerateRequest()
+                        {
+                            VideoBlobName = file.BlobName,
+                            VideoContainerName = file.ContainerName,
+                            CourseId = courseId,
+                            LessonId = updatedLesson.Id,
+                            PrimaryLanguage = lessonAddOrUpdateRequest.PrimaryLanguage,
+                            SubtitlesLanguages = newSubtitlesLanguages
+                        };
+
+                        updatedLesson.Video.Subtitles =
+                            await _subtitlesManager.CreateAndGenerateAsync(subtitlesCreateAndGenerateRequest,
+                                cancellationToken);
+                    }
+                    else
+                    {
+                        var subtitleCreateRequests = newSubtitlesLanguages.Select(s => new SubtitlesCreateRequest()
+                        {
+                            Language = s
+                        });
+
+                        var newSubtitles = await 
+                            _subtitlesManager.CreateSubtitlesAsync(courseId, subtitleCreateRequests, cancellationToken);
+
+                        var subtitleReferences = _mapper.Map<IEnumerable<SubtitleReference>>(newSubtitles);
+                        
+                        updatedLesson.Video.Subtitles = updatedLesson.Video.Subtitles.Concat(subtitleReferences);
+
+                        var primaryLanguageSubtitleReference =
+                            updatedLesson.Video.Subtitles.Single(s => s.Language == updatedLesson.PrimaryLanguage);
+
+                        var primaryLanguageSubtitleFile =
+                            await _psqUnitOfWork.PrivateFileRepository.GetBySubtitleIdAsync(
+                                primaryLanguageSubtitleReference.SubtitleId, cancellationToken);
+
+                        // Otherwise it will be translated automatically after receiving primary subtitle
+                        if (primaryLanguageSubtitleFile?.ContainerName != null &&
+                            primaryLanguageSubtitleFile?.ContainerName != null)
+                        {
+                            var newSubtitlesIds = newSubtitles.Select(s => s.Id);
+
+                            await _subtitlesManager.RequestSubtitlesTranslationAsync(
+                                primaryLanguageSubtitleReference.SubtitleId, newSubtitlesIds, cancellationToken);
+                        }
+                    }
                 }
             }
 
@@ -484,4 +557,6 @@ public class LessonService : ILessonService
 
         return result;
     }
+
+    #endregion
 }

@@ -22,8 +22,14 @@ public class PrivateFileRepository : IPrivateFileRepository
     {
         var fileData = await _context.FileDatas.FindAsync([id], cancellationToken);
 
-        if (fileData is null)
-            return null;
+        return fileData;
+    }
+
+    public async Task<PrivateFileData> GetBySubtitleIdAsync(int subtitleId,
+        CancellationToken cancellationToken = default)
+    {
+        var fileData = await _context.Subtitles.Include(s => s.SubtitleFile).Where(s => s.Id == subtitleId)
+            .Select(s => s.SubtitleFile).FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         return fileData;
     }
@@ -44,22 +50,23 @@ public class PrivateFileRepository : IPrivateFileRepository
         CancellationToken cancellationToken = default)
     {
         var privateFileData = _mapper.Map<PrivateFileData>(privateFileDataCreateRequest);
-        
+
         await _context.FileDatas.AddAsync(privateFileData, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
         return privateFileData;
     }
 
-    public async Task<PrivateFileData> UpdateFileAsync(PrivateFileData file, CancellationToken cancellationToken = default)
+    public async Task<PrivateFileData> UpdateFileAsync(PrivateFileData file,
+        CancellationToken cancellationToken = default)
     {
         var privateFile = await _context.FileDatas.FindAsync([file.Id], cancellationToken);
 
-        if(privateFile == null)
+        if (privateFile == null)
             throw new KeyNotFoundException();
-        
+
         _mapper.Map(file, privateFile);
-        
+
         _context.Update(file);
         await _context.SaveChangesAsync(cancellationToken);
 

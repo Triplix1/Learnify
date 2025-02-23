@@ -142,6 +142,19 @@ public class LessonRepository : ILessonRepository
         return result.ParagraphId;
     }
 
+    public async Task<IEnumerable<SubtitleReference>> GetSubtitleReferencesForLessonAsync(string lessonId, CancellationToken cancellationToken = default)
+    {
+        var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId) &
+                     Builders<Lesson>.Filter.Where(l => l.Video != null);
+
+        var projection = Builders<Lesson>.Projection.Expression(l => l.Video.Subtitles);
+        
+        var result = await _mongoContext.Lessons.Find(filter).Project(projection)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+        return result;
+    }
+
     public async Task<LessonToDeleteResponse> GetLessonToDelete(string lessonId, CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);

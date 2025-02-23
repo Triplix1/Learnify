@@ -64,6 +64,7 @@ public class CoreInstaller: IInstaller
             x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("MainService", false));
 
             x.AddConsumer<SubtitlesGeneratedResponseConsumer>();
+            x.AddConsumer<FileTranslatedConsumer>();
             x.UsingRabbitMq((context, cfg) =>
             {
                 cfg.UseMessageRetry(r =>
