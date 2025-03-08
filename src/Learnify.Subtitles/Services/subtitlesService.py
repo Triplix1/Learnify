@@ -18,7 +18,6 @@ def generate_subtitles(audio_path, primary_language):
     model = whisper.load_model("base")
     result = model.transcribe(audio_path, language=primary_language)
 
-    txt_path = audio_path.replace(".wav", f"_{primary_language}.txt")
     vtt_path = audio_path.replace(".wav", f"_{primary_language}.vtt")
 
     segments = result["segments"]
@@ -33,7 +32,4 @@ def generate_subtitles(audio_path, primary_language):
             vtt_file.write(f"{start} --> {end}\n")
             vtt_file.write(f"{text}\n\n")
 
-    with open(txt_path, "w", encoding="utf-8") as txt_file:
-        txt_file.write(result["text"])
-
-    return vtt_path, txt_path, segments
+    return vtt_path, segments

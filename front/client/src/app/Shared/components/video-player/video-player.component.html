@@ -1,4 +1,5 @@
 <video class="w-full {{classList}}"
+       #videoPlayer
        id="singleVideo"
        preload="auto"
        controls
@@ -10,5 +11,7 @@
                [label]="subtitles.language"
                kind="subtitles"
                [srclang]="getSrclang(subtitles.language.toString())"
-               [src]="subtitles.subtitleFileId | media | async " />
+               [src]="subtitles.subtitleFileId | media | async "
+               (load)="onCueChange()"
+               [attr.default]="index === 0" />
 </video>

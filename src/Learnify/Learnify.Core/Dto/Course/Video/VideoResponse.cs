@@ -8,4 +8,5 @@ public class VideoResponse
 {
     public AttachmentResponse Attachment { get; set; }
     public IEnumerable<SubtitlesResponse> Subtitles { get; set; }
+    public int SummaryFileId { get; set; }
 }

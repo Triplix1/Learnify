@@ -76,11 +76,6 @@ public class FileService : IFileService
             return "application/octet-stream";
         }
 
-        if (contentType.StartsWith("application/x-subrip"))
-        {
-            return "text/plain";
-        }
-        
         return contentType;
     }
 

@@ -91,8 +91,8 @@ public class SubtitlesManager : ISubtitlesManager
 
         var subtitlesGenerateRequest = new SubtitlesGenerateRequest
         {
-            VideoBlobName = subtitlesCreateAndGenerateRequest.VideoBlobName,
-            VideoContainerName = subtitlesCreateAndGenerateRequest.VideoContainerName,
+            VideoBlobName = subtitlesCreateAndGenerateRequest.PrivateFileDataBlobResponse.BlobName,
+            VideoContainerName = subtitlesCreateAndGenerateRequest.PrivateFileDataBlobResponse.ContainerName,
             SubtitleInfo = primaryLanguageSubtitle,
             LessonId = subtitlesCreateAndGenerateRequest.LessonId
         };

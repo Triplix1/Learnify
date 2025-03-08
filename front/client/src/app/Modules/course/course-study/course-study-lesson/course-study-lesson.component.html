@@ -12,15 +12,24 @@
         <div class="relative m-3 w-full flex justify-center ">
             <app-video-player classList="rounded-lg video right-8"
                               [fileId]="lesson.video.attachment.fileId"
-                              [availableSubtitles]="lesson.video.subtitles"></app-video-player>
+                              [availableSubtitles]="lesson.video.subtitles"
+                              (subtitleSelected)="handleSubtitlesExtracted($event)"></app-video-player>
         </div>
         <div class="lesson-content flex justify-start">
             <mat-tab-group class="w-full">
                 <mat-tab label="Text">
                     <div class="mt-4">
-                        {{transcription}}
-                        <!-- <app-image-uploader [file]="profileData?.imageUrl"
-                                            (imageChanged)="imagechanged($event)"></app-image-uploader> -->
+                        <div class="text-textInput">{{subtitleText}}</div>
+                    </div>
+                </mat-tab>
+                <mat-tab *ngIf="lesson.video?.summaryFileId"
+                         label="Summary">
+                    <div class="mt-4 relative w-full">
+                        <ngx-spinner [fullScreen]="false"
+                                     name="summaryLoading"
+                                     type='ball-clip-rotate'>
+                        </ngx-spinner>
+                        <p class="text text-textInput w-full whitespace-pre-line">{{summaryText$ | async}}</p>
                     </div>
                 </mat-tab>
                 <mat-tab *ngIf="lesson.quizzes && lesson.quizzes.length > 0"

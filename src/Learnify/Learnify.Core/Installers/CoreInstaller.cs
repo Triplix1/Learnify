@@ -65,6 +65,7 @@ public class CoreInstaller: IInstaller
 
             x.AddConsumer<SubtitlesGeneratedResponseConsumer>();
             x.AddConsumer<FileTranslatedConsumer>();
+            x.AddConsumer<SummaryGeneratedResponseConsumer>();
             x.UsingRabbitMq((context, cfg) =>
             {
                 cfg.UseMessageRetry(r =>
@@ -93,6 +94,7 @@ public class CoreInstaller: IInstaller
         services.AddScoped<ISubtitlesManager, SubtitlesManager>();
         services.AddScoped<IUserAuthorValidatorManager, UserAuthorValidatorManager>();
         services.AddScoped<IUserBoughtValidatorManager, UserBoughtValidatorManager>();
+        services.AddScoped<ISummaryManager, SummaryManager>();
         
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IProfileService, ProfileService>();

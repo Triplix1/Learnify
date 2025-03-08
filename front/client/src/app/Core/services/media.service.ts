@@ -29,7 +29,7 @@ export class MediaService {
     )
   }
 
-  getFileStream(fileId: number): Observable<Blob> {
+  getFile(fileId: number): Observable<Blob> {
     const token = localStorage.getItem('authToken');  // Retrieve stored token
 
     const headers = new HttpHeaders({

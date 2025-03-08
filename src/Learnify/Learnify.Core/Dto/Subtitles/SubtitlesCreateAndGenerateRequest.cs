@@ -1,11 +1,11 @@
-﻿using Learnify.Core.Enums;
+﻿using Learnify.Core.Dto.File;
+using Learnify.Core.Enums;
 
 namespace Learnify.Core.Dto.Subtitles;
 
 public class SubtitlesCreateAndGenerateRequest
 {
-    public string VideoBlobName { get; set; }   
-    public string VideoContainerName { get; set; }  
+    public PrivateFileDataBlobResponse PrivateFileDataBlobResponse { get; set; }  
     public string LessonId { get; set; }
     public IEnumerable<Language> SubtitlesLanguages { get; set; }
     public Language PrimaryLanguage { get; set; }

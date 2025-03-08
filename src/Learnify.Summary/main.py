@@ -1,25 +1,23 @@
-﻿import json
+import json
 import os
 import threading
 import time
 
 import pika
-from dotenv import load_dotenv
 
-from Services.audioService import extract_audio
-from Services.blobService import download_video_from_blob, upload_to_blob
-from Services.subtitlesService import generate_subtitles
+from Services.azureService import get_sas_url, upload_to_blob
+from Services.fileService import generate_temporary_file
+from Services.gemini import get_summary
 
 # Load RabbitMQ Configuration (same as C# app)
 RABBITMQ_HOST = "localhost"
 RABBITMQ_USERNAME = "guest"
 RABBITMQ_PASSWORD = "guest"
-RABBITMQ_QUEUE = "subtitles-generate-request-event"  # Follow MassTransit naming conventions
-RABBITMQ_QUEUE_RESPONSE = "main-service-subtitles-generated-response"  # Define response queue
+RABBITMQ_QUEUE = "summary-generate-request-event"  # Follow MassTransit naming conventions
+RABBITMQ_QUEUE_RESPONSE = "main-service-summary-generated-response"  # Define response queue
 
 # Azure Storage Configuration
-SUBTITLES_CONTAINER = "learnify-subtitles"
-TRANSCRIPTIONS_CONTAINER = "learnify-transcriptions"
+SUMMARIES_CONTAINER = "learnify-summaries"
 
 
 def establish_rabbitmq_connection():
@@ -39,44 +37,34 @@ def establish_rabbitmq_connection():
     raise Exception("Failed to connect to RabbitMQ after multiple attempts.")
 
 
-def publish_subtitles_generated_response(lesson_id, subtitle_id, subtitle_blob_name):
+def publish_summary_generated_response(file_id, subtitle_blob_name):
     """Publishes a MassTransit-compatible SubtitlesGeneratedResponse message to RabbitMQ."""
 
     response_message = {
         "message": {  # ✅ Wrap inside "message" key for MassTransit
-            "LessonId": lesson_id,
-            "SubtitleId": subtitle_id,
-            "SubtitleFileInfo": {
-                "ContentType": "text/vtt",
-                "ContainerName": SUBTITLES_CONTAINER,
+            "FileId": file_id,
+            "SummaryFileInfo": {
+                "ContentType": "text/plain",
+                "ContainerName": SUMMARIES_CONTAINER,
                 "BlobName": subtitle_blob_name
             },
         },
-        "messageType": ["urn:message:Learnify.Contracts:SubtitlesGeneratedResponse"]
+        "messageType": ["urn:message:Learnify.Contracts:SummaryGeneratedResponse"]
     }
 
     try:
         channel = RABBITMQ_CONNECTION.channel()
 
         # ✅ Declare the exchange and bind to the queue
-        exchange_name = "main-service-subtitles-generated-response"  # ✅ Use MassTransit naming
-
-        # ✅ Publish the message to the correct exchange
-        properties = pika.BasicProperties(
-            delivery_mode=2,  # Persistent message
-            headers={
-                "messageType": ["urn:message:Learnify.Contracts:SubtitlesGeneratedResponse"]
-            }
-        )
+        exchange_name = "main-service-summary-generated-response"  # ✅ Use MassTransit naming
 
         # ✅ Publish the message to the correct exchange
         channel.basic_publish(
             exchange=exchange_name,
             routing_key="",  # Fanout exchange ignores this
-            body=json.dumps(response_message),
-            properties=properties
+            body=json.dumps(response_message)
         )
-        print(f"✅ Published SubtitlesGeneratedResponse: {response_message}")
+        print(f"✅ Published SummaryGeneratedResponse: {response_message}")
 
     except pika.exceptions.AMQPConnectionError as e:
         print(f"❌ RabbitMQ Connection Error: {str(e)}")
@@ -92,61 +80,35 @@ def process_video_message(message):
         if "message" in msg_data:
             msg_data = msg_data["message"]
 
-        lesson_id = msg_data["lessonId"]
+        file_id = msg_data["fileId"]
         video_container = msg_data["videoContainerName"]
         video_blob_name = msg_data["videoBlobName"]
-        subtitle_info = msg_data["subtitleInfo"]  # List of SubtitleInfo objects
+        content_type = msg_data["contentType"]
+        language = msg_data["language"]
 
         print(f"Processing subtitles for video: {video_blob_name}")
 
 
         # ✅ Download video
-        print("Downloading video from Azure Blob Storage...")
-        video_path = download_video_from_blob(video_container, video_blob_name)
+        print("generating sas url:")
+        video_path = get_sas_url(video_container, video_blob_name)
 
         # ✅ Extract audio
-        print("Extracting audio from video...")
-        audio_path = extract_audio(video_path)
-
-        # ✅ Generate primary language subtitles & transcription
-        print(f"Generating primary subtitles in {subtitle_info['language']}...")
-        original_srt, segments = generate_subtitles(audio_path, subtitle_info["language"])
+        print("generating summary:")
+        summary = get_summary(video_path, content_type, language)
 
         # ✅ Upload primary language subtitles & transcription
-        subtitle_blob_name = video_blob_name + f"_{subtitle_info['language']}.vtt"
+        summary_blob_name = video_blob_name + f"summary.txt"
 
-        upload_to_blob(SUBTITLES_CONTAINER, original_srt, subtitle_blob_name)
+        temp_file_path = generate_temporary_file(summary, summary_blob_name)
 
-        os.remove(video_path)
-        os.remove(audio_path)
-        os.remove(original_srt)
+        upload_to_blob(SUMMARIES_CONTAINER, temp_file_path, summary_blob_name)
 
         # ✅ Publish primary language subtitles response
-        publish_subtitles_generated_response(
-            lesson_id, subtitle_info["id"], subtitle_blob_name
+        publish_summary_generated_response(
+            file_id, summary_blob_name
         )
-
-        # ✅ Translate subtitles & transcriptions into other languages
-        # for subtitle in subtitle_info:
-        #     target_language = subtitle["language"]
-        #     subtitle_id = subtitle["id"]
-        #
-        #     if target_language != primary_language:
-        #         print(f"Translating subtitles & transcription to {target_language} (ID: {subtitle_id})...")
-        #         translated_srt = translate_subtitles(segments, target_language)
-        #         translated_txt = translate_transcription(original_txt, target_language)
-        #
-        #         # Upload translated subtitles & transcription
-        #         translated_srt_blob_name = video_blob_name.replace(".mp4", f"_{target_language}.srt")
-        #         translated_txt_blob_name = video_blob_name.replace(".mp4", f"_{target_language}.txt")
-        #
-        #         upload_to_blob(SUBTITLES_CONTAINER, translated_srt, translated_srt_blob_name)
-        #         upload_to_blob(TRANSCRIPTIONS_CONTAINER, translated_txt, translated_txt_blob_name)
-        #
-        #         # ✅ Publish translated subtitles response
-        #         publish_subtitles_generated_response(subtitle_id, translated_srt_blob_name, translated_txt_blob_name)
-        #
-        print(f"✅ Subtitles processing completed for {video_blob_name}")
+        print(f"✅ Summary processing completed for {video_blob_name}")
 
     except Exception as e:
         print(f"❌ Error processing video message: {str(e)}")

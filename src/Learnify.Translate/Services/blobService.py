@@ -1,23 +1,19 @@
-﻿import os
-import tempfile
-from azure.storage.blob import BlobServiceClient
-from dotenv import load_dotenv
+﻿from azure.storage.blob import BlobServiceClient
 
-load_dotenv()
+AZURE_CONNECTION_STRING = "AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
 
-AZURE_CONNECTION_STRING = os.getenv("AZURE_API_KEY")
-
-def download_video_from_blob(container_name, blob_name):
-    """Downloads video from Azure Blob Storage."""
+def download_blob_text(container_name, blob_name, encoding="utf-8"):
+    """Downloads and returns the text content from Azure Blob Storage without creating a local file."""
     blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
 
-    temp_video_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
-    with open(temp_video_path, "wb") as video_file:
-        video_file.write(blob_client.download_blob().readall())
+    # Read blob content directly into memory
+    blob_content = blob_client.download_blob().readall()
 
-    return temp_video_path
+    # Decode the bytes into a string
+    text_content = blob_content.decode(encoding)
 
+    return text_content
 
 def upload_to_blob(container_name, file_path, blob_name):
     """Uploads a file to Azure Blob Storage."""
@@ -33,7 +29,5 @@ def upload_to_blob(container_name, file_path, blob_name):
     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
     with open(file_path, "rb") as data:
         blob_client.upload_blob(data, overwrite=True)
-
-
 
     print(f"Uploaded {file_path} to Azure Blob Storage: {container_name}/{blob_name}")

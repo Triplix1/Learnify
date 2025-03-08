@@ -6,12 +6,12 @@ using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.QuizQuestion.Answers;
 using Learnify.Core.Dto.Course.Video;
+using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Subtitles;
 using Learnify.Core.Enums;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Transactions;
-using MassTransit;
 using MongoDB.Bson;
 
 namespace Learnify.Core.Services;
@@ -19,10 +19,9 @@ namespace Learnify.Core.Services;
 public class LessonService : ILessonService
 {
     private readonly ISubtitlesManager _subtitlesManager;
-    private readonly IPrivateFileService _iPrivateFileService;
-    private readonly IPublishEndpoint _publishEndpoint;
     private readonly IBlobStorage _blobStorage;
     private readonly IUserAuthorValidatorManager _userAuthorValidatorManager;
+    private readonly ISummaryManager _summaryManager;
 
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
     private readonly IPsqUnitOfWork _psqUnitOfWork;
@@ -32,19 +31,17 @@ public class LessonService : ILessonService
         IPsqUnitOfWork psqUnitOfWork,
         IMapper mapper,
         ISubtitlesManager subtitlesManager,
-        IPublishEndpoint publishEndpoint,
-        IPrivateFileService iPrivateFileService,
         IBlobStorage blobStorage,
-        IUserAuthorValidatorManager userAuthorValidatorManager)
+        IUserAuthorValidatorManager userAuthorValidatorManager,
+        ISummaryManager summaryManager)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
         _mapper = mapper;
         _subtitlesManager = subtitlesManager;
-        _publishEndpoint = publishEndpoint;
-        _iPrivateFileService = iPrivateFileService;
         _blobStorage = blobStorage;
         _userAuthorValidatorManager = userAuthorValidatorManager;
+        _summaryManager = summaryManager;
     }
 
     #region DQL
@@ -263,7 +260,8 @@ public class LessonService : ILessonService
         return courseId.Value;
     }
 
-    private async Task<IEnumerable<SubtitleReference>> AddNewVideoAsync(int? courseId, string lessonId,
+    private async Task<VideoProceedResponse> ProcessNewVideoAsync(int? courseId,
+        string lessonId,
         Language primaryLanguage,
         VideoAddOrUpdateRequest videoAddOrUpdateRequest,
         CancellationToken cancellationToken = default)
@@ -271,17 +269,28 @@ public class LessonService : ILessonService
         var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(videoAddOrUpdateRequest.Attachment
             .FileId, cancellationToken);
 
+        var fileDataBlobResponse = _mapper.Map<PrivateFileDataBlobResponse>(file);
+        
         var subtitlesCreateAndGenerateRequest = new SubtitlesCreateAndGenerateRequest()
         {
-            VideoBlobName = file.BlobName,
-            VideoContainerName = file.ContainerName,
+            PrivateFileDataBlobResponse = fileDataBlobResponse,
             CourseId = courseId,
             LessonId = lessonId,
             PrimaryLanguage = primaryLanguage,
             SubtitlesLanguages = videoAddOrUpdateRequest.Subtitles
         };
 
-        return await _subtitlesManager.CreateAndGenerateAsync(subtitlesCreateAndGenerateRequest, cancellationToken);
+        var subtitles =
+            await _subtitlesManager.CreateAndGenerateAsync(subtitlesCreateAndGenerateRequest, cancellationToken);
+
+        var summaryId =
+            await _summaryManager.GenerateSummaryForVideoAsync(fileDataBlobResponse, courseId, primaryLanguage);
+
+        return new VideoProceedResponse()
+        {
+            Subtitles = subtitles,
+            SummaryFileId = summaryId,
+        };
     }
 
     private async Task<LessonUpdateResponse> CreateAsync(LessonAddOrUpdateRequest lessonCreateRequest,
@@ -306,9 +315,12 @@ public class LessonService : ILessonService
                 if (courseId is null)
                     throw new KeyNotFoundException("Cannot find course for provided lesson");
 
-                lesson.Video.Subtitles = await AddNewVideoAsync(courseId.Value, lesson.Id,
+                var videoProceedResponse = await ProcessNewVideoAsync(courseId.Value, lesson.Id,
                     lessonCreateRequest.PrimaryLanguage,
                     lessonCreateRequest.Video, cancellationToken);
+
+                lesson.Video.Subtitles = videoProceedResponse.Subtitles;
+                lesson.Video.SummaryFileId = videoProceedResponse.SummaryFileId;
             }
 
             var createdLesson = await _mongoUnitOfWork.Lessons.CreateAsync(lesson, cancellationToken);
@@ -382,9 +394,14 @@ public class LessonService : ILessonService
                 }
 
                 if (lessonAddOrUpdateRequest.Video?.Attachment?.FileId != null)
-                    updatedLesson.Video.Subtitles =
-                        await AddNewVideoAsync(courseId, updatedLesson.Id, lessonAddOrUpdateRequest.PrimaryLanguage,
+                {
+                    var videoProceedResponse =
+                        await ProcessNewVideoAsync(courseId, updatedLesson.Id, lessonAddOrUpdateRequest.PrimaryLanguage,
                             lessonAddOrUpdateRequest.Video, cancellationToken);
+                    
+                    updatedLesson.Video.Subtitles = videoProceedResponse.Subtitles;
+                    updatedLesson.Video.SummaryFileId = videoProceedResponse.SummaryFileId;
+                }
             }
             else if (lessonAddOrUpdateRequest.Video?.Attachment is not null && oldLesson.Video?.Attachment is not null)
             {
@@ -408,6 +425,8 @@ public class LessonService : ILessonService
                     .Attachment
                     .FileId, cancellationToken);
 
+                var fileDataBlobResponse = _mapper.Map<PrivateFileDataBlobResponse>(file);
+
                 var newSubtitlesLanguages = lessonAddOrUpdateRequest.Video.Subtitles.Where(l =>
                     !primaryLanguageEquals || !oldLesson.Video.Subtitles.Select(s => s.Language).Contains(l)).ToArray();
 
@@ -417,8 +436,7 @@ public class LessonService : ILessonService
                     {
                         var subtitlesCreateAndGenerateRequest = new SubtitlesCreateAndGenerateRequest()
                         {
-                            VideoBlobName = file.BlobName,
-                            VideoContainerName = file.ContainerName,
+                            PrivateFileDataBlobResponse = fileDataBlobResponse,
                             CourseId = courseId,
                             LessonId = updatedLesson.Id,
                             PrimaryLanguage = lessonAddOrUpdateRequest.PrimaryLanguage,

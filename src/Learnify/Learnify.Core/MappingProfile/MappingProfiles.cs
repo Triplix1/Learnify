@@ -89,6 +89,7 @@ public class MappingProfiles : Profile
         
         // FileData
         CreateMap<PrivateFileData, PrivateFileDataResponse>();
+        CreateMap<PrivateFileData, PrivateFileDataBlobResponse>();
         CreateMap<GeneratedResponseUpdateRequest, PrivateFileCreateRequest>();
         CreateMap<GeneratedResponseUpdateRequest, PrivateFileData>();
         CreateMap<PrivateFileCreateRequest, PrivateFileData>();

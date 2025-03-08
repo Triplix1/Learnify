@@ -5,4 +5,5 @@ import { SubtitlesResponse } from "../Subtitle/SubtitlesResponse";
 export interface VideoResponse {
     attachment: AttachmentResponse;
     subtitles: SubtitlesResponse[];
+    summaryFileId: number;
 }

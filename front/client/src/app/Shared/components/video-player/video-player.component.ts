@@ -1,34 +1,61 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { MediaService } from 'src/app/Core/services/media.service';
+import { SubtitlesService } from 'src/app/Core/services/subtitles.service';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
 import { SubtitlesResponse } from 'src/app/Models/Course/Lesson/Subtitle/SubtitlesResponse';
+import { SubtitlesSelected } from 'src/app/Models/Course/Lesson/Subtitle/SubtitlesSelected';
 
 @Component({
   selector: 'app-video-player',
   templateUrl: './video-player.component.html',
   styleUrls: ['./video-player.component.scss']
 })
-export class VideoPlayerComponent extends BaseComponent {
+export class VideoPlayerComponent extends BaseComponent implements AfterViewInit {
   @Input({ required: true }) fileId: number;
   @Input() classList: string;
   @Input() availableSubtitles: SubtitlesResponse[] = [];
+  @Output() subtitleSelected: EventEmitter<SubtitlesSelected> = new EventEmitter<SubtitlesSelected>();// Send data to parent
   loading: boolean = true;
   error: string = '';
   videoUrl: string;
   @ViewChild('videoPlayer') videoPlayer!: ElementRef<HTMLVideoElement>;
 
-  selectedSubtitleId: string = ''; // Holds selected subtitle Id
+  private activeSubtitleTrack: TextTrack | null = null;
+  private currentSubtitleFileId: number;
 
-  constructor(private readonly mediaService: MediaService) {
+
+  constructor(private readonly subtitlesService: SubtitlesService) {
     super();
   }
 
-  // ngOnInit(): void {
-  //   this.mediaService.getVideoUrl(this.fileId)
-  //     .subscribe(resp => {
-  //       this.videoUrl = resp.data.url;
-  //     });
-  // }
+  ngAfterViewInit(): void {
+    const video: HTMLVideoElement = this.videoPlayer.nativeElement;
+
+    video.textTracks.addEventListener('change', (event: any) => {
+      this.onCueChange();
+    });
+  }
+
+  onCueChange() {
+    const video: HTMLVideoElement = this.videoPlayer.nativeElement;
+
+    this.activeSubtitleTrack = this.getActiveTrack(video.textTracks);
+    if (!this.activeSubtitleTrack) return;
+
+    const activeCues = this.activeSubtitleTrack.activeCues;
+    if (activeCues) {
+      this.subtitleSelected.emit({ id: this.currentSubtitleFileId, text: this.subtitlesService.extractSubtitles(this.activeSubtitleTrack) });
+    }
+  }
+
+  getActiveTrack(textTracks: TextTrackList): TextTrack | null {
+    for (let i = 0; i < textTracks.length; i++) {
+      if (textTracks[i].mode === 'showing') {
+        return textTracks[i];
+      }
+    }
+    return null;
+  }
 
   onVideoLoad(): void {
     this.loading = false;
@@ -36,41 +63,6 @@ export class VideoPlayerComponent extends BaseComponent {
 
   onVideoError(event: ErrorEvent): void {
     this.error = 'Error loading video: ' + event.message;
-  }
-
-  ngAfterViewInit(): void {
-    // Load default subtitles (optional)
-  }
-
-  loadSubtitles(fileId: number) {
-    this.mediaService.getFileStream(fileId).subscribe(
-      (subtitleBlob) => {
-        const subtitleBlobUrl = URL.createObjectURL(subtitleBlob);
-
-        // Remove existing track elements
-        const video = this.videoPlayer.nativeElement;
-        const existingTracks = video.getElementsByTagName('track');
-        for (let i = existingTracks.length - 1; i >= 0; i--) {
-          video.removeChild(existingTracks[i]);
-        }
-
-        // Create and append new track
-        const track = document.createElement('track');
-        track.kind = 'subtitles';
-        track.label = this.availableSubtitles.find(sub => sub.subtitleFileId === fileId)?.language.toString() || 'Subtitle';
-        track.srclang = this.availableSubtitles.find(sub => sub.subtitleFileId === fileId)?.language.toString() || 'en';
-        track.src = subtitleBlobUrl;
-        track.default = true;
-
-        video.appendChild(track);
-      },
-      (error) => console.error('Error loading subtitles:', error)
-    );
-  }
-
-  onSubtitleChange(event: Event) {
-    const selectedFileId = +(event.target as HTMLSelectElement).value;
-    this.loadSubtitles(selectedFileId);
   }
 
   getSrclang(language: string) {
