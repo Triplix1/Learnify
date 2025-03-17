@@ -41,6 +41,11 @@ import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
 import { FilePathPipe } from './pipes/file-path.pipe';
 import { SelectLanguageComponent } from './components/select-language/select-language.component';
 import { SelectLanguagesListComponent } from './components/select-languages-list/select-languages-list.component';
+import { MeetingLaunchComponent } from '../Modules/meetings/meeting-launch/meeting-launch.component';
+import { MeetingStartComponent } from '../Modules/meetings/meeting-start/meeting-start.component';
+import { ActionSectionComponent } from './components/action-section/action-section.component';
+import { MeetingJoinComponent } from '../Modules/meetings/meeting-join/meeting-join.component';
+import { MeetingComponent } from '../Modules/meetings/meeting/meeting.component';
 
 @NgModule({
   declarations: [
@@ -73,6 +78,7 @@ import { SelectLanguagesListComponent } from './components/select-languages-list
     FilePathPipe,
     SelectLanguageComponent,
     SelectLanguagesListComponent,
+    ActionSectionComponent,
   ],
   imports: [
     CommonModule,
@@ -135,6 +141,7 @@ import { SelectLanguagesListComponent } from './components/select-languages-list
     FilePathPipe,
     SelectLanguageComponent,
     SelectLanguagesListComponent,
+    ActionSectionComponent,
   ]
 })
 export class SharedModule { }

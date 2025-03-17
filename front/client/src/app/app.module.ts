@@ -11,6 +11,7 @@ import { ErrorHandlerInterceptor } from './Core/interceptors/error-handler.inter
 import { ProfileModule } from './Modules/profile/profile.module';
 import { CourseModule } from './Modules/course/course.module';
 import { MessageModule } from './Modules/message/message.module';
+import { MeetingModule } from './Modules/meetings/meeting.module';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { MessageModule } from './Modules/message/message.module';
     BrowserAnimationsModule,
     CourseModule,
     MessageModule,
+    MeetingModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorHandlerInterceptor, multi: true },

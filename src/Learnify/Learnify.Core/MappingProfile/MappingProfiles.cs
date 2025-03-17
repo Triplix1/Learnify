@@ -11,6 +11,8 @@ using Learnify.Core.Dto.Course.QuizQuestion.Answers;
 using Learnify.Core.Dto.Course.QuizQuestion.QuizAnswer;
 using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Dto.File;
+using Learnify.Core.Dto.MeetingConnection;
+using Learnify.Core.Dto.MeetingSession;
 using Learnify.Core.Dto.Messages;
 using Learnify.Core.Dto.Params;
 using Learnify.Core.Dto.Profile;
@@ -103,5 +105,13 @@ public class MappingProfiles : Profile
         //Message
         CreateMap<Message, MessageResponse>()
             .ForMember(m => m.SenderName, m => m.MapFrom(message => message.Sender.Name));
+        
+        //MeetingSession
+        CreateMap<MeetingSessionCreateRequest, MeetingSession>();
+        CreateMap<MeetingSession, MeetingSessionResponse>();
+        
+        //MeetingConnection
+        CreateMap<MeetingConnectionCreateRequest, MeetingConnection>();
+        CreateMap<MeetingConnection, MeetingConnectionResponse>();
     }
 }

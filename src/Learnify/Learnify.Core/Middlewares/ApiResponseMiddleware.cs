@@ -42,6 +42,11 @@ public class ApiResponseMiddleware
                 if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
                 {
                     var responseBody = await ReadStreamAsync(responseBodyStream);
+
+                    if (!responseBody.StartsWith("{"))
+                    {
+                        responseBody = "{" + responseBody + "}";
+                    }
                     var data = string.IsNullOrWhiteSpace(responseBody)
                         ? null
                         : JsonSerializer.Deserialize<object>(responseBody);

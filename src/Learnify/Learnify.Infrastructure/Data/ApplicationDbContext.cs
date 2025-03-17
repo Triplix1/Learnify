@@ -35,6 +35,10 @@ public class ApplicationDbContext: DbContext
     public DbSet<Connection> Connections { get; set; }
     
     public DbSet<UserQuizAnswer> UserQuizAnswers { get; set; }
+
+    public DbSet<MeetingSession> MeetingSessions { get; set; }
+    public DbSet<MeetingConnection> MeetingConnections { get; set; }
+    public DbSet<MeetingStream> MeetingStreams { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -46,6 +50,7 @@ public class ApplicationDbContext: DbContext
         builder.Entity<UserBought>().HasKey(ub => new { ub.UserId, ub.CourseId });
         builder.Entity<UserQuizAnswer>().HasKey(ub => new { ub.UserId, ub.LessonId, ub.QuizId });
         builder.Entity<UserQuizAnswer>().HasIndex(ub => new { ub.UserId, ub.LessonId });
+        builder.Entity<MeetingSession>().HasIndex(s => s.CourseId);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())

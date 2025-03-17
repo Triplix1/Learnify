@@ -81,6 +81,7 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
 @layer base {
     :root {
         --navigation: 160 160 160;
+        --navigationHover: 180 180 180;
         --logo: 150 0 0;
         --dropdown: 40 40 40;
         --primar: 200 200 200;
@@ -107,6 +108,7 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
 
     .dark {
         --navigation: 31 31 31;
+        --navigationHover: 46 46 46;
         --logo: 90 0 0;
         --dropdown: 170 170 170;
         --primar: 100 100 100;
@@ -168,6 +170,10 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
     src: url('assets/fonts/Cantata_One/CantataOne-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
+}
+
+.hide {
+    display: none;
 }
 
 .container-width {

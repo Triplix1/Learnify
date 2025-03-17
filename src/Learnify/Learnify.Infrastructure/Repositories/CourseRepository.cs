@@ -33,6 +33,12 @@ public class CourseRepository : ICourseRepository
         return course;
     }
 
+    public async Task<int> GetCourseAuthorIdAsync(int courseId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Courses.Where(s => s.Id == courseId).Select(c => c.AuthorId)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+    }
+
     public async Task<CoursePaymentResponse> GetCoursePaymentDataAsync(int id, CancellationToken cancellationToken = default)
     {
         var course = await _context.Courses.Select(c => new CoursePaymentResponse()

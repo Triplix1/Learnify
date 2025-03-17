@@ -16,6 +16,11 @@ public class UserBoughtValidatorManager: IUserBoughtValidatorManager
 
     public async Task ValidateUserAccessToTheCourseAsync(int userId, int courseId, CancellationToken cancellationToken = default)
     {
+        var authorId = await _unitOfWork.CourseRepository.GetCourseAuthorIdAsync(courseId, cancellationToken);
+        
+        if(authorId == userId)
+            return;
+        
         if (!await _unitOfWork.UserBoughtRepository.UserBoughtExistsAsync(userId, courseId, cancellationToken))
         {
             throw new UnauthorizedAccessException("You do not have access to this course.");

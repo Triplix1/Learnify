@@ -18,6 +18,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
+using Vonage;
+using Vonage.Extensions;
 
 namespace Learnify.Core.Installers;
 
@@ -33,6 +35,7 @@ public class CoreInstaller: IInstaller
         services.AddFluentValidationAutoValidation();
         services.AddAutoMapper(Assembly);
         services.AddSignalR();
+        services.AddVonageClientScoped(config);
 
         services.Configure<FormOptions>(opts =>
         {
@@ -108,12 +111,23 @@ public class CoreInstaller: IInstaller
         services.AddScoped<IPrivateFileService, PrivateFileService>();
         services.AddScoped<IQuizService, QuizService>();
         services.AddScoped<IAnswersService, AnswersService>();
+        services.AddScoped<IMeetingWebhookService, MeetingWebhookService>();
+        services.AddScoped<IMeetingSessionService, MeetingSessionService>();
+        services.AddScoped<IMeetingTokenService, MeetingTokenService>();
 
         services.Configure<GoogleAuthOptions>(config.GetSection("GoogleAuthSettings"));
         services.Configure<JwtOptions>(config.GetSection("JwtSettings"));
         services.Configure<MailOptions>(config.GetSection("MailConfig"));
         services.Configure<EncryptionOptions>(config.GetSection("EncryptionOptions"));
         services.Configure<StripeOptions>(config.GetSection("StripeOptions"));
+        
+        var vonageSection = config.GetSection("vonage");
+        services.Configure<VonageOptions>(options =>
+        {
+            options.ApplicationId = vonageSection["Application.Id"];
+            options.ApplicationKey = vonageSection["Application.Key"];
+        });
+
         services.AddSingleton(x => new BlobServiceClient(config["BlobStorageSettings:ConnectionString"]));
     }
 }

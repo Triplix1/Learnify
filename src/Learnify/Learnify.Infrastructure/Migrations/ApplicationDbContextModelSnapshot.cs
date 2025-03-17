@@ -129,6 +129,59 @@ namespace Learnify.Infrastructure.Migrations
                     b.ToTable("Groups");
                 });
 
+            modelBuilder.Entity("Learnify.Core.Domain.Entities.Sql.MeetingConnection", b =>
+                {
+                    b.Property<string>("ConnectionId")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsAuthor")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SessionId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ConnectionId");
+
+                    b.HasIndex("SessionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MeetingConnections");
+                });
+
+            modelBuilder.Entity("Learnify.Core.Domain.Entities.Sql.MeetingSession", b =>
+                {
+                    b.Property<string>("SessionId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("SessionId");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("MeetingSessions");
+                });
+
+            modelBuilder.Entity("Learnify.Core.Domain.Entities.Sql.MeetingStream", b =>
+                {
+                    b.Property<string>("StreamId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConnectionId")
+                        .HasColumnType("text");
+
+                    b.HasKey("StreamId");
+
+                    b.HasIndex("ConnectionId");
+
+                    b.ToTable("MeetingStreams");
+                });
+
             modelBuilder.Entity("Learnify.Core.Domain.Entities.Sql.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -269,17 +322,12 @@ namespace Learnify.Infrastructure.Migrations
                     b.Property<int?>("SubtitleFileId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TranscriptionFileId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SubtitleFileId");
-
-                    b.HasIndex("TranscriptionFileId");
 
                     b.ToTable("Subtitles");
                 });
@@ -410,6 +458,43 @@ namespace Learnify.Infrastructure.Migrations
                     b.Navigation("Video");
                 });
 
+            modelBuilder.Entity("Learnify.Core.Domain.Entities.Sql.MeetingConnection", b =>
+                {
+                    b.HasOne("Learnify.Core.Domain.Entities.Sql.MeetingSession", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId");
+
+                    b.HasOne("Learnify.Core.Domain.Entities.Sql.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Learnify.Core.Domain.Entities.Sql.MeetingSession", b =>
+                {
+                    b.HasOne("Learnify.Core.Domain.Entities.Sql.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("Learnify.Core.Domain.Entities.Sql.MeetingStream", b =>
+                {
+                    b.HasOne("Learnify.Core.Domain.Entities.Sql.MeetingConnection", "Connection")
+                        .WithMany()
+                        .HasForeignKey("ConnectionId");
+
+                    b.Navigation("Connection");
+                });
+
             modelBuilder.Entity("Learnify.Core.Domain.Entities.Sql.Message", b =>
                 {
                     b.HasOne("Learnify.Core.Domain.Entities.Sql.Group", "Group")
@@ -442,13 +527,7 @@ namespace Learnify.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("SubtitleFileId");
 
-                    b.HasOne("Learnify.Core.Domain.Entities.Sql.PrivateFileData", "TranscriptionFile")
-                        .WithMany()
-                        .HasForeignKey("TranscriptionFileId");
-
                     b.Navigation("SubtitleFile");
-
-                    b.Navigation("TranscriptionFile");
                 });
 
             modelBuilder.Entity("Learnify.Core.Domain.Entities.Sql.Course", b =>

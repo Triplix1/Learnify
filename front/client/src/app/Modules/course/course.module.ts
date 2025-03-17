@@ -18,6 +18,7 @@ import { CourseStudyPageComponent } from './course-study/course-study-page/cours
 import { CourseStudyLessonComponent } from './course-study/course-study-lesson/course-study-lesson.component';
 import { QuizzesComponent } from './course-study/quizzes/quizzes.component';
 import { SingleQuizComponent } from './course-study/single-quiz/single-quiz.component';
+import { MeetingModule } from '../meetings/meeting.module';
 
 
 
@@ -44,6 +45,7 @@ import { SingleQuizComponent } from './course-study/single-quiz/single-quiz.comp
     CommonModule,
     SharedModule,
     CourseRoutingModule,
+    MeetingModule,
   ],
   exports: [
     CreateCourseComponent,

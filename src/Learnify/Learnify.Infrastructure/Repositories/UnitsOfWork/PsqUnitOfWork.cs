@@ -15,7 +15,8 @@ public class PsqUnitOfWork: IPsqUnitOfWork
         IUserBoughtRepository userBoughtRepository,
         ISubtitlesRepository subtitlesRepository,
         IQuizRepository quizRepository,
-        IUserQuizAnswerRepository userQuizAnswerRepository)
+        IUserQuizAnswerRepository userQuizAnswerRepository,
+        IMeetingSessionRepository meetingSessionRepository, IMeetingConnectionRepository meetingConnectionRepository)
     {
         UserRepository = userRepository;
         RefreshTokenRepository = refreshTokenRepository;
@@ -27,6 +28,8 @@ public class PsqUnitOfWork: IPsqUnitOfWork
         SubtitlesRepository = subtitlesRepository;
         QuizRepository = quizRepository;
         UserQuizAnswerRepository = userQuizAnswerRepository;
+        MeetingSessionRepository = meetingSessionRepository;
+        MeetingConnectionRepository = meetingConnectionRepository;
     }
 
     public IParagraphRepository ParagraphRepository { get; }
@@ -48,4 +51,8 @@ public class PsqUnitOfWork: IPsqUnitOfWork
     public ICourseRepository CourseRepository { get; }
 
     public ICourseRatingsRepository CourseRatingsRepository { get; }
+    
+    public IMeetingSessionRepository MeetingSessionRepository { get; }
+
+    public IMeetingConnectionRepository MeetingConnectionRepository { get; }
 }

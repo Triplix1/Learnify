@@ -21,4 +21,7 @@ public interface IPsqUnitOfWork
     IQuizRepository QuizRepository { get; }
 
     IUserQuizAnswerRepository UserQuizAnswerRepository { get; }
+
+    IMeetingSessionRepository MeetingSessionRepository { get; }
+    IMeetingConnectionRepository MeetingConnectionRepository { get; }
 }

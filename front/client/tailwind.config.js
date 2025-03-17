@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       colors: {
         navigation: 'rgb(var(--navigation) / <alpha-value>)',
+        navigationHover: 'rgb(var(--navigationHover) / <alpha-value>)',
         logo: 'rgb(var(--logo) / <alpha-value>)',
         dropdown: 'rgb(var(--dropdown) / <alpha-value>)',
         primar: 'rgb(var(--primar) / <alpha-value>)',

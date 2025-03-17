@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { take, takeUntil } from 'rxjs';
+import { AuthService } from 'src/app/Core/services/auth.service';
 import { CourseService } from 'src/app/Core/services/course.service';
 import { PaymentService } from 'src/app/Core/services/payment.service';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
@@ -16,9 +17,11 @@ export class MainCoursePageComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) courseId: number;
 
   courseMainInfo: CourseMainInfo;
+  curentUserId: number;
 
-  constructor(private readonly courseService: CourseService, private readonly paymentService: PaymentService, private readonly router: Router) {
+  constructor(private readonly courseService: CourseService, private readonly paymentService: PaymentService, private readonly router: Router, private readonly authService: AuthService) {
     super();
+    this.authService.userData$.pipe(takeUntil(this.destroySubject)).subscribe(response => this.curentUserId = response.id);
   }
 
   ngOnInit(): void {
@@ -33,5 +36,9 @@ export class MainCoursePageComponent extends BaseComponent implements OnInit {
 
   goToTheCourse() {
     this.router.navigate([`/course/study/${this.courseId}`]);
+  }
+
+  get isAuthor(): boolean {
+    return this.curentUserId == this.courseMainInfo.authorId;
   }
 }

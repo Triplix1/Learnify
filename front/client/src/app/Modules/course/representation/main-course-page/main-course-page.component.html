@@ -35,20 +35,24 @@
     </div>
 
     <div class="mt-4 flex flex-col justify-center items-center">
-        <div *ngIf="!courseMainInfo.userHasBoughtThisCourse; else userHasBoughtThisCourse"
-             class="w-fit flex flex-col justify-center items-center h-fit p-10 bg-navigation opacity-80 rounded-md">
+        <app-action-section *ngIf="!courseMainInfo.userHasBoughtThisCourse; else userHasBoughtThisCourse"
+                            classList="p-10">
             <div>Price: {{courseMainInfo.price}}$</div>
 
             <app-button class="mt-3"
                         (buttonClick)="completePayment()">Buy!</app-button>
 
-        </div>
+        </app-action-section>
         <ng-template #userHasBoughtThisCourse>
-            <div class="w-fit flex flex-col justify-center items-center h-fit p-8 bg-navigation opacity-80 rounded-md">
+            <app-action-section classList="p-8">
                 <app-button (buttonClick)="goToTheCourse()">GoToTheCourse</app-button>
 
-            </div>
+            </app-action-section>
 
         </ng-template>
     </div>
-</div>
+
+    <div class="mt-4 flex flex-col justify-center items-center">
+        <app-meeting-launch [courseId]="courseId"
+                     [isAuthor]="isAuthor"></app-meeting-launch>
+    </div>
