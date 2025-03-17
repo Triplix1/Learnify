@@ -1,0 +1,11 @@
+<div class="h-14 flex justify-center items-center">
+    <div class="flex">
+        <app-meeting-admin-bar-icon class="mx-2"
+                                    [itemName]="videoEnabled ? 'videocam' : 'videocam_off'"
+                                    (onClick)="changeVideo()"></app-meeting-admin-bar-icon>
+
+        <app-meeting-admin-bar-icon class="mx-2"
+                                    [itemName]="audioEnabled ? 'mic' : 'mic_off'"
+                                    (onClick)="changeAudio()"></app-meeting-admin-bar-icon>
+    </div>
+</div>

@@ -1,0 +1,90 @@
+body,
+html {
+    background-color: gray;
+    height: 100%;
+}
+
+#videos {
+    position: relative;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    height: 720px;
+}
+
+#publisher {
+    position: absolute;
+    width: 360px;
+    height: 240px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 100;
+    border: 3px solid grey;
+    border-radius: 8px;
+}
+
+#publisher>video {
+    border-radius: 8px !important;
+}
+
+#subscriber {
+    display: grid;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    padding: 5%;
+    height: auto;
+    min-height: 300px;
+}
+
+#subscriber>div {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Centering adjustments for different numbers of streams */
+.one-stream {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.two-streams {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+
+    justify-content: center;
+}
+
+.three-streams {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* Two columns */
+    grid-auto-rows: auto;
+    gap: 10px;
+    /* Optional spacing */
+    height: 100%;
+    justify-content: center;
+}
+
+.three-streams> :last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    max-width: 50%;
+}
+
+.four-streams {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, auto);
+    height: 100%;
+}
+
+.multi-streams {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-rows: auto;
+    height: auto;
+    justify-content: center;
+}

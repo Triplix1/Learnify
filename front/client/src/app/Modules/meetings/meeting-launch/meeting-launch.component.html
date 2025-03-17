@@ -1,0 +1,16 @@
+<div class="w-full">
+    <app-meeting-start *ngIf="!sessionId; else sessionExists"
+                       [courseId]="courseId"
+                       [isAuthor]="isAuthor"
+                       (sessionCreated)="sessionCreated($event)"></app-meeting-start>
+
+    <ng-template #sessionExists>
+        <app-meeting-join *ngIf="!token; else showMeeting"
+                          (joinRequested)="joinSession()"></app-meeting-join>
+
+        <ng-template #showMeeting>
+            <app-meeting [sessionId]="sessionId"
+                         [token]="token"></app-meeting>
+        </ng-template>
+    </ng-template>
+</div>
