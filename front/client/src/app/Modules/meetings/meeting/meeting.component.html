@@ -3,10 +3,18 @@
           <div id="subscriber"
                class="w-full h-full my-auto"
                class="rounded-md"></div>
+
+          <!-- <div id="screen"
+               class="w-full h-full hide"
+               class="rounded-md"></div> -->
+
           <div id="publisher"
                class="rounded-md"></div>
      </div>
      <app-meeting-admin-bar [publisher]="publisher"
                             [videoEnabled]="true"
-                            [audioEnabled]="true"></app-meeting-admin-bar>
+                            [audioEnabled]="true"
+                            [screenShared]="screenSharing"
+                            (screenShareRequested)="initializeScreenSharing($event)"
+                            (onLogout)="logout()"></app-meeting-admin-bar>
 </div>

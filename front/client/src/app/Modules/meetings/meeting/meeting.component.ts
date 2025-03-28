@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, Renderer2 } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
 import { initPublisher, initSession, OTError, Session, Subscriber } from '@opentok/client';
 import { ActiveStream } from 'src/app/Models/Meeting/ActiveStreams';
 import { environment } from 'src/environments/environment';
@@ -11,12 +11,16 @@ import { environment } from 'src/environments/environment';
 export class MeetingComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input({ required: true }) sessionId: string;
   @Input({ required: true }) token: string;
+  @Output() onLogout: EventEmitter<void> = new EventEmitter<void>();
 
   allStreams: ActiveStream[] = [];
   activeStreamVideos: string[] = [];
   session: Session;
   subscriberDiv: HTMLElement;
   publisher: OT.Publisher;
+  screenPublisher: OT.Publisher;
+  screenSharing: boolean = false;
+  selectedStream: string = null;
 
   constructor(private renderer: Renderer2, private el: ElementRef) { }
 
@@ -30,13 +34,7 @@ export class MeetingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.session) {
-      this.session.disconnect();
-    }
-  }
-
-  handleError(error: OTError) {
-    if (error) {
-      alert(error.message);
+      this.logout();
     }
   }
 
@@ -75,6 +73,104 @@ export class MeetingComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  initializeScreenSharing(share: boolean) {
+    this.screenSharing = share;
+
+    if (!this.screenSharing) {
+      this.stopScreenSharing();
+    }
+    else {
+      this.startScreenSharing();
+    }
+  }
+
+  stopScreenSharing() {
+    if (this.screenPublisher) {
+      this.screenPublisher.destroy();
+      this.screenPublisher = null;
+      this.screenSharing = false;
+    }
+  }
+
+  startScreenSharing() {
+    if (this.screenPublisher) {
+      return;
+    }
+
+    const hiddenElement = this.renderer.createElement('screenShare');
+    this.renderer.addClass(hiddenElement, "hide");
+    this.screenPublisher = OT.initPublisher(hiddenElement,
+      {
+        videoSource: 'screen',
+        width: '100%',
+        height: '100%',
+      },
+      (error) => {
+        if (error) {
+        } else {
+          this.session.publish(this.screenPublisher, error => {
+            if (error) {
+              console.log(error.message);
+            }
+          });
+        }
+      });
+
+    this.screenPublisher.on('streamCreated', event => {
+      this.handleNewStreamCration(event.stream);
+    });
+
+    this.screenPublisher.on('streamDestroyed', (stream) => {
+      this.hadnleStreamDisconnection(stream.stream);
+    });
+  }
+
+  addActiveStramIfNotEnought() {
+    if (this.activeStreamVideos.length < 2 && this.allStreams.length > this.activeStreamVideos.length) {
+      const streamToSubscribe = this.allStreams.filter(s => s.stream.hasVideo && !this.activeStreamVideos.includes(s.stream.streamId))[0];
+
+      if (this.subscriberDiv) {
+        // Create a new div container
+        this.renderer.removeChild(this.subscriberDiv, streamToSubscribe.element);
+
+        const newContainer = this.createNewSubscriberElement(streamToSubscribe.stream.streamId);
+
+        const subscriber = this.session.subscribe(streamToSubscribe.stream, newContainer, {
+          insertMode: 'replace',
+          width: '100%',
+          height: '100%',
+
+        }, this.handleError);
+
+        this.handleNewSubscriber(subscriber);
+
+        streamToSubscribe.subscriber = subscriber;
+        streamToSubscribe.element = newContainer;
+
+        this.activeStreamVideos.push(streamToSubscribe.stream.streamId);
+      }
+    }
+  }
+
+  createNewSubscriberElement(streamId: string): HTMLElement {
+    const newContainer = this.renderer.createElement('div');
+
+    // Append the new div inside 'subscriber'
+    this.renderer.appendChild(this.subscriberDiv, newContainer);
+
+    this.renderer.listen(newContainer, 'click', () => {
+      this.selectStream(streamId); // Call selectStream with the streamId
+    });
+
+    return newContainer;
+  }
+
+  handleError(error: OTError) {
+    if (error) {
+      alert(error.message);
+    }
+  }
+
   handleNewStreamCration(stream: OT.Stream) {
     const newContainer = this.renderer.createElement('div');
     this.renderer.addClass(newContainer, 'video-container');
@@ -102,7 +198,7 @@ export class MeetingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   updateStreamLayout() {
-    const totalStreams = this.activeStreamVideos.length;
+    const totalStreams = this.allStreams.filter(s => this.activeStreamVideos.includes(s.stream.streamId) && !s.element.classList.contains('hide')).length;
 
     this.renderer.removeClass(this.subscriberDiv, 'one-stream');
     this.renderer.removeClass(this.subscriberDiv, 'two-streams');
@@ -128,52 +224,26 @@ export class MeetingComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  addActiveStramIfNotEnought() {
-    if (this.activeStreamVideos.length < 2 && this.allStreams.length > this.activeStreamVideos.length) {
-      const streamToSubscribe = this.allStreams.filter(s => s.stream.hasVideo && !this.activeStreamVideos.includes(s.stream.streamId))[0];
-
-      if (this.subscriberDiv) {
-        // Create a new div container
-        this.renderer.removeChild(this.subscriberDiv, streamToSubscribe.element);
-
-        const newContainer = this.renderer.createElement('div');
-        this.renderer.addClass(newContainer, 'w-45');
-        this.renderer.addClass(newContainer, 'h-fit');
-
-        // Append the new div inside 'subscriber'
-        this.renderer.appendChild(this.subscriberDiv, newContainer);
-
-        const subscriber = this.session.subscribe(streamToSubscribe.stream, newContainer, {
-          insertMode: 'replace',
-          width: '100%',
-          height: '100%',
-        }, this.handleError);
-
-        this.handleNewSubscriber(subscriber);
-
-        streamToSubscribe.subscriber = subscriber;
-
-        this.activeStreamVideos.push(streamToSubscribe.stream.streamId);
-      }
-    }
-  }
-
   hadnleStreamDisconnection(stream: OT.Stream) {
     if (stream.hasVideo) {
       this.handleVideoDisable(stream.streamId);
-      this.allStreams = this.allStreams.filter(s => s.stream.streamId !== stream.streamId);
     }
-
-    this.addActiveStramIfNotEnought();
-    this.updateStreamLayout();
+    this.allStreams = this.allStreams.filter(s => s.stream.streamId !== stream.streamId);
   }
 
   handleVideoDisable(streamId: string) {
     const element = this.allStreams.find(s => s.stream.streamId === streamId)?.element;
 
     if (element) {
+      this.allStreams = this.allStreams.filter(s => s.stream.streamId !== streamId);
       element.classList.add("hide");
-      this.activeStreamVideos.filter(s => s !== streamId);
+      this.activeStreamVideos = this.activeStreamVideos.filter(s => s !== streamId);
+      this.addActiveStramIfNotEnought();
+      this.updateStreamLayout();
+    }
+
+    if (this.screenPublisher.stream.streamId === streamId) {
+      this.stopScreenSharing();
     }
   }
 
@@ -197,5 +267,30 @@ export class MeetingComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.addActiveStramIfNotEnought();
     });
+  }
+
+  selectStream(streamId: string) {
+    if (this.selectedStream !== null) {
+      this.selectedStream = null;
+
+      for (let stream of this.allStreams.filter(s => this.activeStreamVideos.includes(s.stream.streamId) && s.stream.streamId)) {
+        stream.element.classList.remove('hide');
+      }
+    }
+    else {
+      this.selectedStream = streamId;
+
+      for (let stream of this.allStreams.filter(s => s.stream.streamId != streamId && this.activeStreamVideos.includes(s.stream.streamId) && s.stream.streamId)) {
+        stream.element.classList.add('hide');
+      }
+    }
+
+    this.updateStreamLayout();
+  }
+
+  logout() {
+    this.publisher.destroy()
+    this.session.disconnect();
+    this.onLogout.emit();
   }
 }

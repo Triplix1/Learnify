@@ -28,4 +28,8 @@ export class MeetingLaunchComponent implements OnInit {
   joinSession() {
     this._meetingTokenService.generateToken(this.sessionId).subscribe(response => this.token = response.data.token);
   }
+
+  loggedOutFromTheMeeting() {
+    this.token = null;
+  }
 }

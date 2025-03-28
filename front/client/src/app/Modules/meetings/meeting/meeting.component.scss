@@ -42,6 +42,16 @@ html {
     overflow: hidden;
 }
 
+#screen {
+    padding: 5%;
+}
+
+#screen>video {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+
 /* Centering adjustments for different numbers of streams */
 .one-stream {
     grid-template-columns: 1fr;

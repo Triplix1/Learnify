@@ -7,5 +7,13 @@
         <app-meeting-admin-bar-icon class="mx-2"
                                     [itemName]="audioEnabled ? 'mic' : 'mic_off'"
                                     (onClick)="changeAudio()"></app-meeting-admin-bar-icon>
+
+        <app-meeting-admin-bar-icon class="mx-2"
+                                    [itemName]="screenShared ? 'stop_screen_share' : 'screen_share'"
+                                    (onClick)="changeScreenShare()"></app-meeting-admin-bar-icon>
+
+        <app-meeting-admin-bar-icon class="mx-2"
+                                    itemName="logout"
+                                    (onClick)="logout()"></app-meeting-admin-bar-icon>
     </div>
 </div>

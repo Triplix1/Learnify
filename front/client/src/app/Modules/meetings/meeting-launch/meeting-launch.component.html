@@ -10,7 +10,8 @@
 
         <ng-template #showMeeting>
             <app-meeting [sessionId]="sessionId"
-                         [token]="token"></app-meeting>
+                         [token]="token"
+                         (onLogout)="loggedOutFromTheMeeting()"></app-meeting>
         </ng-template>
     </ng-template>
 </div>
