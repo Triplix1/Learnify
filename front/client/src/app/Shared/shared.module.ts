@@ -9,7 +9,7 @@ import { RouterModule } from '@angular/router';
 import { ToastrModule } from 'ngx-toastr';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { MatIconModule } from '@angular/material/icon';
-import { TextInputComponent } from './components/text-input/text-input.component';
+import { InputComponent } from './components/input/input.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DropdownComponent } from './components/dropdown/dropdown.component';
 import { ImageUploaderComponent } from './components/image-uploader/image-uploader.component';
@@ -52,7 +52,7 @@ import { MeetingComponent } from '../Modules/meetings/meeting/meeting.component'
     NavbarComponent,
     HeaderComponent,
     FooterComponent,
-    TextInputComponent,
+    InputComponent,
     DropdownComponent,
     ImageUploaderComponent,
     ImageCropperDialogComponent,
@@ -111,7 +111,7 @@ import { MeetingComponent } from '../Modules/meetings/meeting/meeting.component'
     RouterModule,
     ToastrModule,
     MatIconModule,
-    TextInputComponent,
+    InputComponent,
     FormsModule,
     ReactiveFormsModule,
     DropdownComponent,

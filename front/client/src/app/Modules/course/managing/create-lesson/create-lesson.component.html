@@ -2,10 +2,10 @@
      class="bg-gray-900 p-4 rounded-lg mb-4">
 
        <div>
-              <app-text-input [formControl]="$any(lessonForm.controls['title'])"
-                              placeholder="Title"
-                              label="Title"
-                              (changedInput)="handleUpdateOfTitle()"></app-text-input>
+              <app-input [formControl]="$any(lessonForm.controls['title'])"
+                         placeholder="Title"
+                         label="Title"
+                         (changedInput)="handleUpdateOfTitle()"></app-input>
        </div>
 
        <div class="mx-auto w-11/12 my-2 h-[2px] bg-slate-800"></div>
@@ -55,7 +55,8 @@
               <div class="flex items-center justify-center mt-2">
                      <app-button class="mr-3"
                                  (buttonClick)="save()">Save</app-button>
-                     <app-button classList="bg-dropdown hover:bg-dropdown hover:opacity-60 transition-opacity"
+                     <app-button type="cancel"
+                                 classList="rounded-lg"
                                  (buttonClick)="cancel()">Cancel</app-button>
               </div>
 

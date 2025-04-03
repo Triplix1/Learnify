@@ -7,9 +7,9 @@
         </div>
 
 
-        <app-text-input label="message"
+        <app-input label="message"
                         [hiddenLabel]="true"
-                        [formControl]="$any(messageForm.controls['message'])"></app-text-input>
+                        [formControl]="$any(messageForm.controls['message'])"></app-input>
         <app-button [disabled]="!messageForm.valid"
                     (buttonClick)="sendMessage()">Send</app-button>
     </div>

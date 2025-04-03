@@ -10,6 +10,7 @@ public class CourseUpdateResponse
     public string Name { get; set; }
     public string Description { get; set; }
     public decimal Price { get; set; }
+    public bool IsPublished { get; set; }
     public string PrimaryLanguage { get; set; }
     public PrivateFileDataResponse Photo { get; set; }
     public PrivateFileDataResponse Video { get; set; }

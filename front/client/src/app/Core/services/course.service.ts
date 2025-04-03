@@ -16,6 +16,7 @@ import { PagedParamsService } from './paged-params.service';
 import { OrderParamsService } from './order-params.service';
 import { CourseMainInfo } from 'src/app/Models/Course/CourseMainInfo';
 import { CourseStudyResponse } from 'src/app/Models/Course/CourseStudyResponse';
+import { PublishCourseRequest } from 'src/app/Models/Course/PublishCourseRequest';
 
 @Injectable({
   providedIn: 'root'
@@ -82,8 +83,8 @@ export class CourseService {
   }
 
 
-  publishCourse(id: number, publish: boolean): Observable<ApiResponseWithData<CourseResponse>> {
-    return this.httpClient.post<ApiResponseWithData<CourseResponse>>(this.baseCourseUrl + "/" + id, { publish });
+  publishCourse(id: number, publish: PublishCourseRequest): Observable<ApiResponseWithData<CourseResponse>> {
+    return this.httpClient.post<ApiResponseWithData<CourseResponse>>(this.baseCourseUrl + "/" + id, publish);
   }
 
   updateCourse(courseUpdateRequest: CourseUpdateRequest): Observable<ApiResponseWithData<CourseResponse>> {

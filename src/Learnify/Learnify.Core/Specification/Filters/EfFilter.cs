@@ -11,5 +11,5 @@ public class EfFilter<T>: IBaseEntityFilter<T>
     public Specification<T> Specification { get; set; }
     public OrderByParams OrderByParams { get; set; }
     public List<Expression<Func<T, object>>> Includes { get; set; }
-    public PagedListParams PagedListParams { get; set; }
+    public PagedListParams PagedListParams { get; set; } = new();
 }

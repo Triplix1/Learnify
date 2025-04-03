@@ -3,15 +3,15 @@ import { ControlValueAccessor, FormControl, NgControl } from '@angular/forms';
 import { debounceTime, forkJoin, of, switchMap } from 'rxjs';
 
 @Component({
-  selector: 'app-text-input',
-  templateUrl: './text-input.component.html',
-  styleUrls: ['./text-input.component.scss']
+  selector: 'app-input',
+  templateUrl: './input.component.html',
+  styleUrls: ['./input.component.scss']
 })
-export class TextInputComponent implements ControlValueAccessor, OnInit {
+export class InputComponent implements ControlValueAccessor, OnInit {
   @Input({ required: true }) label = '';
   @Input() hiddenLabel = false;
   @Input() hiddenError: boolean = false;
-  @Input() type = 'text';
+  @Input() type: 'text' | 'IBAN' | 'password' = 'text';
   @Input() classList = '';
   @Input() placeholder = '';
   @Output() changedInput: EventEmitter<any> = new EventEmitter<any>();

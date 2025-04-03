@@ -17,11 +17,11 @@
         </button>
 
         <div class="relative">
-            <app-text-input [formControl]="$any(answerForm.controls['answer'])"
+            <app-input [formControl]="$any(answerForm.controls['answer'])"
                             [hiddenError]="true"
                             [hiddenLabel]="true"
                             placeholder="Title"
-                            label="Title"></app-text-input>
+                            label="Title"></app-input>
             <div *ngIf="$any(answerForm.controls['answer'].value) !== initialValue "
                  (click)="$event.stopPropagation()"
                  class="flex justify-quizForm mr-1.5 absolute right-0 top-1.5">

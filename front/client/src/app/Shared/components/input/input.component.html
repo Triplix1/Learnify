@@ -4,12 +4,22 @@
               [for]="label"
               [ngClass]="control.dirty && control.invalid ? 'text-error' : ''"
               class="block mb-2 ml-2 text-sm font-medium text-primar">{{label}}</label>
-       <input [id]="label"
+       <input *ngIf="type === 'text' || type == 'password'"
+              [id]="label"
+              [formControl]="control"
+              [placeholder]="placeholder"
+              [type]="type"
+              class="border-[2px] bg-input text-sm rounded-lg text-black font-medium w-full py-[6px] px-2 {{ control.dirty && control.errors && control.errors['hasError'] ? 'border-error focus:border-error text-error placeholder-error' : 'border-gray-500 focus:border-gray-400 placeholder-textInput' }} {{classList}}">
+       <input *ngIf="type === 'IBAN'"
+              [id]="label"
               [formControl]="control"
               type="text"
+              name="iban"
+              placeholder="DE89370400440532013000"
+              pattern="[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}"
+              maxlength="34"
               class="border-[2px] bg-input text-sm rounded-lg text-black font-medium w-full py-[6px] px-2 {{ control.dirty && control.errors && control.errors['hasError'] ? 'border-error focus:border-error text-error placeholder-error' : 'border-gray-500 focus:border-gray-400 placeholder-textInput' }} {{classList}}"
-              [placeholder]="placeholder"
-              [type]="type">
+              required />
        <div *ngIf="!hiddenError">
               <div class="mt-1 text-error text-sm font-medium"
                    *ngIf="control.dirty && control.hasError('required')">

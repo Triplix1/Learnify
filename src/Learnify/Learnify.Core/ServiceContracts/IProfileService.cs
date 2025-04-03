@@ -1,5 +1,4 @@
-﻿using Learnify.Core.Dto;
-using Learnify.Core.Dto.Profile;
+﻿using Learnify.Core.Dto.Profile;
 
 namespace Learnify.Core.ServiceContracts;
 
@@ -14,4 +13,6 @@ public interface IProfileService
 
     Task<ProfileResponse> UpdateAsync(ProfileUpdateRequest profileUpdateRequest,
         CancellationToken cancellationToken = default);
+    
+    Task<ProfileResponse> UpdateRoleAsync(int userId, UpdateUserRoleRequest updateUserRoleRequest, CancellationToken cancellationToken = default);
 }

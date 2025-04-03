@@ -1,5 +1,6 @@
 <select [formControl]="formControl"
-        class="p-2 rounded bg-input text-textInput w-full">
+        class="p-2 rounded bg-input text-textInput w-full"
+        (change)="optionSelected($event)">
     <option *ngFor="let option of options"
             [value]="option.value">
         {{ option.label }}

@@ -1,16 +1,15 @@
-﻿using AutoMapper;
+﻿using System.Security.Authentication;
+using AutoMapper;
 using Learnify.Core.Domain.Entities.Sql;
-using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
-using Learnify.Core.Dto;
 using Learnify.Core.Dto.Blob;
-using Learnify.Core.Dto.Params;
 using Learnify.Core.Dto.Profile;
+using Learnify.Core.Enums;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
-using Learnify.Core.Specification;
+using Learnify.Core.Specification.Custom;
+using Learnify.Core.Specification.Filters;
 using Learnify.Core.Transactions;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace Learnify.Core.Services;
 
@@ -115,5 +114,44 @@ public class ProfileService : IProfileService
         var profileResponse = _mapper.Map<ProfileResponse>(origin);
 
         return profileResponse;
+    }
+
+    public async Task<ProfileResponse> UpdateRoleAsync(int userId, UpdateUserRoleRequest updateUserRoleRequest,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _psqUnitOfWork.UserRepository.GetByIdAsync(userId, cancellationToken);
+
+        if (user == null)
+            throw new KeyNotFoundException("Cannot find user with such id");
+
+        var roleToSet = _mapper.Map<Role>(updateUserRoleRequest.Role);
+
+        if (user.Role == roleToSet)
+            return _mapper.Map<ProfileResponse>(user);
+
+        if (roleToSet == Role.Student)
+            await ValidatePossibilityToBecomeStudent(cancellationToken, user);
+
+        user.Role = roleToSet;
+
+        user = await _psqUnitOfWork.UserRepository.UpdateAsync(user, cancellationToken);
+
+        var profileResponse = _mapper.Map<ProfileResponse>(user);
+
+        return profileResponse;
+    }
+
+    private async Task ValidatePossibilityToBecomeStudent(CancellationToken cancellationToken, User user)
+    {
+        var specification = new CourseAuthorSpecification(user.Id);
+
+        var filter = new EfFilter<Course>()
+        {
+            Specification = specification,
+        };
+        var userCourses = await _psqUnitOfWork.CourseRepository.GetFilteredAsync(filter, cancellationToken);
+
+        if (userCourses.TotalCount > 0)
+            throw new InvalidOperationException("You cannot update the profile of a student");
     }
 }

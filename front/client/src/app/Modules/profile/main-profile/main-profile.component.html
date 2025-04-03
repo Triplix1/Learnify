@@ -1,9 +1,57 @@
 <div class="container">
     <mat-tab-group>
         <mat-tab label="Налаштуйте ваш профіль">
-            <div class="mt-4">
-                <!-- <app-image-uploader [file]="profileData?.imageUrl"
-                                    (imageChanged)="imagechanged($event)"></app-image-uploader> -->
+            <div class="bg-gray-900 p-4 rounded-lg mb-3 mt-4">
+                <div>
+                    <!-- <app-image-uploader [file]="profileData?.imageUrl"
+                                        (imageChanged)="imagechanged($event)"></app-image-uploader> -->
+
+                    <div class="flex flex-col items-center">
+                        <div class="grid w-full grid-cols-2 gap-4 mb-3">
+                            <app-input [formControl]="$any(profileForm.controls['name'])"
+                                       placeholder="Name"
+                                       label="Name"></app-input>
+
+                            <app-input placeholder="Surname"
+                                       [formControl]="$any(profileForm.controls['surname'])"
+                                       label="Surname"></app-input>
+
+                            <app-input [formControl]="$any(profileForm.controls['username'])"
+                                       placeholder="Username"
+                                       label="Username"></app-input>
+
+                            <app-input placeholder="Company"
+                                       [formControl]="$any(profileForm.controls['company'])"
+                                       label="Company"></app-input>
+
+                            <app-input *ngIf="profileData.type === teacherType"
+                                       type="IBAN"
+                                       [formControl]="$any(profileForm.controls['cardNumber'])"
+                                       placeholder="Card Number"
+                                       label="Card Number"></app-input>
+
+                            <div>
+                                <p class="block mb-1 ml-2 text-sm font-medium text-primar">
+                                    Role
+                                </p>
+                                <app-selector class="mt-2"
+                                              [options]="selectorOptions"
+                                              [placeholder]="userTypeFormControl.controls['role'].value"
+                                              [formControl]="$any(userTypeFormControl.controls['role'])"
+                                              (valueUpdated)="updateUserType($event)"></app-selector>
+                            </div>
+
+                        </div>
+                        <div *ngIf="profileForm.dirty"
+                             class="flex">
+                            <app-button *ngIf="profileForm.valid"
+                                        classList="mr-3"
+                                        (buttonClick)="updateProfile()">Save</app-button>
+                            <app-button type="cancel"
+                                        (buttonClick)="discardChanges()">Cancel</app-button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </mat-tab>
         <mat-tab [disabled]="false"

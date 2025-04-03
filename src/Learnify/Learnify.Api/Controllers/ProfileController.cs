@@ -1,9 +1,7 @@
-﻿using AutoMapper;
-using Learnify.Api.Controllers.Base;
-using Learnify.Core.Dto;
+﻿using Learnify.Api.Controllers.Base;
 using Learnify.Core.Dto.Profile;
+using Learnify.Core.Extensions;
 using Learnify.Core.ServiceContracts;
-using Learnify.Core.Specification;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -50,6 +48,22 @@ public class ProfileController : BaseApiController
         [FromForm]ProfileUpdateRequest profileUpdateRequest, CancellationToken cancellationToken = default)
     {
         var result = await _profileService.UpdateAsync(profileUpdateRequest, cancellationToken);
+
+        return Ok(result);
+    }
+    
+    /// <summary>
+    /// Updates profile
+    /// </summary>
+    /// <param name="profileUpdateRequest"><see cref="ProfileUpdateRequest"/></param>
+    /// <returns></returns>
+    [HttpPut("update-role")]
+    public async Task<ActionResult<ProfileResponse>> UpdateRole(
+        [FromBody]UpdateUserRoleRequest profileUpdateRequest, CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserId();
+
+        var result = await _profileService.UpdateRoleAsync(userId, profileUpdateRequest, cancellationToken);
 
         return Ok(result);
     }

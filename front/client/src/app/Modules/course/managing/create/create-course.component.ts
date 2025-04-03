@@ -12,6 +12,7 @@ import { CourseUpdateResponse } from 'src/app/Models/Course/CourseUpdateResponse
 import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
+import { PublishCourseRequest } from 'src/app/Models/Course/PublishCourseRequest';
 import { CropperParams } from 'src/app/Models/CropperParams';
 import { Language } from 'src/app/Models/enums/Language';
 import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlobCreateRequest';
@@ -117,7 +118,11 @@ export class CreateCourseComponent extends BaseComponent {
   publish(publish: boolean) {
     this.spinner.show();
 
-    this.courseService.publishCourse(this.courseId, publish).pipe(take(1))
+    const publishRequest: PublishCourseRequest = {
+      publish: publish
+    };
+
+    this.courseService.publishCourse(this.courseId, publishRequest).pipe(take(1))
       .subscribe(
         response => {
           this.courseResponse = response.data;

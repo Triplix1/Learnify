@@ -18,12 +18,12 @@
                      *ngIf="editingMode; else nonEditing">
                     <div class="w-full"
                          (click)="$event.stopPropagation()">
-                        <app-text-input [hiddenError]="true"
+                        <app-input [hiddenError]="true"
                                         classList="w-full"
                                         [formControl]="$any(paragraphForm.controls['name'])"
                                         label="Name"
                                         placeholder="Name"
-                                        [hiddenLabel]="true"></app-text-input>
+                                        [hiddenLabel]="true"></app-input>
                     </div>
                     <div *ngIf="$any(paragraphForm.controls['name'].value) !== '' "
                          (click)="$event.stopPropagation()"

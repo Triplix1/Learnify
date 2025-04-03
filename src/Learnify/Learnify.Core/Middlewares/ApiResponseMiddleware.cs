@@ -43,7 +43,7 @@ public class ApiResponseMiddleware
                 {
                     var responseBody = await ReadStreamAsync(responseBodyStream);
 
-                    if (!responseBody.StartsWith("{"))
+                    if (!responseBody.StartsWith("{") && !responseBody.StartsWith("["))
                     {
                         responseBody = "{" + responseBody + "}";
                     }

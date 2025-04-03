@@ -81,10 +81,10 @@ public class CourseController : BaseApiController
     [Authorize]
     [HttpPost("{id}")]
     public async Task<ActionResult<CourseUpdateResponse>> PublishCourseAsync([FromRoute]int id,
-        [FromBody]bool publish, CancellationToken cancellationToken = default)
+        [FromBody]PublishCourseRequest publish, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var courseResponse = await _courseService.PublishAsync(id, publish, userId, cancellationToken);
+        var courseResponse = await _courseService.PublishAsync(id, publish.Publish, userId, cancellationToken);
 
         return Ok(courseResponse);
     }

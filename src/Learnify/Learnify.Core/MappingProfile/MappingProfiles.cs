@@ -31,7 +31,8 @@ public class MappingProfiles : Profile
             .ConvertUsing(src => Enum.Parse<Role>(src.ToString()));
 
         // User
-        CreateMap<User, ProfileResponse>();
+        CreateMap<User, ProfileResponse>()
+            .ForMember(x => x.Type, x => x.MapFrom(u => u.Role));
         CreateMap<ProfileUpdateRequest, User>();
 
         // Course
@@ -40,7 +41,8 @@ public class MappingProfiles : Profile
         CreateMap<Course, CourseTitleResponse>();
         CreateMap<Course, CourseStudyResponse>();
         CreateMap<Course, CourseMainInfoResponse>()
-            .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));;
+            .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));
+        ;
         CreateMap<Course, CourseResponse>()
             .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));
         CreateMap<Course, CourseUpdateResponse>()
@@ -67,7 +69,7 @@ public class MappingProfiles : Profile
         CreateMap<QuizQuestionAddOrUpdateRequest, QuizQuestion>()
             .ForMember(q => q.Id, q => q.MapFrom(s => s.QuizId));
         CreateMap<QuizQuestion, QuizQuestionUpdateResponse>();
-        
+
         //UserQuizAnswer
         CreateMap<UserQuizAnswer, UserQuizAnswerResponse>();
         CreateMap<UserQuizAnswerCreateRequest, UserQuizAnswer>();
@@ -88,7 +90,7 @@ public class MappingProfiles : Profile
         CreateMap<Subtitle, TranslateFileDataRequest>()
             .ForMember(f => f.FileId, f => f.MapFrom(sr => sr.SubtitleFileId))
             .ForMember(f => f.Language, f => f.MapFrom(sr => sr.Language.ToString()));
-        
+
         // FileData
         CreateMap<PrivateFileData, PrivateFileDataResponse>();
         CreateMap<PrivateFileData, PrivateFileDataBlobResponse>();
@@ -105,11 +107,11 @@ public class MappingProfiles : Profile
         //Message
         CreateMap<Message, MessageResponse>()
             .ForMember(m => m.SenderName, m => m.MapFrom(message => message.Sender.Name));
-        
+
         //MeetingSession
         CreateMap<MeetingSessionCreateRequest, MeetingSession>();
         CreateMap<MeetingSession, MeetingSessionResponse>();
-        
+
         //MeetingConnection
         CreateMap<MeetingConnectionCreateRequest, MeetingConnection>();
         CreateMap<MeetingConnection, MeetingConnectionResponse>();

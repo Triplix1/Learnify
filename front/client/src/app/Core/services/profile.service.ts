@@ -6,6 +6,7 @@ import { ProfileResponse } from 'src/app/Models/Profile/ProfileResponse';
 import { ProfileUpdateRequest } from 'src/app/Models/Profile/ProfileUpdateRequest';
 import { environment } from 'src/environments/environment';
 import { objectToFormData } from '../helpers/formDataHelper';
+import { UpdateUserRoleRequest } from 'src/app/Models/Profile/UpdateUserRoleRequest';
 
 @Injectable({
   providedIn: 'root'
@@ -29,5 +30,9 @@ export class ProfileService {
     };
     return this.httpClient.put<ApiResponseWithData<ProfileResponse>>(this.baseProfileUrl + "/update", formData, options);
 
+  }
+
+  updateUserRole(userRoleUpdateRequest: UpdateUserRoleRequest): Observable<ApiResponseWithData<ProfileResponse>> {
+    return this.httpClient.put<ApiResponseWithData<ProfileResponse>>(this.baseProfileUrl + "/update-role", userRoleUpdateRequest);
   }
 }

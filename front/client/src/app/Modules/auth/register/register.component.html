@@ -7,40 +7,40 @@
         </div>
         <form>
             <div class="mb-3">
-                <app-text-input [formControl]="$any(registerForm.controls['email'])"
+                <app-input [formControl]="$any(registerForm.controls['email'])"
                                 label="Логін"
                                 [type]="'text'"
-                                placeholder="example@gmail.com"></app-text-input>
+                                placeholder="example@gmail.com"></app-input>
             </div>
             <div class="mb-3">
-                <app-text-input [formControl]="$any(registerForm.controls['name'])"
+                <app-input [formControl]="$any(registerForm.controls['name'])"
                                 label="Ім'я"
                                 [type]="'text'"
-                                placeholder="Name"></app-text-input>
+                                placeholder="Name"></app-input>
             </div>
             <div class="mb-3">
-                <app-text-input [formControl]="$any(registerForm.controls['surname'])"
+                <app-input [formControl]="$any(registerForm.controls['surname'])"
                                 label="Прізвище"
                                 [type]="'text'"
-                                placeholder="Surname"></app-text-input>
+                                placeholder="Surname"></app-input>
             </div>
             <div class="mb-3">
-                <app-text-input [formControl]="$any(registerForm.controls['username'])"
+                <app-input [formControl]="$any(registerForm.controls['username'])"
                                 label="Нікнейм"
                                 [type]="'text'"
-                                placeholder="Froggg"></app-text-input>
+                                placeholder="Froggg"></app-input>
             </div>
             <div class="mb-3">
-                <app-text-input [formControl]="$any(registerForm.controls['password'])"
+                <app-input [formControl]="$any(registerForm.controls['password'])"
                                 label="Пароль"
                                 [type]="'password'"
-                                placeholder="Password!1@"></app-text-input>
+                                placeholder="Password!1@"></app-input>
             </div>
             <div class="mb-1">
-                <app-text-input [formControl]="$any(registerForm.controls['confirmPassword'])"
+                <app-input [formControl]="$any(registerForm.controls['confirmPassword'])"
                                 label="Підтвердження"
                                 [type]="'password'"
-                                placeholder="Password!1@"></app-text-input>
+                                placeholder="Password!1@"></app-input>
             </div>
             <div class="mb-3 ml-2"><a class="font-medium text-sm no-underline text-link hover:underline"
                    routerLink="/login">Вже є акаунт</a>

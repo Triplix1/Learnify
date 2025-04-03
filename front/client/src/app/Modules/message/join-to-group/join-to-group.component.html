@@ -2,10 +2,10 @@
     <div class="relative login-form rounded-xl shadow-lg p-8 max-w-sm w-full">
         <form>
             <div class="mb-3">
-                <app-text-input [formControl]="$any(joinForm.controls['groupName'])"
+                <app-input [formControl]="$any(joinForm.controls['groupName'])"
                                 label="group"
                                 [type]="'text'"
-                                placeholder="Group Name"></app-text-input>
+                                placeholder="Group Name"></app-input>
             </div>
             <div class="mb-3">
                 <button (click)="join()"

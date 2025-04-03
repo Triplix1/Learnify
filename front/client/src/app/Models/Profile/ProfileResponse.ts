@@ -2,7 +2,7 @@ import { UserType } from "../enums/UserType";
 
 export interface ProfileResponse {
     id: number;
-    username: string;
+    userName: string;
     email: string;
     type: UserType;
     name: string;

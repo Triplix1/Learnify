@@ -11,6 +11,7 @@ using Stripe;
 
 namespace Learnify.Api.Controllers;
 
+// stripe listen --forward-to localhost:5000/api/checkout/webhook
 public class CheckoutController : BaseApiController
 {
     private readonly IPaymentService _paymentService;

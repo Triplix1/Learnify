@@ -27,6 +27,12 @@ public class ProfileUpdateRequest
     public string Surname { get; set; }
     
     /// <summary>
+    /// Gets or sets value for Surname
+    /// </summary>
+    [Required]
+    public string Username { get; set; }
+    
+    /// <summary>
     /// Gets or sets value for Company
     /// </summary>
     public string? Company { get; set; }
