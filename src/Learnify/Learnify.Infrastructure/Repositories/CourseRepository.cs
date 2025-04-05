@@ -3,12 +3,10 @@ using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
-using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Learnify.Core.Extensions;
-using Learnify.Infrastructure.Helpers;
 
 namespace Learnify.Infrastructure.Repositories;
 
@@ -26,7 +24,9 @@ public class CourseRepository : ICourseRepository
     public async Task<Course> GetByIdAsync(int key, IEnumerable<string> includes = null,
         CancellationToken cancellationToken = default)
     {
-        var query = IncludeParamsHelper.IncludeStrings(includes, _context.Courses);
+        var query = _context.Courses.AsQueryable();
+        
+        query = query.IncludeFields(includes);
 
         var course = await query.FirstOrDefaultAsync(c => c.Id == key, cancellationToken: cancellationToken);
 
@@ -39,7 +39,8 @@ public class CourseRepository : ICourseRepository
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task<CoursePaymentResponse> GetCoursePaymentDataAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<CoursePaymentResponse> GetCoursePaymentDataAsync(int id,
+        CancellationToken cancellationToken = default)
     {
         var course = await _context.Courses.Select(c => new CoursePaymentResponse()
         {
@@ -47,17 +48,18 @@ public class CourseRepository : ICourseRepository
             Name = c.Name,
             Price = c.Price
         }).FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
-        
+
         return course;
     }
 
-    public async Task<CourseStudyResponse> GetCourseStudyResponseAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<CourseStudyResponse> GetCourseStudyResponseAsync(int id,
+        CancellationToken cancellationToken = default)
     {
         var query = _mapper.ProjectTo<CourseStudyResponse>(_context.Courses.Include(c => c.Paragraphs));
 
-        var response = await 
+        var response = await
             query.FirstOrDefaultAsync(c => c.Id == id, cancellationToken: cancellationToken);
-        
+
         return response;
     }
 
@@ -88,26 +90,10 @@ public class CourseRepository : ICourseRepository
     {
         var query = _context.Courses.AsQueryable();
 
-        IncludeParamsHelper.IncludeFields(filter.Includes, query);
-        
-        if (filter.Includes is not null)
-            query = filter.Includes.Aggregate(query, (current, include) => current.Include(include));
+        query = query.ApplyFilters(filter);
 
-        if (filter.Specification is not null)
-            query = query.Where(filter.Specification.GetExpression());
-
-        if (filter.OrderByParams is not null)
-        {
-            if (!filter.OrderByParams.Asc.HasValue || filter.OrderByParams.Asc.Value)
-                query = query.OrderBy(filter.OrderByParams.OrderBy);
-            else
-                query = query.OrderByDescending(filter.OrderByParams.OrderBy);
-        }
-
-        var pagedList =
-            await PagedList<Course>.CreateAsync(query, filter.PagedListParams.PageNumber, filter.PagedListParams.PageSize, cancellationToken);
-
-        return pagedList;
+        return await PagedList<Course>.CreateAsync(query, filter.PagedListParams.PageNumber,
+            filter.PagedListParams.PageSize, cancellationToken);
     }
 
     public async Task<Course> CreateAsync(Course courseCreateRequest, CancellationToken cancellationToken = default)
@@ -135,7 +121,7 @@ public class CourseRepository : ICourseRepository
 
     public async Task<bool> UpdatePhotoAsync(int courseId, int? photoId, CancellationToken cancellationToken = default)
     {
-       var updatedCount = await _context.Courses.Where(c => c.Id == courseId)
+        var updatedCount = await _context.Courses.Where(c => c.Id == courseId)
             .ExecuteUpdateAsync(c => c.SetProperty(cp => cp.PhotoId, photoId), cancellationToken: cancellationToken);
 
         return updatedCount > 0;

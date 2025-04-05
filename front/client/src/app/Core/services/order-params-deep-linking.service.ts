@@ -20,8 +20,8 @@ export class OrderParamsDeepLinkingService {
 
   getOrderByQueryParams(orderByParams: OrderByParams): Params {
     return {
-      pageSize: orderByParams.orderBy,
-      pageNumber: !!orderByParams.asc
+      orderBy: orderByParams.orderBy,
+      asc: orderByParams.asc
     };
   }
 

@@ -41,7 +41,7 @@ public class TokenManager : ITokenManager
             new(JwtRegisteredClaimNames.Email, user.Email),
             new("name", user.Name),
             new("surname", user.Surname),
-            new(ClaimTypes.Role, user.Role.ToString())
+            new("role", user.Role.ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));

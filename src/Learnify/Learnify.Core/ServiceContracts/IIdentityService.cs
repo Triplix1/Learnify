@@ -11,7 +11,13 @@ public interface IIdentityService
     Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest,
         CancellationToken cancellationToken = default);
 
-    Task<AuthResponse> RegisterAsync(RegisterRequest registerRequest,
+    Task<AuthResponse> RegisterUserAsync(CreateUserRequest createUserRequest,
+        CancellationToken cancellationToken = default);
+    
+    Task<AuthResponse> RegisterUserAsync(RegisterModeratorRequest registerModeratorRequest,
+        CancellationToken cancellationToken = default);
+
+    Task<AuthResponse> RegisterUserAsync(RegisterRequest registerRequest,
         CancellationToken cancellationToken = default);
 
     Task<AuthResponse> LoginAsync(LoginRequest loginRequest, CancellationToken cancellationToken = default);

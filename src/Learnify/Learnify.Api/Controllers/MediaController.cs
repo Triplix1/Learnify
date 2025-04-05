@@ -20,7 +20,6 @@ public class MediaController : BaseApiController
     }
 
     [SkipApiResponse]
-    [Authorize]
     [HttpGet("{fileId}")]
     public async Task<IActionResult> GetStreamForFileAsync(int fileId, CancellationToken cancellationToken = default)
     {

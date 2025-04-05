@@ -41,11 +41,9 @@ import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
 import { FilePathPipe } from './pipes/file-path.pipe';
 import { SelectLanguageComponent } from './components/select-language/select-language.component';
 import { SelectLanguagesListComponent } from './components/select-languages-list/select-languages-list.component';
-import { MeetingLaunchComponent } from '../Modules/meetings/meeting-launch/meeting-launch.component';
-import { MeetingStartComponent } from '../Modules/meetings/meeting-start/meeting-start.component';
 import { ActionSectionComponent } from './components/action-section/action-section.component';
-import { MeetingJoinComponent } from '../Modules/meetings/meeting-join/meeting-join.component';
-import { MeetingComponent } from '../Modules/meetings/meeting/meeting.component';
+import { PaginationComponent } from './components/pagination/pagination.component';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 @NgModule({
   declarations: [
@@ -79,6 +77,7 @@ import { MeetingComponent } from '../Modules/meetings/meeting/meeting.component'
     SelectLanguageComponent,
     SelectLanguagesListComponent,
     ActionSectionComponent,
+    PaginationComponent,
   ],
   imports: [
     CommonModule,
@@ -99,6 +98,7 @@ import { MeetingComponent } from '../Modules/meetings/meeting/meeting.component'
     VgControlsModule,
     VgOverlayPlayModule,
     VgBufferingModule,
+    BsDropdownModule.forRoot(),
   ],
   exports: [
     CommonModule,
@@ -142,6 +142,8 @@ import { MeetingComponent } from '../Modules/meetings/meeting/meeting.component'
     SelectLanguageComponent,
     SelectLanguagesListComponent,
     ActionSectionComponent,
+    BsDropdownModule,
+    PaginationComponent
   ]
 })
 export class SharedModule { }

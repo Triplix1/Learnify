@@ -8,10 +8,11 @@ const routes: Routes = [
   { path: "login", component: LoginButtonComponent },
   { path: "logout", component: LogoutButtonComponent },
   { path: "register", component: RegisterComponent },
+  { path: "register/:role", component: RegisterComponent },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { bindToComponentInputs: true })],
   exports: [RouterModule]
 })
 export class AuthRoutingModule { }

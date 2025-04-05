@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
-using Learnify.Core.Dto.Subtitles;
+using Learnify.Core.Extensions;
 using Learnify.Infrastructure.Data;
-using Learnify.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
@@ -24,7 +23,7 @@ public class SubtitlesRepository : ISubtitlesRepository
         var query = _context.Subtitles.AsQueryable();
         
         if (stringsToInclude.Any())
-            query = IncludeParamsHelper.IncludeStrings(stringsToInclude, query);
+            query = query.IncludeFields(stringsToInclude);
 
         return await query.FirstOrDefaultAsync(x => id == x.Id, cancellationToken: cancellationToken);
     }
@@ -34,7 +33,7 @@ public class SubtitlesRepository : ISubtitlesRepository
         var query = _context.Subtitles.AsQueryable();
         
         if (stringsToInclude.Any())
-            query = IncludeParamsHelper.IncludeStrings(stringsToInclude, query);
+            query = query.IncludeFields(stringsToInclude);
 
         return await query.Where(s => ids.Contains(s.Id)).ToArrayAsync(cancellationToken);
     }

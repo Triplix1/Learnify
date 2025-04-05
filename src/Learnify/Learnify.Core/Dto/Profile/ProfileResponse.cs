@@ -40,25 +40,25 @@ public class ProfileResponse
     /// <summary>
     /// Gets or sets value for Company
     /// </summary>
-    public string? Company { get; set; }
+    public string Company { get; set; }
     
     /// <summary>
     /// Gets or sets value for CardNumber
     /// </summary>
-    public string? CardNumber { get; set; }
+    public string CardNumber { get; set; }
     
     /// <summary>
     /// Gets or sets value for ImageUrl
     /// </summary>
-    public string? ImageUrl { get; set; }
+    public string ImageUrl { get; set; }
     
     /// <summary>
     /// Gets or sets value for ImageBlobName
     /// </summary>
-    public string? ImageBlobName { get; set; }
+    public string ImageBlobName { get; set; }
     
     /// <summary>
     /// Gets or sets value for ImageContainerName
     /// </summary>
-    public string? ImageContainerName { get; set; }
+    public string ImageContainerName { get; set; }
 }

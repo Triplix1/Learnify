@@ -102,6 +102,11 @@ public class FileService : IFileService
             ContentType = privateFileBlobCreateRequest.ContentType
         };
 
+        if (isPublic)
+        {
+            privateFile.CourseId = null;
+        }
+
         var container = "learnify";
         var blobName = new string(Guid.NewGuid().ToString().Except("-").ToArray());
 

@@ -42,9 +42,4 @@ public class RegisterRequest
     /// Gets or sets value for ConfirmPassword
     /// </summary>
     public string ConfirmPassword { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for Role
-    /// </summary>
-    public RoleRequest Role { get; set; }
 }

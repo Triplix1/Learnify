@@ -7,6 +7,7 @@ import { PaymentService } from 'src/app/Core/services/payment.service';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
 import { CourseMainInfo } from 'src/app/Models/Course/CourseMainInfo';
 import { PaymentCreateRequest } from 'src/app/Models/Payment/PaymentCreateRequest';
+import { UserFromToken } from 'src/app/Models/UserFromToken';
 
 @Component({
   selector: 'app-main-course-page',
@@ -17,11 +18,15 @@ export class MainCoursePageComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) courseId: number;
 
   courseMainInfo: CourseMainInfo;
-  curentUserId: number;
+  curentUser: UserFromToken;
 
-  constructor(private readonly courseService: CourseService, private readonly paymentService: PaymentService, private readonly router: Router, private readonly authService: AuthService) {
+  constructor(private readonly courseService: CourseService,
+    private readonly paymentService: PaymentService,
+    private readonly router: Router,
+    private readonly authService: AuthService) {
+
     super();
-    this.authService.userData$.pipe(takeUntil(this.destroySubject)).subscribe(response => this.curentUserId = response.id);
+    this.authService.userData$.pipe(takeUntil(this.destroySubject)).subscribe(response => this.curentUser = response);
   }
 
   ngOnInit(): void {
@@ -31,6 +36,14 @@ export class MainCoursePageComponent extends BaseComponent implements OnInit {
   }
 
   completePayment() {
+    if (this.curentUser === null || this.curentUser === undefined) {
+
+      this.router.navigate(['/login'], {
+        queryParams: {
+          returnUrl: this.router.url,
+        },
+      });
+    }
     this.paymentService.requestMemberSession(this.courseId);
   }
 
@@ -39,6 +52,6 @@ export class MainCoursePageComponent extends BaseComponent implements OnInit {
   }
 
   get isAuthor(): boolean {
-    return this.curentUserId == this.courseMainInfo.authorId;
+    return this.curentUser?.id === this.courseMainInfo.authorId;
   }
 }

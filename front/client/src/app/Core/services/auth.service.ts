@@ -10,7 +10,6 @@ import { ReqisterRequest } from 'src/app/Models/Auth/RegisterRequest';
 import { LoginRequest } from 'src/app/Models/Auth/LoginRequest';
 import { UserFromToken } from 'src/app/Models/UserFromToken';
 import { GoogleAuthRequest } from 'src/app/Models/Auth/GoogleAuthRequest';
-import { Role } from 'src/app/Models/enums/Role';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -129,6 +128,7 @@ export class AuthService {
 
   private getUserTokenDataFromToken(accessToken: string): UserFromToken {
     const decodedToken = this.getDecodedToken(accessToken);
+    console.log(decodedToken["role"])
 
     return {
       id: decodedToken.id,
@@ -137,7 +137,7 @@ export class AuthService {
       name: decodedToken.name,
       surname: decodedToken.surname,
       imageUrl: decodedToken.imageUrl,
-      role: decodedToken["role"] as Role
+      role: decodedToken["role"]
     };
   }
 

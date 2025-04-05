@@ -130,26 +130,46 @@ public class IdentityService : IIdentityService
         return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest registerRequest,
+    public async Task<AuthResponse> RegisterUserAsync(RegisterModeratorRequest registerModeratorRequest,
+        CancellationToken cancellationToken = default)
+    {
+        var userCreateRequest = _mapper.Map<CreateUserRequest>(registerModeratorRequest);
+
+        userCreateRequest.Role = Role.Moderator;
+        
+        return await RegisterUserAsync(userCreateRequest, cancellationToken);
+    }
+
+    public async Task<AuthResponse> RegisterUserAsync(RegisterRequest registerRequest,
+        CancellationToken cancellationToken = default)
+    {
+        var userCreateRequest = _mapper.Map<CreateUserRequest>(registerRequest);
+        
+        userCreateRequest.Role = Role.Student;
+        
+        return await RegisterUserAsync(userCreateRequest, cancellationToken);
+    }
+
+    public async Task<AuthResponse> RegisterUserAsync(CreateUserRequest createUserRequest,
         CancellationToken cancellationToken = default)
     {
         var userWithTheSameEmail =
-            await _psqUnitOfWork.UserRepository.GetByEmailAsync(registerRequest.Email, cancellationToken);
+            await _psqUnitOfWork.UserRepository.GetByEmailAsync(createUserRequest.Email, cancellationToken);
 
         if (userWithTheSameEmail is not null)
         {
             _logger.LogError("Cannot register user with email: {email}, because it already exists",
-                registerRequest.Email);
+                createUserRequest.Email);
             throw new ArgumentException("User with the same email already exists");
         }
 
         var userWithTheSameUsername =
-            await _psqUnitOfWork.UserRepository.GetByUsernameAsync(registerRequest.Username, cancellationToken);
+            await _psqUnitOfWork.UserRepository.GetByUsernameAsync(createUserRequest.Username, cancellationToken);
 
         if (userWithTheSameUsername is not null)
         {
             _logger.LogError("Cannot register user with username: {username}, because it already exists",
-                registerRequest.Username);
+                createUserRequest.Username);
             throw new ArgumentException("User with the same username already exists");
         }
 
@@ -157,18 +177,18 @@ public class IdentityService : IIdentityService
 
         var user = new User()
         {
-            Email = registerRequest.Email,
-            Name = registerRequest.Name,
-            Surname = registerRequest.Surname,
-            Username = registerRequest.Username,
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerRequest.Password)),
+            Email = createUserRequest.Email,
+            Name = createUserRequest.Name,
+            Surname = createUserRequest.Surname,
+            Username = createUserRequest.Username,
+            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(createUserRequest.Password)),
             PasswordSalt = hmac.Key,
-            Role = _mapper.Map<Role>(registerRequest.Role)
+            Role = createUserRequest.Role
         };
 
-        if (registerRequest.Image is not null)
+        if (createUserRequest.Image is not null)
         {
-            var stream = registerRequest.Image.OpenReadStream();
+            var stream = createUserRequest.Image.OpenReadStream();
 
             var imageBlobAddRequest = new BlobDto()
             {
@@ -185,10 +205,11 @@ public class IdentityService : IIdentityService
             user.ImageContainerName = imageBlob.ContainerName;
         }
 
-        var createdUser = await _psqUnitOfWork.UserRepository.CreateAsync(user, cancellationToken);
+        user = await _psqUnitOfWork.UserRepository.CreateAsync(user, cancellationToken);
 
         return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }
+
 
     public async Task<AuthResponse> LoginAsync(LoginRequest loginRequest,
         CancellationToken cancellationToken = default)

@@ -12,6 +12,7 @@ import { ProfileModule } from './Modules/profile/profile.module';
 import { CourseModule } from './Modules/course/course.module';
 import { MessageModule } from './Modules/message/message.module';
 import { MeetingModule } from './Modules/meetings/meeting.module';
+import { ModeratorsModule } from './Modules/moderators/moderators.module';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { MeetingModule } from './Modules/meetings/meeting.module';
     CourseModule,
     MessageModule,
     MeetingModule,
+    ModeratorsModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorHandlerInterceptor, multi: true },

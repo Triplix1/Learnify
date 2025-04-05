@@ -2,9 +2,9 @@
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
+using Learnify.Core.Extensions;
 using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
-using Learnify.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
@@ -39,7 +39,8 @@ public class ParagraphRepository : IParagraphRepository
     public async Task<Paragraph> GetByIdAsync(int key, IEnumerable<string> stringToInclude = null,
         CancellationToken cancellationToken = default)
     {
-        var query = IncludeParamsHelper.IncludeStrings(stringToInclude, _context.Paragraphs);
+        var query = _context.Paragraphs.AsQueryable();
+        query = query.IncludeFields(stringToInclude);
 
         var paragraph = await query.FirstOrDefaultAsync(x => x.Id == key, cancellationToken);
 

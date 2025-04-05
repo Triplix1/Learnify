@@ -16,7 +16,7 @@ namespace Learnify.Core.Services;
 public class CourseService : ICourseService
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
-    private readonly IUserAuthorValidatorManager _iUserAuthorValidatorManager;
+    private readonly IUserAuthorValidatorManager _IUserAuthorValidatorManager;
     private readonly IFileService _fileService;
     private readonly IPrivateFileService _privateFileService;
     private readonly IMapper _mapper;
@@ -26,7 +26,7 @@ public class CourseService : ICourseService
     {
         _mapper = mapper;
         _psqUnitOfWork = psqUnitOfWork;
-        _iUserAuthorValidatorManager = iUserAuthorValidatorManager;
+        _IUserAuthorValidatorManager = iUserAuthorValidatorManager;
         _fileService = fileService;
         _privateFileService = privateFileService;
     }
@@ -117,7 +117,7 @@ public class CourseService : ICourseService
     public async Task<CourseUpdateResponse> PublishAsync(int id, bool publish, int userId,
         CancellationToken cancellationToken = default)
     {
-        await _iUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
+        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
 
         var course = await _psqUnitOfWork.CourseRepository.PublishAsync(id, publish, cancellationToken);
 
@@ -146,7 +146,7 @@ public class CourseService : ICourseService
         if (fileCreateRequest.CourseId is null)
             throw new ArgumentNullException(nameof(fileCreateRequest.CourseId));
 
-        await _iUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(fileCreateRequest.CourseId.Value, userId,
+        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(fileCreateRequest.CourseId.Value, userId,
             cancellationToken);
 
         PrivateFileDataResponse fileResponse;
@@ -184,7 +184,7 @@ public class CourseService : ICourseService
         if (fileCreateRequest.CourseId is null)
             throw new ArgumentNullException(nameof(fileCreateRequest.CourseId));
 
-        await _iUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(fileCreateRequest.CourseId.Value, userId, cancellationToken);
+        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(fileCreateRequest.CourseId.Value, userId, cancellationToken);
 
         PrivateFileDataResponse fileResponse;
 
@@ -223,7 +223,7 @@ public class CourseService : ICourseService
         if (originalCourse is null)
             throw new KeyNotFoundException("Cannot find course with such id");
 
-        await _iUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId, cancellationToken);
+        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId, cancellationToken);
 
         var course = _mapper.Map(courseUpdateRequest, originalCourse);
 
@@ -239,7 +239,7 @@ public class CourseService : ICourseService
 
     public async Task DeleteAsync(int id, int userId, CancellationToken cancellationToken = default)
     {
-        await _iUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
+        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
 
         var result = await _psqUnitOfWork.CourseRepository.DeleteAsync(id, cancellationToken);
 
@@ -251,7 +251,7 @@ public class CourseService : ICourseService
 
     public async Task<bool> DeletePhotoAsync(int courseId, int userId, CancellationToken cancellationToken = default)
     {
-        await _iUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseId, userId, cancellationToken);
+        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseId, userId, cancellationToken);
 
         bool result;
 
@@ -273,7 +273,7 @@ public class CourseService : ICourseService
 
     public async Task<bool> DeleteVideoAsync(int courseId, int userId, CancellationToken cancellationToken = default)
     {
-        await _iUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseId, userId, cancellationToken);
+        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseId, userId, cancellationToken);
 
         bool result;
 

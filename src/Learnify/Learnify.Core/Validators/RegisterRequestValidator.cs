@@ -12,7 +12,6 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
         RuleFor(r => r.ConfirmPassword)
             .Equal(x => x.Password)
             .WithMessage("Passwords do not match");
-        RuleFor(r => r.Role).IsInEnum();
         RuleFor(r => r.Username).NotNull().NotEmpty().MinimumLength(3).MaximumLength(20);
     }
 

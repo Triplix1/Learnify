@@ -19,6 +19,7 @@ export class MainProfileComponent implements OnInit {
   profileData: ProfileResponse;
   profileForm: FormGroup;
   teacherType: UserType = UserType.Teacher;
+  studentType: UserType = UserType.Student;
   selectorOptions: SelectorOptions<UserType>[] = [
     { label: "Teacher", value: UserType.Teacher },
     { label: "Student", value: UserType.Student },

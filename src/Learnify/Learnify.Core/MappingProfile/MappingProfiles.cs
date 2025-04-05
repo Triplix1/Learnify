@@ -2,7 +2,9 @@
 using Learnify.Contracts;
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.Entities.Sql;
+using Learnify.Core.Dto;
 using Learnify.Core.Dto.Attachment;
+using Learnify.Core.Dto.Auth;
 using Learnify.Core.Dto.Course;
 using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.ParagraphDtos;
@@ -34,15 +36,17 @@ public class MappingProfiles : Profile
         CreateMap<User, ProfileResponse>()
             .ForMember(x => x.Type, x => x.MapFrom(u => u.Role));
         CreateMap<ProfileUpdateRequest, User>();
+        CreateMap<RegisterRequest, CreateUserRequest>();
+        CreateMap<RegisterModeratorRequest, CreateUserRequest>();
 
         // Course
         CreateMap<CourseCreateRequest, Course>();
         CreateMap<CourseUpdateRequest, Course>();
-        CreateMap<Course, CourseTitleResponse>();
+        CreateMap<Course, CourseTitleResponse>()
+            .ForMember(c => c.Title, c => c.MapFrom(cr => cr.Name));
         CreateMap<Course, CourseStudyResponse>();
         CreateMap<Course, CourseMainInfoResponse>()
             .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));
-        ;
         CreateMap<Course, CourseResponse>()
             .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));
         CreateMap<Course, CourseUpdateResponse>()

@@ -24,12 +24,26 @@
 
             <div class="my-auto flex justify-end items-center">
 
-                <div *ngIf="(this.tokenData| async)"
+                <!-- <div *ngIf="this.userData?.role === teacherRole"
                      class="mr-4 flex justify-between align-middle">
                     <a routerLink="/course/managing"
                        class="no-underline text-navlink">
                         Create course</a>
                 </div>
+
+                <div *ngIf="this.userData?.role === adminRole"
+                     class="mr-4 flex justify-between align-middle">
+                    <a routerLink="/manager/managing"
+                       class="no-underline text-navlink">
+                        Edit managers</a>
+                </div>
+
+                <div *ngIf="this.userData?.role === superAdminRole"
+                     class="mr-4 flex justify-between align-middle">
+                    <a routerLink="/admins/managing"
+                       class="no-underline text-navlink">
+                        Edit admins</a>
+                </div> -->
 
                 <div class="mr-4 flex justify-center items-center">
                     <button class="h-full flex items-center"
@@ -51,13 +65,13 @@
                 </div>
 
                 <div>
-                    <button *ngIf="!(this.tokenData| async)"
+                    <button *ngIf="!this.userData"
                             (click)="login()"
                             class="btn border-none bg-logo p-0 flex justify-end">
                         <span class="block justify-self-end text-primar">Увійти</span>
                     </button>
 
-                    <app-dropdown *ngIf="(this.tokenData| async)"
+                    <app-dropdown *ngIf="this.userData"
                                   [items]="dropdownItems"><mat-icon style="font-size: 35px;"
                                   class="text-dropdown text-8xl"
                                   inline="true">account_circle</mat-icon></app-dropdown>

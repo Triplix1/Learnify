@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Dto;
+using Learnify.Core.Dto.Params;
 using Learnify.Core.Specification.Base;
 using Learnify.Core.Specification.Filters.Contracts;
 

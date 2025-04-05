@@ -1,4 +1,4 @@
-import { Role } from "./enums/Role";
+import { UserType } from "./enums/UserType";
 
 export interface UserFromToken {
     id: number;
@@ -7,5 +7,5 @@ export interface UserFromToken {
     name: string;
     surname: string;
     imageUrl: string;
-    role: Role;
+    role: UserType;
 }

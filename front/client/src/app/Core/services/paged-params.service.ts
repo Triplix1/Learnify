@@ -12,16 +12,16 @@ export class PagedParamsService {
 
   constructor() { }
 
-  // getPaginatedResult<T>(url: string, params: HttpParams, http: HttpClient) {
-  //   return http.get<ApiResponseWithData<PagedList<T>>>(url, { observe: 'response', params }).pipe(
-  //     map(response => {
-  //       if (response.body.data) {
-  //         return response.body.data;
-  //       }
-  //       return null;
-  //     })
-  //   );
-  // }
+  getPaginatedResult<T>(url: string, params: HttpParams, http: HttpClient) {
+    return http.get<ApiResponseWithData<PagedList<T>>>(url, { observe: 'response', params }).pipe(
+      map(response => {
+        if (response.body.data) {
+          return response.body.data;
+        }
+        return null;
+      })
+    );
+  }
 
   includePaginationHeaders(paginatedParams: PagedListParams, params: HttpParams) {
     params = params.append('pageNumber', paginatedParams.pageNumber);

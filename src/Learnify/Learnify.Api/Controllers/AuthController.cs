@@ -2,7 +2,9 @@
 using Learnify.Api.Controllers.Base;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Auth;
+using Learnify.Core.Enums;
 using Learnify.Core.ServiceContracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -35,7 +37,22 @@ public class AuthController : BaseApiController
     public async Task<ActionResult<AuthResponse>> RegisterAsync(
         [Required] [FromBody]RegisterRequest registerRequest, CancellationToken cancellationToken = default)
     {
-        var response = await _identityService.RegisterAsync(registerRequest, cancellationToken);
+        var response = await _identityService.RegisterUserAsync(registerRequest, cancellationToken);
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Registers a new user.
+    /// </summary>
+    /// <param name="registerRequest">The register request.</param>
+    /// <returns>API response with authentication response.</returns>
+    [Authorize(Roles = $"{nameof(Role.Admin)},{nameof(Role.SuperAdmin)}")]
+    [HttpPost("register-moderator")]
+    [SwaggerOperation(Summary = "Register a new user")]
+    public async Task<ActionResult<AuthResponse>> RegisterModeratorAsync(
+        [Required] [FromBody]RegisterModeratorRequest registerRequest, CancellationToken cancellationToken = default)
+    {
+        var response = await _identityService.RegisterUserAsync(registerRequest, cancellationToken);
         return Ok(response);
     }
 

@@ -52,7 +52,8 @@
         </ng-template>
     </div>
 
-    <div class="mt-4 flex flex-col justify-center items-center">
+    <div *ngIf="courseMainInfo.userHasBoughtThisCourse"
+         class="mt-4 flex flex-col justify-center items-center">
         <app-meeting-launch [courseId]="courseId"
-                     [isAuthor]="isAuthor"></app-meeting-launch>
+                            [isAuthor]="isAuthor"></app-meeting-launch>
     </div>
