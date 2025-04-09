@@ -32,6 +32,7 @@ module.exports = {
         quizAnswerSection: 'rgb(var(--quizAnswerSection) / <alpha-value>)',
         quizCorrectAnswerSection: 'rgb(var(--quizCorrectAnswerSection) / <alpha-value>)',
         quizWrongAnswerSection: 'rgb(var(--quizWrongAnswerSection) / <alpha-value>)',
+        pages: 'rgb(var(--pages) / <alpha-value>)',
       },
     },
   },

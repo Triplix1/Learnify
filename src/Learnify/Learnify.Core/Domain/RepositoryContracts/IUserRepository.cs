@@ -1,5 +1,6 @@
 ﻿using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Dto;
+using Learnify.Core.Enums;
 using Learnify.Core.Specification.Filters;
 
 namespace Learnify.Core.Domain.RepositoryContracts;
@@ -8,6 +9,8 @@ public interface IUserRepository
 {
     Task<PagedList<User>> GetPagedAsync(EfFilter<User> filter,
         CancellationToken cancellationToken = default);
+    
+    Task<Role> GetUserRoleByIdAsync(int userId, CancellationToken cancellationToken = default); 
 
     Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
 

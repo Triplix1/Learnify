@@ -22,7 +22,7 @@ import { StepComponent } from './components/step/step.component';
 import { ContextMenuComponent } from './components/context-menu/context-menu.component';
 import { VideoPlayerComponent } from './components/video-player/video-player.component';
 import { FileUploaderComponent } from './components/file-uploader/file-uploader.component';
-import { AccordionArrowComponent } from './components/accordion-arrow/accordion-arrow.component';
+import { ArrowComponent } from './components/arrow/arrow.component';
 import { AccordionItemComponent } from './components/accordion-item/accordion-item.component';
 import { AccordionHeaderComponent } from './components/accordion-header/accordion-header.component';
 import { AccordionBodyComponent } from './components/accordion-body/accordion-body.component';
@@ -61,7 +61,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     ContextMenuComponent,
     VideoPlayerComponent,
     FileUploaderComponent,
-    AccordionArrowComponent,
+    ArrowComponent,
     AccordionItemComponent,
     AccordionHeaderComponent,
     AccordionBodyComponent,
@@ -126,7 +126,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     VideoPlayerComponent,
     FileUploaderComponent,
     AccordionItemComponent,
-    AccordionArrowComponent,
+    ArrowComponent,
     MediaPipe,
     TruncatePipe,
     MediaComponent,

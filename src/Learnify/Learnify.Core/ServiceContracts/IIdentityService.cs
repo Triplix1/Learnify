@@ -1,5 +1,4 @@
-﻿using Learnify.Core.Dto;
-using Learnify.Core.Dto.Auth;
+﻿using Learnify.Core.Dto.Auth;
 
 namespace Learnify.Core.ServiceContracts;
 
@@ -11,10 +10,10 @@ public interface IIdentityService
     Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest,
         CancellationToken cancellationToken = default);
 
-    Task<AuthResponse> RegisterUserAsync(CreateUserRequest createUserRequest,
-        CancellationToken cancellationToken = default);
-    
     Task<AuthResponse> RegisterUserAsync(RegisterModeratorRequest registerModeratorRequest,
+        CancellationToken cancellationToken = default);
+
+    Task<AuthResponse> RegisterUserAsync(RegisterAdminRequest registerAdminRequest,
         CancellationToken cancellationToken = default);
 
     Task<AuthResponse> RegisterUserAsync(RegisterRequest registerRequest,

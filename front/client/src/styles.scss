@@ -104,6 +104,7 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --quizAnswerSection: 45 45 45;
         --quizCorrectAnswerSection: 45 90 45;
         --quizWrongAnswerSection: 90 45 45;
+        --pages: 170 170 170;
     }
 
     .dark {
@@ -131,6 +132,7 @@ $my-theme: mat-light-theme($mat-theming-primary, $my-accent);
         --quizAnswerSection: 45 45 45;
         --quizCorrectAnswerSection: 45 90 45;
         --quizWrongAnswerSection: 90 45 45;
+        --pages: 100 100 100;
     }
 
     .login-form {

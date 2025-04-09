@@ -26,7 +26,8 @@ export class MainCoursePageComponent extends BaseComponent implements OnInit {
     private readonly authService: AuthService) {
 
     super();
-    this.authService.userData$.pipe(takeUntil(this.destroySubject)).subscribe(response => this.curentUser = response);
+    this.authService.userData$.pipe(takeUntil(this.destroySubject)).subscribe(
+      response => this.curentUser = response);
   }
 
   ngOnInit(): void {

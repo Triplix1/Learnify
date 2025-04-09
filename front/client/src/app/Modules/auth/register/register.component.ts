@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs';
+import { AdminsService } from 'src/app/Core/services/admins.service';
 import { AuthService } from 'src/app/Core/services/auth.service';
 import { AuthorizationDeepLinkingService } from 'src/app/Core/services/authorization-deep-linking.service';
 import { ModeratorsService } from 'src/app/Core/services/morderators.service';
@@ -20,6 +21,7 @@ export class RegisterComponent {
 
   constructor(private readonly authService: AuthService,
     private readonly moderatorsService: ModeratorsService,
+    private readonly adminsService: AdminsService,
     private readonly fb: FormBuilder,
     private readonly router: Router,
     private route: ActivatedRoute) { }
@@ -49,6 +51,11 @@ export class RegisterComponent {
   register() {
     if (this.role === UserType.Moderator) {
       this.moderatorsService.create(this.registerForm.value).pipe(take(1)).subscribe(
+        this.handleRegistration,
+      );
+    }
+    else if (this.role === UserType.Admin) {
+      this.adminsService.create(this.registerForm.value).pipe(take(1)).subscribe(
         this.handleRegistration,
       );
     }

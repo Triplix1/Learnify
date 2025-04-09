@@ -72,6 +72,7 @@
                     </button>
 
                     <app-dropdown *ngIf="this.userData"
+                                  [hideArrow]="true"
                                   [items]="dropdownItems"><mat-icon style="font-size: 35px;"
                                   class="text-dropdown text-8xl"
                                   inline="true">account_circle</mat-icon></app-dropdown>

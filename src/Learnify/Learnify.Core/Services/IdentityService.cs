@@ -2,10 +2,8 @@
 using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
-using Google.Apis.Auth;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
-using Learnify.Core.Dto;
 using Learnify.Core.Dto.Auth;
 using Learnify.Core.Dto.Blob;
 using Learnify.Core.Enums;
@@ -140,6 +138,16 @@ public class IdentityService : IIdentityService
         return await RegisterUserAsync(userCreateRequest, cancellationToken);
     }
 
+    public async Task<AuthResponse> RegisterUserAsync(RegisterAdminRequest registerAdminRequest, CancellationToken cancellationToken = default)
+    {
+        var userCreateRequest = _mapper.Map<CreateUserRequest>(registerAdminRequest);
+
+        userCreateRequest.Role = Role.Admin;
+        
+        return await RegisterUserAsync(userCreateRequest, cancellationToken);
+
+    }
+
     public async Task<AuthResponse> RegisterUserAsync(RegisterRequest registerRequest,
         CancellationToken cancellationToken = default)
     {
@@ -150,7 +158,39 @@ public class IdentityService : IIdentityService
         return await RegisterUserAsync(userCreateRequest, cancellationToken);
     }
 
-    public async Task<AuthResponse> RegisterUserAsync(CreateUserRequest createUserRequest,
+    public async Task<AuthResponse> LoginAsync(LoginRequest loginRequest,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(loginRequest.Email, cancellationToken);
+
+        if (user is null)
+        {
+            _logger.LogError("Cannot find user with email: {email}", loginRequest.Email);
+            throw new AuthenticationException("Cannot find user with such email");
+        }
+
+        if (user.PasswordSalt is null || user.PasswordHash is null)
+        {
+            _logger.LogError("Trying to login user with email: {email}, but it doesn't registered with password",
+                loginRequest.Email);
+            throw
+                new AuthenticationException("Your user doesn't registered with password type");
+        }
+
+        using var hmac = new HMACSHA512(user.PasswordSalt);
+
+        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginRequest.Password));
+
+        if (computedHash.Where((t, i) => t != user.PasswordHash[i]).Any())
+        {
+            _logger.LogError("Login failed, invalid password for user: {email}", loginRequest.Email);
+            throw new AuthenticationException("Invalid Password");
+        }
+
+        return await ReturnNewAuthResponseAsync(user, cancellationToken);
+    }
+
+        private async Task<AuthResponse> RegisterUserAsync(CreateUserRequest createUserRequest,
         CancellationToken cancellationToken = default)
     {
         var userWithTheSameEmail =
@@ -206,39 +246,6 @@ public class IdentityService : IIdentityService
         }
 
         user = await _psqUnitOfWork.UserRepository.CreateAsync(user, cancellationToken);
-
-        return await ReturnNewAuthResponseAsync(user, cancellationToken);
-    }
-
-
-    public async Task<AuthResponse> LoginAsync(LoginRequest loginRequest,
-        CancellationToken cancellationToken = default)
-    {
-        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(loginRequest.Email, cancellationToken);
-
-        if (user is null)
-        {
-            _logger.LogError("Cannot find user with email: {email}", loginRequest.Email);
-            throw new AuthenticationException("Cannot find user with such email");
-        }
-
-        if (user.PasswordSalt is null || user.PasswordHash is null)
-        {
-            _logger.LogError("Trying to login user with email: {email}, but it doesn't registered with password",
-                loginRequest.Email);
-            throw
-                new AuthenticationException("Your user doesn't registered with password type");
-        }
-
-        using var hmac = new HMACSHA512(user.PasswordSalt);
-
-        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginRequest.Password));
-
-        if (computedHash.Where((t, i) => t != user.PasswordHash[i]).Any())
-        {
-            _logger.LogError("Login failed, invalid password for user: {email}", loginRequest.Email);
-            throw new AuthenticationException("Invalid Password");
-        }
 
         return await ReturnNewAuthResponseAsync(user, cancellationToken);
     }

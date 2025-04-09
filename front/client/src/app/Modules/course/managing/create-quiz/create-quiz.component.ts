@@ -20,4 +20,8 @@ export class CreateQuizComponent implements OnInit {
   addQuiz(): void {
     this.quizzes.push({ answers: { correctAnswer: 0, options: [""] }, media: null, question: "New question", id: null });
   }
+
+  quizDeleted(index: number) {
+    this.quizzes = this.quizzes.filter((_, i) => i !== index);
+  }
 }

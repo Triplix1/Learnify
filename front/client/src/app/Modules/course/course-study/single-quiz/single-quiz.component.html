@@ -3,7 +3,7 @@
     <app-nested-option *ngFor="let answer of quizItem.answers.options; let index = index"
                        classList="w-full flex justify-start items-center my-2 w-full mr-2 bg-quizAnswerSection 
                        {{index == quizItem.userAnswer?.answerIndex && quizItem.userAnswer?.isCorrect !== undefined && quizItem.userAnswer.isCorrect !== null ? (quizItem.userAnswer.isCorrect ? 'bg-quizCorrectAnswerSection' : 'bg-quizWrongAnswerSection') : ''}}">
-        <button *ngIf="quizItem.userAnswer.isCorrect !== true"
+        <button *ngIf="quizItem.userAnswer?.isCorrect !== true"
                 class="flex justify-center items-center mr-2 "
                 [disabled]="quizItem.userAnswer?.answerIndex !== null && quizItem.userAnswer?.answerIndex !== undefined && quizItem.userAnswer.answerIndex === index"
                 (click)="setCorrectAnswer(index) ">

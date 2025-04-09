@@ -16,22 +16,28 @@ namespace Learnify.Core.Services;
 public class CourseService : ICourseService
 {
     private readonly IPsqUnitOfWork _psqUnitOfWork;
-    private readonly IUserAuthorValidatorManager _IUserAuthorValidatorManager;
+    private readonly IUserAuthorValidatorManager _userAuthorValidatorManager;
+    private readonly IUserBoughtValidatorManager _userBoughtValidatorManager;
     private readonly IFileService _fileService;
     private readonly IPrivateFileService _privateFileService;
     private readonly IMapper _mapper;
 
-    public CourseService(IMapper mapper, IPsqUnitOfWork psqUnitOfWork, IUserAuthorValidatorManager iUserAuthorValidatorManager,
-        IFileService fileService, IPrivateFileService privateFileService)
+    public CourseService(IMapper mapper,
+        IPsqUnitOfWork psqUnitOfWork,
+        IUserAuthorValidatorManager userAuthorValidatorManager,
+        IFileService fileService,
+        IPrivateFileService privateFileService,
+        IUserBoughtValidatorManager userBoughtValidatorManager)
     {
         _mapper = mapper;
         _psqUnitOfWork = psqUnitOfWork;
-        _IUserAuthorValidatorManager = iUserAuthorValidatorManager;
+        _userAuthorValidatorManager = userAuthorValidatorManager;
         _fileService = fileService;
         _privateFileService = privateFileService;
+        _userBoughtValidatorManager = userBoughtValidatorManager;
     }
 
-    public async Task<PagedList<CourseTitleResponse>> GetAllCourseTitles(CourseParams courseParams,
+    public async Task<PagedList<CourseTitleResponse>> GetAllCourseTitles(CourseParams courseParams, bool publishedOnly,
         CancellationToken cancellationToken = default)
     {
         var filter = _mapper.Map<EfFilter<Course>>(courseParams);
@@ -42,6 +48,9 @@ public class CourseService : ICourseService
         if (courseParams.AuthorId is not null)
             filter.Specification &= new CourseAuthorSpecification(courseParams.AuthorId.Value);
 
+        if (publishedOnly)
+            filter.Specification &= new CourseOnlyPublishedSpecification();
+        
         filter.Includes = [c => c.Photo];
 
         var courses = await _psqUnitOfWork.CourseRepository.GetFilteredAsync(filter, cancellationToken);
@@ -60,7 +69,7 @@ public class CourseService : ICourseService
         if(userId != courseParams.AuthorId)
             throw new Exception("You have not access to this courses");
 
-        return await GetAllCourseTitles(courseParams, cancellationToken);
+        return await GetAllCourseTitles(courseParams, false, cancellationToken);
     }
 
     public async Task<IEnumerable<CourseResponse>> GetFilteredAsync(CourseParams courseParams,
@@ -84,21 +93,27 @@ public class CourseService : ICourseService
 
         var response = _mapper.Map<CourseMainInfoResponse>(course);
 
-        response.UserHasBoughtThisCourse =
-            await _psqUnitOfWork.UserBoughtRepository.UserBoughtExistsAsync(userId, courseId, cancellationToken);
+        response.UserHasBoughtThisCourse = await GetUserHasAccessToTheCourseValue(courseId, userId, cancellationToken);
 
         return response;
     }
 
+    private async Task<bool> GetUserHasAccessToTheCourseValue(int courseId, int userId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _userBoughtValidatorManager.ValidateUserAccessToTheCourseAsync(userId, courseId, cancellationToken);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
     public async Task<CourseStudyResponse> GetCourseStudyResponseAsync(int courseId, int userId, CancellationToken cancellationToken = default)
     {
-        var userBoughtExistsAsync =
-            await _psqUnitOfWork.UserBoughtRepository.UserBoughtExistsAsync(userId, courseId, cancellationToken);
-
-        if (!userBoughtExistsAsync)
-        {
-            throw new UnauthorizedAccessException("You don't have to access this course");
-        }
+        await _userBoughtValidatorManager.ValidateUserAccessToTheCourseAsync(userId, courseId, cancellationToken);
 
         return await _psqUnitOfWork.CourseRepository.GetCourseStudyResponseAsync(courseId, cancellationToken);
     }
@@ -117,7 +132,7 @@ public class CourseService : ICourseService
     public async Task<CourseUpdateResponse> PublishAsync(int id, bool publish, int userId,
         CancellationToken cancellationToken = default)
     {
-        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
+        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
 
         var course = await _psqUnitOfWork.CourseRepository.PublishAsync(id, publish, cancellationToken);
 
@@ -146,7 +161,7 @@ public class CourseService : ICourseService
         if (fileCreateRequest.CourseId is null)
             throw new ArgumentNullException(nameof(fileCreateRequest.CourseId));
 
-        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(fileCreateRequest.CourseId.Value, userId,
+        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(fileCreateRequest.CourseId.Value, userId,
             cancellationToken);
 
         PrivateFileDataResponse fileResponse;
@@ -184,7 +199,7 @@ public class CourseService : ICourseService
         if (fileCreateRequest.CourseId is null)
             throw new ArgumentNullException(nameof(fileCreateRequest.CourseId));
 
-        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(fileCreateRequest.CourseId.Value, userId, cancellationToken);
+        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(fileCreateRequest.CourseId.Value, userId, cancellationToken);
 
         PrivateFileDataResponse fileResponse;
 
@@ -223,7 +238,7 @@ public class CourseService : ICourseService
         if (originalCourse is null)
             throw new KeyNotFoundException("Cannot find course with such id");
 
-        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId, cancellationToken);
+        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId, cancellationToken);
 
         var course = _mapper.Map(courseUpdateRequest, originalCourse);
 
@@ -239,7 +254,7 @@ public class CourseService : ICourseService
 
     public async Task DeleteAsync(int id, int userId, CancellationToken cancellationToken = default)
     {
-        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
+        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
 
         var result = await _psqUnitOfWork.CourseRepository.DeleteAsync(id, cancellationToken);
 
@@ -251,7 +266,7 @@ public class CourseService : ICourseService
 
     public async Task<bool> DeletePhotoAsync(int courseId, int userId, CancellationToken cancellationToken = default)
     {
-        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseId, userId, cancellationToken);
+        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseId, userId, cancellationToken);
 
         bool result;
 
@@ -273,7 +288,7 @@ public class CourseService : ICourseService
 
     public async Task<bool> DeleteVideoAsync(int courseId, int userId, CancellationToken cancellationToken = default)
     {
-        await _IUserAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseId, userId, cancellationToken);
+        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseId, userId, cancellationToken);
 
         bool result;
 

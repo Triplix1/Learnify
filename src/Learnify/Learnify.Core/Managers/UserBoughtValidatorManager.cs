@@ -1,4 +1,5 @@
 ﻿using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
+using Learnify.Core.Enums;
 using Learnify.Core.ManagerContracts;
 
 namespace Learnify.Core.Managers;
@@ -23,7 +24,10 @@ public class UserBoughtValidatorManager: IUserBoughtValidatorManager
         
         if (!await _unitOfWork.UserBoughtRepository.UserBoughtExistsAsync(userId, courseId, cancellationToken))
         {
-            throw new UnauthorizedAccessException("You do not have access to this course.");
+            var currentUserRole = await _unitOfWork.UserRepository.GetUserRoleByIdAsync(userId, cancellationToken);
+            
+            if(!RoleLists.ModeratorsRoles.Contains(currentUserRole))
+                throw new UnauthorizedAccessException("You do not have access to this course.");
         }
     }
 

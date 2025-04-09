@@ -19,14 +19,15 @@
 }
 
 .pagination .pages button {
-    border: 1px solid #ddd;
+    border: 1px solid rgb(var(--pages));
+    background-color: rgb(var(--pages));
     border-radius: 10px;
 }
 
 .pagination .pages button.active {
-    background-color: var(--logo);
+    background-color: rgb(var(--logo));
     color: white;
-    border: 1px solid var(--logo);
+    border: 1px solid rgb(var(--logo));
 }
 
 .pagination .pages button.disabled {

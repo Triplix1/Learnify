@@ -1,6 +1,7 @@
 ﻿using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto;
+using Learnify.Core.Enums;
 using Learnify.Core.Extensions;
 using Learnify.Core.Specification.Filters;
 using Learnify.Infrastructure.Data;
@@ -29,6 +30,11 @@ public class UserRepository : IUserRepository
 
         return await PagedList<User>.CreateAsync(usersQuery, filter.PagedListParams.PageNumber,
             filter.PagedListParams.PageSize, cancellationToken);
+    }
+
+    public async Task<Role> GetUserRoleByIdAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users.Where(u => u.Id == userId).Select(s => s.Role).FirstOrDefaultAsync(cancellationToken: cancellationToken);
     }
 
     /// <inheritdoc />

@@ -1,12 +1,14 @@
 <div class="relative inline-block text-left">
     <div>
         <button type="button"
-                class="inline-flex justify-center w-full rounded-md"
+                class="inline-flex justify-center items-center w-full rounded-md"
                 id="options-menu"
                 aria-haspopup="true"
                 aria-expanded="true"
                 (click)="toggleDropdown()">
             <ng-content></ng-content>
+            <app-arrow *ngIf="!hideArrow"
+                       [expanded]="isOpen"></app-arrow>
         </button>
     </div>
     <div *ngIf="isOpen"

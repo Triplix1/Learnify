@@ -18,15 +18,20 @@ public class FileService : IFileService
     private readonly IPsqUnitOfWork _psqUnitOfWork;
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
     private readonly IBlobStorage _blobStorage;
+    private readonly IUserBoughtValidatorManager _userBoughtValidatorManager;
     private readonly IMapper _mapper;
 
-    public FileService(IPsqUnitOfWork psqUnitOfWork, IBlobStorage blobStorage, IMongoUnitOfWork mongoUnitOfWork,
-        IMapper mapper)
+    public FileService(IPsqUnitOfWork psqUnitOfWork,
+        IBlobStorage blobStorage,
+        IMongoUnitOfWork mongoUnitOfWork,
+        IMapper mapper,
+        IUserBoughtValidatorManager userBoughtValidatorManager)
     {
         _psqUnitOfWork = psqUnitOfWork;
         _blobStorage = blobStorage;
         _mongoUnitOfWork = mongoUnitOfWork;
         _mapper = mapper;
+        _userBoughtValidatorManager = userBoughtValidatorManager;
     }
 
     public async Task<FileStreamResponse> GetFileStreamById(int id, int userId,
@@ -39,22 +44,8 @@ public class FileService : IFileService
 
         if (file.CourseId.HasValue)
         {
-            var courseAuthorId =
-                await _psqUnitOfWork.CourseRepository.GetAuthorIdAsync(file.CourseId.Value, cancellationToken);
-
-            if (courseAuthorId is null)
-                ApiResponse.Failure(new KeyNotFoundException("cannot find course with such id"));
-
-            //Author should have access without buying the course
-            if (courseAuthorId != userId)
-            {
-                var userHasBoughtThisCourse =
-                    await _psqUnitOfWork.UserBoughtRepository.UserBoughtExistsAsync(userId, file.CourseId.Value,
-                        cancellationToken);
-
-                if (!userHasBoughtThisCourse)
-                    throw new Exception("User has not access for this file");
-            }
+            await _userBoughtValidatorManager.ValidateUserAccessToTheCourseAsync(userId, file.CourseId.Value,
+                cancellationToken: cancellationToken);
         }
 
         var blobParams = new GetBlobParams()
@@ -90,10 +81,10 @@ public class FileService : IFileService
                     cancellationToken);
 
             if (courseAuthorId is null)
-                ApiResponse.Failure(new KeyNotFoundException("cannot find course with such id"));
+                throw new KeyNotFoundException("cannot find course with such id");
 
             if (courseAuthorId != userId)
-                ApiResponse.Failure(new UnauthorizedAccessException("You have not permissions to edit this course"));
+                throw new UnauthorizedAccessException("You have not permissions to edit this course");
         }
 
         var privateFile = new PrivateFileCreateRequest()
@@ -152,7 +143,7 @@ public class FileService : IFileService
                 await _psqUnitOfWork.CourseRepository.GetAuthorIdAsync(file.CourseId.Value, cancellationToken);
 
             if (courseAuthorId is null)
-                ApiResponse.Failure(new KeyNotFoundException("cannot find course with such id"));
+                throw new KeyNotFoundException("cannot find course with such id");
 
             //Author should have access without buying the course
             if (courseAuthorId != userId)

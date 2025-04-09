@@ -131,7 +131,7 @@ export class AuthService {
     console.log(decodedToken["role"])
 
     return {
-      id: decodedToken.id,
+      id: +decodedToken.id,
       email: decodedToken.email,
       username: decodedToken.username,
       name: decodedToken.name,

@@ -15,12 +15,12 @@
                 <div class="w-full"
                      (click)="$event.stopPropagation()">
                     <app-input [hiddenError]="true"
-                                    classList="w-full"
-                                    [formControl]="$any(quizForm.controls['question'])"
-                                    label="Question"
-                                    placeholder="Question"
-                                    [hiddenLabel]="true"
-                                    (changedInput)="saveForm()"></app-input>
+                               classList="w-full"
+                               [formControl]="$any(quizForm.controls['question'])"
+                               label="Question"
+                               placeholder="Question"
+                               [hiddenLabel]="true"
+                               (changedInput)="saveForm()"></app-input>
                 </div>
                 <div *ngIf="$any(quizForm.controls['question'].value) !== '' "
                      (click)="$event.stopPropagation()"
@@ -47,6 +47,10 @@
                         <mat-icon class="mr-2 text-buttonAccept hover:opacity-50 transition"
                                   fontIcon="edit"
                                   (click)="editingToggle(); $event.stopPropagation()">
+                        </mat-icon>
+                        <mat-icon class="mr-2 text-buttonAccept hover:opacity-50 transition"
+                                  fontIcon="delete"
+                                  (click)="deleteToggle(); $event.stopPropagation()">
                         </mat-icon>
                     </div>
                 </div>

@@ -1,7 +1,7 @@
 import { CdkAccordionItem } from '@angular/cdk/accordion';
-import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit } from '@angular/core';
+import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { debounceTime } from 'rxjs';
+import { debounceTime, take } from 'rxjs';
 import { QuizService } from 'src/app/Core/services/quiz.service';
 import { QuizQuestionAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionAddOrUpdateRequest';
 import { QuizQuestionUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionUpdateResponse';
@@ -15,6 +15,7 @@ export class CreateSingleQuizComponent implements OnInit {
   @Input({ required: true }) lessonId: string;
   @Input({ required: true }) quiz: QuizQuestionUpdateResponse;
   @Input({ required: true }) index: number;
+  @Output() deleted: EventEmitter<void> = new EventEmitter<void>();
 
   quizUpdateRequest: QuizQuestionAddOrUpdateRequest;
   initialState: QuizQuestionAddOrUpdateRequest;
@@ -27,14 +28,14 @@ export class CreateSingleQuizComponent implements OnInit {
   ngOnInit(): void {
     this.handleUpdate(this.quiz);
 
+    if (this.quiz.id === null) {
+      this.save(this.quizUpdateRequest);
+    }
+
     this.quizForm.valueChanges.pipe(debounceTime(500)).subscribe(value => {
       if (this.quizForm.valid && this.quizUpdateRequest.question != value)
         this.saveForm();
     })
-
-    if (this.quiz.id === null) {
-      this.save(this.quizUpdateRequest);
-    }
 
     this.initialState = { ...this.quizUpdateRequest };
 
@@ -92,6 +93,13 @@ export class CreateSingleQuizComponent implements OnInit {
 
   editingToggle() {
     this.editingMode = true;
+  }
+
+  deleteToggle() {
+    this.deleted.emit();
+    if (this.quiz.id) {
+      this.quizService.delete(this.quiz.id, this.lessonId).pipe(take(1)).subscribe();
+    }
   }
 
 }

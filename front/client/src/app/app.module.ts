@@ -13,6 +13,7 @@ import { CourseModule } from './Modules/course/course.module';
 import { MessageModule } from './Modules/message/message.module';
 import { MeetingModule } from './Modules/meetings/meeting.module';
 import { ModeratorsModule } from './Modules/moderators/moderators.module';
+import { AdminModule } from './Modules/admin/admin.module';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { ModeratorsModule } from './Modules/moderators/moderators.module';
     MessageModule,
     MeetingModule,
     ModeratorsModule,
+    AdminModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorHandlerInterceptor, multi: true },

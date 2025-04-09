@@ -14,6 +14,7 @@ public class MeetingController: BaseApiController
         _meetingWebhookService = meetingWebhookService;
     }
 
+    // ngrok http --url=special-porpoise-stirring.ngrok-free.app 5000
     [SkipApiResponse]
     [HttpPost("webhook")]
     public async Task<IActionResult> WebHook(CancellationToken cancellationToken = default)

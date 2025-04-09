@@ -8,6 +8,7 @@ import { DropdownItem } from 'src/app/Models/DropdownItem';
 })
 export class DropdownComponent {
   @Input({ required: true }) items: DropdownItem[] = [];
+  @Input() hideArrow: boolean = false;
   isOpen = false;
 
   toggleDropdown() {

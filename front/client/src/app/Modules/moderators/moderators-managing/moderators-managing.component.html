@@ -1,0 +1,28 @@
+<div class="container py-4">
+    <div class="flex justify-end">
+        <app-button (buttonClick)="createClicked()">Create</app-button>
+    </div>
+
+    <div class="mt-2">
+        <div class="min-h-[500px]">
+            <div *ngFor="let moderator of paginatedModerators; let index = index">
+                <app-action-section classList="p-3 mt-1 flex flex-row justify-between items-center w-full">
+                    <div class="text-navlink">
+                        {{moderator.userName}} | {{moderator.email}}
+                    </div>
+
+                    <div>
+                        <button (click)="deleteModerator(moderator.id)"
+                                class="flex justify-center items-center">
+                            <mat-icon class="text-buttonAccept hover:opacity-50 transition"
+                                      fontIcon="delete"></mat-icon>
+                        </button>
+                    </div>
+                </app-action-section>
+            </div>
+        </div>
+        <app-pagination (changePage)="onPaginationChange($event)"
+                        [itemsPerPage]="[5, 10, 15, 20]"
+                        [totalItems]="totalItems"></app-pagination>
+    </div>
+</div>

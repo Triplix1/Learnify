@@ -57,21 +57,25 @@ public class QuizRepository : IQuizRepository
     public async Task<QuizQuestion> UpdateAsync(QuizQuestion quiz, string lessonId,
         CancellationToken cancellationToken = default)
     {
-        // Fetch the existing lesson from MongoDB
-        var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId) &
-                     Builders<Lesson>.Filter.ElemMatch(l => l.Quizzes, q => q.Id == quiz.Id);;
+        // Filter to find the lesson with the matching quiz
+        var filter = Builders<Lesson>.Filter.And(
+            Builders<Lesson>.Filter.Eq(l => l.Id, lessonId),
+            Builders<Lesson>.Filter.ElemMatch(l => l.Quizzes, q => q.Id == quiz.Id)
+        );
 
-        var update = Builders<Lesson>.Update.Set(l => l.Quizzes[0], quiz);
+        // Update using the positional operator '$'
+        var update = Builders<Lesson>.Update.Set("Quizzes.$", quiz);
 
         var options = new FindOneAndUpdateOptions<Lesson>
         {
-            Projection = Builders<Lesson>.Projection.ElemMatch(l => l.Quizzes, q => q.Id == quiz.Id),
             ReturnDocument = ReturnDocument.After
         };
 
-        var updatedLesson = await _context.Lessons.FindOneAndUpdateAsync(filter, update, options, cancellationToken);
+        var updatedLesson = await _context.Lessons
+            .FindOneAndUpdateAsync(filter, update, options, cancellationToken);
 
-        var result = updatedLesson?.Quizzes?.FirstOrDefault();
+        // Extract the updated quiz from the updated lesson
+        var result = updatedLesson?.Quizzes?.FirstOrDefault(q => q.Id == quiz.Id);
 
         return result;
     }

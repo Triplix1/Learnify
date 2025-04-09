@@ -64,6 +64,23 @@ public class ProfileService : IProfileService
             pagedResult.PageSize);
     }
 
+    public async Task<PagedList<ProfileResponse>> GetAdminsAsync(AdminsListParams adminsListParams, CancellationToken cancellationToken = default)
+    {
+        var filter = new EfFilter<User>()
+        {
+            Specification = new RolesSpecification(Role.Admin),
+            OrderByParams = adminsListParams.OrderByParams,
+            PagedListParams = adminsListParams.PagedListParams
+        };
+
+        var pagedResult = await _psqUnitOfWork.UserRepository.GetPagedAsync(filter, cancellationToken);
+
+        var profileResponses = _mapper.Map<IEnumerable<ProfileResponse>>(pagedResult.Items);
+
+        return new PagedList<ProfileResponse>(profileResponses, pagedResult.TotalCount, pagedResult.CurrentPage,
+            pagedResult.PageSize);
+    }
+
     /// <inheritdoc />
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {

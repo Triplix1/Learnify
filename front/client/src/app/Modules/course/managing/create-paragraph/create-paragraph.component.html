@@ -12,18 +12,18 @@
             <div class="flex items-center relative"
                  (click)="accordionItem.toggle()">
 
-                <app-accordion-arrow [accordionItem]="accordionItem"></app-accordion-arrow>
+                <app-arrow [expanded]="accordionItem.expanded"></app-arrow>
 
                 <div class="w-full"
                      *ngIf="editingMode; else nonEditing">
                     <div class="w-full"
                          (click)="$event.stopPropagation()">
                         <app-input [hiddenError]="true"
-                                        classList="w-full"
-                                        [formControl]="$any(paragraphForm.controls['name'])"
-                                        label="Name"
-                                        placeholder="Name"
-                                        [hiddenLabel]="true"></app-input>
+                                   classList="w-full"
+                                   [formControl]="$any(paragraphForm.controls['name'])"
+                                   label="Name"
+                                   placeholder="Name"
+                                   [hiddenLabel]="true"></app-input>
                     </div>
                     <div *ngIf="$any(paragraphForm.controls['name'].value) !== '' "
                          (click)="$event.stopPropagation()"

@@ -8,3 +8,13 @@ public enum Role
     Admin,
     SuperAdmin
 }
+
+public static class RoleLists
+{
+    public static List<Role> ModeratorsRoles = new List<Role>()
+    {
+        Role.Moderator,
+        Role.Admin,
+        Role.SuperAdmin
+    };
+}

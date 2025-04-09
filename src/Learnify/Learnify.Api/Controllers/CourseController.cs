@@ -23,7 +23,7 @@ public class CourseController : BaseApiController
     public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetCourseTitlesAsync([FromQuery]CourseParams courseParams,
         CancellationToken cancellationToken = default)
     {
-        var result = await _courseService.GetAllCourseTitles(courseParams, cancellationToken);
+        var result = await _courseService.GetAllCourseTitles(courseParams, true, cancellationToken);
 
         return Ok(result);
     }

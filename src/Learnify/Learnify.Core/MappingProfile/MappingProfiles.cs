@@ -38,6 +38,7 @@ public class MappingProfiles : Profile
         CreateMap<ProfileUpdateRequest, User>();
         CreateMap<RegisterRequest, CreateUserRequest>();
         CreateMap<RegisterModeratorRequest, CreateUserRequest>();
+        CreateMap<RegisterAdminRequest, CreateUserRequest>();
 
         // Course
         CreateMap<CourseCreateRequest, Course>();

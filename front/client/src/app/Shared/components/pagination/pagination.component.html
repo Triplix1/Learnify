@@ -1,7 +1,7 @@
 <div class="pagination d-flex justify-content-center items-center my-2">
         <div class="pages">
-                <button (click)="onPageChange(paginatedParams.pageNumber - 1)"
-                        [ngClass]="{ 'disabled' :paginatedParams.pageNumber === 1}">&laquo;</button>
+                <!-- <button (click)="onPageChange(paginatedParams.pageNumber - 1)"
+                        [ngClass]="{ 'disabled' :paginatedParams.pageNumber < 3}">&laquo;</button> -->
                 <button (click)="onPageChange(1)"
                         *ngIf="this.paginatedParams.pageNumber - 3 >= 0">{{1}}</button>
                 <p *ngIf=" this.paginatedParams.pageNumber > 3">...</p>
@@ -13,8 +13,8 @@
                 <p *ngIf=" totalPages - this.paginatedParams.pageNumber > 2">...</p>
                 <button (click)="onPageChange(totalPages)"
                         *ngIf="this.paginatedParams.pageNumber + 2 <= totalPages">{{totalPages}}</button>
-                <button (click)="onPageChange(this.paginatedParams.pageNumber + 1)"
-                        [ngClass]="{ 'disabled' :paginatedParams.pageNumber === totalPages}">&raquo;</button>
+                <!-- <button (click)="onPageChange(this.paginatedParams.pageNumber + 1)"
+                        [ngClass]="{ 'disabled' :paginatedParams.pageNumber === totalPages}">&raquo;</button> -->
         </div>
 
         <app-dropdown class="size-togler"

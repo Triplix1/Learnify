@@ -36,6 +36,6 @@ export class ModeratorsService {
   }
 
   delete(id: number) {
-    return this.httpClient.delete(environment.baseApiUrl + "/" + id);
+    return this.httpClient.delete(this.baseApiUrl + "/" + id);
   }
 }
