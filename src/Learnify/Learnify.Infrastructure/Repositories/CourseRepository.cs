@@ -59,6 +59,8 @@ public class CourseRepository : ICourseRepository
 
         var response = await
             query.FirstOrDefaultAsync(c => c.Id == id, cancellationToken: cancellationToken);
+        
+        response.Paragraphs = response.Paragraphs.Where(p => p.IsPublished);
 
         return response;
     }

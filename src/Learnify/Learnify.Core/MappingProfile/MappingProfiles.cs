@@ -109,10 +109,6 @@ public class MappingProfiles : Profile
         CreateMap<Video, VideoResponse>()
             .ForMember(v => v.Subtitles, s => s.Ignore());
 
-        //Message
-        CreateMap<Message, MessageResponse>()
-            .ForMember(m => m.SenderName, m => m.MapFrom(message => message.Sender.Name));
-
         //MeetingSession
         CreateMap<MeetingSessionCreateRequest, MeetingSession>();
         CreateMap<MeetingSession, MeetingSessionResponse>();

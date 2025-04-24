@@ -22,6 +22,7 @@ public class LessonService : ILessonService
     private readonly IBlobStorage _blobStorage;
     private readonly IUserAuthorValidatorManager _userAuthorValidatorManager;
     private readonly ISummaryManager _summaryManager;
+    private readonly IPrivateFileService _privateFileService;
 
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
     private readonly IPsqUnitOfWork _psqUnitOfWork;
@@ -33,7 +34,8 @@ public class LessonService : ILessonService
         ISubtitlesManager subtitlesManager,
         IBlobStorage blobStorage,
         IUserAuthorValidatorManager userAuthorValidatorManager,
-        ISummaryManager summaryManager)
+        ISummaryManager summaryManager,
+        IPrivateFileService privateFileService)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
@@ -42,6 +44,7 @@ public class LessonService : ILessonService
         _blobStorage = blobStorage;
         _userAuthorValidatorManager = userAuthorValidatorManager;
         _summaryManager = summaryManager;
+        _privateFileService = privateFileService;
     }
 
     #region DQL
@@ -199,19 +202,17 @@ public class LessonService : ILessonService
         await SafelyDeleteLessonsAndAttachmentsAsync(id, fullDelete, cancellationToken);
     }
 
-    public async Task DeleteLessonsByParagraph(int paragraphId, CancellationToken cancellationToken = default)
+    public async Task DeleteByParagraphAsync(int paragraphId, int userId, CancellationToken cancellationToken = default)
     {
-        var attachments =
-            await _mongoUnitOfWork.Lessons.GetAllAttachmentsForParagraphAsync(paragraphId, cancellationToken);
+        await _userAuthorValidatorManager.ValidateAuthorOfParagraphAsync(paragraphId, userId, cancellationToken);
 
-        var attachmentFileIds = attachments.Select(a => a.FileId);
+        var lessons =
+            await _mongoUnitOfWork.Lessons.GetLessonTitlesForParagraphAsync(paragraphId, true, cancellationToken);
 
-        var fileDatas = await _psqUnitOfWork.PrivateFileRepository.GetByIdsAsync(attachmentFileIds, cancellationToken);
-
-        foreach (var fileData in fileDatas)
-            await _blobStorage.DeleteAsync(fileData.ContainerName, fileData.BlobName, cancellationToken);
-
-        await _mongoUnitOfWork.Lessons.DeleteForParagraphAsync(paragraphId, cancellationToken);
+        foreach (var lesson in lessons)
+        {
+            await SafelyDeleteLessonsAndAttachmentsAsync(lesson.Id, true, cancellationToken);
+        }
     }
 
     public async Task DeleteLessonsByParagraphs(IEnumerable<int> paragraphIds,
@@ -541,9 +542,12 @@ public class LessonService : ILessonService
                 }
             }
 
-            await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(lessonToDelete.Attachments, cancellationToken);
+            await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(lessonToDelete.Attachments,
+                cancellationToken);
 
             await _subtitlesManager.DeleteRangeAsync(lessonToDelete.Subtitles, cancellationToken);
+
+            await _privateFileService.DeleteRangeAsync(lessonToDelete.Attachments, cancellationToken);
 
             await _mongoUnitOfWork.Lessons.DeleteAsync(id, cancellationToken);
 

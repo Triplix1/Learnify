@@ -14,8 +14,6 @@ public class ApplicationDbContext: DbContext
     
     public DbSet<User> Users { get; set; }
     
-    public DbSet<CourseRating> CourseRatings { get; set; }
-    
     public DbSet<Course> Courses { get; set; }
     
     public DbSet<Paragraph> Paragraphs { get; set; }
@@ -25,12 +23,6 @@ public class ApplicationDbContext: DbContext
     public DbSet<Subtitle> Subtitles { get; set; }
     
     public DbSet<UserBought> UserBoughts { get; set; }
-    
-    public DbSet<Group> Groups { get; set; }
-    
-    public DbSet<Message> Messages { get; set; }
-    
-    public DbSet<Connection> Connections { get; set; }
     
     public DbSet<UserQuizAnswer> UserQuizAnswers { get; set; }
 
@@ -44,7 +36,6 @@ public class ApplicationDbContext: DbContext
 
         builder.Entity<RefreshToken>().HasIndex(rt => rt.Jwt);
         builder.Entity<User>().HasIndex(u => u.Email);
-        builder.Entity<CourseRating>().HasIndex(r => r.CourseId);
         builder.Entity<UserBought>().HasKey(ub => new { ub.UserId, ub.CourseId });
         builder.Entity<UserQuizAnswer>().HasKey(ub => new { ub.UserId, ub.LessonId, ub.QuizId });
         builder.Entity<UserQuizAnswer>().HasIndex(ub => new { ub.UserId, ub.LessonId });

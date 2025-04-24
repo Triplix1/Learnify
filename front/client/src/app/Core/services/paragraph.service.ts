@@ -5,6 +5,7 @@ import { ApiResponse, ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { ParagraphCreateRequest } from 'src/app/Models/Course/Paragraph/ParagraphCreateRequest';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
 import { ParagraphUpdateRequest } from 'src/app/Models/Course/Paragraph/ParagraphUpdateRequest';
+import { PublishParagraphRequest } from 'src/app/Models/Course/Paragraph/PublishParagraphRequest';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -21,6 +22,10 @@ export class ParagraphService {
 
   updateParagraph(ParagraphUpdateRequest: ParagraphUpdateRequest): Observable<ApiResponseWithData<ParagraphResponse>> {
     return this.httpClient.put<ApiResponseWithData<ParagraphResponse>>(this.baseParagraphUrl, ParagraphUpdateRequest);
+  }
+
+  publishParagraph(publishParagraphRequest: PublishParagraphRequest): Observable<ApiResponseWithData<ParagraphResponse>> {
+    return this.httpClient.put<ApiResponseWithData<ParagraphResponse>>(this.baseParagraphUrl + "/publish", publishParagraphRequest);
   }
 
   deleteParagraph(id: number): Observable<ApiResponse> {

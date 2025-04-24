@@ -14,12 +14,12 @@
 
                     <div class="grid w-full grid-cols-2 gap-4 mb-3">
                         <app-input [formControl]="$any(courseForm.controls['name'])"
-                                        placeholder="Name"
-                                        label="Name"></app-input>
+                                   placeholder="Name"
+                                   label="Name"></app-input>
 
                         <app-input placeholder="Price"
-                                        [formControl]="$any(courseForm.controls['price'])"
-                                        label="Price"></app-input>
+                                   [formControl]="$any(courseForm.controls['price'])"
+                                   label="Price"></app-input>
                     </div>
 
                     <div class="grid grid-cols-3 gap-4 mb-4">
@@ -142,6 +142,7 @@
                                           [courseId]="courseResponse.id"
                                           (onUpdate)="paragraphUpdated($event)"
                                           (onLessonAddOrUpdateRequest)="lessonAddOrUpdateRequest($event)"
+                                          (onDelete)="paragraphDeleted($event)"
                                           (onLessonDelete)="lessonDeleted($event)"></app-create-paragraph>
 
 

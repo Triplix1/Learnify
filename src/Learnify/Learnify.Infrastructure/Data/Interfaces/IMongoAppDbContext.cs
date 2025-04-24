@@ -9,11 +9,6 @@ namespace Learnify.Infrastructure.Data.Interfaces;
 public interface IMongoAppDbContext
 {
     /// <summary>
-    /// Collection of <see cref="View"/>
-    /// </summary>
-    IMongoCollection<View> Views { get; }
-    
-    /// <summary>
     /// Collection of <see cref="Lesson"/>
     /// </summary>
     IMongoCollection<Lesson> Lessons { get; }

@@ -22,4 +22,5 @@ public interface ILessonService
         int userId, CancellationToken cancellationToken = default);
 
     Task DeleteAsync(string id, int userId, CancellationToken cancellationToken = default);
+    Task DeleteByParagraphAsync(int paragraphId, int userId, CancellationToken cancellationToken = default);
 }

@@ -1,5 +1,4 @@
 ﻿using Learnify.Api.Controllers.Base;
-using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Extensions;
 using Learnify.Core.ServiceContracts;
@@ -35,6 +34,17 @@ public class ParagraphController : BaseApiController
     {
         var userId = User.GetUserId();
         var result = await _paragraphService.UpdateAsync(paragraphUpdateRequest, userId, cancellationToken);
+
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPut("publish")]
+    public async Task<ActionResult<ParagraphResponse>> PublishAsync(
+        [FromBody]PublishParagraphRequest publishParagraphRequest, CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserId();
+        var result = await _paragraphService.PublishAsync(publishParagraphRequest, userId, cancellationToken);
 
         return Ok(result);
     }

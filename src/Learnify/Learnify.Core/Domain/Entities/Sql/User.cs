@@ -29,12 +29,12 @@ public class User: BaseEntity<int>
     /// <summary>
     /// Gets or sets value for Company
     /// </summary>
-    public string? Company { get; set; }
+    public string Company { get; set; }
     
     /// <summary>
     /// Gets or sets value for CardNumber
     /// </summary>
-    public string? CardNumber { get; set; }
+    public string CardNumber { get; set; }
     
     /// <summary>
     /// Gets or sets value for Role
@@ -44,10 +44,10 @@ public class User: BaseEntity<int>
     /// <summary>
     /// Gets or sets value for PasswordHash
     /// </summary>
-    public byte[]? PasswordHash { get; set; }
+    public byte[] PasswordHash { get; set; }
     
     /// <summary>
     /// Gets or sets value for PasswordSalt
     /// </summary>
-    public byte[]? PasswordSalt { get; set; }
+    public byte[] PasswordSalt { get; set; }
 }

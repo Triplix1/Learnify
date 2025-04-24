@@ -6,8 +6,6 @@ public interface IPsqUnitOfWork
 
     IRefreshTokenRepository RefreshTokenRepository { get; }
 
-    ICourseRatingsRepository CourseRatingsRepository { get; }
-
     ICourseRepository CourseRepository { get; }
 
     IParagraphRepository ParagraphRepository { get; }

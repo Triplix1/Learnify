@@ -45,9 +45,24 @@
                     <div class="w-full flex justify-between items-center">
                         <div class="text-navlink">{{paragraphResponse.name}}</div>
                         <div class="flex">
+                            <mat-icon *ngIf="paragraphResponse && paragraphResponse.name.trim() != '' && !paragraphResponse.isPublished"
+                                      class="mr-2 text-buttonAccept hover:opacity-50 transition"
+                                      fontIcon="publish"
+                                      (click)="publish()">
+                            </mat-icon>
+                            <mat-icon *ngIf="paragraphResponse.isPublished"
+                                      class="mr-2 text-buttonAccept hover:opacity-50 transition"
+                                      fontIcon="unpublished"
+                                      (click)="publish()">
+                            </mat-icon>
                             <mat-icon class="mr-2 text-buttonAccept hover:opacity-50 transition"
                                       fontIcon="edit"
                                       (click)="editingToggle()">
+                            </mat-icon>
+                            <mat-icon *ngIf="paragraphResponse && paragraphResponse.id"
+                                      class="mr-2 text-buttonAccept hover:opacity-50 transition"
+                                      fontIcon="delete"
+                                      (click)="delete()">
                             </mat-icon>
                         </div>
                     </div>

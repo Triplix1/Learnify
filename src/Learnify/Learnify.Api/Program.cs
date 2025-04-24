@@ -1,4 +1,3 @@
-using Learnify.Core.Hubs;
 using Learnify.Core.Installer;
 using Learnify.Core.Middlewares;
 using Learnify.Infrastructure.Data;
@@ -27,7 +26,6 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHub<MessageHub>("hubs/message");
 
 using var scope = app.Services.CreateScope();
 var services  = scope.ServiceProvider;

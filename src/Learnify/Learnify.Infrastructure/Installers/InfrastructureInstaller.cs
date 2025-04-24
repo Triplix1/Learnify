@@ -16,7 +16,6 @@ public class InfrastructureInstaller: IInstaller
     /// <inheritdoc />
     public void InstallServices(IServiceCollection services, IConfiguration config)
     {
-        services.AddScoped<ICourseRatingsRepository, CourseRatingRepository>();
         services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<ILessonRepository, LessonRepository>();
         services.AddScoped<IParagraphRepository, ParagraphRepository>();
@@ -25,10 +24,6 @@ public class InfrastructureInstaller: IInstaller
         services.AddScoped<ISubtitlesRepository, SubtitlesRepository>();
         services.AddScoped<IUserBoughtRepository, UserBoughtRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IViewRepository, ViewRepository>();
-        services.AddScoped<IMessageRepository, MessageRepository>();
-        services.AddScoped<IConnectionRepository, ConnectionRepository>();
-        services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<IQuizRepository, QuizRepository>();
         services.AddScoped<IUserQuizAnswerRepository, UserQuizAnswerRepository>();
         services.AddScoped<IAnswerRepository, AnswerRepository>();

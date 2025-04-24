@@ -1,6 +1,4 @@
-﻿using Learnify.Core.Dto.Course.LessonDtos;
-
-namespace Learnify.Core.Dto.Course.ParagraphDtos;
+﻿namespace Learnify.Core.Dto.Course.ParagraphDtos;
 
 public class ParagraphResponse
 {

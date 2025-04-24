@@ -9,6 +9,7 @@ import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleRes
 import { ParagraphCreateRequest } from 'src/app/Models/Course/Paragraph/ParagraphCreateRequest';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
 import { ParagraphUpdateRequest } from 'src/app/Models/Course/Paragraph/ParagraphUpdateRequest';
+import { PublishParagraphRequest } from 'src/app/Models/Course/Paragraph/PublishParagraphRequest';
 import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
 
 @Component({
@@ -22,6 +23,7 @@ export class CreateParagraphComponent extends BaseComponent {
   @Input({ required: true }) courseId: number = null;
   @Input({ required: true }) possibleToCreateNewLesson: boolean = true;
   @Output() onUpdate: EventEmitter<ParagraphUpdated> = new EventEmitter<ParagraphUpdated>(null);
+  @Output() onDelete: EventEmitter<number> = new EventEmitter<number>(null);
   @Output() onLessonAddOrUpdateRequest: EventEmitter<LessonStepAddOrUpdateRequest> = new EventEmitter<LessonStepAddOrUpdateRequest>(null);
   @Output() onLessonDelete: EventEmitter<LessonTitleResponse> = new EventEmitter<LessonTitleResponse>(null);
 
@@ -128,6 +130,21 @@ export class CreateParagraphComponent extends BaseComponent {
 
   editingToggle() {
     this.editingMode = true;
+  }
+
+  publish() {
+    const publishParagraphRequest: PublishParagraphRequest = {
+      paragraphId: this.paragraphResponse.id,
+      publish: !this.paragraphResponse.isPublished
+    };
+
+    this.paragraphService.publishParagraph(publishParagraphRequest).pipe(take(1)).subscribe(r => this.handleUpdate(r.data));
+  }
+
+  delete() {
+    this.paragraphService.deleteParagraph(this.paragraphResponse.id).pipe(take(1)).subscribe(r => {
+      this.onDelete.emit(this.index);
+    });
   }
 
   lessonDeleted(id: string) {

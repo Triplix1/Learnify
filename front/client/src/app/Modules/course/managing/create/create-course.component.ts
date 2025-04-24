@@ -140,6 +140,16 @@ export class CreateCourseComponent extends BaseComponent {
     this.paragraphs[paragraphUpdated.index] = paragraphUpdated.paragraph;
   }
 
+  paragraphDeleted(index: number) {
+    const deletedParagraph = this.paragraphs.at(index);
+
+    if (this.currentLessonEditing?.paragraphId === deletedParagraph.id) {
+      this.currentLessonEditing = null;
+    }
+
+    this.paragraphs = this.paragraphs.filter(p => p !== deletedParagraph);
+  }
+
   lessonDeleted(lessonTitleResponse: LessonTitleResponse) {
     if (this.currentLessonEditing.id === lessonTitleResponse.id) {
       this.clearLessonTab();
