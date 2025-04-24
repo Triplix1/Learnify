@@ -89,18 +89,10 @@ public class ProfileService : IProfileService
         if (user is null)
             throw new KeyNotFoundException("Cannot find user with such id");
 
-        using (var transaction = TransactionScopeBuilder.CreateReadCommittedAsync())
-        {
-            var deletionResult = await _psqUnitOfWork.UserRepository.DeleteAsync(user.Id, cancellationToken);
+        var deletionResult = await _psqUnitOfWork.UserRepository.DeleteAsync(user.Id, cancellationToken);
 
-            if (!deletionResult)
-                throw new KeyNotFoundException("Cannot find user with such id");
-
-            if (user.ImageContainerName is not null && user.ImageBlobName is not null)
-                await _blobStorage.DeleteAsync(user.ImageContainerName, user.ImageBlobName, cancellationToken);
-
-            transaction.Complete();
-        }
+        if (!deletionResult)
+            throw new KeyNotFoundException("Cannot find user with such id");
     }
 
     /// <inheritdoc />
@@ -115,41 +107,41 @@ public class ProfileService : IProfileService
             throw new KeyNotFoundException("Cannot find user with such id");
 
         _mapper.Map(profileUpdateRequest, origin);
-        using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
-        {
-            if (profileUpdateRequest.File is not null)
-            {
-                if (origin.ImageContainerName is not null && origin.ImageBlobName is not null)
-                {
-                    await _blobStorage.DeleteAsync(origin.ImageContainerName, origin.ImageBlobName, cancellationToken);
-                }
-                else
-                {
-                    origin.ImageContainerName = "profile";
-                    origin.ImageBlobName = profileUpdateRequest.File.FileName;
-                }
-
-                await using var stream = profileUpdateRequest.File.OpenReadStream();
-
-                var blobDto = new BlobDto()
-                {
-                    Name = origin.ImageBlobName,
-                    ContainerName = origin.ImageContainerName,
-                    Content = stream,
-                    ContentType = "image/*"
-                };
-
-                var photoResult = await _blobStorage.UploadAsync(blobDto, cancellationToken: cancellationToken);
-
-                origin.ImageUrl = photoResult.Url;
-                origin.ImageContainerName = photoResult.ContainerName;
-                origin.ImageBlobName = photoResult.Name;
-            }
+        // using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
+        // {
+            // if (profileUpdateRequest.File is not null)
+            // {
+            //     if (origin.ImageContainerName is not null && origin.ImageBlobName is not null)
+            //     {
+            //         await _blobStorage.DeleteAsync(origin.ImageContainerName, origin.ImageBlobName, cancellationToken);
+            //     }
+            //     else
+            //     {
+            //         origin.ImageContainerName = "profile";
+            //         origin.ImageBlobName = profileUpdateRequest.File.FileName;
+            //     }
+            //
+            //     await using var stream = profileUpdateRequest.File.OpenReadStream();
+            //
+            //     var blobDto = new BlobDto()
+            //     {
+            //         Name = origin.ImageBlobName,
+            //         ContainerName = origin.ImageContainerName,
+            //         Content = stream,
+            //         ContentType = "image/*"
+            //     };
+            //
+            //     var photoResult = await _blobStorage.UploadAsync(blobDto, cancellationToken: cancellationToken);
+            //
+            //     origin.ImageUrl = photoResult.Url;
+            //     origin.ImageContainerName = photoResult.ContainerName;
+            //     origin.ImageBlobName = photoResult.Name;
+            // }
 
             await _psqUnitOfWork.UserRepository.UpdateAsync(origin, cancellationToken);
 
-            ts.Complete();
-        }
+        //     ts.Complete();
+        // }
 
         var profileResponse = _mapper.Map<ProfileResponse>(origin);
 

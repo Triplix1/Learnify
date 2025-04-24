@@ -1,6 +1,4 @@
-﻿using Learnify.Core.Domain.Entities;
-using Learnify.Core.Domain.Entities.NoSql;
-using Learnify.Core.Domain.Entities.Sql;
+﻿using Learnify.Core.Domain.Entities.Sql;
 using Microsoft.EntityFrameworkCore;
 using Course = Learnify.Core.Domain.Entities.Sql.Course;
 
@@ -51,23 +49,5 @@ public class ApplicationDbContext: DbContext
         builder.Entity<UserQuizAnswer>().HasKey(ub => new { ub.UserId, ub.LessonId, ub.QuizId });
         builder.Entity<UserQuizAnswer>().HasIndex(ub => new { ub.UserId, ub.LessonId });
         builder.Entity<MeetingSession>().HasIndex(s => s.CourseId);
-    }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
-    {
-        var entities = ChangeTracker.Entries()
-            .Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
-
-        foreach (var entity in entities)
-        {
-            if (entity.State == EntityState.Added)
-            {
-                ((BaseEntity)entity.Entity).CreatedAt = DateTime.UtcNow;
-            }
-
-            ((BaseEntity)entity.Entity).UpdatedAt = DateTime.UtcNow;
-        }
-        
-        return base.SaveChangesAsync(cancellationToken);
     }
 }

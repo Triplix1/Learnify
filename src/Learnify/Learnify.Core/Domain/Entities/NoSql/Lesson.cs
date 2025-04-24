@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Learnify.Core.Domain.Entities.NoSql;
 
-public class Lesson: BaseEntity
+public class Lesson
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -18,6 +18,5 @@ public class Lesson: BaseEntity
     
     public Video Video { get; set; }
 
-    public IList<string> QuizzesOrder { get; set; } = [];
     public IList<QuizQuestion> Quizzes { get; set; } = [];
 }

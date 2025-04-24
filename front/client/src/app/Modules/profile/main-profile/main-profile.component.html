@@ -20,7 +20,7 @@
                                        placeholder="Username"
                                        label="Username"></app-input>
 
-                            <app-input *ngIf="profileData.type === teacherType || profileData.type === studentType"
+                            <app-input *ngIf="profileData.type === teacherType"
                                        placeholder="Company"
                                        [formControl]="$any(profileForm.controls['company'])"
                                        label="Company"></app-input>

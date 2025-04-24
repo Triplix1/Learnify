@@ -4,8 +4,8 @@ namespace Learnify.Core.ServiceContracts;
 
 public interface IIdentityService
 {
-    Task<AuthResponse> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest,
-        CancellationToken cancellationToken = default);
+    // Task<AuthResponse> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest,
+    //     CancellationToken cancellationToken = default);
 
     Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest,
         CancellationToken cancellationToken = default);

@@ -56,19 +56,19 @@ public class AuthController : BaseApiController
         return Ok(response);
     }
 
-    /// <summary>
-    /// Login with Google.
-    /// </summary>
-    /// <param name="googleAuthRequest">The Google authentication request.</param>
-    /// <returns>API response with authentication response.</returns>
-    [HttpPost("external/google")]
-    [SwaggerOperation(Summary = "Login with Google")]
-    public async Task<ActionResult<AuthResponse>> LoginWithGoogleAsync(
-        [FromBody]GoogleAuthRequest googleAuthRequest, CancellationToken cancellationToken = default)
-    {
-        var result = await _identityService.LoginWithGoogleAsync(googleAuthRequest, cancellationToken);
-        return Ok(result);
-    }
+    // /// <summary>
+    // /// Login with Google.
+    // /// </summary>
+    // /// <param name="googleAuthRequest">The Google authentication request.</param>
+    // /// <returns>API response with authentication response.</returns>
+    // [HttpPost("external/google")]
+    // [SwaggerOperation(Summary = "Login with Google")]
+    // public async Task<ActionResult<AuthResponse>> LoginWithGoogleAsync(
+    //     [FromBody]GoogleAuthRequest googleAuthRequest, CancellationToken cancellationToken = default)
+    // {
+    //     var result = await _identityService.LoginWithGoogleAsync(googleAuthRequest, cancellationToken);
+    //     return Ok(result);
+    // }
 
     /// <summary>
     /// Login a user.

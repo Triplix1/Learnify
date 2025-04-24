@@ -26,11 +26,6 @@ public class CreateUserRequest
     public string Username { get; set; }
     
     /// <summary>
-    /// Gets or sets value for Image
-    /// </summary>
-    public IFormFile? Image { get; set; }
-    
-    /// <summary>
     /// Gets or sets value for Password
     /// </summary>
     public string Password { get; set; }

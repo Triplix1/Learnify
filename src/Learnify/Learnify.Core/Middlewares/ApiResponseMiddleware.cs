@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Learnify.Core.Attributes;
 using Learnify.Core.Dto;
+using Learnify.Core.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
@@ -47,6 +48,7 @@ public class ApiResponseMiddleware
                     {
                         responseBody = "{" + responseBody + "}";
                     }
+
                     var data = string.IsNullOrWhiteSpace(responseBody)
                         ? null
                         : JsonSerializer.Deserialize<object>(responseBody);
@@ -63,6 +65,13 @@ public class ApiResponseMiddleware
 
                     await WriteResponseAsync(context, apiResponse, StatusCodes.Status500InternalServerError);
                 }
+            }
+            catch (CompositeException exception)
+            {
+                context.Response.Body = originalResponseBodyStream;
+                
+                var errorResponse = ApiResponse.Failure(exception);
+                await WriteResponseAsync(context, errorResponse, StatusCodes.Status500InternalServerError);
             }
             catch (Exception ex)
             {

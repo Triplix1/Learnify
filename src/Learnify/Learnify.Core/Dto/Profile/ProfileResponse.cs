@@ -46,19 +46,4 @@ public class ProfileResponse
     /// Gets or sets value for CardNumber
     /// </summary>
     public string CardNumber { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for ImageUrl
-    /// </summary>
-    public string ImageUrl { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for ImageBlobName
-    /// </summary>
-    public string ImageBlobName { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for ImageContainerName
-    /// </summary>
-    public string ImageContainerName { get; set; }
 }

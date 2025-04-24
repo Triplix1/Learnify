@@ -90,8 +90,6 @@ public class LessonRepository : ILessonRepository
         if (lesson.Video is not null)
             result.Add(lesson.Video.Attachment);
 
-        result.AddRange(lesson.Quizzes.Where(q => q.Media is not null).Select(q => q.Media));
-
         return result;
     }
 
@@ -124,7 +122,6 @@ public class LessonRepository : ILessonRepository
 
         var result = new List<Attachment>();
         result.AddRange(lessons.Select(l => l.Video.Attachment));
-        result.AddRange(lessons.SelectMany(l => l.Quizzes.Select(q => q.Media)));
 
         return result;
     }
@@ -168,12 +165,9 @@ public class LessonRepository : ILessonRepository
             Subtitles = l.Video != null && l.Video.Subtitles != null
                 ? l.Video.Subtitles.Select(s => s.SubtitleId)
                 : new int [] {},
-            Attachments = (l.Video != null && l.Video.Attachment != null
+            Attachments = l.Video != null && l.Video.Attachment != null
                     ? new[] { l.Video.Attachment.FileId }
-                    : new int [] {})
-                .Concat(l.Quizzes != null 
-                    ? l.Quizzes.Select(q => q.Media.FileId) 
-                    : new int [] {})
+                    : new int [] {}
         });
         
         return await _mongoContext.Lessons.Find(filter).Project(projection).FirstOrDefaultAsync(cancellationToken: cancellationToken);

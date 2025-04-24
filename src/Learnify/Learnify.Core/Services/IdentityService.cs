@@ -38,32 +38,32 @@ public class IdentityService : IIdentityService
         _psqUnitOfWork = psqUnitOfWork;
     }
 
-    public async Task<AuthResponse> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest,
-        CancellationToken cancellationToken = default)
-    {
-        var googleToken = await _googleAuthManager.GetGoogleTokenAsync(googleAuthRequest, cancellationToken);
-
-        var tokenPayload = await _googleAuthManager.VerifyGoogleTokenAsync(googleToken.IdToken, cancellationToken);
-
-
-        var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(tokenPayload.Email, cancellationToken);
-
-        if (user is null)
-        {
-            _logger.LogInformation("Cannot find user with email: {Email}. Creating it", tokenPayload.Email);
-
-            user = new User()
-            {
-                Email = tokenPayload.Email,
-                Role = _mapper.Map<Role>(googleAuthRequest.Role),
-                IsGoogleAuth = true
-            };
-
-            await _psqUnitOfWork.UserRepository.CreateAsync(user, cancellationToken);
-        }
-
-        return await ReturnNewAuthResponseAsync(user, cancellationToken);
-    }
+    // public async Task<AuthResponse> LoginWithGoogleAsync(GoogleAuthRequest googleAuthRequest,
+    //     CancellationToken cancellationToken = default)
+    // {
+    //     var googleToken = await _googleAuthManager.GetGoogleTokenAsync(googleAuthRequest, cancellationToken);
+    //
+    //     var tokenPayload = await _googleAuthManager.VerifyGoogleTokenAsync(googleToken.IdToken, cancellationToken);
+    //
+    //
+    //     var user = await _psqUnitOfWork.UserRepository.GetByEmailAsync(tokenPayload.Email, cancellationToken);
+    //
+    //     if (user is null)
+    //     {
+    //         _logger.LogInformation("Cannot find user with email: {Email}. Creating it", tokenPayload.Email);
+    //
+    //         user = new User()
+    //         {
+    //             Email = tokenPayload.Email,
+    //             Role = _mapper.Map<Role>(googleAuthRequest.Role),
+    //             IsGoogleAuth = true
+    //         };
+    //
+    //         await _psqUnitOfWork.UserRepository.CreateAsync(user, cancellationToken);
+    //     }
+    //
+    //     return await ReturnNewAuthResponseAsync(user, cancellationToken);
+    // }
 
     public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest,
         CancellationToken cancellationToken = default)
@@ -226,24 +226,24 @@ public class IdentityService : IIdentityService
             Role = createUserRequest.Role
         };
 
-        if (createUserRequest.Image is not null)
-        {
-            var stream = createUserRequest.Image.OpenReadStream();
-
-            var imageBlobAddRequest = new BlobDto()
-            {
-                Name = user.Email,
-                Content = stream,
-                ContainerName = "identity-user-images",
-                ContentType = "image/*"
-            };
-
-            var imageBlob = await _blobStorage.UploadAsync(imageBlobAddRequest, cancellationToken: cancellationToken);
-
-            user.ImageUrl = imageBlob.Url;
-            user.ImageBlobName = imageBlob.Name;
-            user.ImageContainerName = imageBlob.ContainerName;
-        }
+        // if (createUserRequest.Image is not null)
+        // {
+        //     var stream = createUserRequest.Image.OpenReadStream();
+        //
+        //     var imageBlobAddRequest = new BlobDto()
+        //     {
+        //         Name = user.Email,
+        //         Content = stream,
+        //         ContainerName = "identity-user-images",
+        //         ContentType = "image/*"
+        //     };
+        //
+        //     var imageBlob = await _blobStorage.UploadAsync(imageBlobAddRequest, cancellationToken: cancellationToken);
+        //
+        //     user.ImageUrl = imageBlob.Url;
+        //     user.ImageBlobName = imageBlob.Name;
+        //     user.ImageContainerName = imageBlob.ContainerName;
+        // }
 
         user = await _psqUnitOfWork.UserRepository.CreateAsync(user, cancellationToken);
 

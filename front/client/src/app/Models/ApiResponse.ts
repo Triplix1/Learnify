@@ -1,5 +1,9 @@
-export interface ApiResponseWithData<T> extends ApiResponse {
+export interface ApiResponseWithData<T> extends ApiResponseWithDataAndError<T, void> {
+}
+
+export interface ApiResponseWithDataAndError<T, TError> extends ApiResponse {
     data: T;
+    errorData: TError;
 }
 
 export interface ApiResponse {

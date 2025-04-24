@@ -28,7 +28,7 @@ public class ParagraphService : IParagraphService
                 cancellationToken);
 
         var paragraph = _mapper.Map<Paragraph>(paragraphCreateRequest);
-        paragraph.isPublished = false;
+        paragraph.IsPublished = false;
 
         paragraph = await _psqUnitOfWork.ParagraphRepository.CreateAsync(paragraph, cancellationToken);
 
@@ -67,7 +67,7 @@ public class ParagraphService : IParagraphService
         if (paragraph is null)
             throw new KeyNotFoundException("Cannot find paragraph with specified id");
 
-        paragraph.isPublished = true;
+        paragraph.IsPublished = true;
 
         paragraph = await _psqUnitOfWork.ParagraphRepository.UpdateAsync(paragraph, cancellationToken);
 
