@@ -102,6 +102,9 @@ public class MappingProfiles : Profile
         CreateMap<GeneratedResponseUpdateRequest, PrivateFileCreateRequest>();
         CreateMap<GeneratedResponseUpdateRequest, PrivateFileData>();
         CreateMap<PrivateFileCreateRequest, PrivateFileData>();
+        
+        //Files
+        CreateMap<BlobStreamResponse, FileStreamResponse>();
 
         //Video
         CreateMap<VideoAddOrUpdateRequest, Video>()

@@ -51,7 +51,8 @@
 
         </ng-template>
 
-        <app-meeting-launch [courseId]="courseId"
+        <app-meeting-launch *ngIf="courseMainInfo.userHasBoughtThisCourse "
+                            [courseId]="courseId"
                             [isAuthor]="isAuthor"></app-meeting-launch>
     </div>
 

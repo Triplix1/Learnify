@@ -6,15 +6,11 @@ namespace Learnify.Core.ManagerContracts;
 
 public interface IBlobStorage
 {
-    Task<BlobResponse> UploadAsync(BlobDto blobDto, bool isPrivate = false,
+    Task<BlobResponse> UploadAsync(BlobDto blobDto,
         CancellationToken cancellationToken = default);
 
     Task<bool> DeleteAsync(string containerName, string blobId, CancellationToken cancellationToken = default);
-    Task<string> GetFileUrlAsync(string containerName, string blobId, CancellationToken cancellationToken = default);
 
-    Task<FileStreamResponse> GetBlobStreamAsync(GetBlobParams getBlobParams,
-        CancellationToken cancellationToken = default);
-
-    Task<string> GetHlsManifestUrl(string containerName, string blobName,
+    Task<BlobStreamResponse> GetBlobStreamAsync(GetBlobParams getBlobParams,
         CancellationToken cancellationToken = default);
 }

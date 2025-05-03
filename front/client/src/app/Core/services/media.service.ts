@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable, switchMap } from 'rxjs';
+import { map, Observable, of, switchMap } from 'rxjs';
 import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlobCreateRequest';
 import { environment } from 'src/environments/environment';
 import { objectToFormData } from '../helpers/formDataHelper';
@@ -18,6 +18,17 @@ export class MediaService {
 
   getFileUrl(fileId: number): Observable<string> {
     return this.authService.tokenData$.pipe(
+      switchMap(tokenData => {
+        if (tokenData === null || tokenData === undefined) {
+          return of(null)
+        }
+
+        if (new Date(tokenData.expires) <= new Date(Date.now())) {
+          return this.authService.refreshToken().pipe(map(result => result.data));
+        }
+
+        return of(tokenData);
+      }),
       map(tokenData => {
         let fileUrl = this.baseUrl + "/" + fileId;
 

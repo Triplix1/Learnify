@@ -14,12 +14,7 @@ public class BlobResponse
     /// Gets or sets value for ContainerName
     /// </summary>
     public string ContainerName { get; set; }
-    
-    /// <summary>
-    /// Gets or sets value for Url
-    /// </summary>
-    public string Url { get; set; }
-    
+
     /// <summary>
     /// Gets or sets value for ContentType
     /// </summary>

@@ -1,6 +1,5 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Azure.Storage.Sas;
 using Learnify.Core.Dto.Blob;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Params;
@@ -19,50 +18,9 @@ public class BlobStorage : IBlobStorage
         _redisCacheManager = redisCacheManager;
     }
 
-    public async Task<BlobResponse> UploadAsync(BlobDto blobDto, bool isPrivate = false,
-        CancellationToken cancellationToken = default)
+    public async Task<BlobResponse> UploadAsync(BlobDto blobDto, CancellationToken cancellationToken = default)
     {
-        var blobClient = await GetBlobClientInternalAsync(blobDto.ContainerName, blobDto.Name, cancellationToken);
-
-        if (await blobClient.ExistsAsync(cancellationToken))
-            throw new InvalidOperationException($"BlobDto with id:{blobDto.Name} already exists.");
-
-        if (blobDto.Content is null)
-            throw new ArgumentNullException(nameof(blobDto.Content), "Content to upload into storage cannot be null");
-
-        var blobHttpHeaders = new BlobHttpHeaders
-        {
-            ContentType = blobDto.ContentType // Use the ContentType from BlobDto
-        };
-
-        var blobUploadOptions = new BlobUploadOptions
-        {
-            HttpHeaders = blobHttpHeaders
-        };
-
-        await blobClient.UploadAsync(blobDto.Content, blobUploadOptions, cancellationToken);
-
-        var sasBuilder = new BlobSasBuilder
-        {
-            BlobContainerName = blobDto.ContainerName,
-            BlobName = blobDto.Name,
-            Resource = "b",
-            ExpiresOn = DateTimeOffset.UtcNow.AddHours(3)
-        };
-
-        sasBuilder.SetPermissions(BlobSasPermissions.Read);
-
-        var sasUri = blobClient.GenerateSasUri(sasBuilder);
-
-        // await _redisCacheManager.SetCachedDataAsync(blobClient.BlobContainerName + blobClient.Name, sasUri.ToString(), new TimeSpan(3,0,0));
-
-        return new BlobResponse()
-        {
-            Name = blobClient.Name,
-            ContainerName = blobClient.BlobContainerName,
-            Url = sasUri.ToString(),
-            ContentType = (await blobClient.GetPropertiesAsync(cancellationToken: cancellationToken)).Value.ContentType
-        };
+        return await UploadSingleBlobAsync(blobDto, cancellationToken);
     }
 
     public async Task<bool> DeleteAsync(string containerName, string blobId,
@@ -75,58 +33,25 @@ public class BlobStorage : IBlobStorage
         return await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task<string> GetFileUrlAsync(string containerName, string blobId,
+    public async Task<BlobStreamResponse> GetBlobStreamAsync(GetBlobParams getBlobParams,
         CancellationToken cancellationToken = default)
     {
-        var url = await _redisCacheManager.GetCachedDataAsync<string>(containerName + blobId, cancellationToken);
-
-        if (url is null)
-        {
-            var blobClient = await GetBlobClientInternalAsync(containerName, blobId, cancellationToken);
-
-            if (!await blobClient.ExistsAsync(cancellationToken))
-                throw new InvalidOperationException($"Blob with id:{blobId} does not exist.");
-
-            url = blobClient.Uri.AbsoluteUri;
-        }
-
-        return url;
-    }
-
-    public async Task<FileStreamResponse> GetBlobStreamAsync(GetBlobParams getBlobParams,
-        CancellationToken cancellationToken = default)
-    {
-        var blobClient = await GetBlobClientInternalAsync(getBlobParams.ContainerName, getBlobParams.BlobName, cancellationToken);
+        var blobClient =
+            await GetBlobClientInternalAsync(getBlobParams.ContainerName, getBlobParams.BlobName, cancellationToken);
 
         if (!await blobClient.ExistsAsync(cancellationToken))
-            throw new FileNotFoundException($"Blob with name:{getBlobParams.BlobName} does not exist in container:{getBlobParams.ContainerName}.");
+            throw new FileNotFoundException(
+                $"Blob with name:{getBlobParams.BlobName} does not exist in container:{getBlobParams.ContainerName}.");
 
         var blobStream = await blobClient.OpenReadAsync(cancellationToken: cancellationToken);
 
-        var response = new FileStreamResponse()
+        var response = new BlobStreamResponse()
         {
             Stream = blobStream,
             ContentType = getBlobParams.ContentType
         };
 
         return response;
-    }
-    
-    public async Task<string> GetHlsManifestUrl(string containerName, string blobName, CancellationToken cancellationToken = default)
-    {
-        var blobClient = await GetBlobClientInternalAsync(containerName, blobName.Replace(".mp4", "/manifest.m3u8"), cancellationToken);
-    
-        var sasBuilder = new BlobSasBuilder
-        {
-            BlobContainerName = containerName,
-            BlobName = blobClient.Name,
-            Resource = "b",
-            ExpiresOn = DateTime.UtcNow.AddMinutes(10) // Link expires in 10 minutes
-        };
-        sasBuilder.SetPermissions(BlobSasPermissions.Read);
-    
-        var sasUrl = blobClient.GenerateSasUri(sasBuilder).Query;
-        return sasUrl;
     }
 
     private async Task<BlobClient> GetBlobClientInternalAsync(string containerName, string blobName,
@@ -140,4 +65,98 @@ public class BlobStorage : IBlobStorage
 
         return containerClient.GetBlobClient(blobName);
     }
+
+    private async Task<BlobResponse> UploadSingleBlobAsync(BlobDto blobDto, CancellationToken cancellationToken)
+    {
+        var blobClient = await GetBlobClientInternalAsync(blobDto.ContainerName, blobDto.Name, cancellationToken);
+
+        if (await blobClient.ExistsAsync(cancellationToken))
+            throw new InvalidOperationException($"Blob with id:{blobDto.Name} already exists.");
+
+        if (blobDto.Content is null)
+            throw new ArgumentNullException(nameof(blobDto.Content));
+
+        var blobHttpHeaders = new BlobHttpHeaders { ContentType = blobDto.ContentType };
+        var blobUploadOptions = new BlobUploadOptions { HttpHeaders = blobHttpHeaders };
+
+        await blobClient.UploadAsync(blobDto.Content, blobUploadOptions, cancellationToken);
+
+        return new BlobResponse()
+        {
+            Name = blobClient.Name,
+            ContainerName = blobClient.BlobContainerName,
+            ContentType = (await blobClient.GetPropertiesAsync(cancellationToken: cancellationToken)).Value.ContentType
+        };
+    }
+
+    // private async Task<BlobResponse> UploadHlsBlobsAsync(BlobDto blobDto, CancellationToken cancellationToken)
+    // {
+    //     if (blobDto.Content == null)
+    //         throw new ArgumentNullException(nameof(blobDto.Content));
+    //
+    //     // Step 1: Save uploaded video temporarily to disk
+    //     var tempFilePath = Path.GetTempFileName();
+    //     await using (var fileStream = File.Create(tempFilePath))
+    //     {
+    //         await blobDto.Content.CopyToAsync(fileStream, cancellationToken);
+    //     }
+    //
+    //     // Step 2: Convert MP4 -> HLS (generate .m3u8 + .ts files)
+    //     var hlsOutputFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+    //     Directory.CreateDirectory(hlsOutputFolder);
+    //
+    //     var ffmpegArguments =
+    //         $"-i \"{tempFilePath}\" -codec: copy -start_number 0 -hls_time 10 -hls_list_size 0 -f hls \"{Path.Combine(hlsOutputFolder, "index.m3u8")}\"";
+    //
+    //     var process = new Process
+    //     {
+    //         StartInfo = new ProcessStartInfo
+    //         {
+    //             FileName = "ffmpeg",
+    //             Arguments = ffmpegArguments,
+    //             RedirectStandardOutput = true,
+    //             RedirectStandardError = true,
+    //             UseShellExecute = false,
+    //             CreateNoWindow = true
+    //         }
+    //     };
+    //     process.Start();
+    //     await process.WaitForExitAsync(cancellationToken);
+    //
+    //     if (process.ExitCode != 0)
+    //     {
+    //         var error = await process.StandardError.ReadToEndAsync(cancellationToken);
+    //         throw new Exception($"FFmpeg HLS conversion failed: {error}");
+    //     }
+    //
+    //     // Step 3: Upload all HLS files (.ts and .m3u8) to Azure Blob Storage
+    //
+    //     foreach (var filePath in Directory.GetFiles(hlsOutputFolder))
+    //     {
+    //         var fileName = $"{Path.GetFileNameWithoutExtension(blobDto.Name)}/{Path.GetFileName(filePath)}";
+    //         var blobClient = await GetBlobClientInternalAsync(blobDto.ContainerName, fileName, cancellationToken);
+    //
+    //         await using var uploadStream = File.OpenRead(filePath);
+    //         var contentType = filePath.EndsWith(".m3u8") ? "application/vnd.apple.mpegurl" : "video/MP2T";
+    //
+    //         await blobClient.UploadAsync(uploadStream, new BlobHttpHeaders { ContentType = contentType },
+    //             cancellationToken: cancellationToken);
+    //     }
+    //
+    //     // Step 4: Generate SAS URL for the master playlist (index.m3u8)
+    //     var playlistBlobClient =
+    //         await GetBlobClientInternalAsync(blobDto.ContainerName,
+    //             $"{Path.GetFileNameWithoutExtension(blobDto.Name)}/index.m3u8", cancellationToken);
+    //
+    //     // Step 5: Cleanup temp files
+    //     File.Delete(tempFilePath);
+    //     Directory.Delete(hlsOutputFolder, true);
+    //
+    //     return new BlobResponse()
+    //     {
+    //         Name = playlistBlobClient.Name,
+    //         ContainerName = playlistBlobClient.BlobContainerName,
+    //         ContentType = "application/vnd.apple.mpegurl"
+    //     };
+    // }
 }

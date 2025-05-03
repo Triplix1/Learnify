@@ -23,8 +23,7 @@ export class RefreshInterceptor implements HttpInterceptor {
         if (tokenData === null || tokenData === undefined) {
           return of(null)
         }
-        let current = new Date(Date.now());
-        let isless = tokenData.expires <= new Date(Date.now())
+
         if (new Date(tokenData.expires) <= new Date(Date.now())) {
           return this.authService.refreshToken().pipe(map(result => result.data));
         }

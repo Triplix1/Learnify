@@ -1,6 +1,5 @@
 ﻿using Learnify.Api.Controllers.Base;
 using Learnify.Core.Attributes;
-using Learnify.Core.Dto;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Extensions;
 using Learnify.Core.ServiceContracts;
@@ -27,6 +26,9 @@ public class MediaController : BaseApiController
 
         var fileStreamResponse = await _fileService.GetFileStreamById(fileId, userId, cancellationToken);
 
+        if(fileStreamResponse.Protected)
+            Response.Headers.Append("Content-Disposition", "inline");
+
         return File(fileStreamResponse.Stream, fileStreamResponse.ContentType, true);
     }
     
@@ -40,14 +42,17 @@ public class MediaController : BaseApiController
     //     return Ok(url);
     // }
 
-    public async Task<IActionResult> GetFileAsync(int fileId, CancellationToken cancellationToken = default)
-    {
-        var userId = HttpContext.User.GetUserId();
-
-        var fileStreamResponse = await _fileService.GetFileStreamById(fileId, userId, cancellationToken);
-
-        return File(fileStreamResponse.Stream, fileStreamResponse.ContentType, true);
-    }
+    // public async Task<IActionResult> GetFileAsync(int fileId, CancellationToken cancellationToken = default)
+    // {
+    //     var userId = HttpContext.User.GetUserId();
+    //
+    //     var fileStreamResponse = await _fileService.GetFileStreamById(fileId, userId, cancellationToken);
+    //
+    //     if(fileStreamResponse.Protected)
+    //         Response.Headers.Append("Content-Disposition", "inline");
+    //
+    //     return File(fileStreamResponse.Stream, fileStreamResponse.ContentType, true);
+    // }
 
     [Authorize]
     [HttpPost]

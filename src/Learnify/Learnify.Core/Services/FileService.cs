@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
-using Azure.Storage.Blobs;
-using Azure.Storage.Sas;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
-using Learnify.Core.Dto;
 using Learnify.Core.Dto.Blob;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Params;
@@ -34,7 +31,7 @@ public class FileService : IFileService
         _userBoughtValidatorManager = userBoughtValidatorManager;
     }
 
-    public async Task<FileStreamResponse> GetFileStreamById(int id, int userId,
+    public async Task<FileStreamResponse> GetFileStreamById(int id, int? userId,
         CancellationToken cancellationToken = default)
     {
         var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(id, cancellationToken);
@@ -42,9 +39,16 @@ public class FileService : IFileService
         if (file is null)
             throw new KeyNotFoundException("Cannot find file with such id");
 
-        if (file.CourseId.HasValue)
+        var protectedFile = file.CourseId.HasValue;
+
+        if (protectedFile)
         {
-            await _userBoughtValidatorManager.ValidateUserAccessToTheCourseAsync(userId, file.CourseId.Value,
+            if (!userId.HasValue)
+            {
+                throw new UnauthorizedAccessException("This user doesn't have access to this file");
+            }
+
+            await _userBoughtValidatorManager.ValidateUserAccessToTheCourseAsync(userId.Value, file.CourseId.Value,
                 cancellationToken: cancellationToken);
         }
 
@@ -55,9 +59,13 @@ public class FileService : IFileService
             ContentType = MapContentType(file.ContentType),
         };
         
-        var stream = await _blobStorage.GetBlobStreamAsync(blobParams, cancellationToken);
+        var blobStreamResponse = await _blobStorage.GetBlobStreamAsync(blobParams, cancellationToken);
 
-        return stream;
+         var fileStreamResponse = _mapper.Map<FileStreamResponse>(blobStreamResponse);
+         
+         fileStreamResponse.Protected = protectedFile;
+         
+         return fileStreamResponse;
     }
 
     private string MapContentType(string contentType)
@@ -66,6 +74,10 @@ public class FileService : IFileService
         {
             return "application/octet-stream";
         }
+        if (contentType.EndsWith(".m3u8", StringComparison.OrdinalIgnoreCase))
+            return "application/vnd.apple.mpegurl";
+        if (contentType.EndsWith(".ts", StringComparison.OrdinalIgnoreCase))
+            return "video/MP2T";
 
         return contentType;
     }
@@ -118,7 +130,7 @@ public class FileService : IFileService
         using (var ts = TransactionScopeBuilder.CreateReadCommittedAsync())
         {
             fileResponse = await _psqUnitOfWork.PrivateFileRepository.CreateFileAsync(privateFile, cancellationToken);
-
+            
             await _blobStorage.UploadAsync(blobDto, cancellationToken: cancellationToken);
 
             ts.Complete();
@@ -127,38 +139,5 @@ public class FileService : IFileService
         var response = _mapper.Map<PrivateFileDataResponse>(fileResponse);
 
         return response;
-    }
-    
-    public async Task<UrlResponse> GetHlsManifestUrl(int id, int userId,
-        CancellationToken cancellationToken = default)
-    {
-        var file = await _psqUnitOfWork.PrivateFileRepository.GetByIdAsync(id, cancellationToken);
-
-        if (file is null)
-            throw new KeyNotFoundException("Cannot find file with such id");
-
-        if (file.CourseId.HasValue)
-        {
-            var courseAuthorId =
-                await _psqUnitOfWork.CourseRepository.GetAuthorIdAsync(file.CourseId.Value, cancellationToken);
-
-            if (courseAuthorId is null)
-                throw new KeyNotFoundException("cannot find course with such id");
-
-            //Author should have access without buying the course
-            if (courseAuthorId != userId)
-            {
-                var userHasBoughtThisCourse =
-                    await _psqUnitOfWork.UserBoughtRepository.UserBoughtExistsAsync(userId, file.CourseId.Value,
-                        cancellationToken);
-
-                if (!userHasBoughtThisCourse)
-                    throw new Exception("User has not access for this file");
-            }
-        }
-
-        var url = await _blobStorage.GetHlsManifestUrl(file.ContainerName, file.BlobName, cancellationToken);
-
-        return new UrlResponse() { Url = url };
     }
 }

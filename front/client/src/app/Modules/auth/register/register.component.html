@@ -8,39 +8,39 @@
         <form>
             <div class="mb-3">
                 <app-input [formControl]="$any(registerForm.controls['email'])"
-                                label="Логін"
-                                [type]="'text'"
-                                placeholder="example@gmail.com"></app-input>
+                           label="Логін"
+                           [type]="'text'"
+                           placeholder="example@gmail.com"></app-input>
             </div>
             <div class="mb-3">
                 <app-input [formControl]="$any(registerForm.controls['name'])"
-                                label="Ім'я"
-                                [type]="'text'"
-                                placeholder="Name"></app-input>
+                           label="Ім'я"
+                           [type]="'text'"
+                           placeholder="Name"></app-input>
             </div>
             <div class="mb-3">
                 <app-input [formControl]="$any(registerForm.controls['surname'])"
-                                label="Прізвище"
-                                [type]="'text'"
-                                placeholder="Surname"></app-input>
+                           label="Прізвище"
+                           [type]="'text'"
+                           placeholder="Surname"></app-input>
             </div>
             <div class="mb-3">
                 <app-input [formControl]="$any(registerForm.controls['username'])"
-                                label="Нікнейм"
-                                [type]="'text'"
-                                placeholder="Froggg"></app-input>
+                           label="Нікнейм"
+                           [type]="'text'"
+                           placeholder="Froggg"></app-input>
             </div>
             <div class="mb-3">
                 <app-input [formControl]="$any(registerForm.controls['password'])"
-                                label="Пароль"
-                                [type]="'password'"
-                                placeholder="Password!1@"></app-input>
+                           label="Пароль"
+                           [type]="'password'"
+                           placeholder="Password!1@"></app-input>
             </div>
             <div class="mb-1">
                 <app-input [formControl]="$any(registerForm.controls['confirmPassword'])"
-                                label="Підтвердження"
-                                [type]="'password'"
-                                placeholder="Password!1@"></app-input>
+                           label="Підтвердження"
+                           [type]="'password'"
+                           placeholder="Password!1@"></app-input>
             </div>
             <div class="mb-3 ml-2"><a class="font-medium text-sm no-underline text-link hover:underline"
                    routerLink="/login">Вже є акаунт</a>
@@ -52,14 +52,6 @@
             <div class="mb-3">
                 <button class="w-full bg-black text-white py-1 rounded"
                         (click)="cancel()">Відміна</button>
-            </div>
-            <div class="flex justify-between mb-4 items-center">
-                <div class="bg-gray-700 h-[1px] w-[42%]"></div>
-                <div class="text-center text-gray-400 text-[16px] ">або</div>
-                <div class="bg-gray-700 h-[1px] w-[42%]"></div>
-            </div>
-            <div class="flex flex-col justify-around">
-                <button class="bg-white text-black px-2 py-1 rounded">Google</button>
             </div>
         </form>
     </div>

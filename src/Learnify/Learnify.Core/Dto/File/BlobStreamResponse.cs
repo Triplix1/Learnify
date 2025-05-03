@@ -1,8 +1,7 @@
 ﻿namespace Learnify.Core.Dto.File;
 
-public class FileStreamResponse
+public class BlobStreamResponse
 {
     public Stream Stream { get; set; }
     public string ContentType { get; set; }
-    public bool Protected { get; set; }
 }

@@ -28,7 +28,6 @@ public class ApplicationDbContext: DbContext
 
     public DbSet<MeetingSession> MeetingSessions { get; set; }
     public DbSet<MeetingConnection> MeetingConnections { get; set; }
-    public DbSet<MeetingStream> MeetingStreams { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
