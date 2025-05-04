@@ -48,7 +48,7 @@ export class CreateParagraphComponent extends BaseComponent {
       this.editingMode = true;
     }
 
-    this.lessonService.$lessonAddedOrUpdated.pipe().subscribe(
+    this.lessonService.$lessonAddedOrUpdated.pipe(take(1)).subscribe(
       updatedLesson => {
         if (this.lessons) {
           const lessonIndex = this.lessons.findIndex(l => l === null);

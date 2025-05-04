@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
+using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.QuizQuestion;
 using Learnify.Core.Dto.Course.QuizQuestion.Answers;
 using Learnify.Core.Dto.Course.QuizQuestion.QuizAnswer;
@@ -33,7 +34,7 @@ public class QuizService : IQuizService
         _mongoUnitOfWork = mongoUnitOfWork;
     }
 
-    public async Task<QuizQuestionUpdateResponse> AddOrUpdateQuizAsync(QuizQuestionAddOrUpdateRequest request,
+    public async Task<QuizQuestionUpdatedResponse> AddOrUpdateQuizAsync(QuizQuestionAddOrUpdateRequest request,
         int userId,
         CancellationToken cancellationToken = default)
     {
@@ -57,12 +58,21 @@ public class QuizService : IQuizService
             throw new Exception("Failed to add or update quiz");
         }
 
-        var response = _mapper.Map<QuizQuestionUpdateResponse>(quizQuestion);
+        // var lessonResponse = _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonToUpdateId, cancellationToken);
+        //
+        // var response = _mapper.Map<LessonUpdateResponse>(lessonResponse);
+
+        var response = _mapper.Map<QuizQuestionUpdatedResponse>(quizQuestion);
+
+        response.CurrentLessonUpdated = new()
+        {
+            LessonId = lessonToUpdateId
+        };
 
         return response;
     }
 
-    public async Task DeleteQuizAsync(string quizId, string lessonId, int userId,
+    public async Task<CurrentLessonUpdatedResponse> DeleteQuizAsync(string quizId, string lessonId, int userId,
         CancellationToken cancellationToken = default)
     {
         await _userAuthorValidatorManager.ValidateAuthorOfLessonAsync(lessonId, userId, cancellationToken);
@@ -76,6 +86,11 @@ public class QuizService : IQuizService
         {
             throw new Exception("Failed to delete quiz");
         }
+
+        return new()
+        {
+            LessonId = lessonToUpdateId
+        };
     }
 
     public async Task<IEnumerable<UserQuizAnswerResponse>> CheckAnswersAsync(AnswersValidateRequest request, int userId,

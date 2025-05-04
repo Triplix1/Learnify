@@ -1,4 +1,8 @@
-<div class="flex flex-col items-center w-full ">
+<div class="flex flex-col items-center w-full relative">
+
+    <ngx-spinner [fullScreen]="false"
+                 [name]="'loadingAnswers'+ this.quizId"
+                 type='ball-clip-rotate'></ngx-spinner>
 
     <div *ngFor="let answer of answersResponse.options; let index = index"
          class="flex justify-between w-full mb-2 bg-quizAnswerSection">

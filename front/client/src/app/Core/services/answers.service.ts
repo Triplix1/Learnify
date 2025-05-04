@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { AnswerAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswerAddOrUpdateRequest';
-import { AnswersUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswersUpdateResponse';
+import { AnswersUpdatedResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswersUpdatedResponse';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -14,7 +14,7 @@ export class AnswersService {
 
   constructor(private readonly httpClient: HttpClient) { }
 
-  updateAnwers(answersAddOrUpdateRequest: AnswerAddOrUpdateRequest): Observable<ApiResponseWithData<AnswersUpdateResponse>> {
-    return this.httpClient.post<ApiResponseWithData<AnswersUpdateResponse>>(this.baseAnswersUrl, answersAddOrUpdateRequest);
+  updateAnwers(answersAddOrUpdateRequest: AnswerAddOrUpdateRequest): Observable<ApiResponseWithData<AnswersUpdatedResponse>> {
+    return this.httpClient.post<ApiResponseWithData<AnswersUpdatedResponse>>(this.baseAnswersUrl, answersAddOrUpdateRequest);
   }
 }

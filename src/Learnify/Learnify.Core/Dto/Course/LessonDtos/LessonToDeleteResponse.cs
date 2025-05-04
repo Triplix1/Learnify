@@ -8,5 +8,5 @@ public class LessonToDeleteResponse
     public bool IsDraft { get; set; }
     public IEnumerable<int> Attachments { get; set; }
     public IEnumerable<int> Subtitles { get; set; }
-    public IEnumerable<string> Quizzes { get; set; }
+    public IEnumerable<Domain.Entities.NoSql.QuizQuestion> Quizzes { get; set; }
 }

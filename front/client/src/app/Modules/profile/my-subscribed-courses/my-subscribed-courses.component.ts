@@ -26,7 +26,7 @@ export class MySubscribedCoursesComponent extends BaseComponent {
   ngOnInit(): void {
     this.courseParams = this.courseParamsDeepLinkingService.getCourseParams();
 
-    this.courseService.getMyCourseTitles(this.courseParams).pipe(take(1), takeUntil(this.destroySubject)).subscribe(r => this.courseTitles = r.data);
+    this.courseService.getMySubscribedCourseTitles(this.courseParams).pipe(take(1), takeUntil(this.destroySubject)).subscribe(r => this.courseTitles = r.data);
   }
 
   navigateToCourse(id: number) {

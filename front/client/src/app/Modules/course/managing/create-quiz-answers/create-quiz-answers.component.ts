@@ -1,5 +1,8 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { take } from 'rxjs';
 import { AnswersService } from 'src/app/Core/services/answers.service';
+import { CurrentLessonUpdatedResponse } from 'src/app/Models/Course/Lesson/CurrentLessonUpdatedResponse';
 import { AnswerAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswerAddOrUpdateRequest';
 import { AnswersUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswersUpdateResponse';
 
@@ -12,8 +15,9 @@ export class CreateQuizAnswersComponent implements OnChanges {
   @Input({ required: true }) lessonId: string;
   @Input({ required: true }) quizId: string;
   @Input({ required: true }) answersResponse: AnswersUpdateResponse;
+  @Output() currentLessonUpdated: EventEmitter<CurrentLessonUpdatedResponse> = new EventEmitter<CurrentLessonUpdatedResponse>();
 
-  constructor(private readonly answersService: AnswersService) { }
+  constructor(private readonly answersService: AnswersService, private readonly spinnerService: NgxSpinnerService) { }
 
   ngOnChanges(changes: SimpleChanges): void {
     const answersResponse = changes['answersResponse'].currentValue;
@@ -53,7 +57,13 @@ export class CreateQuizAnswersComponent implements OnChanges {
       quizId: this.quizId
     }
 
-    this.answersService.updateAnwers(answersUpdateRequest).subscribe(response => this.answersResponse = response.data);
+    this.spinnerService.show(`loadingAnswers${this.quizId}`);
+
+    this.answersService.updateAnwers(answersUpdateRequest).pipe(take(1)).subscribe(response => {
+      this.answersResponse = response.data;
+      this.currentLessonUpdated.emit(response.data.currentLessonUpdated);
+      this.spinnerService.hide(`loadingAnswers${this.quizId}`);
+    });
   }
 
   isCurrentAnswerCorrect(index: number) {

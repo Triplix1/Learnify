@@ -19,7 +19,8 @@ public class AnswersService : IAnswersService
         _lessonService = lessonService;
     }
 
-    public async Task<AnswersUpdateResponse> AddOrUpdateAnswersAsync(int userId, AnswerAddOrUpdateRequest answerAddOrUpdateRequest,
+    public async Task<AnswersUpdatedResponse> AddOrUpdateAnswersAsync(int userId,
+        AnswerAddOrUpdateRequest answerAddOrUpdateRequest,
         CancellationToken cancellationToken = default)
     {
         var lessonId = await _lessonService.GetLessonToUpdateIdAsync(answerAddOrUpdateRequest.LessonId, userId,
@@ -29,9 +30,14 @@ public class AnswersService : IAnswersService
 
         var result = await _mongoUnitOfWork.Answers.AddOrUpdateAnswerAsync(lessonId,
             answerAddOrUpdateRequest.QuizId, answer, cancellationToken: cancellationToken);
-        
-        var answerUpdateResponse = _mapper.Map<AnswersUpdateResponse>(result);
-        
+
+        var answerUpdateResponse = _mapper.Map<AnswersUpdatedResponse>(result);
+
+        answerUpdateResponse.CurrentLessonUpdated = new()
+        {
+            LessonId = lessonId,
+        };
+
         return answerUpdateResponse;
     }
 }

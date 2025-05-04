@@ -1,4 +1,5 @@
-﻿using Learnify.Core.Dto;
+﻿using Learnify.Core.Domain.Entities.NoSql;
+using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course.LessonDtos;
 
 namespace Learnify.Core.ServiceContracts;
@@ -13,6 +14,9 @@ public interface ILessonService
         bool includeDrafts = false, CancellationToken cancellationToken = default);
 
     Task<LessonUpdateResponse> GetForUpdateAsync(string id, int userId,
+        CancellationToken cancellationToken = default);
+
+    Task<LessonUpdateResponse> GetUpdateResponseAsync(Lesson lesson,
         CancellationToken cancellationToken = default);
 
     Task<LessonUpdateResponse> AddOrUpdateAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest,

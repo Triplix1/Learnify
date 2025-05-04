@@ -10,12 +10,10 @@ namespace Learnify.Core.Managers;
 public class BlobStorage : IBlobStorage
 {
     private readonly BlobServiceClient _blobServiceClient;
-    private readonly IRedisCacheManager _redisCacheManager;
 
-    public BlobStorage(BlobServiceClient blobServiceClient, IRedisCacheManager redisCacheManager)
+    public BlobStorage(BlobServiceClient blobServiceClient)
     {
         _blobServiceClient = blobServiceClient;
-        _redisCacheManager = redisCacheManager;
     }
 
     public async Task<BlobResponse> UploadAsync(BlobDto blobDto, CancellationToken cancellationToken = default)
@@ -27,8 +25,6 @@ public class BlobStorage : IBlobStorage
         CancellationToken cancellationToken = default)
     {
         var blobClient = await GetBlobClientInternalAsync(containerName, blobId, cancellationToken);
-
-        await _redisCacheManager.RemoveCachedDataAsync(containerName + blobId, cancellationToken);
 
         return await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
     }

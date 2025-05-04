@@ -8,6 +8,7 @@ import { MediaService } from 'src/app/Core/services/media.service';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { AttachmentResponse } from 'src/app/Models/Attachment/AttachmentResponse';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
+import { CurrentLessonUpdatedResponse } from 'src/app/Models/Course/Lesson/CurrentLessonUpdatedResponse';
 import { LessonAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonAddOrUpdateRequest';
 import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
@@ -238,6 +239,14 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
     this.lessonForm.markAsUntouched();
 
     this.initialLessonId = lessonResponse.isDraft ? lessonResponse.originalLessonId : lessonResponse.id;
+  }
+
+  handleImplicitLessonUpdate(currentLessonUpdatedResponse: CurrentLessonUpdatedResponse) {
+    if (this.lessonResponse.id !== currentLessonUpdatedResponse.lessonId) {
+      this.lessonResponse.originalLessonId = this.lessonResponse.id;
+      this.lessonResponse.id = currentLessonUpdatedResponse.lessonId;
+      this.lessonResponse.isDraft = true;
+    }
   }
 
   updateSelectedLanguages(languages: Language[]) {

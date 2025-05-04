@@ -1,10 +1,11 @@
-﻿using Learnify.Core.Dto.Course.QuizQuestion.Answers;
+﻿using Learnify.Api.Controllers.Base;
+using Learnify.Core.Dto.Course.QuizQuestion.Answers;
 using Learnify.Core.Extensions;
 using Learnify.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Learnify.Api.Controllers.Base;
+namespace Learnify.Api.Controllers;
 
 public class AnswersController : BaseApiController
 {
@@ -17,7 +18,7 @@ public class AnswersController : BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<AnswersUpdateResponse>> AddOrUpdateAnswerAsync(AnswerAddOrUpdateRequest answerAddOrUpdateRequest)
+    public async Task<ActionResult<AnswersUpdatedResponse>> AddOrUpdateAnswerAsync(AnswerAddOrUpdateRequest answerAddOrUpdateRequest)
     {
         var userId = User.GetUserId();
         

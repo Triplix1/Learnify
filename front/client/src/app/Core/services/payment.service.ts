@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { take } from 'rxjs';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { PaymentCreateRequest } from 'src/app/Models/Payment/PaymentCreateRequest';
 import { Session } from 'src/app/Models/Session/Session';
@@ -25,7 +26,7 @@ export class PaymentService {
     }
 
     this.http
-      .post<ApiResponseWithData<Session>>(this.baseUrl, paymentCreateRequest)
+      .post<ApiResponseWithData<Session>>(this.baseUrl, paymentCreateRequest).pipe(take(1))
       .subscribe((session) => {
         this.redirectToCheckout(session.data);
       });

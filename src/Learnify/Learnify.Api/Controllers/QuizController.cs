@@ -1,4 +1,5 @@
 ﻿using Learnify.Api.Controllers.Base;
+using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Core.Dto.Course.QuizQuestion;
 using Learnify.Core.Dto.Course.QuizQuestion.Answers;
 using Learnify.Core.Dto.Course.QuizQuestion.QuizAnswer;
@@ -20,7 +21,7 @@ public class QuizController : BaseApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<QuizQuestionUpdateResponse>> AddOrUpdateQuizAsync(
+    public async Task<ActionResult<QuizQuestionUpdatedResponse>> AddOrUpdateQuizAsync(
         QuizQuestionAddOrUpdateRequest request, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
@@ -32,14 +33,14 @@ public class QuizController : BaseApiController
 
     [Authorize]
     [HttpDelete("{lessonId}/{quizId}")]
-    public async Task<ActionResult> DeleteQuizAsync(string lessonId, string quizId,
+    public async Task<ActionResult<CurrentLessonUpdatedResponse>> DeleteQuizAsync(string lessonId, string quizId,
         CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
 
-        await _quizService.DeleteQuizAsync(quizId, lessonId, userId, cancellationToken);
+        var response = await _quizService.DeleteQuizAsync(quizId, lessonId, userId, cancellationToken);
 
-        return Ok();
+        return Ok(response);
     }
 
     [Authorize]

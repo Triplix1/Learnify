@@ -1,5 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CurrentLessonUpdatedResponse } from 'src/app/Models/Course/Lesson/CurrentLessonUpdatedResponse';
 import { QuizQuestionUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionUpdateResponse';
+import { QuizDeleted } from 'src/app/Models/QuizDeleted';
 
 @Component({
   selector: 'app-create-quiz',
@@ -9,7 +11,7 @@ import { QuizQuestionUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQue
 export class CreateQuizComponent implements OnInit {
   @Input({ required: true }) lessonId: string;
   @Input({ required: true }) quizzes: QuizQuestionUpdateResponse[] = [];
-
+  @Output() currentLessonUpdated: EventEmitter<CurrentLessonUpdatedResponse> = new EventEmitter<CurrentLessonUpdatedResponse>();
 
   ngOnInit(): void {
     if (!this.quizzes) {
@@ -18,10 +20,15 @@ export class CreateQuizComponent implements OnInit {
   }
 
   addQuiz(): void {
-    this.quizzes.push({ answers: { correctAnswer: 0, options: [""] }, media: null, question: "New question", id: null });
+    this.quizzes.push({ answers: { correctAnswer: 0, options: [""] }, question: "New question", id: null });
   }
 
-  quizDeleted(index: number) {
-    this.quizzes = this.quizzes.filter((_, i) => i !== index);
+  quizDeleted(quizDeletedData: QuizDeleted) {
+    this.quizzes = this.quizzes.filter((_, i) => i !== quizDeletedData.index);
+    this.currentLessonUpdated.emit(quizDeletedData.currentLessonUpdated);
+  }
+
+  lessonUpdated(currentLessonUpdatedResponse: CurrentLessonUpdatedResponse) {
+    this.currentLessonUpdated.emit(currentLessonUpdatedResponse);
   }
 }

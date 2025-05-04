@@ -1,8 +1,9 @@
-﻿using Learnify.Core.Attributes;
+﻿using Learnify.Api.Controllers.Base;
+using Learnify.Core.Attributes;
 using Learnify.Core.ServiceContracts;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Learnify.Api.Controllers.Base;
+namespace Learnify.Api.Controllers;
 
 public class VonageController : BaseApiController
 {

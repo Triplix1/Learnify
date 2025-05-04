@@ -57,13 +57,10 @@
             </ng-template>
         </div>
         <div class="accordion-body pt-3">
-            <div *ngIf="quiz.media">
-                <app-media [fileId]="quiz.media.fileId"
-                           [contentType]="quiz.media.contentType"></app-media>
-            </div>
             <app-create-quiz-answers [lessonId]="lessonId"
                                      [quizId]="quiz.id"
-                                     [answersResponse]="quiz.answers"></app-create-quiz-answers>
+                                     [answersResponse]="quiz.answers"
+                                     (currentLessonUpdated)="handleLessonUpdate($event)"></app-create-quiz-answers>
         </div>
     </app-accordion-item>
 </div>

@@ -45,7 +45,8 @@
 
        <div>
               <app-create-quiz [quizzes]="lessonResponse?.quizzes"
-                               [lessonId]="lessonResponse?.id"></app-create-quiz>
+                               [lessonId]="lessonResponse?.id"
+                               (currentLessonUpdated)="handleImplicitLessonUpdate($event)"></app-create-quiz>
        </div>
 
        <div *ngIf="lessonResponse && lessonResponse.isDraft"

@@ -3,8 +3,11 @@ import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit,
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { debounceTime, take } from 'rxjs';
 import { QuizService } from 'src/app/Core/services/quiz.service';
+import { CurrentLessonUpdatedResponse } from 'src/app/Models/Course/Lesson/CurrentLessonUpdatedResponse';
 import { QuizQuestionAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionAddOrUpdateRequest';
+import { QuizQuestionUpdatedResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionUpdatedResponse';
 import { QuizQuestionUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionUpdateResponse';
+import { QuizDeleted } from 'src/app/Models/QuizDeleted';
 
 @Component({
   selector: 'app-create-single-quiz',
@@ -15,7 +18,8 @@ export class CreateSingleQuizComponent implements OnInit {
   @Input({ required: true }) lessonId: string;
   @Input({ required: true }) quiz: QuizQuestionUpdateResponse;
   @Input({ required: true }) index: number;
-  @Output() deleted: EventEmitter<void> = new EventEmitter<void>();
+  @Output() deleted: EventEmitter<QuizDeleted> = new EventEmitter<QuizDeleted>();
+  @Output() lessonUpdated: EventEmitter<CurrentLessonUpdatedResponse> = new EventEmitter<CurrentLessonUpdatedResponse>();
 
   quizUpdateRequest: QuizQuestionAddOrUpdateRequest;
   initialState: QuizQuestionAddOrUpdateRequest;
@@ -60,7 +64,6 @@ export class CreateSingleQuizComponent implements OnInit {
       lessonId: this.lessonId,
       quizId: this.quiz.id,
       question: quiz.question,
-      media: quiz.media,
     }
   }
 
@@ -75,9 +78,9 @@ export class CreateSingleQuizComponent implements OnInit {
   }
 
   save(quizQuestionAddOrUpdateRequest: QuizQuestionAddOrUpdateRequest) {
-    this.quizService.addOrUpdate(quizQuestionAddOrUpdateRequest).subscribe(response => {
+    this.quizService.addOrUpdate(quizQuestionAddOrUpdateRequest).pipe(take(1)).subscribe(response => {
       this.handleUpdate(response.data);
-      console.log(response.data);
+      this.handleLessonUpdate(response.data.currentLessonUpdated)
     });
   }
 
@@ -96,10 +99,14 @@ export class CreateSingleQuizComponent implements OnInit {
   }
 
   deleteToggle() {
-    this.deleted.emit();
     if (this.quiz.id) {
-      this.quizService.delete(this.quiz.id, this.lessonId).pipe(take(1)).subscribe();
+      this.quizService.delete(this.quiz.id, this.lessonId).pipe(take(1)).subscribe(r => {
+        this.deleted.emit({ index: this.index, currentLessonUpdated: r.data });
+      });
     }
   }
 
+  handleLessonUpdate(lessonUpdated: CurrentLessonUpdatedResponse) {
+    this.lessonUpdated.emit(lessonUpdated);
+  }
 }

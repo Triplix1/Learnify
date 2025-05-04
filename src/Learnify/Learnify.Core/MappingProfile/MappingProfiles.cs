@@ -74,6 +74,7 @@ public class MappingProfiles : Profile
         CreateMap<QuizQuestionAddOrUpdateRequest, QuizQuestion>()
             .ForMember(q => q.Id, q => q.MapFrom(s => s.QuizId));
         CreateMap<QuizQuestion, QuizQuestionUpdateResponse>();
+        CreateMap<QuizQuestion, QuizQuestionUpdatedResponse>();
 
         //UserQuizAnswer
         CreateMap<UserQuizAnswer, UserQuizAnswerResponse>();
@@ -82,6 +83,7 @@ public class MappingProfiles : Profile
         // Answers
         CreateMap<Answers, AnswersResponse>();
         CreateMap<Answers, AnswersUpdateResponse>();
+        CreateMap<Answers, AnswersUpdatedResponse>();
         CreateMap<AnswerAddOrUpdateRequest, Answers>();
 
         // Subtitles

@@ -4,7 +4,8 @@
             <app-create-single-quiz [lessonId]="lessonId"
                                     [quiz]="quiz"
                                     [index]="index"
-                                    (deleted)="quizDeleted(index)"></app-create-single-quiz>
+                                    (deleted)="quizDeleted($event)"
+                                    (lessonUpdated)="lessonUpdated($event)"></app-create-single-quiz>
         </ng-container>
     </cdk-accordion>
 

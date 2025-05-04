@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { switchMap, take } from 'rxjs';
+import { switchMap, take, takeUntil } from 'rxjs';
 import { AuthService } from 'src/app/Core/services/auth.service';
 import { ProfileService } from 'src/app/Core/services/profile.service';
+import { BaseComponent } from 'src/app/Models/BaseComponent';
 import { DropdownItem } from 'src/app/Models/DropdownItem';
 import { UserType } from 'src/app/Models/enums/UserType';
 import { ProfileResponse } from 'src/app/Models/Profile/ProfileResponse';
@@ -15,7 +16,7 @@ import { SelectorOptions } from 'src/app/Models/SelectorOptions';
   templateUrl: './main-profile.component.html',
   styleUrls: ['./main-profile.component.scss']
 })
-export class MainProfileComponent implements OnInit {
+export class MainProfileComponent extends BaseComponent implements OnInit {
   profileData: ProfileResponse;
   profileForm: FormGroup;
   teacherType: UserType = UserType.Teacher;
@@ -30,11 +31,14 @@ export class MainProfileComponent implements OnInit {
 
   constructor(private readonly authService: AuthService,
     private readonly profileService: ProfileService,
-    private readonly fb: FormBuilder) { }
+    private readonly fb: FormBuilder) {
+    super();
+  }
 
   ngOnInit(): void {
     this.authService.userData$.pipe(
       take(1),
+      takeUntil(this.destroySubject),
       switchMap(
         response => {
           return this.profileService.getById(response.id);

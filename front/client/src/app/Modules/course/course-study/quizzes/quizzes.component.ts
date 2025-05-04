@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { take } from 'rxjs';
 import { QuizService } from 'src/app/Core/services/quiz.service';
 import { AnswersValidateRequest } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswersValidateRequest';
 import { QuizItem } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/QuizItem';
@@ -37,7 +38,7 @@ export class QuizzesComponent {
         quizValidateRequests: quizCheckRequests
       };
 
-      this.quizService.check(answerValidateRequest).subscribe(response => {
+      this.quizService.check(answerValidateRequest).pipe(take(1)).subscribe(response => {
         this.handleUserQuizAnswerResponseUpdate(response.data);
       })
     }

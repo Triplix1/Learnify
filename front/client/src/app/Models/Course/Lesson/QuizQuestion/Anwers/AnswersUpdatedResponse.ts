@@ -1,6 +1,7 @@
 import { CurrentLessonUpdatedResponse } from "../../CurrentLessonUpdatedResponse";
 
-export interface AnswersUpdateResponse {
+export interface AnswersUpdatedResponse {
     options: string[];
     correctAnswer: number;
+    currentLessonUpdated: CurrentLessonUpdatedResponse;
 }

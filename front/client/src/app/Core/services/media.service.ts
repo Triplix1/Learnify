@@ -18,17 +18,6 @@ export class MediaService {
 
   getFileUrl(fileId: number): Observable<string> {
     return this.authService.tokenData$.pipe(
-      switchMap(tokenData => {
-        if (tokenData === null || tokenData === undefined) {
-          return of(null)
-        }
-
-        if (new Date(tokenData.expires) <= new Date(Date.now())) {
-          return this.authService.refreshToken().pipe(map(result => result.data));
-        }
-
-        return of(tokenData);
-      }),
       map(tokenData => {
         let fileUrl = this.baseUrl + "/" + fileId;
 

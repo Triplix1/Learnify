@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, catchError, filter, Observable, of, switchMap, take, tap } from 'rxjs';
 
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { AuthResponse } from 'src/app/Models/Auth/AuthReponse';
@@ -101,6 +101,15 @@ export class AuthService {
       );
     } else {
       return of({ data: { token: this.getAccessToken(), refreshToken: this.getRefreshToken(), expires: this.getExpiration() }, isSuccess: true } as ApiResponseWithData<AuthResponse>);
+
+      // else {
+      //   while (this.refreshTokenInProgress) {
+      //     sleep(100);
+      //   }
+
+      //   const response = { data: this.tokenData.value, errorData: null, errorMessage: null, errorStackTrace: null, isSuccess: true } as ApiResponseWithData<AuthResponse>;
+
+      //   return of(response);
     }
   }
 
@@ -156,4 +165,8 @@ export class AuthService {
       this.userData.next(this.getUserTokenDataFromToken(access));
     }
   }
+}
+
+function sleep(arg0: number) {
+  throw new Error('Function not implemented.');
 }

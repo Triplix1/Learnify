@@ -224,11 +224,7 @@ public class LessonService : ILessonService
         await _mongoUnitOfWork.Lessons.DeleteForParagraphsAsync(paragraphIds, cancellationToken);
     }
 
-    #endregion
-
-    #region Private
-
-    private async Task<LessonUpdateResponse> GetUpdateResponseAsync(Lesson lesson,
+    public async Task<LessonUpdateResponse> GetUpdateResponseAsync(Lesson lesson,
         CancellationToken cancellationToken = default)
     {
         var lessonResponse = _mapper.Map<LessonUpdateResponse>(lesson);
@@ -238,6 +234,10 @@ public class LessonService : ILessonService
 
         return lessonResponse;
     }
+
+    #endregion
+
+    #region Private
 
     private async Task<IEnumerable<SubtitlesResponse>> GetSubtitlesForLessonAsync(Lesson lesson,
         CancellationToken cancellationToken = default)
@@ -377,22 +377,22 @@ public class LessonService : ILessonService
 
             if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
             {
-                if (oldLesson.Video is not null)
-                {
-                    if (oldLesson.OriginalLessonId is not null && !draft)
-                    {
-                        var originalLesson =
-                            await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(oldLesson.OriginalLessonId,
-                                cancellationToken);
-
-                        var subtitlesDiff =
-                            oldLesson.Video.Subtitles.Except(originalLesson.Video.Subtitles);
-
-                        var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
-
-                        await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
-                    }
-                }
+                // if (oldLesson.Video is not null)
+                // {
+                //     if (oldLesson.OriginalLessonId is not null && !draft)
+                //     {
+                //         var originalLesson =
+                //             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(oldLesson.OriginalLessonId,
+                //                 cancellationToken);
+                //
+                //         var subtitlesDiff =
+                //             oldLesson.Video.Subtitles.Except(originalLesson.Video.Subtitles);
+                //
+                //         var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
+                //
+                //         await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
+                //     }
+                // }
 
                 if (lessonAddOrUpdateRequest.Video?.Attachment?.FileId != null)
                 {
@@ -548,7 +548,13 @@ public class LessonService : ILessonService
             await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(lessonToDelete.Attachments,
                 cancellationToken);
 
-            await _psqUnitOfWork.UserQuizAnswerRepository.RemoveByQuizIdsAsync(lessonToDelete.Quizzes, cancellationToken);
+            if (!lessonToDelete.IsDraft)
+            {
+                var quizResponseShouldBeRemovedByQuizId = lessonToDelete.Quizzes.Select(q => q.Id);
+
+                await _psqUnitOfWork.UserQuizAnswerRepository.RemoveByQuizIdsAsync(quizResponseShouldBeRemovedByQuizId,
+                    cancellationToken);
+            }
 
             await _subtitlesManager.DeleteRangeAsync(lessonToDelete.Subtitles, cancellationToken);
 
@@ -571,7 +577,7 @@ public class LessonService : ILessonService
         var attachmentFileIds = attachments.Select(a => a.FileId);
 
         var subtitleIds = lesson.Video?.Subtitles.Select(s => s.SubtitleId) ?? [];
-        var quizIds = lesson.Quizzes?.Select(s => s.Id) ?? [];
+        var quizIds = lesson.Quizzes ?? [];
 
         var result = new LessonToDeleteResponse
         {
