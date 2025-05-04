@@ -43,7 +43,7 @@ public class CourseController : BaseApiController
         CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var result = await _courseService.GetMyCourseTitles(userId, courseParams, cancellationToken);
+        var result = await _courseService.GetMySubscribedCourseTitles(userId, courseParams, cancellationToken);
 
         return Ok(result);
     }
