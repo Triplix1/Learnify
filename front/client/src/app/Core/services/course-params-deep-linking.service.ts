@@ -26,14 +26,12 @@ export class CourseParamsDeepLinkingService {
     return {
       ...this.pagedParamsDeepLinkingService.getPaginationQueryParams(courseParams.pagedListParams),
       ...this.orderParamsDeepLinking.getOrderByQueryParams(courseParams.orderByParams),
-      search: courseParams.search,
-      authorId: courseParams.authorId,
+      search: courseParams.search
     };
   }
 
   getCourseParams(): CourseParams {
     const authorIdStr = this.route.snapshot.queryParamMap.get('authorId');
-    const authorId: number = authorIdStr ? +authorIdStr : null;
 
     const search: string = this.route.snapshot.queryParamMap.get('search');
 
@@ -44,6 +42,6 @@ export class CourseParamsDeepLinkingService {
 
     const orderByParams = this.orderParamsDeepLinking.getOrderByParams();
 
-    return { pagedListParams, orderByParams, search, authorId };
+    return { pagedListParams, orderByParams, search };
   }
 }

@@ -9,4 +9,6 @@ public interface IUserQuizAnswerRepository
 
     Task<IEnumerable<UserQuizAnswerResponse>> SaveUserAnswersAsync(int userId, string lessonId, IEnumerable<UserQuizAnswerCreateRequest> userQuizAnswerCreateRequests,
         CancellationToken cancellationToken = default);
+
+    Task RemoveByQuizIdsAsync(IEnumerable<string> quizIds, CancellationToken cancellationToken = default);
 }

@@ -9,7 +9,7 @@ using Learnify.Core.Dto.Profile;
 using Learnify.Core.Enums;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
-using Learnify.Core.Specification.Custom;
+using Learnify.Core.Specification.Course;
 using Learnify.Core.Specification.Filters;
 using Learnify.Core.Specification.Profile;
 using Learnify.Core.Transactions;

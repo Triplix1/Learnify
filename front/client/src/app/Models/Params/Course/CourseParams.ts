@@ -5,5 +5,4 @@ export interface CourseParams {
     pagedListParams: PagedListParams;
     orderByParams: OrderByParams;
     search: string;
-    authorId: number;
 }

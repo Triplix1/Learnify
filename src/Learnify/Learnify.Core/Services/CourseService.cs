@@ -7,7 +7,7 @@ using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Params;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
-using Learnify.Core.Specification.Custom;
+using Learnify.Core.Specification.Course;
 using Learnify.Core.Specification.Filters;
 using Learnify.Core.Transactions;
 
@@ -37,39 +37,37 @@ public class CourseService : ICourseService
         _userBoughtValidatorManager = userBoughtValidatorManager;
     }
 
-    public async Task<PagedList<CourseTitleResponse>> GetAllCourseTitles(CourseParams courseParams, bool publishedOnly,
-        CancellationToken cancellationToken = default)
+    public async Task<PagedList<CourseTitleResponse>> GetAllCourseTitles(CourseParams courseParams, CancellationToken cancellationToken = default)
     {
-        var filter = _mapper.Map<EfFilter<Course>>(courseParams);
-        
-        if (courseParams.Search is not null)
-            filter.Specification &= new SearchCourseSpecification(courseParams.Search);
-        
-        if (courseParams.AuthorId is not null)
-            filter.Specification &= new CourseAuthorSpecification(courseParams.AuthorId.Value);
+        var filterCourseParams = new FilterCoursesParams()
+        {
+            CourseParams = courseParams
+        };
 
-        if (publishedOnly)
-            filter.Specification &= new CourseOnlyPublishedSpecification();
-        
-        filter.Includes = [c => c.Photo];
-
-        var courses = await _psqUnitOfWork.CourseRepository.GetFilteredAsync(filter, cancellationToken);
-
-        var courseTitleResponses = _mapper.Map<IEnumerable<CourseTitleResponse>>(courses.Items);
-
-        var courseTitles = new PagedList<CourseTitleResponse>(courseTitleResponses, courses.TotalCount,
-            courses.CurrentPage, courses.PageSize);
-
-        return courseTitles;
+        return await GetAllFilteredCourseTitles(filterCourseParams, cancellationToken);
     }
 
     public async Task<PagedList<CourseTitleResponse>> GetMyCourseTitles(int userId, CourseParams courseParams,
         CancellationToken cancellationToken = default)
     {
-        if(userId != courseParams.AuthorId)
-            throw new Exception("You have not access to this courses");
+        var filterParams = new FilterCoursesParams()
+        {
+            CourseParams = courseParams,
+            AuthorId = userId
+        };
 
-        return await GetAllCourseTitles(courseParams, false, cancellationToken);
+        return await GetAllFilteredCourseTitles(filterParams, cancellationToken);
+    }
+
+    public async Task<PagedList<CourseTitleResponse>> GetMySubscribedCourseTitles(int userId, CourseParams courseParams, CancellationToken cancellationToken = default)
+    {
+        var filteredCourseParams = new FilterCoursesParams()
+        {
+            CourseParams = courseParams,
+            UserId = userId
+        };
+        
+        return await GetAllFilteredCourseTitles(filteredCourseParams, cancellationToken);
     }
 
     public async Task<IEnumerable<CourseResponse>> GetFilteredAsync(CourseParams courseParams,
@@ -307,4 +305,34 @@ public class CourseService : ICourseService
 
         return result;
     }
+    
+    private async Task<PagedList<CourseTitleResponse>> GetAllFilteredCourseTitles(FilterCoursesParams filterCoursesParams,
+        CancellationToken cancellationToken = default)
+    {
+        var filter = _mapper.Map<EfFilter<Course>>(filterCoursesParams.CourseParams);
+        
+        if (filterCoursesParams.CourseParams.Search is not null)
+            filter.Specification &= new SearchCourseSpecification(filterCoursesParams.CourseParams.Search);
+        
+        if (filterCoursesParams.AuthorId is not null)
+            filter.Specification &= new CourseAuthorSpecification(filterCoursesParams.AuthorId.Value);
+
+        if (filterCoursesParams.PublishedOnly)
+            filter.Specification &= new CourseOnlyPublishedSpecification();
+        
+        if (filterCoursesParams.UserId is not null)
+            filter.Specification &= new UserSubscribedToTheCourseSpecification(filterCoursesParams.UserId.Value);
+        
+        filter.Includes = [c => c.Photo];
+
+        var courses = await _psqUnitOfWork.CourseRepository.GetFilteredAsync(filter, cancellationToken);
+
+        var courseTitleResponses = _mapper.Map<IEnumerable<CourseTitleResponse>>(courses.Items);
+
+        var courseTitles = new PagedList<CourseTitleResponse>(courseTitleResponses, courses.TotalCount,
+            courses.CurrentPage, courses.PageSize);
+
+        return courseTitles;
+    }
+
 }

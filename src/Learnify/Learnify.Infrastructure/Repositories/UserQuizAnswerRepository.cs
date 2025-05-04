@@ -67,6 +67,15 @@ public class UserQuizAnswerRepository: IUserQuizAnswerRepository
         return await GetQuizAnswerResponsesForUserQuizzesAsync(lessonId, updatedEntities, cancellationToken);
     }
 
+    public async Task RemoveByQuizIdsAsync(IEnumerable<string> quizIds, CancellationToken cancellationToken = default)
+    {
+        var quizzes = await _context.UserQuizAnswers.Where(a => quizIds.Contains(a.QuizId))
+            .ToArrayAsync(cancellationToken);
+        
+        _context.UserQuizAnswers.RemoveRange(quizzes);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     private async Task<IEnumerable<UserQuizAnswerResponse>> GetQuizAnswerResponsesForUserQuizzesAsync(
         string lessonId, IList<UserQuizAnswer> userQuizAnswers, CancellationToken cancellationToken = default)
     {

@@ -522,11 +522,14 @@ public class LessonService : ILessonService
                         lessonToDelete.Subtitles.Concat(relatedLessonToDelete.Subtitles).Distinct();
                     lessonToDelete.Attachments =
                         lessonToDelete.Attachments.Concat(relatedLessonToDelete.Attachments).Distinct();
+                    lessonToDelete.Quizzes =
+                        lessonToDelete.Quizzes.Concat(relatedLessonToDelete.Quizzes).Distinct();
                 }
                 else
                 {
                     lessonToDelete.Subtitles = lessonToDelete.Subtitles.Except(relatedLessonToDelete.Subtitles);
                     lessonToDelete.Attachments = lessonToDelete.Attachments.Except(relatedLessonToDelete.Attachments);
+                    lessonToDelete.Quizzes = lessonToDelete.Quizzes.Except(relatedLessonToDelete.Quizzes);
 
                     if (relatedLessonId == lessonToDelete.EditedLessonId)
                     {
@@ -544,6 +547,8 @@ public class LessonService : ILessonService
 
             await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(lessonToDelete.Attachments,
                 cancellationToken);
+
+            await _psqUnitOfWork.UserQuizAnswerRepository.RemoveByQuizIdsAsync(lessonToDelete.Quizzes, cancellationToken);
 
             await _subtitlesManager.DeleteRangeAsync(lessonToDelete.Subtitles, cancellationToken);
 
@@ -566,6 +571,7 @@ public class LessonService : ILessonService
         var attachmentFileIds = attachments.Select(a => a.FileId);
 
         var subtitleIds = lesson.Video?.Subtitles.Select(s => s.SubtitleId) ?? [];
+        var quizIds = lesson.Quizzes?.Select(s => s.Id) ?? [];
 
         var result = new LessonToDeleteResponse
         {
@@ -575,6 +581,7 @@ public class LessonService : ILessonService
             IsDraft = lesson.IsDraft,
             Attachments = attachmentFileIds,
             Subtitles = subtitleIds,
+            Quizzes = quizIds,
         };
 
         return result;

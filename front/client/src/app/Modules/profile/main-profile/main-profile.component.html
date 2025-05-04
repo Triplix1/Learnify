@@ -1,6 +1,6 @@
 <div class="container">
     <mat-tab-group class="my-3">
-        <mat-tab label="Налаштуйте ваш профіль">
+        <mat-tab label="Налаштуйте профіль">
             <div class="bg-gray-900 p-4 rounded-lg mb-3 mt-4">
                 <div>
                     <!-- <app-image-uploader [file]="profileData?.imageUrl"
@@ -59,7 +59,14 @@
                  [disabled]="false"
                  label="Ваші курси">
             <div class="mt-4">
-                <app-my-courses [userId]="profileData.id"></app-my-courses>
+                <app-my-courses></app-my-courses>
+            </div>
+        </mat-tab>
+        <mat-tab *ngIf="profileData.type === teacherType || profileData.type === studentType"
+                 [disabled]="false"
+                 label="Придбані курси">
+            <div class="mt-4">
+                <app-my-subscribed-courses></app-my-subscribed-courses>
             </div>
         </mat-tab>
     </mat-tab-group>

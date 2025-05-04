@@ -20,4 +20,5 @@ public class Course: BaseEntity<int>
     public PrivateFileData Video { get; set; }
 
     public ICollection<Paragraph> Paragraphs { get; set; }
+    public ICollection<UserBought> UserBoughts { get; set; }
 }

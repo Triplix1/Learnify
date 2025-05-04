@@ -40,6 +40,14 @@ export class CourseService {
     return this.httpClient.get<ApiResponseWithData<PagedList<CourseTitleResponse>>>(this.baseCourseUrl + '/my-courses', { params: params });
   }
 
+  getMySubscribedCourseTitles(courseParams: CourseParams): Observable<ApiResponseWithData<PagedList<CourseTitleResponse>>> {
+    // const params = this.getHttpParamsFromCourseParams(courseParams);
+    const params = objectToQueryParams(courseParams);
+
+    return this.httpClient.get<ApiResponseWithData<PagedList<CourseTitleResponse>>>(this.baseCourseUrl + '/my-subscribed-courses', { params: params });
+  }
+
+
   getForUpdate(id: number): Observable<ApiResponseWithData<CourseResponse>> {
     return this.httpClient.get<ApiResponseWithData<CourseResponse>>(this.baseCourseUrl + "/" + id);
   }
@@ -103,9 +111,6 @@ export class CourseService {
 
     if (courseParams.orderByParams)
       params = this.orderParamsService.includeOrderHeaders(courseParams.orderByParams, params);
-
-    if (courseParams.authorId)
-      params = params.append('authorId', courseParams.authorId);
 
     if (courseParams.search)
       params = params.append('search', courseParams.search);

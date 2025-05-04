@@ -3,11 +3,11 @@
     <app-course-cart *ngFor="let courseTitle of courseTitles.items"
                      class="w-full"
                      [courseTitleResponse]="courseTitle"
-                     (onClick)="navigateToCourseEditing(courseTitle.id)">
+                     (onClick)="navigateToCourse(courseTitle.id)">
     </app-course-cart>
 </div>
 <ng-template #noTitles>
     <div class="flex justify-center items-center">
-        <div class="mt-32 text-textInput">У вас ще немає курсів</div>
+        <div class="mt-32 text-textInput">Ви ще не придбали жодного курсу</div>
     </div>
 </ng-template>
