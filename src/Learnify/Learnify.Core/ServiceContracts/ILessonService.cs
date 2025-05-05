@@ -1,6 +1,7 @@
 ﻿using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course.LessonDtos;
+using Learnify.Core.Dto.Course.ParagraphDtos;
 
 namespace Learnify.Core.ServiceContracts;
 
@@ -25,6 +26,6 @@ public interface ILessonService
     Task<LessonUpdateResponse> SaveDraftAsync(LessonAddOrUpdateRequest lessonAddOrUpdateRequest,
         int userId, CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(string id, int userId, CancellationToken cancellationToken = default);
+    Task<LessonDeletedResponse> DeleteAsync(string id, int userId, CancellationToken cancellationToken = default);
     Task DeleteByParagraphAsync(int paragraphId, int userId, CancellationToken cancellationToken = default);
 }

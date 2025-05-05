@@ -3,8 +3,10 @@ using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto;
 using Learnify.Core.Dto.Course;
+using Learnify.Core.Dto.Course.Interfaces;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Params;
+using Learnify.Core.Exceptions;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Specification.Course;
@@ -37,7 +39,8 @@ public class CourseService : ICourseService
         _userBoughtValidatorManager = userBoughtValidatorManager;
     }
 
-    public async Task<PagedList<CourseTitleResponse>> GetAllCourseTitles(CourseParams courseParams, CancellationToken cancellationToken = default)
+    public async Task<PagedList<CourseTitleResponse>> GetAllCourseTitles(CourseParams courseParams,
+        CancellationToken cancellationToken = default)
     {
         var filterCourseParams = new FilterCoursesParams()
         {
@@ -53,20 +56,23 @@ public class CourseService : ICourseService
         var filterParams = new FilterCoursesParams()
         {
             CourseParams = courseParams,
-            AuthorId = userId
+            AuthorId = userId,
+            PublishedOnly = false
         };
 
         return await GetAllFilteredCourseTitles(filterParams, cancellationToken);
     }
 
-    public async Task<PagedList<CourseTitleResponse>> GetMySubscribedCourseTitles(int userId, CourseParams courseParams, CancellationToken cancellationToken = default)
+    public async Task<PagedList<CourseTitleResponse>> GetMySubscribedCourseTitles(int userId, CourseParams courseParams,
+        CancellationToken cancellationToken = default)
     {
         var filteredCourseParams = new FilterCoursesParams()
         {
             CourseParams = courseParams,
-            UserId = userId
+            UserId = userId,
+            PublishedOnly = false
         };
-        
+
         return await GetAllFilteredCourseTitles(filteredCourseParams, cancellationToken);
     }
 
@@ -96,7 +102,8 @@ public class CourseService : ICourseService
         return response;
     }
 
-    private async Task<bool> GetUserHasAccessToTheCourseValue(int courseId, int userId, CancellationToken cancellationToken)
+    private async Task<bool> GetUserHasAccessToTheCourseValue(int courseId, int userId,
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -109,7 +116,8 @@ public class CourseService : ICourseService
         }
     }
 
-    public async Task<CourseStudyResponse> GetCourseStudyResponseAsync(int courseId, int userId, CancellationToken cancellationToken = default)
+    public async Task<CourseStudyResponse> GetCourseStudyResponseAsync(int courseId, int userId,
+        CancellationToken cancellationToken = default)
     {
         await _userBoughtValidatorManager.ValidateUserAccessToTheCourseAsync(userId, courseId, cancellationToken);
 
@@ -127,16 +135,24 @@ public class CourseService : ICourseService
         return courseResponse;
     }
 
-    public async Task<CourseUpdateResponse> PublishAsync(int id, bool publish, int userId,
+    public async Task PublishAsync(PublishCourseRequest publishCourseRequest, int userId,
         CancellationToken cancellationToken = default)
     {
-        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(id, userId, cancellationToken);
+        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(publishCourseRequest.CourseId, userId,
+            cancellationToken);
 
-        var course = await _psqUnitOfWork.CourseRepository.PublishAsync(id, publish, cancellationToken);
+        var courseValidationResponse =
+            await _psqUnitOfWork.CourseRepository.GetCourseValidationResponse(publishCourseRequest.CourseId,
+                cancellationToken);
 
-        var courseResponse = _mapper.Map<CourseUpdateResponse>(course);
+        if(publishCourseRequest.Publish)
+            ValidateBeforePublishingCourse(courseValidationResponse);
 
-        return courseResponse;
+        var success = await _psqUnitOfWork.CourseRepository.PublishAsync(publishCourseRequest.CourseId,
+            publishCourseRequest.Publish, cancellationToken);
+
+        if (!success)
+            throw new Exception("Course Publish Failed");
     }
 
     public async Task<CourseUpdateResponse> CreateAsync(CourseCreateRequest courseCreateRequest, int userId,
@@ -197,7 +213,8 @@ public class CourseService : ICourseService
         if (fileCreateRequest.CourseId is null)
             throw new ArgumentNullException(nameof(fileCreateRequest.CourseId));
 
-        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(fileCreateRequest.CourseId.Value, userId, cancellationToken);
+        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(fileCreateRequest.CourseId.Value, userId,
+            cancellationToken);
 
         PrivateFileDataResponse fileResponse;
 
@@ -207,7 +224,8 @@ public class CourseService : ICourseService
 
             try
             {
-                var successfullyUpdated = await _psqUnitOfWork.CourseRepository.UpdateVideoAsync(fileCreateRequest.CourseId.Value,
+                var successfullyUpdated = await _psqUnitOfWork.CourseRepository.UpdateVideoAsync(
+                    fileCreateRequest.CourseId.Value,
                     fileResponse.Id, cancellationToken: cancellationToken);
 
                 if (!successfullyUpdated)
@@ -231,12 +249,21 @@ public class CourseService : ICourseService
         CancellationToken cancellationToken = default)
     {
         var originalCourse = await _psqUnitOfWork.CourseRepository.GetByIdAsync(courseUpdateRequest.Id,
-            [nameof(Course.Paragraphs), nameof(Course.Video), nameof(Course.Photo)], cancellationToken: cancellationToken);
+            [nameof(Course.Paragraphs), nameof(Course.Video), nameof(Course.Photo)],
+            cancellationToken: cancellationToken);
 
         if (originalCourse is null)
             throw new KeyNotFoundException("Cannot find course with such id");
 
-        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId, cancellationToken);
+        var errors = ValidateBeforeUpdate(courseUpdateRequest);
+
+        if (errors.Count > 0)
+        {
+            throw new CompositeException(errors);
+        }
+
+        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId,
+            cancellationToken);
 
         var course = _mapper.Map(courseUpdateRequest, originalCourse);
 
@@ -305,24 +332,25 @@ public class CourseService : ICourseService
 
         return result;
     }
-    
-    private async Task<PagedList<CourseTitleResponse>> GetAllFilteredCourseTitles(FilterCoursesParams filterCoursesParams,
+
+    private async Task<PagedList<CourseTitleResponse>> GetAllFilteredCourseTitles(
+        FilterCoursesParams filterCoursesParams,
         CancellationToken cancellationToken = default)
     {
         var filter = _mapper.Map<EfFilter<Course>>(filterCoursesParams.CourseParams);
-        
+
         if (filterCoursesParams.CourseParams.Search is not null)
             filter.Specification &= new SearchCourseSpecification(filterCoursesParams.CourseParams.Search);
-        
+
         if (filterCoursesParams.AuthorId is not null)
             filter.Specification &= new CourseAuthorSpecification(filterCoursesParams.AuthorId.Value);
 
         if (filterCoursesParams.PublishedOnly)
             filter.Specification &= new CourseOnlyPublishedSpecification();
-        
+
         if (filterCoursesParams.UserId is not null)
             filter.Specification &= new UserSubscribedToTheCourseSpecification(filterCoursesParams.UserId.Value);
-        
+
         filter.Includes = [c => c.Photo];
 
         var courses = await _psqUnitOfWork.CourseRepository.GetFilteredAsync(filter, cancellationToken);
@@ -335,4 +363,54 @@ public class CourseService : ICourseService
         return courseTitles;
     }
 
+    private List<string> ValidateBeforeUpdate(ICourseUpdatable courseUpdateRequest)
+    {
+        var errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(courseUpdateRequest.Name))
+        {
+            errors.Add("Назва курсу обов'язкова");
+        }
+
+        if (courseUpdateRequest.Price < 0)
+        {
+            errors.Add("Ціна курсу не можу бути меншою 0");
+        }
+
+        if (courseUpdateRequest.Description.Length < 100)
+        {
+            errors.Add("Опис курсу повинен бути більшим за 100 символів");
+        }
+
+        return errors;
+    }
+
+    private void ValidateBeforePublishingCourse(CourseValidationResponse course)
+    {
+        var errors = new List<string>();
+
+        errors.AddRange(ValidateBeforeUpdate(course));
+
+        if (course.PhotoId is null)
+        {
+            errors.Add("Фото курсу є обов'язковим");
+        }
+
+        if (course.VideoId is null)
+        {
+            errors.Add("Відео курсу є обов'язковим");
+        }
+
+        var amountOfPublishedCourses = course.Paragraphs?.Where(p => p.IsPublished).Count() ?? 0;
+
+        if (amountOfPublishedCourses == 0)
+        {
+            errors.Add("Курс повинен містити мінімум один опубліковний розділ");
+        }
+
+        if (errors.Any())
+        {
+            throw new CompositeException(errors);
+        }
+    }
 }

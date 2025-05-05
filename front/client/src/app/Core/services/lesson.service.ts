@@ -1,8 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { ApiResponse, ApiResponseWithData } from 'src/app/Models/ApiResponse';
+import { ApiResponse, ApiResponseWithData, ApiResponseWithDataAndError } from 'src/app/Models/ApiResponse';
 import { LessonAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonAddOrUpdateRequest';
+import { LessonDeletedResponse } from 'src/app/Models/Course/Lesson/LessonDeletedResponse';
 import { LessonResponse } from 'src/app/Models/Course/Lesson/LessonResponse';
 import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
@@ -33,9 +34,12 @@ export class LessonService {
     return this.httpClient.get<ApiResponseWithData<LessonTitleResponse[]>>(this.baseProfileUrl + "/titles/" + paragraphId, { params });
   }
 
-  createOrUpdateLesson(lessonAddOrUpdateRequest: LessonAddOrUpdateRequest): Observable<ApiResponseWithData<LessonUpdateResponse>> {
-    return this.httpClient.post<ApiResponseWithData<LessonUpdateResponse>>(this.baseProfileUrl, lessonAddOrUpdateRequest).pipe(
+  createOrUpdateLesson(lessonAddOrUpdateRequest: LessonAddOrUpdateRequest): Observable<ApiResponseWithDataAndError<LessonUpdateResponse, string[]>> {
+    return this.httpClient.post<ApiResponseWithDataAndError<LessonUpdateResponse, string[]>>(this.baseProfileUrl, lessonAddOrUpdateRequest).pipe(
       tap(response => {
+        if (!response.isSuccess) {
+          return;
+        }
         const lessonTitleResponse: LessonTitleResponse = {
           id: response.data.id,
           title: response.data.title
@@ -49,7 +53,7 @@ export class LessonService {
     return this.httpClient.post<ApiResponseWithData<LessonUpdateResponse>>(this.baseProfileUrl + "/draft", lessonAddOrUpdateRequest);
   }
 
-  deleteLesson(id: string): Observable<ApiResponse> {
-    return this.httpClient.delete<ApiResponse>(this.baseProfileUrl + "/" + id);
+  deleteLesson(id: string): Observable<ApiResponseWithData<LessonDeletedResponse>> {
+    return this.httpClient.delete<ApiResponseWithData<LessonDeletedResponse>>(this.baseProfileUrl + "/" + id);
   }
 }

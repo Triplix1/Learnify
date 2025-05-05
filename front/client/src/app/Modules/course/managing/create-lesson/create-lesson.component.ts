@@ -1,6 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 import { Observable, of, switchMap, take, takeUntil } from 'rxjs';
 import { convertStringToLanguage } from 'src/app/Core/helpers/lessonHelper';
 import { LessonService } from 'src/app/Core/services/lesson.service';
@@ -17,6 +18,7 @@ import { VideoAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/Video/Vide
 import { Language } from 'src/app/Models/enums/Language';
 import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlobCreateRequest';
 import { PrivateFileDataResponse } from 'src/app/Models/File/PrivateFileDataResponse';
+import { AcceptDialogComponent } from 'src/app/Shared/components/accept-dialog/accept-dialog.component';
 import { ConfirmDialogComponent } from 'src/app/Shared/components/confirm-dialog/confirm-dialog.component';
 import { environment } from 'src/environments/environment';
 
@@ -37,7 +39,11 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
   lessonUpdatedTitleResponse: LessonTitleResponse;
   lessonForm: FormGroup = new FormGroup({});
 
-  constructor(private readonly lessonService: LessonService, private readonly fb: FormBuilder, private readonly dialog: MatDialog, private readonly mediaService: MediaService) {
+  constructor(private readonly lessonService: LessonService,
+    private readonly fb: FormBuilder,
+    private readonly dialog: MatDialog,
+    private readonly mediaService: MediaService,
+    private readonly toastrService: ToastrService) {
     super();
   }
 
@@ -146,7 +152,6 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
   }
 
   save() {
-
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '450px',
       data: {
@@ -159,10 +164,18 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
         const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
         this.possibleToCreateNewLessonValue = false;
 
-        this.lessonService.createOrUpdateLesson(lessonAddOrUpdateRequest).pipe(take(1)).subscribe(response => {
-          this.handleLessonUpdate(response.data);
-          this.possibleToCreateNewLessonValue = true;
-        });
+        this.lessonService.createOrUpdateLesson(lessonAddOrUpdateRequest).pipe(take(1)).subscribe(
+          response => {
+            this.handleLessonUpdate(response.data);
+            this.possibleToCreateNewLessonValue = true;
+          },
+          error => this.dialog.open(AcceptDialogComponent, {
+            width: '450px',
+            data: {
+              text: error.error.errorData.join("\n")
+            }
+          })
+        );
       }
     });
   }
@@ -177,7 +190,7 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.lessonService.deleteLesson(this.lessonResponse.id).pipe(take(1), switchMap(r => {
+        this.lessonService.deleteLesson(this.lessonResponse.id).pipe(take(1), switchMap(_ => {
           if (this.initialLessonId)
             return this.lessonService.getLessonForUpdateById(this.initialLessonId)
           return of(null)
@@ -230,7 +243,6 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
   private handleLessonUpdate(lessonResponse: LessonUpdateResponse) {
     this.currentLessonEditing = { id: lessonResponse.id, paragraphId: lessonResponse.paragraphId };
     this.lessonResponse = lessonResponse;
-    this.lessonUpdatedTitleResponse = { id: lessonResponse.id, title: lessonResponse.title }
     this.lessonForm.controls['title'].setValue(lessonResponse.title);
 
     this.lessonForm.controls['language'].setValue(lessonResponse.primaryLanguage);
@@ -239,6 +251,9 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
     this.lessonForm.markAsUntouched();
 
     this.initialLessonId = lessonResponse.isDraft ? lessonResponse.originalLessonId : lessonResponse.id;
+
+    this.lessonUpdatedTitleResponse = { id: lessonResponse.id, title: lessonResponse.title }
+    this.onUpdate.emit(this.lessonUpdatedTitleResponse);
   }
 
   handleImplicitLessonUpdate(currentLessonUpdatedResponse: CurrentLessonUpdatedResponse) {

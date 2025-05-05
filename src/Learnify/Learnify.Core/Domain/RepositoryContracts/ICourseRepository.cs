@@ -19,13 +19,15 @@ public interface ICourseRepository
     Task<int?> GetAuthorIdAsync(int courseId, CancellationToken cancellationToken = default);
     Task<int?> GetPhotoIdAsync(int courseId, CancellationToken cancellationToken = default);
     Task<int?> GetVideoIdAsync(int courseId, CancellationToken cancellationToken = default);
+    Task<CourseValidationResponse> GetCourseValidationResponse(int courseId,
+        CancellationToken cancellationToken = default);
 
     Task<Course> CreateAsync(Course entity, CancellationToken cancellationToken = default);
     
     Task<Course> UpdateAsync(Course entity, CancellationToken cancellationToken = default);
     Task<bool> UpdatePhotoAsync(int courseId, int? photoId, CancellationToken cancellationToken = default);
     Task<bool> UpdateVideoAsync(int courseId, int? photoId, CancellationToken cancellationToken = default);
-    Task<Course> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default);
+    Task<bool> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default);
     
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
 }

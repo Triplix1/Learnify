@@ -44,6 +44,7 @@ import { SelectLanguagesListComponent } from './components/select-languages-list
 import { ActionSectionComponent } from './components/action-section/action-section.component';
 import { PaginationComponent } from './components/pagination/pagination.component';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { AcceptDialogComponent } from './components/accept-dialog/accept-dialog.component';
 
 @NgModule({
   declarations: [
@@ -78,6 +79,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     SelectLanguagesListComponent,
     ActionSectionComponent,
     PaginationComponent,
+    AcceptDialogComponent,
   ],
   imports: [
     CommonModule,

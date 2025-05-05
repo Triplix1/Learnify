@@ -25,7 +25,7 @@ public class CourseRepository : ICourseRepository
         CancellationToken cancellationToken = default)
     {
         var query = _context.Courses.AsQueryable();
-        
+
         query = query.IncludeFields(includes);
 
         var course = await query.FirstOrDefaultAsync(c => c.Id == key, cancellationToken: cancellationToken);
@@ -59,7 +59,7 @@ public class CourseRepository : ICourseRepository
 
         var response = await
             query.FirstOrDefaultAsync(c => c.Id == id, cancellationToken: cancellationToken);
-        
+
         response.Paragraphs = response.Paragraphs.Where(p => p.IsPublished);
 
         return response;
@@ -96,6 +96,15 @@ public class CourseRepository : ICourseRepository
 
         return await PagedList<Course>.CreateAsync(query, filter.PagedListParams.PageNumber,
             filter.PagedListParams.PageSize, cancellationToken);
+    }
+
+    public async Task<CourseValidationResponse> GetCourseValidationResponse(int courseId,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await _mapper.ProjectTo<CourseValidationResponse>(_context.Courses.Include(c => c.Paragraphs))
+            .FirstOrDefaultAsync(c => c.Id == courseId, cancellationToken);
+
+        return response;
     }
 
     public async Task<Course> CreateAsync(Course courseCreateRequest, CancellationToken cancellationToken = default)
@@ -137,18 +146,13 @@ public class CourseRepository : ICourseRepository
         return updatedCount > 0;
     }
 
-    public async Task<Course> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default)
+    public async Task<bool> PublishAsync(int key, bool publish, CancellationToken cancellationToken = default)
     {
-        var course = await _context.Courses.FindAsync([key], cancellationToken);
+        var updatedCount =
+            await _context.Courses.Where(x => x.Id == key).ExecuteUpdateAsync(c => c.SetProperty(cp => cp.IsPublished, publish),
+                cancellationToken);
 
-        if (course is null)
-            return null;
-
-        course.IsPublished = publish;
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return course;
+        return updatedCount > 0;
     }
 
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)

@@ -31,7 +31,8 @@ public class ParagraphRepository : IParagraphRepository
             query = query.Where(filter.Specification.GetExpression());
 
         var pagedList =
-            await PagedList<Paragraph>.CreateAsync(query, filter.PagedListParams.PageNumber, filter.PagedListParams.PageSize, cancellationToken);
+            await PagedList<Paragraph>.CreateAsync(query, filter.PagedListParams.PageNumber,
+                filter.PagedListParams.PageSize, cancellationToken);
 
         return pagedList;
     }
@@ -52,7 +53,15 @@ public class ParagraphRepository : IParagraphRepository
 
     public async Task<int?> GetCourseIdAsync(int paragraphId, CancellationToken cancellationToken = default)
     {
-        return await _context.Paragraphs.Where(x => x.Id == paragraphId).Select(x => x.CourseId).FirstOrDefaultAsync(cancellationToken);
+        return await _context.Paragraphs.Where(x => x.Id == paragraphId).Select(x => x.CourseId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<int> GetAmountOfPublishedParagraphsPerCourseAsync(int courseId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Paragraphs.Where(x => x.CourseId == courseId && x.IsPublished)
+            .CountAsync(cancellationToken: cancellationToken);
     }
 
     public async Task<Paragraph> CreateAsync(Paragraph entity, CancellationToken cancellationToken = default)

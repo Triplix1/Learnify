@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiResponse, ApiResponseWithData } from 'src/app/Models/ApiResponse';
+import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { CurrentLessonUpdatedResponse } from 'src/app/Models/Course/Lesson/CurrentLessonUpdatedResponse';
 import { AnswersValidateRequest } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswersValidateRequest';
 import { UserLessonQuizAnswerResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/UserLessonQuizAnswerResponse';

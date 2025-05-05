@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using Learnify.Core.Dto.Course.Interfaces;
 using Learnify.Core.Enums;
 
 namespace Learnify.Core.Domain.Entities.Sql;
 
-public class Course: BaseEntity<int>
+public class Course: BaseEntity<int>, ICourseUpdatable
 {
     public int AuthorId { get; set; }
     public int? PhotoId { get; set; }

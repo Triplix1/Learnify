@@ -16,6 +16,7 @@ public interface ILessonRepository
     Task<IEnumerable<SubtitleReference>> GetSubtitleReferencesForLessonAsync(string lessonId,
         CancellationToken cancellationToken = default);
     Task<LessonToDeleteResponse> GetLessonToDelete(string lessonId, CancellationToken cancellationToken = default);
+    Task<long> GetAmountOfPublishedLessonsPerParagraph(int paragraphId, CancellationToken cancellationToken = default);
 
     Task<Lesson> CreateAsync(Lesson lessonCreateRequest, CancellationToken cancellationToken = default);
     Task<Lesson> UpdateAsync(Lesson lessonUpdateRequest, CancellationToken cancellationToken = default);

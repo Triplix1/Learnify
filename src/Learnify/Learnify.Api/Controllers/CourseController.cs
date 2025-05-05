@@ -20,16 +20,18 @@ public class CourseController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetCourseTitlesAsync([FromQuery]CourseParams courseParams,
+    public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetCourseTitlesAsync(
+        [FromQuery]CourseParams courseParams,
         CancellationToken cancellationToken = default)
     {
         var result = await _courseService.GetAllCourseTitles(courseParams, cancellationToken);
 
         return Ok(result);
     }
-    
+
     [HttpGet("my-courses")]
-    public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetMyCourseTitlesAsync([FromQuery]CourseParams courseParams,
+    public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetMyCourseTitlesAsync(
+        [FromQuery]CourseParams courseParams,
         CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
@@ -37,9 +39,10 @@ public class CourseController : BaseApiController
 
         return Ok(result);
     }
-    
+
     [HttpGet("my-subscribed-courses")]
-    public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetMySubscribedCourseTitlesAsync([FromQuery]CourseParams courseParams,
+    public async Task<ActionResult<PagedList<CourseTitleResponse>>> GetMySubscribedCourseTitlesAsync(
+        [FromQuery]CourseParams courseParams,
         CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
@@ -47,7 +50,7 @@ public class CourseController : BaseApiController
 
         return Ok(result);
     }
-    
+
     [HttpGet("main-info/{id}")]
     public async Task<ActionResult<PagedList<CourseMainInfoResponse>>> GetMainCourseInfoAsync([FromRoute]int id,
         CancellationToken cancellationToken = default)
@@ -66,10 +69,11 @@ public class CourseController : BaseApiController
 
         return Ok(courseResponse);
     }
-    
+
     [Authorize]
     [HttpGet("study/{id}")]
-    public async Task<ActionResult<CourseStudyResponse>> GetCourseToStudyAsync([FromRoute]int id, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<CourseStudyResponse>> GetCourseToStudyAsync([FromRoute]int id,
+        CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
         var courseResponse = await _courseService.GetCourseStudyResponseAsync(id, userId, cancellationToken);
@@ -89,14 +93,14 @@ public class CourseController : BaseApiController
     }
 
     [Authorize]
-    [HttpPost("{id}")]
-    public async Task<ActionResult<CourseUpdateResponse>> PublishCourseAsync([FromRoute]int id,
-        [FromBody]PublishCourseRequest publish, CancellationToken cancellationToken = default)
+    [HttpPost("publish")]
+    public async Task<ActionResult> PublishCourseAsync([FromBody]PublishCourseRequest publishCourseRequest,
+        CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var courseResponse = await _courseService.PublishAsync(id, publish.Publish, userId, cancellationToken);
+        await _courseService.PublishAsync(publishCourseRequest, userId, cancellationToken);
 
-        return Ok(courseResponse);
+        return Ok();
     }
 
     [RequestSizeLimit((long)10 * 1024 * 1024 * 1024)]
@@ -107,10 +111,10 @@ public class CourseController : BaseApiController
         var userId = User.GetUserId();
         var response =
             await _courseService.UpdatePhotoAsync(userId, fileBlobCreateRequest, cancellationToken: cancellationToken);
-        
+
         return Ok(response);
     }
-    
+
     [RequestSizeLimit((long)10 * 1024 * 1024 * 1024)]
     [HttpPost("video")]
     public async Task<ActionResult<PrivateFileDataResponse>> SaveCourseVideoAsync(
@@ -119,7 +123,7 @@ public class CourseController : BaseApiController
         var userId = User.GetUserId();
         var response =
             await _courseService.UpdateVideoAsync(userId, fileBlobCreateRequest, cancellationToken: cancellationToken);
-        
+
         return Ok(response);
     }
 

@@ -4,11 +4,13 @@ using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.Entities.Sql;
 using Learnify.Core.Domain.RepositoryContracts.UnitOfWork;
 using Learnify.Core.Dto.Course.LessonDtos;
+using Learnify.Core.Dto.Course.ParagraphDtos;
 using Learnify.Core.Dto.Course.QuizQuestion.Answers;
 using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Dto.File;
 using Learnify.Core.Dto.Subtitles;
 using Learnify.Core.Enums;
+using Learnify.Core.Exceptions;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Transactions;
@@ -19,10 +21,10 @@ namespace Learnify.Core.Services;
 public class LessonService : ILessonService
 {
     private readonly ISubtitlesManager _subtitlesManager;
-    private readonly IBlobStorage _blobStorage;
     private readonly IUserAuthorValidatorManager _userAuthorValidatorManager;
     private readonly ISummaryManager _summaryManager;
     private readonly IPrivateFileService _privateFileService;
+    private readonly IParagraphService _paragraphService;
 
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
     private readonly IPsqUnitOfWork _psqUnitOfWork;
@@ -32,19 +34,19 @@ public class LessonService : ILessonService
         IPsqUnitOfWork psqUnitOfWork,
         IMapper mapper,
         ISubtitlesManager subtitlesManager,
-        IBlobStorage blobStorage,
         IUserAuthorValidatorManager userAuthorValidatorManager,
         ISummaryManager summaryManager,
-        IPrivateFileService privateFileService)
+        IPrivateFileService privateFileService,
+        IParagraphService paragraphService)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
         _mapper = mapper;
         _subtitlesManager = subtitlesManager;
-        _blobStorage = blobStorage;
         _userAuthorValidatorManager = userAuthorValidatorManager;
         _summaryManager = summaryManager;
         _privateFileService = privateFileService;
+        _paragraphService = paragraphService;
     }
 
     #region DQL
@@ -157,6 +159,17 @@ public class LessonService : ILessonService
         return response;
     }
 
+    public async Task<LessonUpdateResponse> GetUpdateResponseAsync(Lesson lesson,
+        CancellationToken cancellationToken = default)
+    {
+        var lessonResponse = _mapper.Map<LessonUpdateResponse>(lesson);
+
+        if (lessonResponse.Video is not null)
+            lessonResponse.Video.Subtitles = await GetSubtitlesForLessonAsync(lesson, cancellationToken);
+
+        return lessonResponse;
+    }
+
     #endregion
 
     #region DML
@@ -190,16 +203,63 @@ public class LessonService : ILessonService
         return updatedLesson;
     }
 
-    public async Task DeleteAsync(string id, int userId, CancellationToken cancellationToken = default)
+    public async Task<LessonDeletedResponse> DeleteAsync(string id, int userId,
+        CancellationToken cancellationToken = default)
     {
         await _userAuthorValidatorManager.ValidateAuthorOfLessonAsync(id, userId, cancellationToken);
+
+        var paragraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(id, cancellationToken);
 
         var lessonToUpdateId =
             await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(id, cancellationToken);
 
         var fullDelete = lessonToUpdateId != null && lessonToUpdateId != id;
 
-        await SafelyDeleteLessonsAndAttachmentsAsync(id, fullDelete, cancellationToken);
+        LessonDeletedResponse response;
+        
+        using (var transaction = TransactionScopeBuilder.CreateReadCommittedAsync())
+        {
+            await SafelyDeleteLessonsAndAttachmentsAsync(id, fullDelete, cancellationToken);
+
+            response = await UnpublishParagraphIfNeeded(userId, paragraphId, cancellationToken);
+
+            transaction.Complete();
+        }
+
+        return response;
+    }
+
+    private async Task<LessonDeletedResponse> UnpublishParagraphIfNeeded(int userId, int paragraphId, CancellationToken cancellationToken)
+    {
+        var publishedLessonsAmount =
+            await _mongoUnitOfWork.Lessons.GetAmountOfPublishedLessonsPerParagraph(paragraphId, cancellationToken);
+
+        var shouldUnpublishParagraph = publishedLessonsAmount == 0;
+
+        var response = new LessonDeletedResponse()
+        {
+            UnpublishedParagraph = shouldUnpublishParagraph
+        };
+
+        if (shouldUnpublishParagraph)
+        {
+            var paragraph =
+                await _psqUnitOfWork.ParagraphRepository.GetByIdAsync(paragraphId,
+                    cancellationToken: cancellationToken);
+
+            if (paragraph.IsPublished)
+            {
+                var publishParagraphRequest = new PublishParagraphRequest()
+                {
+                    ParagraphId = paragraphId,
+                    Publish = false
+                };
+
+                response.ParagraphPublishedResponse = await _paragraphService.PublishAsync(publishParagraphRequest, userId, cancellationToken);
+            }
+        }
+
+        return response;
     }
 
     public async Task DeleteByParagraphAsync(int paragraphId, int userId, CancellationToken cancellationToken = default)
@@ -222,17 +282,6 @@ public class LessonService : ILessonService
             await _mongoUnitOfWork.Lessons.GetAllAttachmentsForParagraphsAsync(paragraphIds, cancellationToken);
 
         await _mongoUnitOfWork.Lessons.DeleteForParagraphsAsync(paragraphIds, cancellationToken);
-    }
-
-    public async Task<LessonUpdateResponse> GetUpdateResponseAsync(Lesson lesson,
-        CancellationToken cancellationToken = default)
-    {
-        var lessonResponse = _mapper.Map<LessonUpdateResponse>(lesson);
-
-        if (lessonResponse.Video is not null)
-            lessonResponse.Video.Subtitles = await GetSubtitlesForLessonAsync(lesson, cancellationToken);
-
-        return lessonResponse;
     }
 
     #endregion
@@ -373,26 +422,28 @@ public class LessonService : ILessonService
                         cancellationToken: cancellationToken);
                     updatedLesson.OriginalLessonId = null;
                 }
+
+                ValidateLesson(updatedLesson);
             }
 
             if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)
             {
-                // if (oldLesson.Video is not null)
-                // {
-                //     if (oldLesson.OriginalLessonId is not null && !draft)
-                //     {
-                //         var originalLesson =
-                //             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(oldLesson.OriginalLessonId,
-                //                 cancellationToken);
-                //
-                //         var subtitlesDiff =
-                //             oldLesson.Video.Subtitles.Except(originalLesson.Video.Subtitles);
-                //
-                //         var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
-                //
-                //         await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
-                //     }
-                // }
+                if (oldLesson.Video is not null)
+                {
+                    if (oldLesson.OriginalLessonId is not null && !draft)
+                    {
+                        var originalLesson =
+                            await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(oldLesson.OriginalLessonId,
+                                cancellationToken);
+
+                        var subtitlesDiff =
+                            oldLesson.Video.Subtitles.Except(originalLesson.Video.Subtitles);
+
+                        var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
+
+                        await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
+                    }
+                }
 
                 if (lessonAddOrUpdateRequest.Video?.Attachment?.FileId != null)
                 {
@@ -591,6 +642,45 @@ public class LessonService : ILessonService
         };
 
         return result;
+    }
+
+    private void ValidateLesson(Lesson lesson)
+    {
+        var errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(lesson.Title))
+        {
+            errors.Add("Назва обов'язкова");
+        }
+
+        if (lesson.Video is null)
+        {
+            errors.Add("Урок повинен містити відео");
+        }
+        
+        if (lesson.Quizzes is not null && lesson.Quizzes.Any())
+        {
+            if (lesson.Quizzes.Any(q => string.IsNullOrWhiteSpace(q.Question)))
+            {
+                errors.Add("Кожен тест повинен містити питання");
+            }
+
+            if (lesson.Quizzes.Any(q => q.Answers?.Options is null || q.Answers.Options.Count() < 2))
+            {
+                errors.Add("Кожен тест повинен містити мінімум дві відповіді");
+            }
+
+            if (lesson.Quizzes.Where(q => q.Answers?.Options is not null)
+                .Any(q => q.Answers.Options.Any(string.IsNullOrWhiteSpace)))
+            {
+                errors.Add("Кожна відповідь до тексту повинна містити текст");
+            }
+        }
+
+        if (errors.Any())
+        {
+            throw new CompositeException(errors);
+        }
     }
 
     #endregion

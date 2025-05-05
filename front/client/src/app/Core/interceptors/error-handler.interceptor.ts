@@ -30,7 +30,8 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
         }
       }),
       catchError(error => {
-        this.toastr.error("Something went wrong");
+        if (error.error.errorData === null || error.error.errorData === undefined)
+          this.toastr.error("Щось пішло не так...");
         this.spinner.hide();
         throw error;
       })

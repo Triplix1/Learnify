@@ -14,7 +14,7 @@
               <app-select-language [formControl]="$any(lessonForm.controls['language'])"></app-select-language>
        </div>
 
-       <div *ngIf="lessonResponse.video">
+       <div *ngIf="lessonResponse?.video">
               <div class="mx-auto w-11/12 my-2 h-[2px] bg-slate-800"></div>
               <div class="flex justify-center">
                      <app-select-languages-list [languagesList]="subtitlesLanguages"

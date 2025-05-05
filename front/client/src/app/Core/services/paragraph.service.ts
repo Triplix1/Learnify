@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiResponse, ApiResponseWithData } from 'src/app/Models/ApiResponse';
+import { ApiResponse, ApiResponseWithData, ApiResponseWithDataAndError } from 'src/app/Models/ApiResponse';
 import { ParagraphCreateRequest } from 'src/app/Models/Course/Paragraph/ParagraphCreateRequest';
+import { ParagraphPublishedResponse } from 'src/app/Models/Course/Paragraph/ParagraphPublishedResponse';
 import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResponse';
 import { ParagraphUpdateRequest } from 'src/app/Models/Course/Paragraph/ParagraphUpdateRequest';
 import { PublishParagraphRequest } from 'src/app/Models/Course/Paragraph/PublishParagraphRequest';
@@ -24,8 +25,8 @@ export class ParagraphService {
     return this.httpClient.put<ApiResponseWithData<ParagraphResponse>>(this.baseParagraphUrl, ParagraphUpdateRequest);
   }
 
-  publishParagraph(publishParagraphRequest: PublishParagraphRequest): Observable<ApiResponseWithData<ParagraphResponse>> {
-    return this.httpClient.put<ApiResponseWithData<ParagraphResponse>>(this.baseParagraphUrl + "/publish", publishParagraphRequest);
+  publishParagraph(publishParagraphRequest: PublishParagraphRequest): Observable<ApiResponseWithDataAndError<ParagraphPublishedResponse, string[]>> {
+    return this.httpClient.put<ApiResponseWithDataAndError<ParagraphPublishedResponse, string[]>>(this.baseParagraphUrl + "/publish", publishParagraphRequest);
   }
 
   deleteParagraph(id: number): Observable<ApiResponse> {

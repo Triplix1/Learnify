@@ -138,12 +138,15 @@
                     <app-create-paragraph *ngFor="let paragagraph of paragraphs; let index = index"
                                           [paragraphResponse]="paragagraph"
                                           [possibleToCreateNewLesson]="possibleToCreateNewLesson"
+                                          [lessonTitleUpdated]="lessonTitleUpdated"
+                                          [lessonAddOrUpdateRequest]="currentLessonEditing"
                                           [index]="index"
                                           [courseId]="courseResponse.id"
                                           (onUpdate)="paragraphUpdated($event)"
                                           (onLessonAddOrUpdateRequest)="lessonAddOrUpdateRequest($event)"
                                           (onDelete)="paragraphDeleted($event)"
-                                          (onLessonDelete)="lessonDeleted($event)"></app-create-paragraph>
+                                          (onLessonDelete)="lessonDeleted($event)"
+                                          (onUnpublish)="unpublishedCourse()"></app-create-paragraph>
 
 
                     <div *ngIf="!paragraphs.includes(null)"
@@ -157,11 +160,13 @@
                 </div>
             </app-step>
 
-            <app-step label="Lesson">
+            <app-step #lessonTab
+                      label="Lesson">
                 <app-create-lesson *ngIf="currentLessonEditing"
                                    [currentLessonEditing]="currentLessonEditing"
                                    [courseId]="courseId"
-                                   [(possibleToCreateNewLesson)]="possibleToCreateNewLesson"></app-create-lesson>
+                                   [(possibleToCreateNewLesson)]="possibleToCreateNewLesson"
+                                   (onUpdate)="lassonUpdated($event)"></app-create-lesson>
             </app-step>
         </app-stepper>
 

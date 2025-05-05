@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiResponse, ApiResponseWithData } from 'src/app/Models/ApiResponse';
+import { ApiResponse, ApiResponseWithData, ApiResponseWithDataAndError } from 'src/app/Models/ApiResponse';
 import { CourseCreateRequest } from 'src/app/Models/Course/CourseCreateRequest';
 import { CourseResponse } from 'src/app/Models/Course/CourseResponse';
 import { CourseTitleResponse } from 'src/app/Models/Course/CourseTitleResponse';
@@ -91,8 +91,8 @@ export class CourseService {
   }
 
 
-  publishCourse(id: number, publish: PublishCourseRequest): Observable<ApiResponseWithData<CourseResponse>> {
-    return this.httpClient.post<ApiResponseWithData<CourseResponse>>(this.baseCourseUrl + "/" + id, publish);
+  publishCourse(publish: PublishCourseRequest): Observable<ApiResponseWithDataAndError<void, string[]>> {
+    return this.httpClient.post<ApiResponseWithDataAndError<void, string[]>>(this.baseCourseUrl + "/publish", publish);
   }
 
   updateCourse(courseUpdateRequest: CourseUpdateRequest): Observable<ApiResponseWithData<CourseResponse>> {

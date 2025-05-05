@@ -76,12 +76,12 @@ public class LessonController : BaseApiController
 
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<LessonDeletedResponse>> DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
 
-        await _lessonService.DeleteAsync(id, userId, cancellationToken);
+        var response = await _lessonService.DeleteAsync(id, userId, cancellationToken);
 
-        return Ok();
+        return Ok(response);
     }
 }

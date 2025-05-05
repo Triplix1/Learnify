@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>Інформуємо</h1>
+<div mat-dialog-content>
+    <p>{{data.text}}</p>
+</div>
+<div class="flex w-full justify-center items-center"
+     mat-dialog-actions>
+    <div class="flex w-full justify-center px-5 items-center">
+        <app-button classList="rounded-lg"
+                    (click)="onAccept()">Oк</app-button>
+    </div>
+</div>

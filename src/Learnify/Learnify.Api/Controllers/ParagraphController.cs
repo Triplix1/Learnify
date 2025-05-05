@@ -40,7 +40,7 @@ public class ParagraphController : BaseApiController
 
     [Authorize]
     [HttpPut("publish")]
-    public async Task<ActionResult<ParagraphResponse>> PublishAsync(
+    public async Task<ActionResult<ParagraphPublishedResponse>> PublishAsync(
         [FromBody]PublishParagraphRequest publishParagraphRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();

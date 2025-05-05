@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Observable, take, takeUntil } from 'rxjs';
 import { CourseService } from 'src/app/Core/services/course.service';
@@ -19,6 +20,7 @@ import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlo
 import { PrivateFileDataResponse } from 'src/app/Models/File/PrivateFileDataResponse';
 import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
 import { SelectorOption } from 'src/app/Models/SelectorOption';
+import { AcceptDialogComponent } from 'src/app/Shared/components/accept-dialog/accept-dialog.component';
 
 @Component({
   selector: 'app-create-course',
@@ -27,6 +29,7 @@ import { SelectorOption } from 'src/app/Models/SelectorOption';
 })
 export class CreateCourseComponent extends BaseComponent {
   @Input() courseId: number = null;
+  @ViewChild('lessonTab') myLessonTab: ElementRef;
 
   editingMode: boolean = false;
   courseResponse: CourseUpdateResponse = null;
@@ -42,6 +45,7 @@ export class CreateCourseComponent extends BaseComponent {
 
   currentLessonEditing: LessonStepAddOrUpdateRequest;
   possibleToCreateNewLesson: boolean = true;
+  lessonTitleUpdated: LessonTitleResponse;
 
   photoSetted: boolean;
   videoSetted: boolean;
@@ -55,7 +59,8 @@ export class CreateCourseComponent extends BaseComponent {
 
   constructor(private readonly fb: FormBuilder,
     private readonly courseService: CourseService,
-    private readonly spinner: NgxSpinnerService) {
+    private readonly spinner: NgxSpinnerService,
+    private readonly dialog: MatDialog) {
     super();
   }
 
@@ -76,6 +81,10 @@ export class CreateCourseComponent extends BaseComponent {
     }
   }
 
+  lassonUpdated(lessonTitleUpdated: LessonTitleResponse) {
+    this.lessonTitleUpdated = lessonTitleUpdated;
+  }
+
   saveChanges() {
     this.spinner.show();
     if (this.courseId === null || this.courseId === undefined) {
@@ -90,7 +99,13 @@ export class CreateCourseComponent extends BaseComponent {
         courseResponse => {
           this.handleCourseUpdate(courseResponse.data);
           this.spinner.hide();
-        }
+        },
+        error => this.dialog.open(AcceptDialogComponent, {
+          width: '450px',
+          data: {
+            text: error.error.errorData.join("\n")
+          }
+        })
       );
     }
     else {
@@ -106,7 +121,13 @@ export class CreateCourseComponent extends BaseComponent {
         courseResponse => {
           this.handleCourseUpdate(courseResponse.data);
           this.spinner.hide();
-        }
+        },
+        error => this.dialog.open(AcceptDialogComponent, {
+          width: '450px',
+          data: {
+            text: error.error.errorData.join("\n")
+          }
+        })
       );
     }
   }
@@ -119,16 +140,23 @@ export class CreateCourseComponent extends BaseComponent {
     this.spinner.show();
 
     const publishRequest: PublishCourseRequest = {
+      courseId: this.courseId,
       publish: publish
     };
 
-    this.courseService.publishCourse(this.courseId, publishRequest).pipe(take(1))
+    this.courseService.publishCourse(publishRequest).pipe(take(1))
       .subscribe(
         response => {
-          this.courseResponse = response.data;
-          this.handleCourseUpdate(response.data);
+          this.courseResponse.isPublished = !this.courseResponse.isPublished;
           this.spinner.hide();
-        }
+        },
+        error => this.dialog.open(AcceptDialogComponent, {
+          width: '450px',
+          data: {
+            text: error.error.errorData.join("\n")
+          }
+        })
+
       );
   }
 
@@ -198,10 +226,16 @@ export class CreateCourseComponent extends BaseComponent {
     }
 
     this.currentLessonEditing = lessonStepAddOrUpdateRequest;
+
+    this.myLessonTab.nativeElement.click();
   }
 
   private clearLessonTab() {
     this.currentLessonEditing = null;
+  }
+
+  unpublishedCourse() {
+    this.courseResponse.isPublished = false;
   }
 
   private handleCourseUpdate(courseResponse: CourseResponse) {

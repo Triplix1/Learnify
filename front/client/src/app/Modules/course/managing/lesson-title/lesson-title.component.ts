@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { take } from 'rxjs';
 import { LessonService } from 'src/app/Core/services/lesson.service';
+import { LessonDeletedEvent } from 'src/app/Models/Course/Lesson/LessonDeletedEvent';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
 
 @Component({
@@ -10,14 +11,14 @@ import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleRes
 })
 export class LessonTitleComponent {
   @Input({ required: true }) lessonTitle: LessonTitleResponse;
-  @Output() delete: EventEmitter<string> = new EventEmitter<string>();
+  @Output() delete: EventEmitter<LessonDeletedEvent> = new EventEmitter<LessonDeletedEvent>();
   @Output() edit: EventEmitter<string> = new EventEmitter<string>();
 
   constructor(private readonly lessonService: LessonService) { }
 
   onDelete() {
-    this.lessonService.deleteLesson(this.lessonTitle.id).pipe(take(1)).subscribe(() => {
-      this.delete.emit(this.lessonTitle.id);
+    this.lessonService.deleteLesson(this.lessonTitle.id).pipe(take(1)).subscribe(response => {
+      this.delete.emit({ lessonId: this.lessonTitle.id, lessonDeletedResponse: response.data });
     });
   }
 

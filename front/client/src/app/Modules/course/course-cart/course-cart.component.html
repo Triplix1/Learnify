@@ -6,7 +6,7 @@
   <!-- Conditionally show image or description based on hover state -->
   <div class="w-full h-full bg-cover bg-center transition duration-300"
        [ngStyle]="{
-    'background-image': (courseTitleResponse.photo.id | media | async) ? 'url(' + (courseTitleResponse.photo.id | media | async) + ')' : 'none'
+    'background-image': courseTitleResponse.photo ? 'url(' + (courseTitleResponse.photo.id | media | async) + ')' : 'none'
   }">
   </div>
 

@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { take, takeUntil } from 'rxjs';
 import { LessonService } from 'src/app/Core/services/lesson.service';
 import { ParagraphService } from 'src/app/Core/services/paragraph.service';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
+import { LessonDeletedEvent } from 'src/app/Models/Course/Lesson/LessonDeletedEvent';
 import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
 import { LessonTitleResponse } from 'src/app/Models/Course/Lesson/LessonTitleResponse';
 import { ParagraphCreateRequest } from 'src/app/Models/Course/Paragraph/ParagraphCreateRequest';
@@ -11,17 +13,21 @@ import { ParagraphResponse } from 'src/app/Models/Course/Paragraph/ParagraphResp
 import { ParagraphUpdateRequest } from 'src/app/Models/Course/Paragraph/ParagraphUpdateRequest';
 import { PublishParagraphRequest } from 'src/app/Models/Course/Paragraph/PublishParagraphRequest';
 import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
+import { AcceptDialogComponent } from 'src/app/Shared/components/accept-dialog/accept-dialog.component';
 
 @Component({
   selector: 'app-create-paragraph',
   templateUrl: './create-paragraph.component.html',
   styleUrls: ['./create-paragraph.component.scss']
 })
-export class CreateParagraphComponent extends BaseComponent {
+export class CreateParagraphComponent extends BaseComponent implements OnChanges {
   @Input() paragraphResponse: ParagraphResponse | null = null;
   @Input({ required: true }) index: number;
   @Input({ required: true }) courseId: number = null;
   @Input({ required: true }) possibleToCreateNewLesson: boolean = true;
+  @Input() lessonAddOrUpdateRequest: LessonStepAddOrUpdateRequest;
+  @Input() lessonTitleUpdated: LessonTitleResponse;
+  @Output() onUnpublish: EventEmitter<void> = new EventEmitter<void>(null);
   @Output() onUpdate: EventEmitter<ParagraphUpdated> = new EventEmitter<ParagraphUpdated>(null);
   @Output() onDelete: EventEmitter<number> = new EventEmitter<number>(null);
   @Output() onLessonAddOrUpdateRequest: EventEmitter<LessonStepAddOrUpdateRequest> = new EventEmitter<LessonStepAddOrUpdateRequest>(null);
@@ -33,8 +39,29 @@ export class CreateParagraphComponent extends BaseComponent {
   private _lessonsLoaded: boolean = false;
   errorWhileLoadingLessons: boolean = false;
 
-  constructor(private readonly fb: FormBuilder, private readonly paragraphService: ParagraphService, private readonly lessonService: LessonService) {
+  constructor(private readonly fb: FormBuilder,
+    private readonly paragraphService: ParagraphService,
+    private readonly lessonService: LessonService,
+    private readonly dialog: MatDialog) {
     super();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const newLessonTitleUpdated = changes['lessonTitleUpdated']?.currentValue;
+    if (newLessonTitleUpdated !== null && newLessonTitleUpdated !== undefined && newLessonTitleUpdated !== changes['lessonTitleUpdated'].previousValue) {
+      const valueToUpdateIndex = this.lessons.findIndex(l => l === null || l.id === newLessonTitleUpdated.id);
+
+      if (valueToUpdateIndex !== -1) {
+        this.lessons[valueToUpdateIndex] = newLessonTitleUpdated;
+      }
+    }
+
+    const newLessonAddOrUpdateRequest = changes['lessonAddOrUpdateRequest']?.currentValue;
+    if (newLessonAddOrUpdateRequest !== null && newLessonAddOrUpdateRequest !== undefined && newLessonAddOrUpdateRequest !== changes['lessonAddOrUpdateRequest'].previousValue) {
+      if (newLessonAddOrUpdateRequest.paragraphId !== this.paragraphResponse.id) {
+        this.lessons = this.lessons.filter(l => l !== null);
+      }
+    }
   }
 
   get lessonTitlesList() {
@@ -59,7 +86,6 @@ export class CreateParagraphComponent extends BaseComponent {
         }
       });
   }
-
 
   initializeForm() {
     this.paragraphForm = this.fb.group({
@@ -117,6 +143,10 @@ export class CreateParagraphComponent extends BaseComponent {
   }
 
   addLesson() {
+    if (this.lessons.findIndex(l => l === null) != -1) {
+      return;
+    }
+
     if (this.paragraphResponse) {
       var lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest = {
         paragraphId: this.paragraphResponse.id
@@ -138,7 +168,19 @@ export class CreateParagraphComponent extends BaseComponent {
       publish: !this.paragraphResponse.isPublished
     };
 
-    this.paragraphService.publishParagraph(publishParagraphRequest).pipe(take(1)).subscribe(r => this.handleUpdate(r.data));
+    this.paragraphService.publishParagraph(publishParagraphRequest).pipe(take(1)).subscribe(
+      r => {
+        this.paragraphResponse.isPublished = !this.paragraphResponse.isPublished;
+        if (r.data.unpublishedCourse) {
+          this.onUnpublish.emit();
+        }
+      },
+      error => this.dialog.open(AcceptDialogComponent, {
+        width: '450px',
+        data: {
+          text: error.error.errorData.join("\n")
+        }
+      }));
   }
 
   delete() {
@@ -147,24 +189,29 @@ export class CreateParagraphComponent extends BaseComponent {
     });
   }
 
-  lessonDeleted(id: string) {
-    let lesson = this.lessons.find(l => l.id === id);
+  lessonDeleted(lessonDeletedEvent: LessonDeletedEvent) {
+    let lesson = this.lessons.find(l => l.id === lessonDeletedEvent.lessonId);
     if (lesson) {
-      this.lessons = this.lessons.filter(l => l.id !== id);
+      this.lessons = this.lessons.filter(l => l?.id !== lessonDeletedEvent.lessonId);
       this.onLessonDelete.emit(lesson);
+      if (lessonDeletedEvent.lessonDeletedResponse.unpublishedParagraph) {
+        this.paragraphResponse.isPublished = false;
+        if (lessonDeletedEvent.lessonDeletedResponse.paragraphPublishedResponse.unpublishedCourse) {
+          this.onUnpublish.emit();
+        }
+      }
     }
   }
 
   editLesson(id: string) {
-    let lesson = this.lessons.find(l => l.id === id);
-    if (lesson) {
-      var lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest = {
-        id: lesson.id,
-        paragraphId: this.paragraphResponse.id,
-      }
+    let lesson = this.lessons.find(l => l?.id === id);
 
-      this.onLessonAddOrUpdateRequest.emit(lessonStepAddOrUpdateRequest);
+    var lessonStepAddOrUpdateRequest: LessonStepAddOrUpdateRequest = {
+      id: lesson?.id,
+      paragraphId: this.paragraphResponse.id,
     }
+
+    this.onLessonAddOrUpdateRequest.emit(lessonStepAddOrUpdateRequest);
   }
 
   private handleUpdate(response: ParagraphResponse) {

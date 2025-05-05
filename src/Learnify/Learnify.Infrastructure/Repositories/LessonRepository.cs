@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Learnify.Core.Domain.Entities.NoSql;
+﻿using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts;
 using Learnify.Core.Dto.Course.LessonDtos;
 using Learnify.Infrastructure.Data.Interfaces;
@@ -16,7 +15,6 @@ public class LessonRepository : ILessonRepository
     /// Initializes a new instance of <see cref="LessonRepository"/>
     /// </summary>
     /// <param name="mongoContext"><see cref="IMongoAppDbContext"/></param>
-    /// <param name="mapper"><see cref="IMapper"/></param>
     public LessonRepository(IMongoAppDbContext mongoContext)
     {
         _mongoContext = mongoContext;
@@ -44,6 +42,16 @@ public class LessonRepository : ILessonRepository
         var lesson = await _mongoContext.Lessons.Find(filter).FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         return lesson;
+    }
+    
+    public async Task<long> GetAmountOfPublishedLessonsPerParagraph(int paragraphId, CancellationToken cancellationToken = default)
+    {
+        var filter = Builders<Lesson>.Filter.And(Builders<Lesson>.Filter.Eq(l => l.ParagraphId, paragraphId),
+            Builders<Lesson>.Filter.Eq(l => l.IsDraft, false));
+
+        var lessonsCount = await _mongoContext.Lessons.Find(filter).CountDocumentsAsync(cancellationToken: cancellationToken);
+
+        return lessonsCount;
     }
 
     /// <inheritdoc />
