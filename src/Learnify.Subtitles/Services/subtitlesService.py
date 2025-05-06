@@ -1,19 +1,14 @@
 ﻿import whisper
 
-from Helpers.timeFormatter import format_time
-
 def format_time_vtt(seconds):
-    """Formats time in VTT format (hh:mm:ss.sss)"""
     hours = int(seconds // 3600)
     minutes = int((seconds % 3600) // 60)
     secs = seconds % 60
     return f"{hours:02}:{minutes:02}:{secs:06.3f}".replace(",", ".")
 
 def generate_subtitles(audio_path, primary_language):
-    """Generates original subtitles using Whisper AI."""
-
     lang_map = {"English": "en", "Spanish": "es", "French": "fr", "German": "de"}
-    primary_language = lang_map.get(primary_language, primary_language)  # Default to input if already in ISO format
+    primary_language = lang_map.get(primary_language, primary_language)
 
     model = whisper.load_model("base")
     result = model.transcribe(audio_path, language=primary_language)

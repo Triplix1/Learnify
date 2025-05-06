@@ -1,6 +1,5 @@
 ﻿import tempfile
 
-
 def generate_temporary_file(summary, summary_blob_name) :
     summary_file_path = tempfile.NamedTemporaryFile(delete=False, suffix=summary_blob_name).name
 

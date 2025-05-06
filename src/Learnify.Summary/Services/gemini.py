@@ -7,33 +7,29 @@ from io import BytesIO
 
 load_dotenv()
 
-# Configure Gemini
 GEMINI_KEY = os.getenv("GEMINI_KEY")
 genai.configure(api_key=GEMINI_KEY)
 
 
 def stream_to_seekable_bytesio(url):
-    """Streams file content from URL into a BytesIO object without loading the entire file into memory."""
     response = requests.get(url, stream=True)
-    response.raise_for_status()  # Ensure the request was successful
+    response.raise_for_status()
 
     buffer = BytesIO()
     for chunk in response.iter_content(chunk_size=8192):  # Read in chunks
         buffer.write(chunk)
 
-    buffer.seek(0)  # Reset the stream position to the start
+    buffer.seek(0)
     return buffer
 
 
 def upload_to_gemini(file_stream, mime_type, file_name="uploaded_file"):
-    """Uploads a file stream (BytesIO) to Gemini."""
     file = genai.upload_file(file_stream, display_name=file_name, mime_type=mime_type)
     print(f"Uploaded file '{file.display_name}' as: {file.uri}")
     return file
 
 
 def wait_for_files_active(files):
-    """Waits for the given files to be active in Gemini."""
     print("Waiting for file processing...")
     for name in (file.name for file in files):
         file = genai.get_file(name)
@@ -48,18 +44,10 @@ def wait_for_files_active(files):
 
 
 def get_summary(file_url, mime_type, language):
-    """Streams file from Azure Blob Storage, uploads to Gemini, and retrieves a summary."""
-
-    # Get a seekable file stream from Azure Blob Storage (without loading entire file into memory)
     file_stream = stream_to_seekable_bytesio(file_url)
-
-    # Upload the file stream directly to Gemini
     files = [upload_to_gemini(file_stream, mime_type)]
-
-    # Wait for file processing
     wait_for_files_active(files)
 
-    # Create the model
     generation_config = {
         "temperature": 1,
         "top_p": 0.95,

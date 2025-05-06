@@ -41,7 +41,7 @@ export class MainProfileComponent extends BaseComponent implements OnInit {
       takeUntil(this.destroySubject),
       switchMap(
         response => {
-          return this.profileService.getById(response.id);
+          return this.profileService.getById(response.id).pipe(take(1));
         }
       )
     ).subscribe(
@@ -61,6 +61,7 @@ export class MainProfileComponent extends BaseComponent implements OnInit {
     this.profileData = profileResponse;
     this.updateUserTypeForm();
     this.initialForm = this.userTypeFormControl.value;
+    this.authService.updateUserRole(profileResponse.type);
   }
 
   initialiseForm() {

@@ -5,10 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-AZURE_CONNECTION_STRING = os.getenv("AZURE_API_KEY")
+AZURE_CONNECTION_STRING = os.getenv("AZURE_CONNECTION_STRING")
 
 def download_video_from_blob(container_name, blob_name):
-    """Downloads video from Azure Blob Storage."""
     blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
 
@@ -20,10 +19,8 @@ def download_video_from_blob(container_name, blob_name):
 
 
 def upload_to_blob(container_name, file_path, blob_name):
-    """Uploads a file to Azure Blob Storage."""
     blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING, api_version="2021-06-08")
 
-    # Ensure container exists
     container_client = blob_service_client.get_container_client(container_name)
     if not container_client.exists():
         print(f"Container '{container_name}' does not exist. Creating it...")

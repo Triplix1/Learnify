@@ -409,6 +409,8 @@ public class LessonService : ILessonService
         {
             if (!draft)
             {
+                ValidateLesson(updatedLesson);
+                
                 if (updatedLesson.EditedLessonId is not null)
                 {
                     await SafelyDeleteLessonsAndAttachmentsAsync(updatedLesson.EditedLessonId,
@@ -422,8 +424,6 @@ public class LessonService : ILessonService
                         cancellationToken: cancellationToken);
                     updatedLesson.OriginalLessonId = null;
                 }
-
-                ValidateLesson(updatedLesson);
             }
 
             if (lessonAddOrUpdateRequest.Video?.Attachment.FileId != oldLesson.Video?.Attachment.FileId)

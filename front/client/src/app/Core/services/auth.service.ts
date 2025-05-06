@@ -11,13 +11,13 @@ import { LoginRequest } from 'src/app/Models/Auth/LoginRequest';
 import { UserFromToken } from 'src/app/Models/UserFromToken';
 import { GoogleAuthRequest } from 'src/app/Models/Auth/GoogleAuthRequest';
 import { Router } from '@angular/router';
+import { UserType } from 'src/app/Models/enums/UserType';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly BaseApiUrl: string = environment.baseApiUrl;
-  private readonly GoogleAuthUrl: string = environment.googleAuth;
   private refreshTokenInProgress = false;
   private tokenData = new BehaviorSubject<AuthResponse>(null);
   private userData = new BehaviorSubject<UserFromToken>(null);
@@ -28,19 +28,19 @@ export class AuthService {
     this.updateTokenData()
   }
 
-  public loginGoogleCodeRequest(googleCodeRequest: GoogleCodeRequest) {
-    // const params = new HttpParams();
+  // public loginGoogleCodeRequest(googleCodeRequest: GoogleCodeRequest) {
+  //   // const params = new HttpParams();
 
-    // params.append("client_id", googleCodeRequest.clientId);
-    // params.append("redirect_uri", googleCodeRequest.redirectUrl);
-    // params.append("scope", googleCodeRequest.scope);
-    // params.append("code_challange", googleCodeRequest.codeChallange);
-    // params.append("code_challange_method", googleCodeRequest.codeChalangeMethod);
-    // params.append("state", googleCodeRequest.state);
-    // params.append("response_type", "code");
+  //   // params.append("client_id", googleCodeRequest.clientId);
+  //   // params.append("redirect_uri", googleCodeRequest.redirectUrl);
+  //   // params.append("scope", googleCodeRequest.scope);
+  //   // params.append("code_challange", googleCodeRequest.codeChallange);
+  //   // params.append("code_challange_method", googleCodeRequest.codeChalangeMethod);
+  //   // params.append("state", googleCodeRequest.state);
+  //   // params.append("response_type", "code");
 
-    return this.httpClient.post<ApiResponseWithData<AuthResponse>>(this.GoogleAuthUrl, googleCodeRequest);
-  }
+  //   return this.httpClient.post<ApiResponseWithData<AuthResponse>>(this.GoogleAuthUrl, googleCodeRequest);
+  // }
 
   public loginGoogleExchangeCode(googleAuthRequest: GoogleAuthRequest): Observable<ApiResponseWithData<AuthResponse>> {
     return this.httpClient.post<ApiResponseWithData<AuthResponse>>(this.BaseApiUrl + "/auth/external/google", googleAuthRequest).pipe(
@@ -165,8 +165,11 @@ export class AuthService {
       this.userData.next(this.getUserTokenDataFromToken(access));
     }
   }
-}
 
-function sleep(arg0: number) {
-  throw new Error('Function not implemented.');
+  updateUserRole(role: UserType) {
+    const currentValue = this.userData.value;
+    currentValue.role = role;
+
+    this.userData.next(currentValue);
+  }
 }

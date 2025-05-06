@@ -31,26 +31,24 @@ names_map = {'afrikaans': 'af', 'albanian': 'sq', 'amharic': 'am', 'arabic': 'ar
 
 
 def split_text(text, max_length=5000):
-    """Splits text into chunks without breaking words."""
-    words = text.split()  # Split by spaces to keep words intact
+    words = text.split()
     chunks = []
     current_chunk = ""
 
     for word in words:
-        if len(current_chunk) + len(word) + 1 > max_length:  # +1 for the space
-            chunks.append(current_chunk.strip())  # Save the chunk and start a new one
+        if len(current_chunk) + len(word) + 1 > max_length:
+            chunks.append(current_chunk.strip())
             current_chunk = word
         else:
             current_chunk += " " + word if current_chunk else word
 
-    if current_chunk:  # Append the last chunk
+    if current_chunk:
         chunks.append(current_chunk.strip())
 
     return chunks
 
 
 def extract_vtt_segments(vtt_content):
-    """Extracts timestamped segments from VTT subtitles."""
     segments = []
     lines = vtt_content.strip().split('\r\n')
     current_segment = []
@@ -69,7 +67,6 @@ def extract_vtt_segments(vtt_content):
 
 
 def batch_translate(text_chunks, source_language, target_language):
-    """Translates multiple text chunks in a single request where possible."""
     translator = GoogleTranslator(source=source_language, target=target_language)
     joined_text = '\n'.join(text_chunks)
     translated_text = translator.translate(joined_text)
@@ -77,10 +74,6 @@ def batch_translate(text_chunks, source_language, target_language):
 
 
 def translate(content, source_language, target_language, content_type):
-    """Translates text or subtitle content from the source language into the target language."""
-    if not content:
-        raise ValueError("Content to translate cannot be empty.")
-
     source_language = map_language_name(source_language)
     target_language = map_language_name(target_language)
 
@@ -106,7 +99,6 @@ def translate(content, source_language, target_language, content_type):
 
         return segments[0][0] + "\n\n" + "\n\n".join(translated_segments)
 
-    # Split text into sections while keeping words intact
     text_chunks = split_text(content, max_length=5000)
     translated_chunks = batch_translate(text_chunks, source_language, target_language)
 

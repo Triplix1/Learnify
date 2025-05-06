@@ -70,7 +70,6 @@ public class CourseService : ICourseService
         {
             CourseParams = courseParams,
             UserId = userId,
-            PublishedOnly = false
         };
 
         return await GetAllFilteredCourseTitles(filteredCourseParams, cancellationToken);
