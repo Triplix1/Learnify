@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ManagersListParams as ModeratorsListParams } from 'src/app/Models/Params/ManagersListParams';
-import { environment } from 'src/environments/environment.development';
+import { environment } from 'src/environments/environment';
 import { PagedParamsService } from './paged-params.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ProfileResponse } from 'src/app/Models/Profile/ProfileResponse';

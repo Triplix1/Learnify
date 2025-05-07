@@ -43,13 +43,12 @@
       - postgres_data:/var/lib/postgresql/data/
   
   learnify.api:
-    image: learnify.api
+    image: ${DOCKER_REGISTRY-}learnify.api
     build:
       context: .
       dockerfile: src/Learnify/Learnify.Api/Dockerfile
     depends_on: 
       - learnifydb
-      - storageemulator
       - rabbitmq
       - mongo
     environment:
@@ -87,26 +86,26 @@
     ports:
       - "5000:80"
         
-  learnify.subtitles:
-    image: learnify.subtitles
-    build:
-      context: ./src/Learnify.Subtitles
-      dockerfile: Dockerfile
-    depends_on:
-      - rabbitmq
-    environment:
-      - AZURE_CONNECTION_STRING=${AZURE_CONNECTION_STRING}
-      - RABBITMQ_HOST=${RABBITMQ_HOST}
-      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
-      - RABBITMQ_QUEUE=${RABBITMQ_SUBTITLES_QUEUE}
-      - RABBITMQ_QUEUE_RESPONSE=${RABBITMQ_SUBTITLES_QUEUE_RESPONSE}
-      - SUBTITLES_CONTAINER=${SUBTITLES_CONTAINER}
-    ports:
-      - "5001:80"
+#  learnify.subtitles:
+#    image: ${DOCKER_REGISTRY-}learnify.subtitles
+#    build:
+#      context: ./src/Learnify.Subtitles
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - rabbitmq
+#    environment:
+#      - AZURE_CONNECTION_STRING=${AZURE_CONNECTION_STRING}
+#      - RABBITMQ_HOST=${RABBITMQ_HOST}
+#      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+#      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+#      - RABBITMQ_SUBTITLES_QUEUE=${RABBITMQ_SUBTITLES_QUEUE}
+#      - RABBITMQ_SUBTITLES_QUEUE_RESPONSE=${RABBITMQ_SUBTITLES_QUEUE_RESPONSE}
+#      - SUBTITLES_CONTAINER=${SUBTITLES_CONTAINER}
+#    ports:
+#      - "5001:80"
         
   learnify.translate:
-    image: learnify.translate
+    image: ${DOCKER_REGISTRY-}learnify.translate
     build:
       context: ./src/Learnify.Translate
       dockerfile: Dockerfile
@@ -123,7 +122,7 @@
       - "5002:80"
 
   learnify.summary:
-    image: learnify.summary
+    image: ${DOCKER_REGISTRY-}learnify.summary
     build:
       context: ./src/Learnify.Summary
       dockerfile: Dockerfile
@@ -137,35 +136,34 @@
       - RABBITMQ_SUMMARIES_QUEUE=${RABBITMQ_SUMMARIES_QUEUE}
       - RABBITMQ_SUMMARIES_QUEUE_RESPONSE=${RABBITMQ_SUMMARIES_QUEUE_RESPONSE}
       - SUMMARIES_CONTAINER=${SUMMARIES_CONTAINER}
+      - GEMINI_KEY=${GEMINI_KEY}
     ports:
       - "5003:80"
 
   learnify.client:
-    image: learnify.client
+    image: ${DOCKER_REGISTRY-}learnify.client
     build:
       context: ./front/client
       dockerfile: Dockerfile
     depends_on:
       - rabbitmq
     environment:
-      - AZURE_CONNECTION_STRING=${AZURE_CONNECTION_STRING}
-      - RABBITMQ_HOST=${RABBITMQ_HOST}
-      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
-      - RABBITMQ_SUMMARIES_QUEUE=${RABBITMQ_SUMMARIES_QUEUE}
-      - RABBITMQ_SUMMARIES_QUEUE_RESPONSE=${RABBITMQ_SUMMARIES_QUEUE_RESPONSE}
-      - SUMMARIES_CONTAINER=${SUMMARIES_CONTAINER}
+      - BaseApiUrl=${BaseApiUrl}
+      - BaseMediaUrl=${BaseMediaUrl}
+      - PaymentSuccessUrl=${PaymentSuccessUrl}
+      - PaymentCancelUrl=${PaymentCancelUrl}
+      - VonageApplicationId=${Vonage_Application_Id}
     ports:
       - "4200:80"
 
 
-  storageemulator:
-    image: mcr.microsoft.com/azure-storage/azurite
-    hostname: azurite
-    restart: always
-    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10000"
-    ports:
-      - "10000:10000"
+#  storageemulator:
+#    image: mcr.microsoft.com/azure-storage/azurite
+#    hostname: azurite
+#    restart: always
+#    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10000"
+#    ports:
+#      - "10000:10000"
 
 volumes:
   postgres_data:

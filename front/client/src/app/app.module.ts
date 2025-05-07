@@ -10,7 +10,6 @@ import { RefreshInterceptor } from './Core/interceptors/refresh.interceptor';
 import { ErrorHandlerInterceptor } from './Core/interceptors/error-handler.interceptor';
 import { ProfileModule } from './Modules/profile/profile.module';
 import { CourseModule } from './Modules/course/course.module';
-import { MessageModule } from './Modules/message/message.module';
 import { MeetingModule } from './Modules/meetings/meeting.module';
 import { ModeratorsModule } from './Modules/moderators/moderators.module';
 import { AdminModule } from './Modules/admin/admin.module';
@@ -28,7 +27,6 @@ import { AdminModule } from './Modules/admin/admin.module';
     NoopAnimationsModule,
     BrowserAnimationsModule,
     CourseModule,
-    MessageModule,
     MeetingModule,
     ModeratorsModule,
     AdminModule,

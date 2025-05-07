@@ -50,7 +50,7 @@ def split_text(text, max_length=5000):
 
 def extract_vtt_segments(vtt_content):
     segments = []
-    lines = vtt_content.strip().split('\r\n')
+    lines = vtt_content.strip().splitlines()
     current_segment = []
 
     for line in lines:
@@ -64,7 +64,6 @@ def extract_vtt_segments(vtt_content):
         segments.append(current_segment)
 
     return segments
-
 
 def batch_translate(text_chunks, source_language, target_language):
     translator = GoogleTranslator(source=source_language, target=target_language)
