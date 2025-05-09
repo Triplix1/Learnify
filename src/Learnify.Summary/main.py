@@ -17,6 +17,7 @@ RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD")
 RABBITMQ_QUEUE = os.getenv("RABBITMQ_SUMMARIES_QUEUE")
 RABBITMQ_QUEUE_RESPONSE = os.getenv("RABBITMQ_SUMMARIES_QUEUE_RESPONSE")
 SUMMARIES_CONTAINER = os.getenv("SUMMARIES_CONTAINER")
+RABBITMQ_VIRTUAL_HOST = os.getenv("RABBITMQ_VIRTUAL_HOST")
 
 def publish_summary_generated_response(file_id, subtitle_blob_name):
 
@@ -99,7 +100,7 @@ def establish_rabbitmq_connection():
             global rabbit_mq_connection
             credentials = pika.PlainCredentials(RABBITMQ_USERNAME, RABBITMQ_PASSWORD)
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials, virtual_host="/")
+                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials, virtual_host=RABBITMQ_VIRTUAL_HOST)
             )
             rabbit_mq_connection = connection
             return

@@ -43,7 +43,7 @@ export class CreateSingleQuizComponent implements OnInit {
 
     this.initialState = { ...this.quizUpdateRequest };
 
-    if (this.quiz.question === "New question")
+    if (this.quiz.question === "Питання")
       this.editingMode = true;
 
     this.initializeForm(this.quiz);

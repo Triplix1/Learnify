@@ -7,7 +7,6 @@ import { CourseService } from 'src/app/Core/services/course.service';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
 import { CourseCreateRequest } from 'src/app/Models/Course/CourseCreateRequest';
-import { CourseResponse } from 'src/app/Models/Course/CourseResponse';
 import { CourseUpdateRequest } from 'src/app/Models/Course/CourseUpdateRequest';
 import { CourseUpdateResponse } from 'src/app/Models/Course/CourseUpdateResponse';
 import { LessonStepAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/LessonStepAddOrUpdateRequest';
@@ -238,10 +237,10 @@ export class CreateCourseComponent extends BaseComponent {
     this.courseResponse.isPublished = false;
   }
 
-  private handleCourseUpdate(courseResponse: CourseResponse) {
+  private handleCourseUpdate(courseResponse: CourseUpdateResponse) {
     this.courseId = courseResponse.id;
     this.courseResponse = courseResponse;
-    this.editingMode = courseResponse.isPublished;
+    this.editingMode = !courseResponse.isPublished || !courseResponse.video || !courseResponse.photo;
     this.paragraphs = courseResponse.paragraphs;
 
     this.photoSetted = courseResponse.photo !== null && courseResponse.photo !== undefined;
@@ -256,7 +255,7 @@ export class CreateCourseComponent extends BaseComponent {
   private initializeForm() {
     this.courseForm = this.fb.group({
       name: [this.courseResponse?.name ?? '', [Validators.required]],
-      description: [this.courseResponse?.description ?? '', [Validators.required]],
+      description: [this.courseResponse?.description ?? '', [Validators.required, Validators.minLength(100)]],
       price: [this.courseResponse?.price ?? '', [Validators.required, Validators.pattern('^\d+$')]],
       language: this.courseResponse?.primaryLanguage ? Language[this.courseResponse.primaryLanguage as keyof typeof Language] : Language.English,
     });

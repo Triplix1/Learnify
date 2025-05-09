@@ -25,6 +25,12 @@ export class HomeComponent extends BaseComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.route.queryParams.pipe(takeUntil(this.destroySubject)).subscribe(_ => this.initializeComponent());
+
+    this.initializeComponent();
+  }
+
+  initializeComponent() {
     this.courseParams = this.courseParamsDeepLinkingService.getCourseParams();
 
     this.courseService.getCourseTitles(this.courseParams).pipe(take(1), takeUntil(this.destroySubject)).subscribe(r => this.courseTitles = r.data);

@@ -5,21 +5,21 @@
                      [linear]="true"
                      class="mb-4">
 
-            <app-step label="Course"
+            <app-step label="Курс"
                       [completed]="courseId !== null && courseId !== undefined">
                 <div class="bg-gray-900 p-4 rounded-lg mb-3">
                     <div class="mb-1">
-                        <div class="text-textInput flex ml-4">Step 1 - General info</div>
+                        <div class="text-textInput flex ml-4">Крок 1 - Загальна інофрмація</div>
                     </div>
 
                     <div class="grid w-full grid-cols-2 gap-4 mb-3">
                         <app-input [formControl]="$any(courseForm.controls['name'])"
-                                   placeholder="Name"
-                                   label="Name"></app-input>
+                                   placeholder="Назва"
+                                   label="Назва"></app-input>
 
-                        <app-input placeholder="Price"
+                        <app-input placeholder="Ціна"
                                    [formControl]="$any(courseForm.controls['price'])"
-                                   label="Price"></app-input>
+                                   label="Ціна"></app-input>
                     </div>
 
                     <div class="grid grid-cols-3 gap-4 mb-4">
@@ -31,8 +31,8 @@
                     <div class="mb-4">
                         <app-textarea [maxRows]="30"
                                       [formControl]="$any(courseForm.controls['description'])"
-                                      label="Description"
-                                      placeholder="This cource was developed to..."></app-textarea>
+                                      label="Опис"
+                                      placeholder="Цей курс призначений для..."></app-textarea>
                     </div>
 
                     <div *ngIf="courseForm.dirty"
@@ -41,7 +41,7 @@
                             <app-button [disabled]="!courseForm.dirty"
                                         type="accept"
                                         (buttonClick)="saveChanges()">
-                                Save
+                                Зберегти
                             </app-button>
 
                             <app-button *ngIf="courseId"
@@ -49,7 +49,7 @@
                                         [disabled]="!courseForm.dirty"
                                         type="cancel"
                                         (buttonClick)="cancelChanges()">
-                                Cancel
+                                Відміна
                             </app-button>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
                 <div *ngIf="courseId"
                      class="bg-gray-900 p-4 rounded-lg mb-3">
                     <div class="mb-1">
-                        <div class="text-textInput ml-4">Step 2 - Main photo</div>
+                        <div class="text-textInput ml-4">Крок 2 - Фото картки</div>
 
                         <div class="w-full">
                             <div class="w-full flex justify-center h-fit">
@@ -92,7 +92,7 @@
                 <div *ngIf="courseResponse?.photo || courseResponse?.video"
                      class="bg-gray-900 p-4 rounded-lg mb-3">
                     <div class="mb-1">
-                        <div class="text-textInput ml-4">Step 3 - Small intro</div>
+                        <div class="text-textInput ml-4">Крок 3 - Вступ</div>
 
                         <div class="w-full">
                             <div class="w-full flex justify-center h-fit">
@@ -120,17 +120,17 @@
                     <app-button *ngIf="courseResponse && photoSetted && videoSetted && !courseResponse.isPublished"
                                 [disabled]="courseResponse === null || courseResponse === undefined"
                                 (buttonClick)="publish(true)">
-                        Publish
+                        Опублікувати
                     </app-button>
 
                     <app-button *ngIf="courseResponse?.isPublished"
                                 (buttonClick)="publish(false)">
-                        Unpublish
+                        Приховати
                     </app-button>
                 </div>
             </app-step>
 
-            <app-step label="Paragraph"
+            <app-step label="Розділи"
                       [completed]="!!currentLessonEditing">
                 <div *ngIf="courseResponse"
                      class="bg-gray-900 p-4 rounded-lg mb-4">
@@ -161,7 +161,7 @@
             </app-step>
 
             <app-step #lessonTab
-                      label="Lesson">
+                      label="Урок">
                 <app-create-lesson *ngIf="currentLessonEditing"
                                    [currentLessonEditing]="currentLessonEditing"
                                    [courseId]="courseId"

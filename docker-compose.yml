@@ -5,6 +5,7 @@
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VIRTUAL_HOST}
     ports:
       - 5672:5672
       - 15672:15672
@@ -43,7 +44,7 @@
       - postgres_data:/var/lib/postgresql/data/
   
   learnify.api:
-    image: ${DOCKER_REGISTRY-}learnify.api
+    image: ${DOCKER_REGISTRY-}learnify.api:latest
     build:
       context: .
       dockerfile: src/Learnify/Learnify.Api/Dockerfile
@@ -54,6 +55,7 @@
     environment:
       - ASPNETCORE_URLS=http://*:80
       - AllowedOrigins=${AllowedOrigins}
+      - AllowedHosts=${AllowedHosts}
       - BlobStorageSettings__ConnectionString=${AZURE_CONNECTION_STRING}
       - GoogleAuthSettings__ClientId=${GoogleAuthSettingsClientId}
       - GoogleAuthSettings__ClientSecret=${GoogleAuthSettingsClientSecret}
@@ -76,6 +78,7 @@
       - EncryptionOptions__Key=${Encryption_Key}
       - EncryptionOptions__IV=${Encryption_IV}
       - RabbitMq__Host=${RABBITMQ_HOST}
+      - RabbitMq__VirtualHost=${RABBITMQ_VIRTUAL_HOST}
       - StripeOptions__PublicKey=${StripeOptions_PublicKey}
       - StripeOptions__SecretKey=${StripeOptions_SecretKey}
       - StripeOptions__WHSecret=${StripeOptions_WHSecret}
@@ -86,26 +89,28 @@
     ports:
       - "5000:80"
         
-#  learnify.subtitles:
-#    image: ${DOCKER_REGISTRY-}learnify.subtitles
-#    build:
-#      context: ./src/Learnify.Subtitles
-#      dockerfile: Dockerfile
-#    depends_on:
-#      - rabbitmq
-#    environment:
-#      - AZURE_CONNECTION_STRING=${AZURE_CONNECTION_STRING}
-#      - RABBITMQ_HOST=${RABBITMQ_HOST}
-#      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
-#      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
-#      - RABBITMQ_SUBTITLES_QUEUE=${RABBITMQ_SUBTITLES_QUEUE}
-#      - RABBITMQ_SUBTITLES_QUEUE_RESPONSE=${RABBITMQ_SUBTITLES_QUEUE_RESPONSE}
-#      - SUBTITLES_CONTAINER=${SUBTITLES_CONTAINER}
-#    ports:
-#      - "5001:80"
+  learnify.subtitles:
+    image: ${DOCKER_REGISTRY-}learnify.subtitles
+    build:
+      context: ./src/Learnify.Subtitles
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      - AZURE_CONNECTION_STRING=${AZURE_CONNECTION_STRING}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_SUBTITLES_QUEUE=${RABBITMQ_SUBTITLES_QUEUE}
+      - RABBITMQ_SUBTITLES_QUEUE_RESPONSE=${RABBITMQ_SUBTITLES_QUEUE_RESPONSE}
+      - SUBTITLES_CONTAINER=${SUBTITLES_CONTAINER}
+      - RABBITMQ_VIRTUAL_HOST=${RABBITMQ_VIRTUAL_HOST}
+      - ASSEMBLYAI_API_KEY=${ASSEMBLYAI_API_KEY}
+    ports:
+      - "5001:80"
         
   learnify.translate:
-    image: ${DOCKER_REGISTRY-}learnify.translate
+    image: ${DOCKER_REGISTRY-}learnify.translate:latest
     build:
       context: ./src/Learnify.Translate
       dockerfile: Dockerfile
@@ -118,11 +123,12 @@
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - RABBITMQ_TRANSLATE_QUEUE=${RABBITMQ_TRANSLATE_QUEUE}
       - RABBITMQ_TRANSLATE_QUEUE_RESPONSE=${RABBITMQ_TRANSLATE_QUEUE_RESPONSE}
+      - RABBITMQ_VIRTUAL_HOST=${RABBITMQ_VIRTUAL_HOST}
     ports:
       - "5002:80"
 
   learnify.summary:
-    image: ${DOCKER_REGISTRY-}learnify.summary
+    image: ${DOCKER_REGISTRY-}learnify.summary:latest
     build:
       context: ./src/Learnify.Summary
       dockerfile: Dockerfile
@@ -137,11 +143,12 @@
       - RABBITMQ_SUMMARIES_QUEUE_RESPONSE=${RABBITMQ_SUMMARIES_QUEUE_RESPONSE}
       - SUMMARIES_CONTAINER=${SUMMARIES_CONTAINER}
       - GEMINI_KEY=${GEMINI_KEY}
+      - RABBITMQ_VIRTUAL_HOST=${RABBITMQ_VIRTUAL_HOST}
     ports:
       - "5003:80"
 
   learnify.client:
-    image: ${DOCKER_REGISTRY-}learnify.client
+    image: ${DOCKER_REGISTRY-}learnify.client:latest
     build:
       context: ./front/client
       dockerfile: Dockerfile
@@ -154,16 +161,7 @@
       - PaymentCancelUrl=${PaymentCancelUrl}
       - VonageApplicationId=${Vonage_Application_Id}
     ports:
-      - "4200:80"
-
-
-#  storageemulator:
-#    image: mcr.microsoft.com/azure-storage/azurite
-#    hostname: azurite
-#    restart: always
-#    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10000"
-#    ports:
-#      - "10000:10000"
+      - "4201:80"
 
 volumes:
   postgres_data:

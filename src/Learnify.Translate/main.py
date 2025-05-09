@@ -14,6 +14,7 @@ RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME")
 RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD")
 RABBITMQ_QUEUE = os.getenv("RABBITMQ_TRANSLATE_QUEUE")
 RABBITMQ_QUEUE_RESPONSE = os.getenv("RABBITMQ_TRANSLATE_QUEUE_RESPONSE")
+RABBITMQ_VIRTUAL_HOST = os.getenv("RABBITMQ_VIRTUAL_HOST")
 
 def publish_translated_response(file_id, content_type, file_container_name, file_blob_name):
 
@@ -104,7 +105,7 @@ def establish_rabbitmq_connection():
             print(f"Adjusting the RabbitMq connection")
             credentials = pika.PlainCredentials(RABBITMQ_USERNAME, RABBITMQ_PASSWORD)
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials, virtual_host="/")
+                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials, virtual_host=RABBITMQ_VIRTUAL_HOST)
             )
             rabbit_mq_connection = connection
             return

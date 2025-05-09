@@ -20,7 +20,7 @@ export class CreateQuizComponent implements OnInit {
   }
 
   addQuiz(): void {
-    this.quizzes.push({ answers: { correctAnswer: 0, options: [""] }, question: "New question", id: null });
+    this.quizzes.push({ answers: { correctAnswer: 0, options: [""] }, question: "Питання", id: null });
   }
 
   quizDeleted(quizDeletedData: QuizDeleted) {

@@ -4,9 +4,9 @@ import time
 
 import pika
 
+from Services.assemblyService import generate_subtitles
 from Services.audioService import extract_audio
 from Services.blobService import download_video_from_blob, upload_to_blob
-from Services.subtitlesService import generate_subtitles
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,6 +16,7 @@ RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME")
 RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD")
 RABBITMQ_QUEUE = os.getenv("RABBITMQ_SUBTITLES_QUEUE")
 RABBITMQ_QUEUE_RESPONSE = os.getenv("RABBITMQ_SUBTITLES_QUEUE_RESPONSE")
+RABBITMQ_VIRTUAL_HOST = os.getenv("RABBITMQ_VIRTUAL_HOST")
 
 SUBTITLES_CONTAINER = os.getenv("SUBTITLES_CONTAINER")
 
@@ -58,6 +59,10 @@ def publish_subtitles_generated_response(lesson_id, subtitle_id, subtitle_blob_n
         print(f"Error Publishing to RabbitMQ: {str(e)}")
 
 def process_video_message(message):
+    video_path = None
+    audio_path = None
+    subtitles = None
+
     try:
         msg_data = json.loads(message)
 
@@ -78,15 +83,12 @@ def process_video_message(message):
         audio_path = extract_audio(video_path)
 
         print(f"Generating primary subtitles in {subtitle_info['language']}...")
-        original_srt, segments = generate_subtitles(audio_path, subtitle_info["language"])
+        # original_srt, segments = generate_subtitles(audio_path, subtitle_info["language"])
 
-        subtitle_blob_name = video_blob_name + f"_{subtitle_info['language']}.vtt"
+        subtitles = generate_subtitles(audio_path, subtitle_info["language"])
+        subtitle_blob_name = video_blob_name + f"_{lesson_id}" + f"_{subtitle_info['language']}.vtt"
 
-        upload_to_blob(SUBTITLES_CONTAINER, original_srt, subtitle_blob_name)
-
-        os.remove(video_path)
-        os.remove(audio_path)
-        os.remove(original_srt)
+        upload_to_blob(SUBTITLES_CONTAINER, subtitles, subtitle_blob_name)
 
         publish_subtitles_generated_response(lesson_id, subtitle_info["id"], subtitle_blob_name)
 
@@ -94,6 +96,15 @@ def process_video_message(message):
 
     except Exception as e:
         print(f"Error processing video message: {str(e)}")
+
+    finally:
+        for file_path in [video_path, audio_path, subtitles]:
+            if file_path and os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                    print(f"Deleted temp file: {file_path}")
+                except Exception as err:
+                    print(f"Failed to delete {file_path}: {err}")
 
 def rabbitmq_callback(ch, method, properties, body):
     print("Received message from RabbitMQ")
@@ -111,7 +122,7 @@ def establish_rabbitmq_connection():
         try:
             credentials = pika.PlainCredentials(RABBITMQ_USERNAME, RABBITMQ_PASSWORD)
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials, virtual_host="/")
+                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials, virtual_host=RABBITMQ_VIRTUAL_HOST)
             )
             rabbitmq_connection = connection
             return

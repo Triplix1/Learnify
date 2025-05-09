@@ -90,7 +90,7 @@ public class CourseService : ICourseService
     public async Task<CourseMainInfoResponse> GetMainInfoResponseAsync(int courseId, int userId,
         CancellationToken cancellationToken = default)
     {
-        var includes = new[] { nameof(Course.Paragraphs), nameof(Course.Video) };
+        var includes = new[] { nameof(Course.Paragraphs), nameof(Course.Video), nameof(Course.Author) };
 
         var course = await _psqUnitOfWork.CourseRepository.GetByIdAsync(courseId, includes, cancellationToken);
 
@@ -134,6 +134,17 @@ public class CourseService : ICourseService
         return courseResponse;
     }
 
+    public async Task<CourseUpdateResponse> GetForUpdateAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var includes = new[] { nameof(Course.Paragraphs), nameof(Course.Video), nameof(Course.Photo) };
+
+        var course = await _psqUnitOfWork.CourseRepository.GetByIdAsync(id, includes, cancellationToken);
+
+        var courseResponse = _mapper.Map<CourseUpdateResponse>(course);
+
+        return courseResponse;
+    }
+
     public async Task PublishAsync(PublishCourseRequest publishCourseRequest, int userId,
         CancellationToken cancellationToken = default)
     {
@@ -157,6 +168,11 @@ public class CourseService : ICourseService
     public async Task<CourseUpdateResponse> CreateAsync(CourseCreateRequest courseCreateRequest, int userId,
         CancellationToken cancellationToken = default)
     {
+        var validationErrors = ValidateBeforeUpdate(courseCreateRequest);
+
+        if (validationErrors.Count > 0)
+            throw new CompositeException(validationErrors);
+        
         var course = _mapper.Map<Course>(courseCreateRequest);
         course.AuthorId = userId;
         course.IsPublished = false;

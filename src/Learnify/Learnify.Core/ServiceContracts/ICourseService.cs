@@ -11,6 +11,8 @@ namespace Learnify.Core.ServiceContracts;
 /// </summary>
 public interface ICourseService
 {
+    Task<CourseResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<CourseUpdateResponse> GetForUpdateAsync(int id, CancellationToken cancellationToken = default);
     Task<PagedList<CourseTitleResponse>> GetAllCourseTitles(CourseParams courseParams,
         CancellationToken cancellationToken = default);
     Task<PagedList<CourseTitleResponse>> GetMyCourseTitles(int userId, CourseParams courseParams,
@@ -23,7 +25,6 @@ public interface ICourseService
         CancellationToken cancellationToken = default);
     Task<CourseStudyResponse> GetCourseStudyResponseAsync(int courseId, int userId,
         CancellationToken cancellationToken = default);
-    Task<CourseResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     Task<CourseUpdateResponse> CreateAsync(CourseCreateRequest courseCreateRequest, int userId,
         CancellationToken cancellationToken = default);

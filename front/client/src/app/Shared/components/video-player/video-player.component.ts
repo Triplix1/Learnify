@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MediaService } from 'src/app/Core/services/media.service';
 import { SubtitlesService } from 'src/app/Core/services/subtitles.service';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
@@ -10,7 +10,7 @@ import { SubtitlesSelected } from 'src/app/Models/Course/Lesson/Subtitle/Subtitl
   templateUrl: './video-player.component.html',
   styleUrls: ['./video-player.component.scss']
 })
-export class VideoPlayerComponent extends BaseComponent implements AfterViewInit {
+export class VideoPlayerComponent extends BaseComponent implements AfterViewInit, OnChanges {
   @Input({ required: true }) fileId: number;
   @Input() classList: string;
   @Input() availableSubtitles: SubtitlesResponse[] = [];
@@ -26,6 +26,11 @@ export class VideoPlayerComponent extends BaseComponent implements AfterViewInit
 
   constructor(private readonly subtitlesService: SubtitlesService) {
     super();
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['fileId']) {
+      this.reloadVideo();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -64,6 +69,13 @@ export class VideoPlayerComponent extends BaseComponent implements AfterViewInit
   onVideoError(event: ErrorEvent): void {
     this.error = 'Error loading video: ' + event.message;
   }
+
+  reloadVideo() {
+    if (this.videoPlayer && this.videoPlayer.nativeElement) {
+      this.videoPlayer.nativeElement.load();
+    }
+  }
+
 
   getSrclang(language: string) {
     language = language.toLowerCase();

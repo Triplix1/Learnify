@@ -20,7 +20,6 @@ import { PrivateFileBlobCreateRequest } from 'src/app/Models/File/PrivateFileBlo
 import { PrivateFileDataResponse } from 'src/app/Models/File/PrivateFileDataResponse';
 import { AcceptDialogComponent } from 'src/app/Shared/components/accept-dialog/accept-dialog.component';
 import { ConfirmDialogComponent } from 'src/app/Shared/components/confirm-dialog/confirm-dialog.component';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-create-lesson',
@@ -155,7 +154,7 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '450px',
       data: {
-        title: "Are you sure you whant save your changes?"
+        title: "Ви впевнені що хочете зберегти зміни?"
       }
     });
 
@@ -181,27 +180,28 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
   }
 
   cancel() {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '450px',
-      data: {
-        title: "Are you sure you whant to cancel all changes that were done?"
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.lessonService.deleteLesson(this.lessonResponse.id).pipe(take(1), switchMap(_ => {
-          if (this.initialLessonId)
-            return this.lessonService.getLessonForUpdateById(this.initialLessonId)
-          return of(null)
+    if (this.lessonResponse.originalLessonId) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: '450px',
+        data: {
+          title: "Ви впевнені що хочете відмінити внесені зміни?"
         }
-        )).subscribe(response => {
-          if (response)
-            this.handleLessonUpdate(response.data);
-        });
-      }
-    });
+      });
 
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.lessonService.deleteLesson(this.lessonResponse.id).pipe(take(1), switchMap(_ => {
+            if (this.initialLessonId)
+              return this.lessonService.getLessonForUpdateById(this.initialLessonId)
+            return of(null)
+          }
+          )).subscribe(response => {
+            if (response)
+              this.handleLessonUpdate(response.data);
+          });
+        }
+      });
+    }
   }
 
   private prepareLessonToUpdateDto(): LessonAddOrUpdateRequest {

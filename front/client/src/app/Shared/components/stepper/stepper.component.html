@@ -19,7 +19,7 @@
 <div *ngIf="!disableButtons"
      class="stepper-navigation">
     <button (click)="previous()"
-            [disabled]="currentStepIndex === 0">Back</button>
+            [disabled]="currentStepIndex === 0">Назад</button>
     <button (click)="next()"
-            [disabled]="!canGoNext()">Next</button>
+            [disabled]="!canGoNext()">Вперед</button>
 </div>

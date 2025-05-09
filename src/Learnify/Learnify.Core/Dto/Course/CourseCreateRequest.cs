@@ -1,8 +1,9 @@
-﻿using Learnify.Core.Enums;
+﻿using Learnify.Core.Dto.Course.Interfaces;
+using Learnify.Core.Enums;
 
 namespace Learnify.Core.Dto.Course;
 
-public class CourseCreateRequest
+public class CourseCreateRequest: ICourseUpdatable
 {
     public string Name { get; set; }
 

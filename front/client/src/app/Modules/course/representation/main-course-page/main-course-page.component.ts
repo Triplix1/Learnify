@@ -45,7 +45,9 @@ export class MainCoursePageComponent extends BaseComponent implements OnInit {
         },
       });
     }
-    this.paymentService.requestMemberSession(this.courseId);
+    else {
+      this.paymentService.requestMemberSession(this.courseId);
+    }
   }
 
   goToTheCourse() {

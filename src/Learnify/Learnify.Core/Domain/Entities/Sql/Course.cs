@@ -19,6 +19,7 @@ public class Course: BaseEntity<int>, ICourseUpdatable
     public PrivateFileData Photo { get; set; }
     [ForeignKey(nameof(VideoId))]
     public PrivateFileData Video { get; set; }
+    public User Author { get; set; }
 
     public ICollection<Paragraph> Paragraphs { get; set; }
     public ICollection<UserBought> UserBoughts { get; set; }

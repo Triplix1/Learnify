@@ -3,6 +3,7 @@ import { ParagraphResponse } from "./Paragraph/ParagraphResponse";
 
 export class CourseMainInfo {
     authorId: number;
+    author: string;
     name: string;
     description: string;
     price: number

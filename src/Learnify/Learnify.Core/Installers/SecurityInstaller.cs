@@ -38,17 +38,19 @@ public class SecurityInstaller: IInstaller
                 };
 
             });
-        
+
+        var allowedOrigins = config.GetSection("AllowedOrigins").Get<string>()?.Split(';') ?? new string[] { };
+
         services
             .AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
                     policy
-                        .WithOrigins(config.GetSection("AllowedOrigins").Get<string>()?.Split(';') ?? new string[] { })
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
+                    .WithOrigins(allowedOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
                 });
             });
     }

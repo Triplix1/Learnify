@@ -45,6 +45,15 @@
                         Edit admins</a>
                 </div> -->
 
+                <div class="mr-4">
+                    <app-input [hiddenError]="true"
+                               [hiddenLabel]="true"
+                               classList="w-32"
+                               (keyup.enter)="search()"
+                               [formControl]="$any(searchForm.controls['search'])"
+                               label="Пошук"
+                               placeholder="Пошук"></app-input>
+                </div>
                 <div class="mr-4 flex justify-center items-center">
                     <button class="h-full flex items-center"
                             (click)="switchTheme()">
@@ -76,7 +85,6 @@
                                   [items]="dropdownItems"><mat-icon style="font-size: 35px;"
                                   class="text-dropdown text-8xl"
                                   inline="true">account_circle</mat-icon></app-dropdown>
-
                 </div>
             </div>
         </div>

@@ -17,6 +17,7 @@ import { OrderParamsService } from './order-params.service';
 import { CourseMainInfo } from 'src/app/Models/Course/CourseMainInfo';
 import { CourseStudyResponse } from 'src/app/Models/Course/CourseStudyResponse';
 import { PublishCourseRequest } from 'src/app/Models/Course/PublishCourseRequest';
+import { CourseUpdateResponse } from 'src/app/Models/Course/CourseUpdateResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -48,8 +49,8 @@ export class CourseService {
   }
 
 
-  getForUpdate(id: number): Observable<ApiResponseWithData<CourseResponse>> {
-    return this.httpClient.get<ApiResponseWithData<CourseResponse>>(this.baseCourseUrl + "/" + id);
+  getForUpdate(id: number): Observable<ApiResponseWithData<CourseUpdateResponse>> {
+    return this.httpClient.get<ApiResponseWithData<CourseUpdateResponse>>(this.baseCourseUrl + "/for-update/" + id);
   }
 
   getStudyResponse(id: number): Observable<ApiResponseWithData<CourseStudyResponse>> {

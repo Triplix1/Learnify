@@ -9,10 +9,11 @@ public class SearchCourseSpecification: Specification<Domain.Entities.Sql.Course
     
     public SearchCourseSpecification(string searchString)
     {
-        SearchString = searchString;
+        SearchString = searchString.ToLower();
     }
     public override Expression<Func<Domain.Entities.Sql.Course, bool>> GetExpression()
     {
-        return course => course.Name.Contains(SearchString);
+        return course => course.Name.ToLower().Contains(SearchString) || course.Author.Name.ToLower().Contains(SearchString) ||
+                         course.Author.Surname.ToLower().Contains(SearchString);
     }
 }

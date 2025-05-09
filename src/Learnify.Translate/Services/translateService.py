@@ -52,13 +52,16 @@ def extract_vtt_segments(vtt_content):
     segments = []
     lines = vtt_content.strip().splitlines()
     current_segment = []
-
+    i = 0
     for line in lines:
-        if re.match(r'^[0-9]+$', line) or re.match(r'^[0-9]+:[0-9]+:[0-9]+', line):
+
+        if i % 3 == 2:
             if current_segment:
                 segments.append(current_segment)
                 current_segment = []
         current_segment.append(line)
+
+        i += 1
 
     if current_segment:
         segments.append(current_segment)
@@ -82,7 +85,7 @@ def translate(content, source_language, target_language, content_type):
         timestamps = []
 
         for segment in segments[1:]:
-            timestamp = segment[0] if re.match(r'^[0-9]+:[0-9]+:[0-9]+', segment[0]) else None
+            timestamp = segment[0] if not re.match('WEBVTT', segment[0]) else None
             text = ' '.join(segment[1:]) if timestamp else ' '.join(segment)
             text_chunks.append(text)
             timestamps.append(timestamp)

@@ -47,7 +47,8 @@ public class MappingProfiles : Profile
             .ForMember(c => c.Title, c => c.MapFrom(cr => cr.Name));
         CreateMap<Course, CourseStudyResponse>();
         CreateMap<Course, CourseMainInfoResponse>()
-            .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));
+            .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()))
+            .ForMember(c => c.Author, c => c.MapFrom(cr => cr.Author.Name + " " + cr.Author.Surname));
         CreateMap<Course, CourseResponse>()
             .ForMember(c => c.PrimaryLanguage, c => c.MapFrom(cr => cr.PrimaryLanguage.ToString()));
         CreateMap<Course, CourseUpdateResponse>()

@@ -3,8 +3,8 @@
 
        <div>
               <app-input [formControl]="$any(lessonForm.controls['title'])"
-                         placeholder="Title"
-                         label="Title"
+                         placeholder="Назва"
+                         label="Назва"
                          (changedInput)="handleUpdateOfTitle()"></app-input>
        </div>
 
@@ -29,7 +29,7 @@
               <app-video-player classList="my-3 rounded-lg"
                                 [fileId]="lessonResponse.video.attachment.fileId"
                                 [availableSubtitles]="lessonResponse.video.subtitles"></app-video-player>
-              <app-button (buttonClick)="dropVideo()">Drop File</app-button>
+              <app-button (buttonClick)="dropVideo()">Очистити</app-button>
        </div>
 
        <ng-template #mediaNotExists>
@@ -55,10 +55,11 @@
 
               <div class="flex items-center justify-center mt-2">
                      <app-button class="mr-3"
-                                 (buttonClick)="save()">Save</app-button>
-                     <app-button type="cancel"
+                                 (buttonClick)="save()">Зберегти</app-button>
+                     <app-button *ngIf="lessonResponse.originalLessonId"
+                                 type="cancel"
                                  classList="rounded-lg"
-                                 (buttonClick)="cancel()">Cancel</app-button>
+                                 (buttonClick)="cancel()">Відмінити</app-button>
               </div>
 
        </div>

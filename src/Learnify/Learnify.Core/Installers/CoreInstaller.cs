@@ -77,7 +77,7 @@ public class CoreInstaller: IInstaller
                     r.Interval(5, TimeSpan.FromSeconds(10));
                 });
 
-                cfg.Host(config["RabbitMq:Host"], "/", host =>
+                cfg.Host(config["RabbitMq:Host"], config["RabbitMq:VirtualHost"], host =>
                 {
                     host.Username(config.GetSection("RabbitMq:Username").Value ?? "guest");
                     host.Password(config.GetSection("RabbitMq:Password").Value ?? "guest");

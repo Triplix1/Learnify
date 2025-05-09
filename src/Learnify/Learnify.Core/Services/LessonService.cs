@@ -430,7 +430,7 @@ public class LessonService : ILessonService
             {
                 if (oldLesson.Video is not null)
                 {
-                    if (oldLesson.OriginalLessonId is not null && !draft)
+                    if (oldLesson.OriginalLessonId is not null)
                     {
                         var originalLesson =
                             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(oldLesson.OriginalLessonId,
@@ -442,6 +442,9 @@ public class LessonService : ILessonService
                         var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
 
                         await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
+                        
+                        if(oldLesson.Video.Attachment.FileId != originalLesson.Video.Attachment.FileId)
+                            await _privateFileService.DeleteAsync(oldLesson.Video.Attachment.FileId, cancellationToken);
                     }
                 }
 
@@ -464,9 +467,9 @@ public class LessonService : ILessonService
                     oldLesson.Video.Subtitles.Where(s =>
                         !primaryLanguageEquals || !lessonAddOrUpdateRequest.Video.Subtitles.Contains(s.Language));
 
-                var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
+                var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId).ToArray();
 
-                if (subtitlesDiffIds.Any())
+                if (subtitlesDiffIds.Length > 0)
                 {
                     if (!draft)
                         await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
@@ -484,6 +487,13 @@ public class LessonService : ILessonService
                 var newSubtitlesLanguages = lessonAddOrUpdateRequest.Video.Subtitles.Where(l =>
                     !primaryLanguageEquals || !oldLesson.Video.Subtitles.Select(s => s.Language).Contains(l)).ToArray();
 
+                if (!primaryLanguageEquals)
+                {
+                    updatedLesson.Video.SummaryFileId =
+                        await _summaryManager.GenerateSummaryForVideoAsync(fileDataBlobResponse, courseId,
+                            updatedLesson.PrimaryLanguage);
+                }
+                
                 if (newSubtitlesLanguages.Length > 0)
                 {
                     if (!primaryLanguageEquals)
@@ -523,8 +533,7 @@ public class LessonService : ILessonService
                                 primaryLanguageSubtitleReference.SubtitleId, cancellationToken);
 
                         // Otherwise it will be translated automatically after receiving primary subtitle
-                        if (primaryLanguageSubtitleFile?.ContainerName != null &&
-                            primaryLanguageSubtitleFile?.ContainerName != null)
+                        if (primaryLanguageSubtitleFile?.ContainerName is not null)
                         {
                             var newSubtitlesIds = newSubtitles.Select(s => s.Id);
 
@@ -595,9 +604,6 @@ public class LessonService : ILessonService
                     await _mongoUnitOfWork.Lessons.UpdateAsync(relatedLesson, cancellationToken);
                 }
             }
-
-            await _psqUnitOfWork.PrivateFileRepository.DeleteRangeAsync(lessonToDelete.Attachments,
-                cancellationToken);
 
             if (!lessonToDelete.IsDraft)
             {

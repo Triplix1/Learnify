@@ -8,13 +8,28 @@
             <app-media classList="rounded-sm max-h-96 max-w-full"
                        [fileId]="courseMainInfo.video.id"
                        [contentType]="courseMainInfo.video.contentType"></app-media>
-
         </div>
 
         <div class="mt-4">
 
             <div class="p-1 flex content-center ">
-                <h2 class="ml-5">Description</h2>
+                <h2 class="ml-5">Автор:</h2>
+            </div>
+
+            <div class="p-1 break-words">
+                {{courseMainInfo.author}}
+            </div>
+
+            <div class="p-1 flex content-center ">
+                <h2 class="ml-5">Мова:</h2>
+            </div>
+
+            <div class="p-1 break-words">
+                {{courseMainInfo.primaryLanguage}}
+            </div>
+
+            <div class="p-1 flex content-center ">
+                <h2 class="ml-5">Опис:</h2>
             </div>
 
             <div class="p-1 break-words">
@@ -22,7 +37,7 @@
             </div>
 
             <div class="mt-4 p-1 flex content-center">
-                <h2 class="ml-5">Course topics</h2>
+                <h2 class="ml-5">Розділи курсу:</h2>
             </div>
 
             <div class="p-1">
@@ -37,15 +52,15 @@
     <div class="mt-4 flex flex-col justify-center items-center">
         <app-action-section *ngIf="!courseMainInfo.userHasBoughtThisCourse; else userHasBoughtThisCourse"
                             classList="p-10">
-            <div>Price: {{courseMainInfo.price}}$</div>
+            <div>Ціна: {{courseMainInfo.price}}$</div>
 
             <app-button class="mt-3"
-                        (buttonClick)="completePayment()">Buy!</app-button>
+                        (buttonClick)="completePayment()">Купити!</app-button>
 
         </app-action-section>
         <ng-template #userHasBoughtThisCourse>
             <app-action-section classList="p-8">
-                <app-button (buttonClick)="goToTheCourse()">GoToTheCourse</app-button>
+                <app-button (buttonClick)="goToTheCourse()">До навчання!</app-button>
 
             </app-action-section>
 

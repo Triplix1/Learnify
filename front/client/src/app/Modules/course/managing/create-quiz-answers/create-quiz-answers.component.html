@@ -4,11 +4,11 @@
                  [name]="'loadingAnswers'+ this.quizId"
                  type='ball-clip-rotate'></ngx-spinner>
 
-    <div *ngFor="let answer of answersResponse.options; let index = index"
-         class="flex justify-between w-full mb-2 bg-quizAnswerSection">
+    <div class="w-full flex flex-col justify-between">
 
         <!-- Input for editing -->
-        <app-create-quiz-option class="w-full"
+        <app-create-quiz-option *ngFor="let answer of answersResponse.options; let index = index"
+                                class="w-full mb-2"
                                 [answer]="answer"
                                 [isCorrect]="answersResponse.correctAnswer === index"
                                 (answerChange)="updateAnser($event, index)"
@@ -22,7 +22,7 @@
         <div class="flex">
             <div class="flex justify-center items-center w-[30px] h-[30px] rounded-full mr-2 opacity-60 bg-main">
                 +</div>
-            <div>Answer</div>
+            <div>Відповідь</div>
         </div>
     </app-button>
 </div>

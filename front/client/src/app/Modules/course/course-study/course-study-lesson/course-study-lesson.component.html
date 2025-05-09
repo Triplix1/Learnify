@@ -17,13 +17,13 @@
         </div>
         <div class="lesson-content flex justify-start">
             <mat-tab-group class="w-full">
-                <mat-tab label="Text">
+                <mat-tab label="Текст">
                     <div class="mt-4">
                         <div class="text-textInput">{{subtitleText}}</div>
                     </div>
                 </mat-tab>
                 <mat-tab *ngIf="lesson.video?.summaryFileId"
-                         label="Summary">
+                         label="Зміст">
                     <div class="mt-4 relative w-full">
                         <ngx-spinner [fullScreen]="false"
                                      name="summaryLoading"
@@ -34,7 +34,7 @@
                 </mat-tab>
                 <mat-tab *ngIf="lesson.quizzes && lesson.quizzes.length > 0"
                          [disabled]="false"
-                         label="Quizzes">
+                         label="Тести">
                     <div class="mt-4">
                         <app-quizzes [lessonId]="lessonId"
                                      [quizzes]="lesson.quizzes"></app-quizzes>

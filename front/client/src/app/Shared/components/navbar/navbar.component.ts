@@ -7,6 +7,7 @@ import { DropdownItem } from 'src/app/Models/DropdownItem';
 import { UserType } from 'src/app/Models/enums/UserType';
 import { UserFromToken } from 'src/app/Models/UserFromToken';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-navbar',
@@ -20,31 +21,22 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   @Output() switchedTheme: EventEmitter<boolean> = new EventEmitter();
   userData: UserFromToken;
   isAdmin: boolean = false;
-  searchValue: string | null = null;
+  searchForm: FormGroup;
   adminRole = UserType.Admin;
   superAdminRole = UserType.SuperAdmin;
   teacherRole = UserType.Teacher;
 
-  get searchIcon() {
-    return `<span class="input-group-text border-0 bg-opacity-0"
-    id="search-addon">
-  <i class="fa fa-search text-white"
-     style="color: #ffffff;"></i>
-</span>`
-  }
-
-  constructor(private accountService: AuthService, private router: Router, private urlSerializer: UrlSerializer, private route: ActivatedRoute, private matIconRegistry: MatIconRegistry) {
+  constructor(private accountService: AuthService, private router: Router, private fb: FormBuilder) {
     super();
-    matIconRegistry.addSvgIconLiteral("search", `<span class="input-group-text border-0 bg-opacity-0"
-    id="search-addon">
-  <i class="fa fa-search text-white"
-     style="color: #ffffff;"></i>
-</span>`)
   }
 
   ngOnInit(): void {
     this.switchedTheme.emit(this.isDarkMode);
     this.initializeDropdown();
+
+    this.searchForm = this.fb.group(
+      { search: "" }
+    );
 
     this.accountService.userData$.subscribe(data => this.handleUserData(data));
   }
@@ -88,4 +80,19 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     localStorage.setItem(this.Theme, this.isDarkMode.toString());
     this.switchedTheme.emit(this.isDarkMode);
   }
+
+  search() {
+    if (this.searchForm.controls['search'].value) {
+      const value = this.searchForm.controls['search'].value;
+      this.searchForm.controls['search'].setValue('');
+
+      this.router.navigate(["/home"], {
+        queryParams: {
+          search: value,
+        },
+        replaceUrl: true
+      })
+    }
+  }
+
 }
