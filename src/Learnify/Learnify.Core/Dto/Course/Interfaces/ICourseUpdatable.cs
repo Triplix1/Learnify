@@ -1,4 +1,6 @@
-﻿namespace Learnify.Core.Dto.Course.Interfaces;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Learnify.Core.Dto.Course.Interfaces;
 
 public interface ICourseUpdatable
 {

@@ -49,7 +49,7 @@ export class CreateParagraphComponent extends BaseComponent implements OnChanges
   ngOnChanges(changes: SimpleChanges): void {
     const newLessonTitleUpdated = changes['lessonTitleUpdated']?.currentValue;
     if (newLessonTitleUpdated !== null && newLessonTitleUpdated !== undefined && newLessonTitleUpdated !== changes['lessonTitleUpdated'].previousValue) {
-      const valueToUpdateIndex = this.lessons.findIndex(l => l === null || l.id === newLessonTitleUpdated.id);
+      const valueToUpdateIndex = this.lessons.findIndex(l => l === null || l.id === newLessonTitleUpdated.id || l.id === newLessonTitleUpdated.originalLessonId);
 
       if (valueToUpdateIndex !== -1) {
         this.lessons[valueToUpdateIndex] = newLessonTitleUpdated;
@@ -62,6 +62,8 @@ export class CreateParagraphComponent extends BaseComponent implements OnChanges
         this.lessons = this.lessons.filter(l => l !== null);
       }
     }
+
+    this.lessons = this.lessons.sort((a, b) => a.title.localeCompare(b.title));
   }
 
   get lessonTitlesList() {
@@ -89,7 +91,7 @@ export class CreateParagraphComponent extends BaseComponent implements OnChanges
 
   initializeForm() {
     this.paragraphForm = this.fb.group({
-      name: [this.paragraphResponse?.name ?? '', [Validators.required]],
+      name: [this.paragraphResponse?.name ?? '', [Validators.required, Validators.maxLength(50)]],
     });
   }
 

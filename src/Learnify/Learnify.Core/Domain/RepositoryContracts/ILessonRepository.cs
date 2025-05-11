@@ -9,7 +9,7 @@ public interface ILessonRepository
     Task<string> GetLessonToUpdateIdForCurrentLessonAsync(string lessonId,
         CancellationToken cancellationToken = default);
     Task<IEnumerable<LessonTitleResponse>> GetLessonTitlesForParagraphAsync(int paragraphId, bool includeDrafts, CancellationToken cancellationToken = default);
-    Task<IEnumerable<Attachment>> GetAllAttachmentsForLessonAsync(string lessonId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<int>> GetAllAttachmentsForLessonAsync(string lessonId, CancellationToken cancellationToken = default);
     Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphAsync(int paragraphId, CancellationToken cancellationToken = default);
     Task<IEnumerable<Attachment>> GetAllAttachmentsForParagraphsAsync(IEnumerable<int> paragraphId, CancellationToken cancellationToken = default);
     Task<int> GetParagraphIdForLessonAsync(string lessonId, CancellationToken cancellationToken = default);

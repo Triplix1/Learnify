@@ -38,7 +38,7 @@
                     <div *ngIf="courseForm.dirty"
                          class="flex justify-end mr-4">
                         <div class=" flex">
-                            <app-button [disabled]="!courseForm.dirty"
+                            <app-button [disabled]="courseForm.invalid"
                                         type="accept"
                                         (buttonClick)="saveChanges()">
                                 Зберегти
@@ -46,7 +46,6 @@
 
                             <app-button *ngIf="courseId"
                                         classList="ml-3"
-                                        [disabled]="!courseForm.dirty"
                                         type="cancel"
                                         (buttonClick)="cancelChanges()">
                                 Відміна

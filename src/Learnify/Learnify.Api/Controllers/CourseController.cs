@@ -13,10 +13,13 @@ namespace Learnify.Api.Controllers;
 public class CourseController : BaseApiController
 {
     private ICourseService _courseService;
+    private IPublishingService _publishingService;
 
-    public CourseController(ICourseService courseService)
+    public CourseController(ICourseService courseService,
+        IPublishingService publishingService)
     {
         _courseService = courseService;
+        _publishingService = publishingService;
     }
 
     [HttpGet]
@@ -107,7 +110,7 @@ public class CourseController : BaseApiController
         CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        await _courseService.PublishAsync(publishCourseRequest, userId, cancellationToken);
+        await _publishingService.PublishCourseAsync(publishCourseRequest, userId, cancellationToken);
 
         return Ok();
     }

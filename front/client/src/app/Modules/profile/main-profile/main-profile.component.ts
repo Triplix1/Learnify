@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { switchMap, take, takeUntil } from 'rxjs';
+import { lettersOnlyValidator } from 'src/app/Core/helpers/lettersOnlyValidator';
 import { AuthService } from 'src/app/Core/services/auth.service';
 import { ProfileService } from 'src/app/Core/services/profile.service';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
@@ -10,6 +12,7 @@ import { ProfileResponse } from 'src/app/Models/Profile/ProfileResponse';
 import { ProfileUpdateRequest } from 'src/app/Models/Profile/ProfileUpdateRequest';
 import { UpdateUserRoleRequest } from 'src/app/Models/Profile/UpdateUserRoleRequest';
 import { SelectorOptions } from 'src/app/Models/SelectorOptions';
+import { AcceptDialogComponent } from 'src/app/Shared/components/accept-dialog/accept-dialog.component';
 
 @Component({
   selector: 'app-main-profile',
@@ -31,7 +34,8 @@ export class MainProfileComponent extends BaseComponent implements OnInit {
 
   constructor(private readonly authService: AuthService,
     private readonly profileService: ProfileService,
-    private readonly fb: FormBuilder) {
+    private readonly fb: FormBuilder,
+    private readonly dialog: MatDialog) {
     super();
   }
 
@@ -60,16 +64,16 @@ export class MainProfileComponent extends BaseComponent implements OnInit {
   handleUserTypeUpdate(profileResponse: ProfileResponse) {
     this.profileData = profileResponse;
     this.updateUserTypeForm();
+    this.initialiseForm();
     this.initialForm = this.userTypeFormControl.value;
     this.authService.updateUserRole(profileResponse.type);
   }
 
   initialiseForm() {
     this.profileForm = this.fb.group({
-      name: [this.profileData.name, [Validators.required]],
-      surname: [this.profileData.surname, [Validators.required]],
-      company: [this.profileData.company, [Validators.required]],
-      username: [this.profileData.userName, [Validators.required]],
+      name: [this.profileData.name, [Validators.required, Validators.maxLength(25), lettersOnlyValidator()]],
+      surname: [this.profileData.surname, [Validators.required, Validators.maxLength(25), lettersOnlyValidator()]],
+      username: [this.profileData.userName, [Validators.required, Validators.maxLength(25)]],
     });
 
     if (this.profileData.type === UserType.Teacher) {
@@ -77,6 +81,10 @@ export class MainProfileComponent extends BaseComponent implements OnInit {
         'cardNumber',
         new FormControl(this.profileData.cardNumber, Validators.required) // Note the empty string and the parentheses after required
       );
+      this.profileForm.addControl(
+        'company',
+        new FormControl(this.profileData.company, [Validators.maxLength(100)])
+      )
     }
   }
 
@@ -95,12 +103,12 @@ export class MainProfileComponent extends BaseComponent implements OnInit {
       id: this.profileData.id,
       name: this.profileForm.get('name').value,
       surname: this.profileForm.get('surname').value,
-      company: this.profileForm.get('company').value,
+      company: this.profileForm.get('company')?.value,
       cardNumber: this.profileForm.get('cardNumber')?.value,
       userName: this.profileForm.get('username').value,
     }
 
-    this.profileService.update(profileUpdateRequest).subscribe(response => this.handleProfileUpdate(response.data));
+    this.profileService.update(profileUpdateRequest).pipe(take(1)).subscribe(response => this.handleProfileUpdate(response.data));
   }
 
   updateUserType(userTypeString: string) {
@@ -112,7 +120,17 @@ export class MainProfileComponent extends BaseComponent implements OnInit {
 
     this.profileService.updateUserRole(userTypeUpdateRequest).subscribe(
       response => this.handleUserTypeUpdate(response.data),
-      error => this.userTypeFormControl.setValue(this.initialForm)
+      error => {
+        this.userTypeFormControl.setValue(this.initialForm);
+        if (error.error.errorData) {
+          this.dialog.open(AcceptDialogComponent, {
+            width: '450px',
+            data: {
+              text: error.error.errorData
+            }
+          })
+        }
+      }
     );
   }
 

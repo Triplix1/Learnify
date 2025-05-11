@@ -1,4 +1,5 @@
-﻿using Learnify.Core.Dto.Course.Video;
+﻿using System.ComponentModel.DataAnnotations;
+using Learnify.Core.Dto.Course.Video;
 using Learnify.Core.Enums;
 
 namespace Learnify.Core.Dto.Course.LessonDtos;
@@ -7,6 +8,7 @@ public class LessonAddOrUpdateRequest
 {
     public string Id { get; set; }
     public int ParagraphId { get; set; }
+    [MaxLength(50)]
     public string Title { get; set; }
     public string EditedLessonId { get; set; }
     public Language PrimaryLanguage { get; set; }

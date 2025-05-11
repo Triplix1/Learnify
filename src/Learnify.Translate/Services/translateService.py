@@ -30,17 +30,17 @@ names_map = {'afrikaans': 'af', 'albanian': 'sq', 'amharic': 'am', 'arabic': 'ar
              'yoruba': 'yo', 'zulu': 'zu'}
 
 
-def split_text(text, max_length=5000):
-    words = text.split()
+def split_text(text, max_length=4999):
+    lines = text.splitlines()
     chunks = []
     current_chunk = ""
 
-    for word in words:
-        if len(current_chunk) + len(word) + 1 > max_length:
+    for line in lines:
+        if len(current_chunk) + len(line) + 1 > max_length:
             chunks.append(current_chunk.strip())
-            current_chunk = word
+            current_chunk = line
         else:
-            current_chunk += " " + word if current_chunk else word
+            current_chunk += "\n" + line if current_chunk else line
 
     if current_chunk:
         chunks.append(current_chunk.strip())
@@ -70,8 +70,10 @@ def extract_vtt_segments(vtt_content):
 
 def batch_translate(text_chunks, source_language, target_language):
     translator = GoogleTranslator(source=source_language, target=target_language)
-    joined_text = '\n'.join(text_chunks)
-    translated_text = translator.translate(joined_text)
+    translated_text = ""
+    for text_chunk in text_chunks:
+        translated_text += translator.translate(text_chunk)
+        translated_text += "\n"
     return [line.strip() for line in translated_text.split('\n')]
 
 
@@ -81,30 +83,29 @@ def translate(content, source_language, target_language, content_type):
 
     if content_type == "text/vtt":
         segments = extract_vtt_segments(content)
-        text_chunks = []
         timestamps = []
 
+        text_without_timestamps = ""
+
         for segment in segments[1:]:
-            timestamp = segment[0] if not re.match('WEBVTT', segment[0]) else None
-            text = ' '.join(segment[1:]) if timestamp else ' '.join(segment)
-            text_chunks.append(text)
+            timestamp = segment[0]
+            text = ' '.join(segment[1:])
+            text_without_timestamps += text + "\n"
             timestamps.append(timestamp)
 
-        translated_chunks = batch_translate(text_chunks, source_language, target_language)
+        text_split = split_text(text_without_timestamps)
+        translated_chunks = batch_translate(text_split, source_language, target_language)
+
+        translated_subtitles_chunks = [line for text in translated_chunks for line in text.splitlines()]
 
         translated_segments = []
-        for timestamp, translated_text in zip(timestamps, translated_chunks):
+        for timestamp, translated_text in zip(timestamps, translated_subtitles_chunks):
             if timestamp:
                 translated_segments.append(f"{timestamp}\n{translated_text}")
             else:
                 translated_segments.append(translated_text)
 
         return segments[0][0] + "\n\n" + "\n\n".join(translated_segments)
-
-    text_chunks = split_text(content, max_length=5000)
-    translated_chunks = batch_translate(text_chunks, source_language, target_language)
-
-    return "\n".join(translated_chunks)
 
 def map_language_name(language: str):
     return names_map[language.lower()]

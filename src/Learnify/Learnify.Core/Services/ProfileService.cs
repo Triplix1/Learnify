@@ -7,6 +7,7 @@ using Learnify.Core.Dto.Blob;
 using Learnify.Core.Dto.Params;
 using Learnify.Core.Dto.Profile;
 using Learnify.Core.Enums;
+using Learnify.Core.Exceptions;
 using Learnify.Core.ManagerContracts;
 using Learnify.Core.ServiceContracts;
 using Learnify.Core.Specification.Course;
@@ -184,6 +185,6 @@ public class ProfileService : IProfileService
         var userCourses = await _psqUnitOfWork.CourseRepository.GetFilteredAsync(filter, cancellationToken);
 
         if (userCourses.TotalCount > 0)
-            throw new InvalidOperationException("You cannot update the profile of a student");
+            throw new CompositeException("Ви не можете стати учнем, адже у вас є опубліковані курси");
     }
 }

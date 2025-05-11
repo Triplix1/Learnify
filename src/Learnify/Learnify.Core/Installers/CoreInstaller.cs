@@ -114,6 +114,7 @@ public class CoreInstaller: IInstaller
         services.AddScoped<IMeetingWebhookService, MeetingWebhookService>();
         services.AddScoped<IMeetingSessionService, MeetingSessionService>();
         services.AddScoped<IMeetingTokenService, MeetingTokenService>();
+        services.AddScoped<IPublishingService, PublishingService>();
 
         services.Configure<GoogleAuthOptions>(config.GetSection("GoogleAuthSettings"));
         services.Configure<JwtOptions>(config.GetSection("JwtSettings"));

@@ -24,7 +24,7 @@ public class LessonService : ILessonService
     private readonly IUserAuthorValidatorManager _userAuthorValidatorManager;
     private readonly ISummaryManager _summaryManager;
     private readonly IPrivateFileService _privateFileService;
-    private readonly IParagraphService _paragraphService;
+    private readonly IPublishingService _publishingService;
 
     private readonly IMongoUnitOfWork _mongoUnitOfWork;
     private readonly IPsqUnitOfWork _psqUnitOfWork;
@@ -37,7 +37,7 @@ public class LessonService : ILessonService
         IUserAuthorValidatorManager userAuthorValidatorManager,
         ISummaryManager summaryManager,
         IPrivateFileService privateFileService,
-        IParagraphService paragraphService)
+        IPublishingService publishingService)
     {
         _mongoUnitOfWork = mongoUnitOfWork;
         _psqUnitOfWork = psqUnitOfWork;
@@ -46,7 +46,7 @@ public class LessonService : ILessonService
         _userAuthorValidatorManager = userAuthorValidatorManager;
         _summaryManager = summaryManager;
         _privateFileService = privateFileService;
-        _paragraphService = paragraphService;
+        _publishingService = publishingService;
     }
 
     #region DQL
@@ -210,16 +210,11 @@ public class LessonService : ILessonService
 
         var paragraphId = await _mongoUnitOfWork.Lessons.GetParagraphIdForLessonAsync(id, cancellationToken);
 
-        var lessonToUpdateId =
-            await _mongoUnitOfWork.Lessons.GetLessonToUpdateIdForCurrentLessonAsync(id, cancellationToken);
-
-        var fullDelete = lessonToUpdateId != null && lessonToUpdateId != id;
-
         LessonDeletedResponse response;
-        
+
         using (var transaction = TransactionScopeBuilder.CreateReadCommittedAsync())
         {
-            await SafelyDeleteLessonsAndAttachmentsAsync(id, fullDelete, cancellationToken);
+            await SafelyDeleteLessonsAndAttachmentsAsync(id, true, cancellationToken);
 
             response = await UnpublishParagraphIfNeeded(userId, paragraphId, cancellationToken);
 
@@ -229,7 +224,8 @@ public class LessonService : ILessonService
         return response;
     }
 
-    private async Task<LessonDeletedResponse> UnpublishParagraphIfNeeded(int userId, int paragraphId, CancellationToken cancellationToken)
+    private async Task<LessonDeletedResponse> UnpublishParagraphIfNeeded(int userId, int paragraphId,
+        CancellationToken cancellationToken)
     {
         var publishedLessonsAmount =
             await _mongoUnitOfWork.Lessons.GetAmountOfPublishedLessonsPerParagraph(paragraphId, cancellationToken);
@@ -255,7 +251,8 @@ public class LessonService : ILessonService
                     Publish = false
                 };
 
-                response.ParagraphPublishedResponse = await _paragraphService.PublishAsync(publishParagraphRequest, userId, cancellationToken);
+                response.ParagraphPublishedResponse =
+                    await _publishingService.PublishParagraphAsync(publishParagraphRequest, userId, cancellationToken);
             }
         }
 
@@ -278,9 +275,6 @@ public class LessonService : ILessonService
     public async Task DeleteLessonsByParagraphs(IEnumerable<int> paragraphIds,
         CancellationToken cancellationToken = default)
     {
-        var attachments =
-            await _mongoUnitOfWork.Lessons.GetAllAttachmentsForParagraphsAsync(paragraphIds, cancellationToken);
-
         await _mongoUnitOfWork.Lessons.DeleteForParagraphsAsync(paragraphIds, cancellationToken);
     }
 
@@ -392,6 +386,12 @@ public class LessonService : ILessonService
         var oldLesson =
             await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonAddOrUpdateRequest.Id, cancellationToken);
 
+        Lesson originalLesson = null;
+
+        if (oldLesson.OriginalLessonId is not null)
+            originalLesson = await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(oldLesson.OriginalLessonId,
+                cancellationToken);
+
         var updatedLesson = _mapper.Map<Lesson>(oldLesson);
 
         if (lessonAddOrUpdateRequest.Video is not null && (lessonAddOrUpdateRequest.Video.Subtitles == null ||
@@ -410,7 +410,7 @@ public class LessonService : ILessonService
             if (!draft)
             {
                 ValidateLesson(updatedLesson);
-                
+
                 if (updatedLesson.EditedLessonId is not null)
                 {
                     await SafelyDeleteLessonsAndAttachmentsAsync(updatedLesson.EditedLessonId,
@@ -432,18 +432,14 @@ public class LessonService : ILessonService
                 {
                     if (oldLesson.OriginalLessonId is not null)
                     {
-                        var originalLesson =
-                            await _mongoUnitOfWork.Lessons.GetLessonByIdAsync(oldLesson.OriginalLessonId,
-                                cancellationToken);
-
                         var subtitlesDiff =
-                            oldLesson.Video.Subtitles.Except(originalLesson.Video.Subtitles);
+                            oldLesson.Video.Subtitles.Except(originalLesson?.Video.Subtitles ?? []);
 
                         var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId);
 
                         await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
-                        
-                        if(oldLesson.Video.Attachment.FileId != originalLesson.Video.Attachment.FileId)
+
+                        if (oldLesson.Video.Attachment.FileId != originalLesson?.Video.Attachment.FileId)
                             await _privateFileService.DeleteAsync(oldLesson.Video.Attachment.FileId, cancellationToken);
                     }
                 }
@@ -463,16 +459,21 @@ public class LessonService : ILessonService
                 var primaryLanguageEquals =
                     oldLesson.PrimaryLanguage == lessonAddOrUpdateRequest.PrimaryLanguage;
 
+                if (!lessonAddOrUpdateRequest.Video.Subtitles.Contains(lessonAddOrUpdateRequest.PrimaryLanguage))
+                {
+                    lessonAddOrUpdateRequest.Video.Subtitles.Add(lessonAddOrUpdateRequest.PrimaryLanguage);
+                }
+
                 var subtitlesDiff =
                     oldLesson.Video.Subtitles.Where(s =>
                         !primaryLanguageEquals || !lessonAddOrUpdateRequest.Video.Subtitles.Contains(s.Language));
 
-                var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId).ToArray();
+                var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId)
+                    .Except(originalLesson?.Video.Subtitles.Select(s => s.SubtitleId) ?? []).ToArray();
 
                 if (subtitlesDiffIds.Length > 0)
                 {
-                    if (!draft)
-                        await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
+                    await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
 
                     updatedLesson.Video.Subtitles =
                         updatedLesson.Video.Subtitles.Where(s => !subtitlesDiffIds.Contains(s.SubtitleId));
@@ -489,11 +490,15 @@ public class LessonService : ILessonService
 
                 if (!primaryLanguageEquals)
                 {
+                    if (originalLesson is null ||
+                        originalLesson.Video.SummaryFileId != oldLesson.Video.SummaryFileId)
+                        await _privateFileService.DeleteAsync(oldLesson.Video.SummaryFileId, cancellationToken);
+
                     updatedLesson.Video.SummaryFileId =
                         await _summaryManager.GenerateSummaryForVideoAsync(fileDataBlobResponse, courseId,
                             updatedLesson.PrimaryLanguage);
                 }
-                
+
                 if (newSubtitlesLanguages.Length > 0)
                 {
                     if (!primaryLanguageEquals)
@@ -576,16 +581,7 @@ public class LessonService : ILessonService
 
                 var relatedLessonToDelete = await GetLessonToDeleteResponse(relatedLesson, cancellationToken);
 
-                if (totalDelete)
-                {
-                    lessonToDelete.Subtitles =
-                        lessonToDelete.Subtitles.Concat(relatedLessonToDelete.Subtitles).Distinct();
-                    lessonToDelete.Attachments =
-                        lessonToDelete.Attachments.Concat(relatedLessonToDelete.Attachments).Distinct();
-                    lessonToDelete.Quizzes =
-                        lessonToDelete.Quizzes.Concat(relatedLessonToDelete.Quizzes).Distinct();
-                }
-                else
+                if (!totalDelete)
                 {
                     lessonToDelete.Subtitles = lessonToDelete.Subtitles.Except(relatedLessonToDelete.Subtitles);
                     lessonToDelete.Attachments = lessonToDelete.Attachments.Except(relatedLessonToDelete.Attachments);
@@ -602,6 +598,15 @@ public class LessonService : ILessonService
                     }
 
                     await _mongoUnitOfWork.Lessons.UpdateAsync(relatedLesson, cancellationToken);
+                }
+                else
+                {
+                    lessonToDelete.Subtitles =
+                        lessonToDelete.Subtitles.Concat(relatedLessonToDelete.Subtitles).Distinct();
+                    lessonToDelete.Attachments =
+                        lessonToDelete.Attachments.Concat(relatedLessonToDelete.Attachments).Distinct();
+                    lessonToDelete.Quizzes =
+                        lessonToDelete.Quizzes.Concat(relatedLessonToDelete.Quizzes).Distinct();
                 }
             }
 
@@ -629,9 +634,8 @@ public class LessonService : ILessonService
     private async Task<LessonToDeleteResponse> GetLessonToDeleteResponse(Lesson lesson,
         CancellationToken cancellationToken = default)
     {
-        var attachments = await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(lesson.Id, cancellationToken);
-
-        var attachmentFileIds = attachments.Select(a => a.FileId);
+        var attachmentFileIds =
+            await _mongoUnitOfWork.Lessons.GetAllAttachmentsForLessonAsync(lesson.Id, cancellationToken);
 
         var subtitleIds = lesson.Video?.Subtitles.Select(s => s.SubtitleId) ?? [];
         var quizIds = lesson.Quizzes ?? [];
@@ -663,7 +667,7 @@ public class LessonService : ILessonService
         {
             errors.Add("Урок повинен містити відео");
         }
-        
+
         if (lesson.Quizzes is not null && lesson.Quizzes.Any())
         {
             if (lesson.Quizzes.Any(q => string.IsNullOrWhiteSpace(q.Question)))

@@ -145,34 +145,9 @@ public class CourseService : ICourseService
         return courseResponse;
     }
 
-    public async Task PublishAsync(PublishCourseRequest publishCourseRequest, int userId,
-        CancellationToken cancellationToken = default)
-    {
-        await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(publishCourseRequest.CourseId, userId,
-            cancellationToken);
-
-        var courseValidationResponse =
-            await _psqUnitOfWork.CourseRepository.GetCourseValidationResponse(publishCourseRequest.CourseId,
-                cancellationToken);
-
-        if(publishCourseRequest.Publish)
-            ValidateBeforePublishingCourse(courseValidationResponse);
-
-        var success = await _psqUnitOfWork.CourseRepository.PublishAsync(publishCourseRequest.CourseId,
-            publishCourseRequest.Publish, cancellationToken);
-
-        if (!success)
-            throw new Exception("Course Publish Failed");
-    }
-
     public async Task<CourseUpdateResponse> CreateAsync(CourseCreateRequest courseCreateRequest, int userId,
         CancellationToken cancellationToken = default)
     {
-        var validationErrors = ValidateBeforeUpdate(courseCreateRequest);
-
-        if (validationErrors.Count > 0)
-            throw new CompositeException(validationErrors);
-        
         var course = _mapper.Map<Course>(courseCreateRequest);
         course.AuthorId = userId;
         course.IsPublished = false;
@@ -269,13 +244,6 @@ public class CourseService : ICourseService
 
         if (originalCourse is null)
             throw new KeyNotFoundException("Cannot find course with such id");
-
-        var errors = ValidateBeforeUpdate(courseUpdateRequest);
-
-        if (errors.Count > 0)
-        {
-            throw new CompositeException(errors);
-        }
 
         await _userAuthorValidatorManager.ValidateAuthorOfCourseAsync(courseUpdateRequest.Id, userId,
             cancellationToken);
@@ -376,56 +344,5 @@ public class CourseService : ICourseService
             courses.CurrentPage, courses.PageSize);
 
         return courseTitles;
-    }
-
-    private List<string> ValidateBeforeUpdate(ICourseUpdatable courseUpdateRequest)
-    {
-        var errors = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(courseUpdateRequest.Name))
-        {
-            errors.Add("Назва курсу обов'язкова");
-        }
-
-        if (courseUpdateRequest.Price < 0)
-        {
-            errors.Add("Ціна курсу не можу бути меншою 0");
-        }
-
-        if (courseUpdateRequest.Description.Length < 100)
-        {
-            errors.Add("Опис курсу повинен бути більшим за 100 символів");
-        }
-
-        return errors;
-    }
-
-    private void ValidateBeforePublishingCourse(CourseValidationResponse course)
-    {
-        var errors = new List<string>();
-
-        errors.AddRange(ValidateBeforeUpdate(course));
-
-        if (course.PhotoId is null)
-        {
-            errors.Add("Фото курсу є обов'язковим");
-        }
-
-        if (course.VideoId is null)
-        {
-            errors.Add("Відео курсу є обов'язковим");
-        }
-
-        var amountOfPublishedCourses = course.Paragraphs?.Where(p => p.IsPublished).Count() ?? 0;
-
-        if (amountOfPublishedCourses == 0)
-        {
-            errors.Add("Курс повинен містити мінімум один опубліковний розділ");
-        }
-
-        if (errors.Any())
-        {
-            throw new CompositeException(errors);
-        }
     }
 }

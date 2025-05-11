@@ -192,25 +192,7 @@ public class IdentityService : IIdentityService
         private async Task<AuthResponse> RegisterUserAsync(CreateUserRequest createUserRequest,
         CancellationToken cancellationToken = default)
     {
-        var userWithTheSameEmail =
-            await _psqUnitOfWork.UserRepository.GetByEmailAsync(createUserRequest.Email, cancellationToken);
-
-        if (userWithTheSameEmail is not null)
-        {
-            _logger.LogError("Cannot register user with email: {email}, because it already exists",
-                createUserRequest.Email);
-            throw new ArgumentException("User with the same email already exists");
-        }
-
-        var userWithTheSameUsername =
-            await _psqUnitOfWork.UserRepository.GetByUsernameAsync(createUserRequest.Username, cancellationToken);
-
-        if (userWithTheSameUsername is not null)
-        {
-            _logger.LogError("Cannot register user with username: {username}, because it already exists",
-                createUserRequest.Username);
-            throw new ArgumentException("User with the same username already exists");
-        }
+        await ValidateRegisterRequest(createUserRequest, cancellationToken);
 
         using var hmac = new HMACSHA512();
 
@@ -225,28 +207,39 @@ public class IdentityService : IIdentityService
             Role = createUserRequest.Role
         };
 
-        // if (createUserRequest.Image is not null)
-        // {
-        //     var stream = createUserRequest.Image.OpenReadStream();
-        //
-        //     var imageBlobAddRequest = new BlobDto()
-        //     {
-        //         Name = user.Email,
-        //         Content = stream,
-        //         ContainerName = "identity-user-images",
-        //         ContentType = "image/*"
-        //     };
-        //
-        //     var imageBlob = await _blobStorage.UploadAsync(imageBlobAddRequest, cancellationToken: cancellationToken);
-        //
-        //     user.ImageUrl = imageBlob.Url;
-        //     user.ImageBlobName = imageBlob.Name;
-        //     user.ImageContainerName = imageBlob.ContainerName;
-        // }
-
         user = await _psqUnitOfWork.UserRepository.CreateAsync(user, cancellationToken);
 
         return await ReturnNewAuthResponseAsync(user, cancellationToken);
+    }
+
+    private async Task ValidateRegisterRequest(CreateUserRequest createUserRequest, CancellationToken cancellationToken)
+    {
+        var errors = new List<string>();
+        
+        var userWithTheSameEmail =
+            await _psqUnitOfWork.UserRepository.GetByEmailAsync(createUserRequest.Email, cancellationToken);
+
+        if (userWithTheSameEmail is not null)
+        {
+            _logger.LogError("Cannot register user with email: {email}, because it already exists",
+                createUserRequest.Email);
+            errors.Add("Користувач з такою поштою вже присутній в системі");
+        }
+
+        var userWithTheSameUsername =
+            await _psqUnitOfWork.UserRepository.GetByUsernameAsync(createUserRequest.Username, cancellationToken);
+
+        if (userWithTheSameUsername is not null)
+        {
+            _logger.LogError("Cannot register user with username: {username}, because it already exists",
+                createUserRequest.Username);
+            errors.Add("Користувач з таким ніком вже присутній в системі");
+        }
+
+        if (errors.Count > 0)
+        {
+            throw new CompositeException(errors);
+        }
     }
 
     private async Task<AuthResponse> ReturnNewAuthResponseAsync(User user,

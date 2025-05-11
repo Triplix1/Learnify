@@ -66,17 +66,18 @@ def process_translate_request_message(message):
 
         for request in translate_requests:
             target_language = request["language"]
+            file_id = request["fileId"]
             print("Translating text...")
             translated_text = translate(original_text, main_language, target_language, content_type)
 
-            translated_file_path = insert_language_before_extension(main_file_blob_name, request["language"])
+            translated_file_path = insert_unique_before_extension(main_file_blob_name, target_language, file_id)
             with open(translated_file_path, "w", encoding="utf-8") as translated_file:
                 translated_file.write(translated_text)
 
             translated_blob_name = translated_file_path
             upload_to_blob(main_file_container_name, translated_blob_name, translated_file_path)
             os.remove(translated_file_path)
-            publish_translated_response(request["fileId"], content_type, main_file_container_name, translated_blob_name)
+            publish_translated_response(file_id, content_type, main_file_container_name, translated_blob_name)
             print(f"Uploaded translated file: {translated_blob_name}")
 
         print(f"translation processing completed for {main_file_blob_name}")
@@ -90,10 +91,10 @@ def get_content_type(file_path):
     return mime_type
 
 
-def insert_language_before_extension(filename, language):
+def insert_unique_before_extension(filename, language, file_id):
     name_parts = filename.rsplit(".", 1)
     if len(name_parts) == 2:
-        return f"{name_parts[0]}_{language}.{name_parts[1]}"
+        return f"{name_parts[0]}_{language}_{file_id}.{name_parts[1]}"
     return f"{filename}_{language}"  # In case there's no extension
 
 

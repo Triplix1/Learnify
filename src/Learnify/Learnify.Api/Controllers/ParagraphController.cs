@@ -10,10 +10,13 @@ namespace Learnify.Api.Controllers;
 public class ParagraphController : BaseApiController
 {
     private readonly IParagraphService _paragraphService;
+    private readonly IPublishingService _publishingService;
 
-    public ParagraphController(IParagraphService paragraphService)
+    public ParagraphController(IParagraphService paragraphService,
+        IPublishingService publishingService)
     {
         _paragraphService = paragraphService;
+        _publishingService = publishingService;
     }
 
     [Authorize]
@@ -44,7 +47,7 @@ public class ParagraphController : BaseApiController
         [FromBody]PublishParagraphRequest publishParagraphRequest, CancellationToken cancellationToken = default)
     {
         var userId = User.GetUserId();
-        var result = await _paragraphService.PublishAsync(publishParagraphRequest, userId, cancellationToken);
+        var result = await _publishingService.PublishParagraphAsync(publishParagraphRequest, userId, cancellationToken);
 
         return Ok(result);
     }

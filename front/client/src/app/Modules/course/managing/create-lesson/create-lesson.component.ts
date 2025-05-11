@@ -128,7 +128,7 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
 
   initializeForm() {
     this.lessonForm = this.fb.group({
-      title: ['', Validators.required],
+      title: ['', [Validators.required, Validators.maxLength(50)]],
       language: [Language.English, Validators.required],
     })
   }
@@ -252,7 +252,7 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
 
     this.initialLessonId = lessonResponse.isDraft ? lessonResponse.originalLessonId : lessonResponse.id;
 
-    this.lessonUpdatedTitleResponse = { id: lessonResponse.id, title: lessonResponse.title }
+    this.lessonUpdatedTitleResponse = { originalLessonId: lessonResponse.originalLessonId, id: lessonResponse.id, title: lessonResponse.title }
     this.onUpdate.emit(this.lessonUpdatedTitleResponse);
   }
 

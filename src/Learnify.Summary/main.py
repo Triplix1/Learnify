@@ -70,7 +70,7 @@ def process_video_message(message):
         print("generating summary:")
         summary = get_summary(video_path, content_type, language)
 
-        summary_blob_name = video_blob_name + f"summary.txt"
+        summary_blob_name = video_blob_name + f"_{language}_{file_id}" + f"summary.txt"
 
         temp_file_path = generate_temporary_file(summary, summary_blob_name)
 

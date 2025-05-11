@@ -240,7 +240,7 @@ export class CreateCourseComponent extends BaseComponent {
   private handleCourseUpdate(courseResponse: CourseUpdateResponse) {
     this.courseId = courseResponse.id;
     this.courseResponse = courseResponse;
-    this.editingMode = !courseResponse.isPublished || !courseResponse.video || !courseResponse.photo;
+    this.editingMode = !courseResponse.video || !courseResponse.photo;
     this.paragraphs = courseResponse.paragraphs;
 
     this.photoSetted = courseResponse.photo !== null && courseResponse.photo !== undefined;
@@ -254,7 +254,7 @@ export class CreateCourseComponent extends BaseComponent {
 
   private initializeForm() {
     this.courseForm = this.fb.group({
-      name: [this.courseResponse?.name ?? '', [Validators.required]],
+      name: [this.courseResponse?.name ?? '', [Validators.required, Validators.maxLength(50)]],
       description: [this.courseResponse?.description ?? '', [Validators.required, Validators.minLength(100)]],
       price: [this.courseResponse?.price ?? '', [Validators.required, Validators.pattern('^\d+$')]],
       language: this.courseResponse?.primaryLanguage ? Language[this.courseResponse.primaryLanguage as keyof typeof Language] : Language.English,

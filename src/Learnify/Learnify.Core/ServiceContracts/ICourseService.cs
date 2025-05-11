@@ -35,8 +35,6 @@ public interface ICourseService
         PrivateFileBlobCreateRequest fileCreateRequest, CancellationToken cancellationToken = default);
     Task<CourseUpdateResponse> UpdateAsync(CourseUpdateRequest courseUpdateRequest, int userId,
         CancellationToken cancellationToken = default);
-    Task PublishAsync(PublishCourseRequest publishCourseRequest, int userId,
-        CancellationToken cancellationToken = default);
 
     Task DeleteAsync(int id, int userId, CancellationToken cancellationToken = default);
     Task<bool> DeletePhotoAsync(int courseId, int userId, CancellationToken cancellationToken = default);

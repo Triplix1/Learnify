@@ -73,13 +73,15 @@ public class LessonRepository : ILessonRepository
 
         var projection =
             Builders<Lesson>.Projection.Expression(l => new LessonTitleResponse { Id = l.Id, Title = l.Title });
-
-        return await _mongoContext.Lessons.Find(filter).Project(projection)
+        
+        var sort = Builders<Lesson>.Sort.Ascending(l => l.Title);
+        
+        return await _mongoContext.Lessons.Find(filter).Project(projection).Sort(sort)
             .ToListAsync(cancellationToken: cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Attachment>> GetAllAttachmentsForLessonAsync(string lessonId,
+    public async Task<IEnumerable<int>> GetAllAttachmentsForLessonAsync(string lessonId,
         CancellationToken cancellationToken = default)
     {
         var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
@@ -93,10 +95,13 @@ public class LessonRepository : ILessonRepository
         if (lesson is null)
             return [];
 
-        var result = new List<Attachment>();
+        var result = new List<int>();
 
         if (lesson.Video is not null)
-            result.Add(lesson.Video.Attachment);
+        {
+            result.Add(lesson.Video.Attachment.FileId);
+            result.Add(lesson.Video.SummaryFileId);
+        }
 
         return result;
     }

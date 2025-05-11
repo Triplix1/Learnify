@@ -46,12 +46,13 @@
                    routerLink="/login">Вже є акаунт</a>
             </div>
             <div class="mb-3">
-                <button (click)="register()"
-                        class="w-full bg-red-600 text-white py-1 rounded">Зареєструватись</button>
+                <app-button (click)="register()"
+                            classList="w-full bg-red-600 text-white py-1 rounded"
+                            [disabled]="registerForm.invalid">Зареєструватись</app-button>
             </div>
             <div class="mb-3">
-                <button class="w-full bg-black text-white py-1 rounded"
-                        (click)="cancel()">Відміна</button>
+                <app-button classList="w-full bg-black text-white py-1 rounded"
+                            (click)="cancel()">Відміна</app-button>
             </div>
         </form>
     </div>

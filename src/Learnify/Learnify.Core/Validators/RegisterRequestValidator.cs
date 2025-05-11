@@ -9,9 +9,6 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {
         RuleFor(r => r.Email).EmailAddress();
         RuleFor(r => r.Password).Must(ValidatePassword).WithMessage("Password doesn't satisfy the rules");
-        RuleFor(r => r.ConfirmPassword)
-            .Equal(x => x.Password)
-            .WithMessage("Passwords do not match");
         RuleFor(r => r.Username).NotNull().NotEmpty().MinimumLength(3).MaximumLength(20);
     }
 

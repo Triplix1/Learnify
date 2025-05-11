@@ -19,6 +19,7 @@ using Learnify.Core.Dto.Messages;
 using Learnify.Core.Dto.Params;
 using Learnify.Core.Dto.Profile;
 using Learnify.Core.Dto.Subtitles;
+using Learnify.Core.Dto.UserBought;
 using Learnify.Core.Enums;
 using Learnify.Core.Specification.Filters;
 
@@ -123,5 +124,8 @@ public class MappingProfiles : Profile
         //MeetingConnection
         CreateMap<MeetingConnectionCreateRequest, MeetingConnection>();
         CreateMap<MeetingConnection, MeetingConnectionResponse>();
+        
+        // UserBought
+        CreateMap<UserBought, UserBoughtResponse>();
     }
 }

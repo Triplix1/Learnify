@@ -38,7 +38,11 @@
                      {{label}} більше ніж {{control.errors?.['maxlength'].requiredLength}} символів
               </div>
               <div class="mt-1 text-error text-sm font-medium"
-                   *ngIf="control.dirty && control.hasError('notMatching')">
+                   *ngIf="control.dirty && control.hasError('lettersOnly')">
+                     Поле повинно містити тільки літери
+              </div>
+              <div class="mt-1 text-error text-sm font-medium"
+                   *ngIf="control.dirty && control.hasError('isMatching')">
                      Паролі не співпадають
               </div>
        </div>

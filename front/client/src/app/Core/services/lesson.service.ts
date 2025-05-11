@@ -41,6 +41,7 @@ export class LessonService {
           return;
         }
         const lessonTitleResponse: LessonTitleResponse = {
+          originalLessonId: response.data.originalLessonId,
           id: response.data.id,
           title: response.data.title
         }

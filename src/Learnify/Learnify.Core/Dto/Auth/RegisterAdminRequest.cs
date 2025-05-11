@@ -1,30 +1,22 @@
-﻿namespace Learnify.Core.Dto.Auth;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Learnify.Core.Dto.Auth;
 
 public class RegisterAdminRequest
 {
-    /// <summary>
-    /// Gets or sets value for Email
-    /// </summary>
+    [Required]
     public string Email { get; set; }
     
-    /// <summary>
-    /// Gets or sets value for Name
-    /// </summary>
+    [Required]
     public string Name { get; set; }
     
-    /// <summary>
-    /// Gets or sets value for Surname
-    /// </summary>
+    [Required]
     public string Surname { get; set; }
     
-    /// <summary>
-    /// Gets or sets value for Username
-    /// </summary>
+    [Required]
     public string Username { get; set; }
     
-    /// <summary>
-    /// Gets or sets value for Password
-    /// </summary>
+    [Required]
     public string Password { get; set; }
 
 }

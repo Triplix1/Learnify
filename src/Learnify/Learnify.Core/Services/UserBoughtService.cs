@@ -26,7 +26,7 @@ public class UserBoughtService: IUserBoughtService
             UserId = userBoughtCreateRequest.UserId,
         };
 
-        var result = await _userBoughtRepository.CreateAsync(userBought, cancellationToken: cancellationToken);
+        userBought = await _userBoughtRepository.CreateAsync(userBought, cancellationToken: cancellationToken);
         
         return _mapper.Map<UserBoughtResponse>(userBought);
     }
