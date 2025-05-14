@@ -30,20 +30,14 @@ def publish_translated_response(file_id, content_type, file_container_name, file
         "messageType": ["urn:message:Learnify.Contracts:TranslatedResponse"]
     }
 
-    try:
-        channel = rabbit_mq_connection.channel()
+    channel = rabbit_mq_connection.channel()
 
-        channel.basic_publish(
-            exchange=RABBITMQ_QUEUE_RESPONSE,
-            routing_key="",
-            body=json.dumps(response_message)
-        )
-        print(f"Published TranslatedResponse: {response_message}")
-
-    except pika.exceptions.AMQPConnectionError as e:
-        print(f"RabbitMQ Connection Error: {str(e)}")
-    except Exception as e:
-        print(f"Error Publishing to RabbitMQ: {str(e)}")
+    channel.basic_publish(
+        exchange=RABBITMQ_QUEUE_RESPONSE,
+        routing_key="",
+        body=json.dumps(response_message)
+    )
+    print(f"Published TranslatedResponse: {response_message}")
 
 
 def process_translate_request_message(message):
@@ -61,30 +55,34 @@ def process_translate_request_message(message):
 
         print(f"Processing translation for file: {main_file_blob_name}")
 
-        print("Downloading text from Azure Blob Storage...")
         original_text = download_blob_text(main_file_container_name, main_file_blob_name)
 
         for request in translate_requests:
-            target_language = request["language"]
-            file_id = request["fileId"]
-            print("Translating text...")
-            translated_text = translate(original_text, main_language, target_language, content_type)
+            translated_file_path = None
+            try:
+                target_language = request["language"]
+                file_id = request["fileId"]
+                translated_text = translate(original_text, main_language, target_language, content_type)
 
-            translated_file_path = insert_unique_before_extension(main_file_blob_name, target_language, file_id)
-            with open(translated_file_path, "w", encoding="utf-8") as translated_file:
-                translated_file.write(translated_text)
+                translated_file_path = insert_unique_before_extension(main_file_blob_name, target_language, file_id)
+                with open(translated_file_path, "w", encoding="utf-8") as translated_file:
+                    translated_file.write(translated_text)
 
-            translated_blob_name = translated_file_path
-            upload_to_blob(main_file_container_name, translated_blob_name, translated_file_path)
-            os.remove(translated_file_path)
-            publish_translated_response(file_id, content_type, main_file_container_name, translated_blob_name)
-            print(f"Uploaded translated file: {translated_blob_name}")
+                upload_to_blob(main_file_container_name, translated_file_path, translated_file_path)
+                publish_translated_response(file_id, content_type, main_file_container_name, translated_file_path)
 
-        print(f"translation processing completed for {main_file_blob_name}")
+            finally:
+                if translated_file_path and os.path.exists(translated_file_path):
+                    try:
+                        os.remove(translated_file_path)
+                        print(f"Deleted temp file: {translated_file_path}")
+                    except Exception as err:
+                        print(f"Failed to delete {translated_file_path}: {err}")
+
+        print(f"Translation processing completed for {main_file_blob_name}")
 
     except Exception as e:
         print(f"Error: {str(e)}")
-
 
 def get_content_type(file_path):
     mime_type, _ = mimetypes.guess_type(file_path)

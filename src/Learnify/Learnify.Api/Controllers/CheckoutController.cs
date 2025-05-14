@@ -41,13 +41,13 @@ public class CheckoutController : BaseApiController
 
     [SkipApiResponse]
     [HttpPost("webhook")]
-    public async Task<IActionResult> WebHook(CancellationToken cancellationToken = default)
+    public async Task<IActionResult> WebHook([FromHeader(Name = "Stripe-Signature")] string stripeSignature, CancellationToken cancellationToken = default)
     {
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync(cancellationToken);
 
         var stripeEvent = EventUtility.ConstructEvent(
             json,
-            Request.Headers["Stripe-Signature"],
+            stripeSignature,
             _stripeOptions.WHSecret,
             throwOnApiVersionMismatch: false
         );

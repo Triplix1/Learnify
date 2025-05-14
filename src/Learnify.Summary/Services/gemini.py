@@ -10,13 +10,12 @@ load_dotenv()
 GEMINI_KEY = os.getenv("GEMINI_KEY")
 genai.configure(api_key=GEMINI_KEY)
 
-
 def stream_to_seekable_bytesio(url):
     response = requests.get(url, stream=True)
     response.raise_for_status()
 
     buffer = BytesIO()
-    for chunk in response.iter_content(chunk_size=8192):  # Read in chunks
+    for chunk in response.iter_content(chunk_size=8192):
         buffer.write(chunk)
 
     buffer.seek(0)
@@ -34,16 +33,16 @@ def wait_for_files_active(files):
     for name in (file.name for file in files):
         file = genai.get_file(name)
         while file.state.name == "PROCESSING":
-            print(".", end="", flush=True)
             time.sleep(10)
             file = genai.get_file(name)
         if file.state.name != "ACTIVE":
             raise Exception(f"File {file.name} failed to process")
-    print("...all files ready")
+    print("Files are proceed")
     print()
 
 
 def get_summary(file_url, mime_type, language):
+    print("generating summary:")
     file_stream = stream_to_seekable_bytesio(file_url)
     files = [upload_to_gemini(file_stream, mime_type)]
     wait_for_files_active(files)

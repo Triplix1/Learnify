@@ -35,33 +35,27 @@ def publish_subtitles_generated_response(lesson_id, subtitle_id, subtitle_blob_n
         "messageType": ["urn:message:Learnify.Contracts:SubtitlesGeneratedResponse"]
     }
 
-    try:
-        properties = pika.BasicProperties(
-            delivery_mode=2,
-            headers={
-                "messageType": ["urn:message:Learnify.Contracts:SubtitlesGeneratedResponse"]
-            }
-        )
+    properties = pika.BasicProperties(
+        delivery_mode=2,
+        headers={
+            "messageType": ["urn:message:Learnify.Contracts:SubtitlesGeneratedResponse"]
+        }
+    )
 
-        channel = rabbitmq_connection.channel()
+    channel = rabbitmq_connection.channel()
 
-        channel.basic_publish(
-            exchange=RABBITMQ_QUEUE_RESPONSE,
-            routing_key="",
-            body=json.dumps(response_message),
-            properties=properties
-        )
-        print(f"Published SubtitlesGeneratedResponse: {response_message}")
-
-    except pika.exceptions.AMQPConnectionError as e:
-        print(f"RabbitMQ Connection Error: {str(e)}")
-    except Exception as e:
-        print(f"Error Publishing to RabbitMQ: {str(e)}")
+    channel.basic_publish(
+        exchange=RABBITMQ_QUEUE_RESPONSE,
+        routing_key="",
+        body=json.dumps(response_message),
+        properties=properties
+    )
+    print(f"Published SubtitlesGeneratedResponse: {response_message}")
 
 def process_video_message(message):
-    video_path = None
-    audio_path = None
-    subtitles = None
+    video_file_path = None
+    audio_file_path = None
+    subtitles_file = None
 
     try:
         msg_data = json.loads(message)
@@ -74,31 +68,26 @@ def process_video_message(message):
         video_blob_name = msg_data["videoBlobName"]
         subtitle_info = msg_data["subtitleInfo"]
 
-        print(f"Processing subtitles for video: {video_blob_name}")
+        print(f"Received message. Start generating subtitles for: {video_blob_name}")
 
-        print("Downloading video from Azure Blob Storage...")
-        video_path = download_video_from_blob(video_container, video_blob_name)
+        video_file_path = download_video_from_blob(video_container, video_blob_name)
 
-        print("Extracting audio from video...")
-        audio_path = extract_audio(video_path)
+        audio_file_path = extract_audio(video_file_path)
 
-        print(f"Generating primary subtitles in {subtitle_info['language']}...")
-        # original_srt, segments = generate_subtitles(audio_path, subtitle_info["language"])
-
-        subtitles = generate_subtitles(audio_path, subtitle_info["language"])
+        subtitles_file = generate_subtitles(audio_file_path, subtitle_info["language"])
         subtitle_blob_name = video_blob_name + f"_{lesson_id}" + f"_{subtitle_info['language']}.vtt"
 
-        upload_to_blob(SUBTITLES_CONTAINER, subtitles, subtitle_blob_name)
+        upload_to_blob(SUBTITLES_CONTAINER, subtitles_file, subtitle_blob_name)
 
         publish_subtitles_generated_response(lesson_id, subtitle_info["id"], subtitle_blob_name)
 
-        print(f"Subtitles processing completed for {video_blob_name}")
+        print(f"Subtitles successfully generated for: {video_blob_name}")
 
     except Exception as e:
-        print(f"Error processing video message: {str(e)}")
+        print(f"Subtitles generation failed: {str(e)}")
 
     finally:
-        for file_path in [video_path, audio_path, subtitles]:
+        for file_path in [video_file_path, audio_file_path, subtitles_file]:
             if file_path and os.path.exists(file_path):
                 try:
                     os.remove(file_path)

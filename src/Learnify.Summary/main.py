@@ -33,23 +33,18 @@ def publish_summary_generated_response(file_id, subtitle_blob_name):
         "messageType": ["urn:message:Learnify.Contracts:SummaryGeneratedResponse"]
     }
 
-    try:
+    channel = rabbit_mq_connection.channel()
 
-        channel = rabbit_mq_connection.channel()
-
-        channel.basic_publish(
-            exchange=RABBITMQ_QUEUE_RESPONSE,
-            routing_key="",
-            body=json.dumps(response_message)
-        )
-        print(f"Published SummaryGeneratedResponse: {response_message}")
-
-    except pika.exceptions.AMQPConnectionError as e:
-        print(f"RabbitMQ Connection Error: {str(e)}")
-    except Exception as e:
-        print(f"Error Publishing to RabbitMQ: {str(e)}")
+    channel.basic_publish(
+        exchange=RABBITMQ_QUEUE_RESPONSE,
+        routing_key="",
+        body=json.dumps(response_message)
+    )
+    print(f"Published SummaryGeneratedResponse: {response_message}")
 
 def process_video_message(message):
+    temporary_summary_file_path = None
+
     try:
         msg_data = json.loads(message)
 
@@ -64,23 +59,30 @@ def process_video_message(message):
 
         print(f"Processing subtitles for video: {video_blob_name}")
 
-        print("generating sas url:")
-        video_path = get_sas_url(video_container, video_blob_name)
+        video_url = get_sas_url(video_container, video_blob_name)
 
-        print("generating summary:")
-        summary = get_summary(video_path, content_type, language)
+        resulted_summary = get_summary(video_url, content_type, language)
 
         summary_blob_name = video_blob_name + f"_{language}_{file_id}" + f"summary.txt"
 
-        temp_file_path = generate_temporary_file(summary, summary_blob_name)
+        temporary_summary_file_path = generate_temporary_file(resulted_summary, summary_blob_name)
 
-        upload_to_blob(SUMMARIES_CONTAINER, temp_file_path, summary_blob_name)
+        upload_to_blob(SUMMARIES_CONTAINER, temporary_summary_file_path, summary_blob_name)
 
         publish_summary_generated_response(file_id, summary_blob_name)
         print(f"Summary processing completed for {video_blob_name}")
 
     except Exception as e:
-        print(f"Error processing video message: {str(e)}")
+        print(f"Error while summary generation: {str(e)}")
+
+    finally:
+        if temporary_summary_file_path and os.path.exists(temporary_summary_file_path):
+            try:
+                os.remove(temporary_summary_file_path)
+                print(f"Deleted temp file: {temporary_summary_file_path}")
+            except Exception as err:
+                print(f"Failed to delete {temporary_summary_file_path}: {err}")
+
 
 
 def rabbitmq_callback(ch, method, properties, body):
