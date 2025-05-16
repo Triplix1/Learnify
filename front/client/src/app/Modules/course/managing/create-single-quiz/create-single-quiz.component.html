@@ -60,7 +60,8 @@
             <app-create-quiz-answers [lessonId]="lessonId"
                                      [quizId]="quiz.id"
                                      [answersResponse]="quiz.answers"
-                                     (currentLessonUpdated)="handleLessonUpdate($event)"></app-create-quiz-answers>
+                                     (currentLessonUpdated)="handleLessonUpdate($event)"
+                                     (answersUpdated)="handleAnswersUpdate($event)"></app-create-quiz-answers>
         </div>
     </app-accordion-item>
 </div>

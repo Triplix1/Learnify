@@ -38,8 +38,20 @@
                      {{label}} більше ніж {{control.errors?.['maxlength'].requiredLength}} символів
               </div>
               <div class="mt-1 text-error text-sm font-medium"
+                   *ngIf="control.dirty && control.hasError('min')">
+                     {{label}} менше ніж {{control.errors?.['min'].min}}
+              </div>
+              <div class="mt-1 text-error text-sm font-medium"
+                   *ngIf="control.dirty && control.hasError('max')">
+                     {{label}} більше ніж {{control.errors?.['max'].max}}
+              </div>
+              <div class="mt-1 text-error text-sm font-medium"
                    *ngIf="control.dirty && control.hasError('lettersOnly')">
                      Поле повинно містити тільки літери
+              </div>
+              <div class="mt-1 text-error text-sm font-medium"
+                   *ngIf="control.dirty && control.hasError('notANumber')">
+                     Введене значення повинно бути числом
               </div>
               <div class="mt-1 text-error text-sm font-medium"
                    *ngIf="control.dirty && control.hasError('isMatching')">

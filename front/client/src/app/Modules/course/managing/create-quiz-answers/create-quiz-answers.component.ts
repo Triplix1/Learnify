@@ -16,6 +16,7 @@ export class CreateQuizAnswersComponent implements OnChanges {
   @Input({ required: true }) quizId: string;
   @Input({ required: true }) answersResponse: AnswersUpdateResponse;
   @Output() currentLessonUpdated: EventEmitter<CurrentLessonUpdatedResponse> = new EventEmitter<CurrentLessonUpdatedResponse>();
+  @Output() answersUpdated: EventEmitter<AnswersUpdateResponse> = new EventEmitter<AnswersUpdateResponse>();
 
   constructor(private readonly answersService: AnswersService, private readonly spinnerService: NgxSpinnerService) { }
 
@@ -62,6 +63,7 @@ export class CreateQuizAnswersComponent implements OnChanges {
     this.answersService.updateAnwers(answersUpdateRequest).pipe(take(1)).subscribe(response => {
       this.answersResponse = response.data;
       this.currentLessonUpdated.emit(response.data.currentLessonUpdated);
+      this.answersUpdated.emit(response.data);
       this.spinnerService.hide(`loadingAnswers${this.quizId}`);
     });
   }

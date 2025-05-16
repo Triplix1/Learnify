@@ -28,7 +28,7 @@ public class CheckoutController : BaseApiController
 
     [HttpPost]
     [Authorize]
-    [Authorize(Roles = nameof(Role.Student))]
+    [Authorize(Roles = $"{nameof(Role.Student)},{nameof(Role.Teacher)}")]
     public async Task<IActionResult> CreateSession([FromBody]PaymentCreateRequest paymentCreateRequest,
         CancellationToken cancellationToken = default)
     {

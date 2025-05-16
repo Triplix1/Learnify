@@ -1,7 +1,8 @@
 <div class="min-main-height flex justify-center p-10">
     <div class="w-full container-width bg-navigation opacity-80 p-4 rounded-lg shadow-md ">
 
-        <app-stepper [disableButtons]="true"
+        <app-stepper #stepper
+                     [disableButtons]="true"
                      [linear]="true"
                      class="mb-4">
 
@@ -165,7 +166,8 @@
                                    [currentLessonEditing]="currentLessonEditing"
                                    [courseId]="courseId"
                                    [(possibleToCreateNewLesson)]="possibleToCreateNewLesson"
-                                   (onUpdate)="lassonUpdated($event)"></app-create-lesson>
+                                   (onUpdate)="lassonUpdated($event)"
+                                   (lessonSaved)="clearLessonTab()"></app-create-lesson>
             </app-step>
         </app-stepper>
 

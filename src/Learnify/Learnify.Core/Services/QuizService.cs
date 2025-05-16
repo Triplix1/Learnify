@@ -44,23 +44,24 @@ public class QuizService : IQuizService
         var lessonToUpdateId =
             await _lessonService.GetLessonToUpdateIdAsync(request.LessonId, userId, cancellationToken);
 
-        QuizQuestion quizQuestion = _mapper.Map<QuizQuestion>(request);
-
+        var quizQuestion = default(QuizQuestion);
+        
         if (request.QuizId is null)
+        {
+            quizQuestion = _mapper.Map<QuizQuestion>(request);
             quizQuestion =
-                await _psqUnitOfWork.QuizRepository.CreateAsync(quizQuestion, lessonToUpdateId, cancellationToken);
+                await _psqUnitOfWork.QuizRepository.CreateAsync(request, cancellationToken);
+        }
         else
+        {
             quizQuestion =
-                await _psqUnitOfWork.QuizRepository.UpdateAsync(quizQuestion, lessonToUpdateId, cancellationToken);
+                await _psqUnitOfWork.QuizRepository.UpdateAsync(request, cancellationToken);
+        }
 
         if (quizQuestion is null)
         {
             throw new Exception("Failed to add or update quiz");
         }
-
-        // var lessonResponse = _mongoUnitOfWork.Lessons.GetLessonByIdAsync(lessonToUpdateId, cancellationToken);
-        //
-        // var response = _mapper.Map<LessonUpdateResponse>(lessonResponse);
 
         var response = _mapper.Map<QuizQuestionUpdatedResponse>(quizQuestion);
 

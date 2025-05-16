@@ -422,6 +422,9 @@ public class LessonService : ILessonService
                 {
                     await SafelyDeleteLessonsAndAttachmentsAsync(updatedLesson.OriginalLessonId,
                         cancellationToken: cancellationToken);
+                    
+                    await _psqUnitOfWork.UserQuizAnswerRepository.UpdateUserAnswerLessonIdAsync(updatedLesson.OriginalLessonId, updatedLesson.Id, cancellationToken);
+                    
                     updatedLesson.OriginalLessonId = null;
                 }
             }
@@ -468,12 +471,14 @@ public class LessonService : ILessonService
                     oldLesson.Video.Subtitles.Where(s =>
                         !primaryLanguageEquals || !lessonAddOrUpdateRequest.Video.Subtitles.Contains(s.Language));
 
-                var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId)
-                    .Except(originalLesson?.Video.Subtitles.Select(s => s.SubtitleId) ?? []).ToArray();
+                var subtitlesDiffIds = subtitlesDiff.Select(s => s.SubtitleId).ToArray();
 
                 if (subtitlesDiffIds.Length > 0)
                 {
-                    await _subtitlesManager.DeleteRangeAsync(subtitlesDiffIds, cancellationToken);
+                    var subtitlesToDelete =
+                        subtitlesDiffIds.Except(originalLesson?.Video.Subtitles.Select(s => s.SubtitleId) ?? []);
+
+                    await _subtitlesManager.DeleteRangeAsync(subtitlesToDelete, cancellationToken);
 
                     updatedLesson.Video.Subtitles =
                         updatedLesson.Video.Subtitles.Where(s => !subtitlesDiffIds.Contains(s.SubtitleId));
@@ -585,7 +590,7 @@ public class LessonService : ILessonService
                 {
                     lessonToDelete.Subtitles = lessonToDelete.Subtitles.Except(relatedLessonToDelete.Subtitles);
                     lessonToDelete.Attachments = lessonToDelete.Attachments.Except(relatedLessonToDelete.Attachments);
-                    lessonToDelete.Quizzes = lessonToDelete.Quizzes.Except(relatedLessonToDelete.Quizzes);
+                    lessonToDelete.Quizzes = lessonToDelete.Quizzes.Where(q => !relatedLessonToDelete.Quizzes.Contains(q));
 
                     if (relatedLessonId == lessonToDelete.EditedLessonId)
                     {

@@ -119,6 +119,7 @@ export class AuthService {
     localStorage.removeItem('expires');
     this.tokenData.next(null);
     this.userData.next(null);
+    this.router.navigate(["/home"]);
   }
 
   private handleTokenUpdate(authResponse: AuthResponse): void {

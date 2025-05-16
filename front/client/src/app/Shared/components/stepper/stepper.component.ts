@@ -152,6 +152,24 @@ export class StepperComponent implements AfterContentInit {
     }
   }
 
+  forceGoToStep(index: number) {
+    const stepsArray = this.steps.toArray();
+    stepsArray[this.currentStepIndex].active = false;
+
+    // Measure the height before changing the step
+    this.adjustHeight();
+
+    this.currentStepIndex = index;
+    stepsArray[this.currentStepIndex].active = true;
+
+    // Adjust the height after the animation completes
+    setTimeout(() => {
+      this.adjustHeight();  // Adjust to new content height
+      setTimeout(() => this.resetHeightToAuto(), 300);  // Reset height to auto after the animation completes
+    }, 0);
+  }
+
+
   canGoNext() {
     const stepsArray = this.steps.toArray();
     return (

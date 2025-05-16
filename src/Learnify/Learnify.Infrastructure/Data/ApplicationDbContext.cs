@@ -36,8 +36,8 @@ public class ApplicationDbContext: DbContext
         builder.Entity<RefreshToken>().HasIndex(rt => rt.Jwt);
         builder.Entity<User>().HasIndex(u => u.Email);
         builder.Entity<UserBought>().HasKey(ub => new { ub.UserId, ub.CourseId });
-        builder.Entity<UserQuizAnswer>().HasKey(ub => new { ub.UserId, ub.LessonId, ub.QuizId });
-        builder.Entity<UserQuizAnswer>().HasIndex(ub => new { ub.UserId, ub.LessonId });
+        builder.Entity<UserQuizAnswer>().HasKey(ub => new { ub.UserId, ub.QuizId });
+        builder.Entity<UserQuizAnswer>().HasIndex(ub => new { ub.LessonId, ub.UserId });
         builder.Entity<MeetingSession>().HasIndex(s => s.CourseId);
     }
 }

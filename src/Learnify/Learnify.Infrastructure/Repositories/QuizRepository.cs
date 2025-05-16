@@ -1,5 +1,7 @@
-﻿using Learnify.Core.Domain.Entities.NoSql;
+﻿using AutoMapper;
+using Learnify.Core.Domain.Entities.NoSql;
 using Learnify.Core.Domain.RepositoryContracts;
+using Learnify.Core.Dto.Course.QuizQuestion;
 using Learnify.Infrastructure.Data.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -9,10 +11,13 @@ namespace Learnify.Infrastructure.Repositories;
 public class QuizRepository : IQuizRepository
 {
     private readonly IMongoAppDbContext _context;
+    private readonly IMapper _mapper;
 
-    public QuizRepository(IMongoAppDbContext context)
+    public QuizRepository(IMongoAppDbContext context,
+        IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<QuizQuestion>> GetQuizzesByLessonIdAsync(string lessonId,
@@ -31,40 +36,37 @@ public class QuizRepository : IQuizRepository
         return lessonWithQuizzes?.Quizzes;
     }
 
-    public async Task<QuizQuestion> CreateAsync(QuizQuestion quiz, string lessonId,
+    public async Task<QuizQuestion> CreateAsync(QuizQuestionAddOrUpdateRequest quizRequest,
         CancellationToken cancellationToken = default)
     {
+        var quiz = _mapper.Map<QuizQuestion>(quizRequest);
         quiz.Id = ObjectId.GenerateNewId().ToString();
-        // Fetch the existing lesson from MongoDB
-        var filter = Builders<Lesson>.Filter.Eq(l => l.Id, lessonId);
+        
+        var filter = Builders<Lesson>.Filter.Eq(l => l.Id, quizRequest.LessonId);
         var update = Builders<Lesson>.Update.Push(l => l.Quizzes, quiz);
 
-        // Execute the update and return the updated document
         var options = new FindOneAndUpdateOptions<Lesson>
         {
             Projection = Builders<Lesson>.Projection.Slice(l => l.Quizzes, -1),
-            ReturnDocument = ReturnDocument.After // Return the updated document
+            ReturnDocument = ReturnDocument.After
         };
 
         var updatedLesson = await _context.Lessons.FindOneAndUpdateAsync(filter, update, options, cancellationToken);
 
-        // Extract the newly added quiz (or check the whole array if needed)
         var addedQuiz = updatedLesson?.Quizzes?.FirstOrDefault();
 
         return addedQuiz;
     }
 
-    public async Task<QuizQuestion> UpdateAsync(QuizQuestion quiz, string lessonId,
+    public async Task<QuizQuestion> UpdateAsync(QuizQuestionAddOrUpdateRequest quiz,
         CancellationToken cancellationToken = default)
     {
-        // Filter to find the lesson with the matching quiz
         var filter = Builders<Lesson>.Filter.And(
-            Builders<Lesson>.Filter.Eq(l => l.Id, lessonId),
-            Builders<Lesson>.Filter.ElemMatch(l => l.Quizzes, q => q.Id == quiz.Id)
+            Builders<Lesson>.Filter.Eq(l => l.Id, quiz.LessonId),
+            Builders<Lesson>.Filter.ElemMatch(l => l.Quizzes, q => q.Id == quiz.QuizId)
         );
 
-        // Update using the positional operator '$'
-        var update = Builders<Lesson>.Update.Set("Quizzes.$", quiz);
+        var update = Builders<Lesson>.Update.Set("Quizzes.$.Question", quiz.Question);
 
         var options = new FindOneAndUpdateOptions<Lesson>
         {
@@ -74,8 +76,7 @@ public class QuizRepository : IQuizRepository
         var updatedLesson = await _context.Lessons
             .FindOneAndUpdateAsync(filter, update, options, cancellationToken);
 
-        // Extract the updated quiz from the updated lesson
-        var result = updatedLesson?.Quizzes?.FirstOrDefault(q => q.Id == quiz.Id);
+        var result = updatedLesson?.Quizzes?.FirstOrDefault(q => q.Id == quiz.QuizId);
 
         return result;
     }

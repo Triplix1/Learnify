@@ -5,6 +5,8 @@ import requests
 from dotenv import load_dotenv
 from io import BytesIO
 
+from google.generativeai import GenerationConfig
+
 load_dotenv()
 
 GEMINI_KEY = os.getenv("GEMINI_KEY")
@@ -47,16 +49,15 @@ def get_summary(file_url, mime_type, language):
     files = [upload_to_gemini(file_stream, mime_type)]
     wait_for_files_active(files)
 
-    generation_config = {
-        "temperature": 1,
-        "top_p": 0.95,
-        "top_k": 40,
-        "max_output_tokens": 8192,
-        "response_mime_type": "text/plain",
-    }
+    generation_config = GenerationConfig(
+        temperature = 1,
+        top_p = 0.95,
+        top_k = 40,
+        max_output_tokens = 8192,
+        response_mime_type = "text/plain"
+    )
 
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash-8b",
         generation_config=generation_config,
     )
 

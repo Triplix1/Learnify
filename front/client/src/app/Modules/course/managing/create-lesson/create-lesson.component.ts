@@ -32,6 +32,7 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
   @Input({ required: true }) possibleToCreateNewLesson: boolean = true;
   @Output() possibleToCreateNewLessonChange = new EventEmitter<boolean>();
   @Output() onUpdate: EventEmitter<LessonTitleResponse> = new EventEmitter<LessonTitleResponse>(null);
+  @Output() lessonSaved: EventEmitter<void> = new EventEmitter<void>(null);
 
   initialLessonId: string;
   lessonResponse: LessonUpdateResponse;
@@ -167,6 +168,7 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
           response => {
             this.handleLessonUpdate(response.data);
             this.possibleToCreateNewLessonValue = true;
+            this.lessonSaved.emit();
           },
           error => this.dialog.open(AcceptDialogComponent, {
             width: '450px',

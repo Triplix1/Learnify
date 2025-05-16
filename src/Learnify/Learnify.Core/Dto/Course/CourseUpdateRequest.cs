@@ -9,7 +9,7 @@ public class CourseUpdateRequest: ICourseUpdatable
     public int Id { get; set; }
     [MaxLength(50)]
     public string Name { get; set; }
-    [MaxLength(100)]
+    [MinLength(100)]
     public string Description { get; set; }
     [Range(1, int.MaxValue)]
     public decimal Price { get; set; }

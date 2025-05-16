@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Learnify.Infrastructure.Repositories;
 
-public class UserQuizAnswerRepository: IUserQuizAnswerRepository
+public class UserQuizAnswerRepository : IUserQuizAnswerRepository
 {
     private readonly ApplicationDbContext _context;
     private readonly IQuizRepository _quizRepository;
@@ -22,7 +22,8 @@ public class UserQuizAnswerRepository: IUserQuizAnswerRepository
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<UserQuizAnswerResponse>> GetUserQuizAnswersForLessonAsync(int userId, string lessonId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<UserQuizAnswerResponse>> GetUserQuizAnswersForLessonAsync(int userId, string lessonId,
+        CancellationToken cancellationToken = default)
     {
         var userQuizAnswers = await _context.UserQuizAnswers.Where(a => a.UserId == userId && a.LessonId == lessonId)
             .ToArrayAsync(cancellationToken: cancellationToken);
@@ -30,17 +31,18 @@ public class UserQuizAnswerRepository: IUserQuizAnswerRepository
         return await GetQuizAnswerResponsesForUserQuizzesAsync(lessonId, userQuizAnswers, cancellationToken);
     }
 
-    public async Task<IEnumerable<UserQuizAnswerResponse>> SaveUserAnswersAsync(int userId, string lessonId, IEnumerable<UserQuizAnswerCreateRequest> userQuizAnswerCreateRequests, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<UserQuizAnswerResponse>> SaveUserAnswersAsync(int userId, string lessonId,
+        IEnumerable<UserQuizAnswerCreateRequest> userQuizAnswerCreateRequests,
+        CancellationToken cancellationToken = default)
     {
         var createdEntities = new List<UserQuizAnswer>();
         var updatedEntities = new List<UserQuizAnswer>();
-        
+
         foreach (var userQuizAnswerCreateRequest in userQuizAnswerCreateRequests)
         {
             var existingEntity = await _context.UserQuizAnswers.FindAsync(
             [
-                userId, 
-                lessonId,
+                userId,
                 userQuizAnswerCreateRequest.QuizId
             ], cancellationToken);
 
@@ -57,21 +59,37 @@ public class UserQuizAnswerRepository: IUserQuizAnswerRepository
                 updatedEntities.Add(existingEntity);
             }
         }
-        
+
         _context.UserQuizAnswers.AddRange(createdEntities);
         _context.UserQuizAnswers.UpdateRange(updatedEntities);
         await _context.SaveChangesAsync(cancellationToken);
-        
+
         updatedEntities.AddRange(createdEntities);
-        
+
         return await GetQuizAnswerResponsesForUserQuizzesAsync(lessonId, updatedEntities, cancellationToken);
+    }
+
+    public async Task UpdateUserAnswerLessonIdAsync(string lessonId, string newLessonId,
+        CancellationToken cancellationToken = default)
+    {
+        var quizAnswers = await _context.UserQuizAnswers.Where(a => a.LessonId == lessonId)
+            .ToArrayAsync(cancellationToken: cancellationToken);
+
+        foreach (var quizAnswer in quizAnswers)
+        {
+            quizAnswer.LessonId = newLessonId;
+        }
+        
+        _context.UserQuizAnswers.UpdateRange(quizAnswers);
+
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task RemoveByQuizIdsAsync(IEnumerable<string> quizIds, CancellationToken cancellationToken = default)
     {
         var quizzes = await _context.UserQuizAnswers.Where(a => quizIds.Contains(a.QuizId))
             .ToArrayAsync(cancellationToken);
-        
+
         _context.UserQuizAnswers.RemoveRange(quizzes);
         await _context.SaveChangesAsync(cancellationToken);
     }
@@ -80,7 +98,7 @@ public class UserQuizAnswerRepository: IUserQuizAnswerRepository
         string lessonId, IList<UserQuizAnswer> userQuizAnswers, CancellationToken cancellationToken = default)
     {
         var quizzes = await _quizRepository.GetQuizzesByLessonIdAsync(lessonId, cancellationToken);
-        
+
         var response = new UserQuizAnswerResponse[userQuizAnswers.Count];
 
         for (int i = 0; i < userQuizAnswers.Count; i++)
@@ -97,6 +115,5 @@ public class UserQuizAnswerRepository: IUserQuizAnswerRepository
         }
 
         return response;
-
     }
 }

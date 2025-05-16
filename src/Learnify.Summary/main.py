@@ -57,7 +57,7 @@ def process_video_message(message):
         content_type = msg_data["contentType"]
         language = msg_data["language"]
 
-        print(f"Processing subtitles for video: {video_blob_name}")
+        print(f"Processing summary for video: {video_blob_name} in {language}")
 
         video_url = get_sas_url(video_container, video_blob_name)
 

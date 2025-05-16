@@ -24,6 +24,9 @@ public class BlobStorage : IBlobStorage
     public async Task<bool> DeleteAsync(string containerName, string blobId,
         CancellationToken cancellationToken = default)
     {
+        if (containerName is null || blobId is null)
+            return false;
+
         var blobClient = await GetBlobClientInternalAsync(containerName, blobId, cancellationToken);
 
         return await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);

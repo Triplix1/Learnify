@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Observable, take, takeUntil } from 'rxjs';
+import { numberValidator } from 'src/app/Core/helpers/numberValidator';
 import { CourseService } from 'src/app/Core/services/course.service';
 import { ApiResponseWithData } from 'src/app/Models/ApiResponse';
 import { BaseComponent } from 'src/app/Models/BaseComponent';
@@ -20,6 +21,7 @@ import { PrivateFileDataResponse } from 'src/app/Models/File/PrivateFileDataResp
 import { ParagraphUpdated } from 'src/app/Models/ParagraphUpdated';
 import { SelectorOption } from 'src/app/Models/SelectorOption';
 import { AcceptDialogComponent } from 'src/app/Shared/components/accept-dialog/accept-dialog.component';
+import { StepperComponent } from 'src/app/Shared/components/stepper/stepper.component';
 
 @Component({
   selector: 'app-create-course',
@@ -29,6 +31,7 @@ import { AcceptDialogComponent } from 'src/app/Shared/components/accept-dialog/a
 export class CreateCourseComponent extends BaseComponent {
   @Input() courseId: number = null;
   @ViewChild('lessonTab') myLessonTab: ElementRef;
+  @ViewChild('stepper') stepper!: StepperComponent;
 
   editingMode: boolean = false;
   courseResponse: CourseUpdateResponse = null;
@@ -226,11 +229,12 @@ export class CreateCourseComponent extends BaseComponent {
 
     this.currentLessonEditing = lessonStepAddOrUpdateRequest;
 
-    this.myLessonTab.nativeElement.click();
+    this.goToStep(2);
   }
 
-  private clearLessonTab() {
+  clearLessonTab() {
     this.currentLessonEditing = null;
+    this.goToStep(1);
   }
 
   unpublishedCourse() {
@@ -256,8 +260,12 @@ export class CreateCourseComponent extends BaseComponent {
     this.courseForm = this.fb.group({
       name: [this.courseResponse?.name ?? '', [Validators.required, Validators.maxLength(50)]],
       description: [this.courseResponse?.description ?? '', [Validators.required, Validators.minLength(100)]],
-      price: [this.courseResponse?.price ?? '', [Validators.required, Validators.pattern('^\d+$')]],
+      price: [this.courseResponse?.price ?? '', [Validators.required, numberValidator(), Validators.min(0), Validators.max(10000)]],
       language: this.courseResponse?.primaryLanguage ? Language[this.courseResponse.primaryLanguage as keyof typeof Language] : Language.English,
     });
+  }
+
+  goToStep(index: number) {
+    this.stepper.forceGoToStep(index);
   }
 }

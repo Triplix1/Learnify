@@ -20,6 +20,7 @@ export class CreateQuizComponent implements OnInit {
   }
 
   addQuiz(): void {
+    console.log(this.lessonId);
     this.quizzes.push({ answers: { correctAnswer: 0, options: [""] }, question: "Питання", id: null });
   }
 

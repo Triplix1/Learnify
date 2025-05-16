@@ -69,6 +69,7 @@ public class CourseService : ICourseService
         var filteredCourseParams = new FilterCoursesParams()
         {
             CourseParams = courseParams,
+            PublishedOnly = false,
             UserId = userId,
         };
 

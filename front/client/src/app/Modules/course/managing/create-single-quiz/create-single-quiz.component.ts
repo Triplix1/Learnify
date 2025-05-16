@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { debounceTime, take } from 'rxjs';
 import { QuizService } from 'src/app/Core/services/quiz.service';
 import { CurrentLessonUpdatedResponse } from 'src/app/Models/Course/Lesson/CurrentLessonUpdatedResponse';
+import { AnswersUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswersUpdateResponse';
 import { QuizQuestionAddOrUpdateRequest } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionAddOrUpdateRequest';
 import { QuizQuestionUpdatedResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionUpdatedResponse';
 import { QuizQuestionUpdateResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/QuizQuestionUpdateResponse';
@@ -53,7 +54,7 @@ export class CreateSingleQuizComponent implements OnInit {
 
   initializeForm(quiz: QuizQuestionUpdateResponse) {
     this.quizForm = this.fb.group({
-      question: [quiz?.question ?? '', [Validators.required]],
+      question: [quiz?.question ?? '', [Validators.required, Validators.maxLength(100)]],
     });
   }
 
@@ -108,5 +109,9 @@ export class CreateSingleQuizComponent implements OnInit {
 
   handleLessonUpdate(lessonUpdated: CurrentLessonUpdatedResponse) {
     this.lessonUpdated.emit(lessonUpdated);
+  }
+
+  handleAnswersUpdate(answersUpdateResponse: AnswersUpdateResponse) {
+    this.quiz.answers = answersUpdateResponse;
   }
 }

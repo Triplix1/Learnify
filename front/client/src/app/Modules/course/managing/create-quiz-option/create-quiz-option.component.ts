@@ -20,7 +20,7 @@ export class CreateQuizOptionComponent implements OnInit {
 
   ngOnInit(): void {
     this.answerForm = this.fb.group({
-      answer: [this.answer ?? '', [Validators.required]],
+      answer: [this.answer ?? '', [Validators.required, Validators.maxLength(100)]],
     });
     this.initialValue = this.answer;
   }
