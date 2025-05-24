@@ -25,7 +25,7 @@ export class TextareaComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit(): void {
     this.oldValue = this.ngControl.value;
-    this.ngControl.valueChanges.pipe(debounceTime(500)).subscribe(value => {
+    this.ngControl.valueChanges.pipe(debounceTime(1000)).subscribe(value => {
       if (this.ngControl.valid && this.oldValue !== value)
         this.changedTextarea.emit(value);
       this.oldValue = value;
@@ -44,6 +44,6 @@ export class TextareaComponent implements ControlValueAccessor, OnInit {
 
   changed() {
     if (this.ngControl.valid && this.ngControl.dirty)
-      of(this.ngControl.value).pipe(debounceTime(500)).subscribe(value => this.changedTextarea.emit(value));
+      of(this.ngControl.value).pipe(debounceTime(1000)).subscribe(value => this.changedTextarea.emit(value));
   }
 }

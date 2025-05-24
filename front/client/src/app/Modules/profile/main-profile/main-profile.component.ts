@@ -118,7 +118,7 @@ export class MainProfileComponent extends BaseComponent implements OnInit {
       role: userType
     };
 
-    this.profileService.updateUserRole(userTypeUpdateRequest).subscribe(
+    this.profileService.updateUserRole(userTypeUpdateRequest).pipe(take(1), takeUntil(this.destroySubject)).subscribe(
       response => this.handleUserTypeUpdate(response.data),
       error => {
         this.userTypeFormControl.setValue(this.initialForm);

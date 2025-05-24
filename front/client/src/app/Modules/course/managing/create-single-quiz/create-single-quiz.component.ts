@@ -37,7 +37,7 @@ export class CreateSingleQuizComponent implements OnInit {
       this.save(this.quizUpdateRequest);
     }
 
-    this.quizForm.valueChanges.pipe(debounceTime(500)).subscribe(value => {
+    this.quizForm.valueChanges.pipe(debounceTime(1000)).subscribe(value => {
       if (this.quizForm.valid && this.quizUpdateRequest.question != value)
         this.saveForm();
     })

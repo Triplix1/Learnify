@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { switchMap, take } from 'rxjs';
+import { switchMap, take, takeUntil } from 'rxjs';
 import { AdminsDeepLinkingService } from 'src/app/Core/services/admins-deep-linking.service';
 import { AdminsService } from 'src/app/Core/services/admins.service';
 import { AuthorizationUseDeepLinkingService } from 'src/app/Core/services/authorization-use-deep-linking.service';
 import { NavigationService } from 'src/app/Core/services/navigation.service';
+import { BaseComponent } from 'src/app/Models/BaseComponent';
 import { UserType } from 'src/app/Models/enums/UserType';
 import { AdminsListParams } from 'src/app/Models/Params/AdminsListParams';
 import { PagedListParams } from 'src/app/Models/Params/PagedListParams';
@@ -16,7 +17,7 @@ import { ProfileResponse } from 'src/app/Models/Profile/ProfileResponse';
   templateUrl: './admins-managing.component.html',
   styleUrls: ['./admins-managing.component.scss']
 })
-export class AdminsManagingComponent {
+export class AdminsManagingComponent extends BaseComponent {
   paginatedAdmins: ProfileResponse[];
   totalItems: number = 0;
   adminsListParams: AdminsListParams;
@@ -28,7 +29,9 @@ export class AdminsManagingComponent {
     private router: Router,
     private navigationService: NavigationService,
     private urlSerializer: UrlSerializer,
-    private toastrService: ToastrService) { }
+    private toastrService: ToastrService) {
+    super();
+  }
 
   ngOnInit(): void {
     this.navigationService.setupPopstateListener(() => {
@@ -66,7 +69,7 @@ export class AdminsManagingComponent {
   }
 
   deleteModerator(id: number) {
-    this.adminsService.delete(id).pipe(take(1),
+    this.adminsService.delete(id).pipe(take(1), takeUntil(this.destroySubject),
       switchMap(
         deleted => {
           const moderatorsParamsClone = { ...this.adminsListParams };

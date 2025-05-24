@@ -2,12 +2,13 @@ import { Component, Input } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { take } from 'rxjs';
+import { take, takeUntil } from 'rxjs';
 import { lettersOnlyValidator } from 'src/app/Core/helpers/lettersOnlyValidator';
 import { AdminsService } from 'src/app/Core/services/admins.service';
 import { AuthService } from 'src/app/Core/services/auth.service';
 import { AuthorizationDeepLinkingService } from 'src/app/Core/services/authorization-deep-linking.service';
 import { ModeratorsService } from 'src/app/Core/services/morderators.service';
+import { BaseComponent } from 'src/app/Models/BaseComponent';
 import { UserType } from 'src/app/Models/enums/UserType';
 import { AcceptDialogComponent } from 'src/app/Shared/components/accept-dialog/accept-dialog.component';
 
@@ -16,7 +17,7 @@ import { AcceptDialogComponent } from 'src/app/Shared/components/accept-dialog/a
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent {
+export class RegisterComponent extends BaseComponent {
   @Input() role: string;
   registerForm: FormGroup = new FormGroup({});
   returnUrl: string | undefined;
@@ -28,13 +29,15 @@ export class RegisterComponent {
     private readonly fb: FormBuilder,
     private readonly router: Router,
     private route: ActivatedRoute,
-    private readonly dialog: MatDialog) { }
+    private readonly dialog: MatDialog) {
+    super();
+  }
 
   ngOnInit(): void {
     this.initializeForm();
     this.returnUrl = this.authorizationService.getReturnUrl();
 
-    this.registerForm.get('password')?.valueChanges.subscribe(() => {
+    this.registerForm.get('password')?.valueChanges.pipe(takeUntil(this.destroySubject)).subscribe(() => {
       this.registerForm.get('confirmPassword')?.updateValueAndValidity();
     });
 

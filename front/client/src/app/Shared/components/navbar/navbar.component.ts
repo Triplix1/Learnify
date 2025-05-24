@@ -45,10 +45,11 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     this.initializeDropdown();
     this.userData = userData;
 
-    if (userData.role === UserType.Moderator) {
-      this.dropdownItems.unshift({ itemText: "Оплати", link: "/payments" });
+    if (!userData) {
+      return;
     }
-    else if (userData.role === UserType.Teacher) {
+
+    if (userData.role === UserType.Teacher) {
       this.dropdownItems.unshift({ itemText: "Створити", link: "/course/managing" });
     }
     else if (userData.role === UserType.Admin || userData.role === UserType.SuperAdmin) {

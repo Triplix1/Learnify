@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { take } from 'rxjs';
+import { take, takeUntil } from 'rxjs';
 import { QuizService } from 'src/app/Core/services/quiz.service';
+import { BaseComponent } from 'src/app/Models/BaseComponent';
 import { AnswersValidateRequest } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/AnswersValidateRequest';
 import { QuizItem } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/QuizItem';
 import { QuizValidateRequest } from 'src/app/Models/Course/Lesson/QuizQuestion/Anwers/QuizValidateRequest';
@@ -13,11 +14,13 @@ import { QuizQuestionResponse } from 'src/app/Models/Course/Lesson/QuizQuestion/
   templateUrl: './quizzes.component.html',
   styleUrls: ['./quizzes.component.scss']
 })
-export class QuizzesComponent {
+export class QuizzesComponent extends BaseComponent {
   @Input({ required: true }) lessonId: string;
   @Input({ required: true }) quizzes: QuizQuestionResponse[];
 
-  constructor(private readonly quizService: QuizService) { }
+  constructor(private readonly quizService: QuizService) {
+    super();
+  }
 
   get allAnswersSpecified() {
     return this.quizzes.every(l => l.userAnswer?.answerIndex !== null && l.userAnswer?.answerIndex !== undefined);
@@ -38,7 +41,7 @@ export class QuizzesComponent {
         quizValidateRequests: quizCheckRequests
       };
 
-      this.quizService.check(answerValidateRequest).pipe(take(1)).subscribe(response => {
+      this.quizService.check(answerValidateRequest).pipe(take(1), takeUntil(this.destroySubject)).subscribe(response => {
         this.handleUserQuizAnswerResponseUpdate(response.data);
       })
     }

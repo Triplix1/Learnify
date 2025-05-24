@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { BehaviorSubject, map, take, takeUntil } from 'rxjs';
+import { BehaviorSubject, map, pipe, take, takeUntil } from 'rxjs';
 import { convertBlobToText } from 'src/app/Core/helpers/fileHelper';
 import { LessonService } from 'src/app/Core/services/lesson.service';
 import { MediaService } from 'src/app/Core/services/media.service';
@@ -49,7 +49,7 @@ export class CourseStudyLessonComponent extends BaseComponent implements OnChang
         return this.transcriptions.get(transcriptionFileId);
       }
 
-      this.mediaService.getFile(transcriptionFileId).pipe(response =>
+      this.mediaService.getFile(transcriptionFileId).pipe(take(1), takeUntil(this.destroySubject)).pipe(response =>
         response.pipe(map(blob => convertBlobToText(blob)))
       ).subscribe(
         response => {
@@ -89,7 +89,7 @@ export class CourseStudyLessonComponent extends BaseComponent implements OnChang
       this.loadingSummary = true;
       this.spinnerService.show('summaryLoading');
 
-      this.mediaService.getFile(this.lesson.video?.summaryFileId).subscribe(
+      this.mediaService.getFile(this.lesson.video?.summaryFileId).pipe(take(1), takeUntil(this.destroySubject)).subscribe(
         async blob => {
           const text = await blob.text();
           this.summaryText$.next(text);

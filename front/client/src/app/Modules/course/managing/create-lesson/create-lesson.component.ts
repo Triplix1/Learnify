@@ -2,7 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, of, switchMap, take, takeUntil } from 'rxjs';
+import { Observable, of, pipe, switchMap, take, takeUntil } from 'rxjs';
 import { convertStringToLanguage } from 'src/app/Core/helpers/lessonHelper';
 import { LessonService } from 'src/app/Core/services/lesson.service';
 import { MediaService } from 'src/app/Core/services/media.service';
@@ -77,7 +77,7 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
     this.possibleToCreateNewLessonValue = true;
 
     if (!this.currentLessonEditing.id) {
-      this.lessonService.saveDraft({ id: null, editedLessonId: null, primaryLanguage: this.lessonForm.controls["language"].value, paragraphId: this.currentLessonEditing.paragraphId, title: null, video: null }).pipe(take(1))
+      this.lessonService.saveDraft({ id: null, editedLessonId: null, primaryLanguage: this.lessonForm.controls["language"].value, paragraphId: this.currentLessonEditing.paragraphId, title: null, video: null }).pipe(take(1), takeUntil(this.destroySubject))
         .subscribe(response => {
           this.handleLessonUpdate(response.data);
         })
@@ -118,7 +118,7 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
         const lessonAddOrUpdateRequest = this.prepareLessonToUpdateDto();
         lessonAddOrUpdateRequest.video = { attachment: attachment, subtitles: [lessonAddOrUpdateRequest.primaryLanguage] };
 
-        return this.lessonService.saveDraft(lessonAddOrUpdateRequest);
+        return this.lessonService.saveDraft(lessonAddOrUpdateRequest).pipe(take(1), takeUntil(this.destroySubject));
       })
     )
       .subscribe(response => {
@@ -144,7 +144,7 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
   saveDraft(lessonAddOrUpdateRequest: LessonAddOrUpdateRequest) {
     this.possibleToCreateNewLessonValue = false;
 
-    this.lessonService.saveDraft(lessonAddOrUpdateRequest).pipe(take(1))
+    this.lessonService.saveDraft(lessonAddOrUpdateRequest).pipe(take(1), takeUntil(this.destroySubject))
       .subscribe(response => {
         this.handleLessonUpdate(response.data);
         this.possibleToCreateNewLessonValue = true;
@@ -190,7 +190,7 @@ export class CreateLessonComponent extends BaseComponent implements OnChanges {
         }
       });
 
-      dialogRef.afterClosed().subscribe(result => {
+      dialogRef.afterClosed().pipe(take(1)).subscribe(result => {
         if (result) {
           this.lessonService.deleteLesson(this.lessonResponse.id).pipe(take(1), switchMap(_ => {
             if (this.initialLessonId)
