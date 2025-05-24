@@ -3,7 +3,7 @@
 names_map = {'english': 'en', 'french': 'fr', 'spanish': 'es', 'ukrainian': 'uk',}
 
 
-def split_text(text, max_length=4999):
+def split_text(text, max_length=2999):
     lines = text.splitlines()
     chunks = []
     current_chunk = ""
