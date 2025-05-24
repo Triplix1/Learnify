@@ -54,11 +54,10 @@
               <div class="mx-auto w-11/12 my-2 h-[2px] bg-slate-800"></div>
 
               <div class="flex items-center justify-center mt-2">
-                     <app-button class="mr-3"
-                                 (buttonClick)="save()">Зберегти</app-button>
+                     <app-button (buttonClick)="save()">Зберегти</app-button>
                      <app-button *ngIf="lessonResponse.originalLessonId"
                                  type="cancel"
-                                 classList="rounded-lg"
+                                 classList="rounded-lg ml-3"
                                  (buttonClick)="cancel()">Відмінити</app-button>
               </div>
 
